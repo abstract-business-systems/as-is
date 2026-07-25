@@ -1,0 +1,59 @@
+#!/bin/bash
+# commit-msg hook — enforce Conventional Commits subject-only convention.
+# Repo history uses one-line commits (subject, no body). This hook rejects
+# messages that drift from that pattern so the convention stays machine-
+# readable and grep-friendly.
+#
+# Pattern: <type>(<scope>): <subject>
+#   type  — feat|fix|chore|docs|refactor|perf|test|style
+#   scope — lowercase + hyphens (e.g. entity-building, dvc, agents)
+#   subject — imperative mood, <=250 chars
+#
+# Bodies are allowed but discouraged; the handoff/backlog carry the
+# narrative. If a body is present, the first paragraph after the blank
+# separator must still satisfy the subject rule above.
+
+set -eo pipefail
+
+commit_msg_file="$1"
+first_line=$(head -n 1 "$commit_msg_file")
+
+# Skip merge commits — they have a fixed format git generates.
+if [[ "$first_line" == Merge\ * ]]; then
+	exit 0
+fi
+
+# Skip revert commits — git generates the subject.
+if [[ "$first_line" == Revert\ * ]]; then
+	exit 0
+fi
+
+pattern='^(feat|fix|chore|docs|refactor|perf|test|style)\([a-z][a-z0-9-]*\): .+'
+if ! [[ "$first_line" =~ $pattern ]]; then
+	cat >&2 <<'EOF'
+[commit-msg] ✗ Commit subject must match: <type>(<scope>): <subject>
+
+  type:    feat | fix | chore | docs | refactor | perf | test | style
+  scope:   lowercase, digits, hyphens (e.g. entity-building, dvc, agents)
+  subject: imperative mood, brief
+
+Examples:
+  feat(entity-building): land Phase 4 batched follow-up fanout
+  fix(dvc): auto-track staged binaries with single dvc add
+  docs(parser): record signal key grammar for errors/routes/maps keys
+
+Repo convention is one-line commits; the handoff and backlog carry
+the long-form narrative. See git log --oneline for prior art.
+EOF
+	exit 1
+fi
+
+# Subject length check (loose upper bound — well past git's 72 soft
+# limit, but blocks runaway single-line essays).
+subject_len=${#first_line}
+if (( subject_len > 250 )); then
+	>&2 printf '[commit-msg] ✗ Subject is %d chars; keep <=250.\n' "$subject_len"
+	exit 1
+fi
+
+exit 0

@@ -1,0 +1,14 @@
+#!/bin/bash
+# DVC post-merge hook
+# Uses deployed shared store if available, falls back to local source tree.
+# This allows the hook to work before `seed deploy dvc` has been run.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+DVC_STORE="${SHARED_STORE:-/shared/store}/dvc"
+if [ -d "${DVC_STORE}/hooks" ]; then
+	exec "${DVC_STORE}/hooks/post-merge.sh" "$@"
+else
+	exec "${REPO_ROOT}/content/packages/dvc/hooks/post-merge.sh" "$@"
+fi
+

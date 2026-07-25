@@ -1,0 +1,95 @@
+# Ignores
+## General
+.*
+*.bak
+
+## Dev
+!.vscode
+.vscode/*.json
+!.vscode/launch.json
+!.vscode/settings.base.json
+!.vscode/extensions.json
+!.vscode/mcp.json
+!.editorconfig
+!cspell.json
+!.dockerignore
+
+# Excludes
+# Add exclusions here.
+
+## General
+!.git*
+!.gitattributes
+!.dvcignore
+!.ai
+!.github
+!.opencode
+!.opencode/**
+!.kilo
+!.kilo/agent/
+!.kilo/command/
+!.kilo/instructions/
+.pi/*
+!.pi
+!.pi/settings.json
+!.pi/models.json
+!.pi/mcp.json
+!.pi/extensions/
+!.devcontainer
+!.devcontainer/devcontainer-config.json
+.devcontainer/devcontainer-config.local.json
+
+## GenAI Asset System
+.env
+!.env.example
+.secrets/
+!.dvc
+.dvc/tmp
+.dvc/cache
+.dvc/.gitignore
+logs/
+!.agents
+!.agents/**
+
+## Stack
+# Node.js
+!.nvmrc
+
+# Python
+!.python-version
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp.*
+.yarn-integrity
+
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+## Testing & Temporary
+temp/
