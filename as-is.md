@@ -8,8 +8,11 @@ config:
       costUsd: 0.20
   scheduling:
     wakeSeconds: 60
+    checkInSeconds: 300
     maxConcurrentTasks: 1
     retryBackoffSeconds: 300
+  notifications:
+    materialEvents: true
   agents:
     defaultRole: implementer
   technology-preferences:
@@ -25,15 +28,15 @@ config:
 
 task:
   status: completed
-  updated: 2026-07-26T14:09:10Z
+  updated: 2026-07-26T14:12:02Z
 ---
 
 # as-is Project
 
 ## Current Task
 
-Add a clean user-facing primary agent and project technology preferences before
-beginning Increment 3.
+Define Increment 3 user check-ins and control without implementing a scheduler,
+runtime notification transport, or host adapter.
 
 ## Purpose
 
@@ -47,12 +50,17 @@ Permanent implementation references:
 
 ## Acceptance Criteria
 
-- A primary `as-is` agent keeps the user-facing chat focused on intent, status,
-  and delegation rather than implementation details.
-- Project technology preferences are centrally available during foundation work
-  without becoming mandatory constraints.
-- The initial preference directs new foundations to use Bun as runtime and
-  package manager when it fits the component requirement and existing patterns.
+- `orchestration-design.md` defines a configurable periodic check-in interval
+  derived from durable task timestamps, without conflating it with execution
+  budgets.
+- The design defines immediate notifications for delegation, blocking, budget
+  risk or exhaustion, completion, failure, cancellation, and approval-required
+  external effects, with each event observable from durable task state.
+- The design defines a query response containing active and delegated tasks,
+  status, budget use and observation source, blockers, required decisions, and
+  next check-in, without reading worker-private runtime state.
+- The design defines bounded user control for direction, approval, and
+  cancellation through the orchestrator, with durable status/checkpoint updates.
 
 ## Progress
 
@@ -64,6 +72,12 @@ Permanent implementation references:
   `.agents` before integrating the root configuration and guidance changes.
 - The configured implementer completed the `.agents` child handoff in
   `ddd9227` (`feat(agents): add as-is primary agent`).
+- Increment 3 was handled at the root because its acceptance conditions are
+  a cross-cutting durable design contract; no component implementation or child
+  delegation is required.
+- Added the minimal effective configuration surface: `config.scheduling.checkInSeconds`
+  and `config.notifications.materialEvents`. The design records why these are
+  needed and keeps enforcement for later increments.
 
 ## Decisions
 
@@ -85,6 +99,15 @@ Permanent implementation references:
 - Technology preferences guide foundation choices only. A component follows an
   applicable higher-authority requirement and established local pattern first;
   a material departure from a preference is recorded with its reason.
+- Check-in timing is a durable observation schedule, not a worker execution
+  budget. `task.updated` plus the configured interval derives the next due time.
+- Material events are reported from durable transitions and state fields rather
+  than a new private event log, preserving recovery through task records alone.
+- Query responses expose only root and component task records. Unavailable host
+  measurements remain unavailable and are never represented as zero or as an
+  estimate.
+- User direction, approval, and cancellation are orchestrator-routed controls;
+  queries are read-only and controls cannot weaken higher-authority constraints.
 
 ## Blockers
 
@@ -93,6 +116,8 @@ Permanent implementation references:
   cost.
 - Actual component cost and host-observed wall-clock use remain unavailable from
   the current OpenCode adapter.
+- No Increment 3 blocker. Runtime scheduling, notification delivery, and control
+  enforcement are intentionally deferred to Increments 4 and 5.
 
 ## Validation
 
@@ -107,18 +132,34 @@ Permanent implementation references:
   `default_agent` to `as-is`.
 - Residual risk: existing interactive OpenCode sessions retain their startup
   configuration and must be restarted before they select the new default.
+- Structural review: the Increment 3 contract was checked against the existing
+  task-record fields and orchestration sequence. It uses `task.updated`, status,
+  budget, blockers, approval, result, and next-action state rather than adding a
+  runtime artifact or host-specific rule.
+- Scope review: no component records were created or changed; no descendant
+  work was needed. `git diff --check` passed for the documentation changes.
+- Residual risk: no runtime scheduler or host notification observation exists
+  yet; those are explicit Increment 4/5 acceptance conditions.
 
 ## Result
 
-- Added the user-facing `as-is` primary agent. It summarizes durable status and
-  results, while delegating substantive bounded work to `orchestrator`.
-- Selected `as-is` as the OpenCode default agent and recorded the host-specific
-  mapping without changing the orchestrator's durable-record authority.
-- Added root `config.technology-preferences` with Bun as the preferred runtime
-  and package manager, and made that preference centrally available for
-  foundation work through repository guidance.
+- Increment 3 design is complete: periodic check-ins, material-event
+  notifications, record-only query responses, and bounded user controls are
+  defined in `orchestration-design.md` and this current task context.
+- No delegated task IDs or component handoffs exist for Increment 3 because the
+  smallest satisfying change is at the root design/configuration boundary.
+
+## Recovery
+
+- Last durable checkpoint: Increment 3 requirements and design contract recorded
+  at the root; no child task is active.
+- Incomplete work: none for this increment. Runtime implementation remains
+  intentionally deferred.
+- Cleanup required: none.
+- Next safe action: begin Increment 4 from the host-neutral execution-contract
+  requirements in `orchestration-design.md`.
 
 ## Next Action
 
-Begin Increment 3 only after recording its bounded check-in and control
-requirements in this root task context.
+Begin Increment 4 from the host-neutral execution-contract requirements in
+`orchestration-design.md`; no Increment 3 recovery action remains.

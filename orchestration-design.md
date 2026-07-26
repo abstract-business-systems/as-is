@@ -173,6 +173,40 @@ See `configuration.md` for the superseded JSON-manifest design,
   the orchestrator delegates recovery to the configured worker identified in the
   record, rather than relying on an independent generic recovery process.
 
+### User Check-Ins And Control
+
+- The root project context configures a periodic check-in interval under
+  `config.scheduling.checkInSeconds`. The interval is a positive duration and
+  applies to the orchestrator's durable observation cycle; it does not grant a
+  worker additional execution time or replace the task wall-clock budget.
+- A check-in is due when the configured interval has elapsed from the latest
+  durable checkpoint represented by `task.updated`. The next due time is derived
+  from that timestamp and the effective interval, so it remains recoverable
+  without a private scheduler or session cache. A host may wake earlier for a
+  material event.
+- Material-event notification is enabled by the root
+  `config.notifications.materialEvents` setting. When enabled, the
+  orchestrator immediately reports delegation, blocking, budget risk or
+  exhaustion, completion, failure, cancellation, and approval-required external
+  effects. The event is observable from the durable task status, checkpoint,
+  blocker or approval text, budget fields, child record, and next action; a
+  private event log is not authoritative.
+- User queries are answered from the root and component `as-is.md` records only.
+  A response reports active tasks, delegated tasks, each task's status and
+  configured worker, budget allocation and observed use (including unavailable
+  sources), blockers, required decisions or approvals, and the next check-in.
+  It does not inspect worker-private runtime state and must distinguish missing
+  observations from zero use.
+- Control is routed through the orchestrator. A user may provide direction,
+  approve a recorded external effect, or cancel a task; the orchestrator records
+  the resulting durable checkpoint and status transition before reporting it.
+  A query is read-only, and no control action silently weakens higher-authority
+  constraints or changes the active configuration snapshot.
+- If no task is active, a query reports that state and no next check-in rather
+  than inferring activity from transient host sessions. A blocked or
+  approval-waiting task remains visible until a durable decision or recovery
+  transition is recorded.
+
 ### Minimal Execution Envelope
 
 The minimal dogfood path uses an orchestrator role and an implementer role. Both
@@ -312,7 +346,7 @@ implementing or validating a host mapping.
 
 ## Suggested Next Discussion
 
-Begin the second implementation increment: define the central execution envelope
-and bounded delegation mechanics, then create and dogfood minimal orchestrator
-and worker agent configurations on one harmless self-hosting task. Keep common
-policy and private runtime state out of component records.
+Begin the fourth implementation increment: define the host-neutral execution
+contract for launching, resuming, observing, questioning, cancelling, and
+recovering a worker. Keep check-in timing, material-event semantics, and query
+authority independent of the selected host adapter.
