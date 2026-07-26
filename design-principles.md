@@ -73,6 +73,12 @@ choices. A lower-authority setting cannot weaken a higher-authority constraint.
   advanced controls only when they become relevant.
 - **Evidence over assertion:** Ground actions, completion claims, and exceptions
   in observable evidence.
+- **Execution-model fit:** Identify whether a flow is deterministic or
+  nondeterministic, and implement it accordingly. Use deterministic mechanisms
+  for policy enforcement, state transitions, boundaries, budgets, and validation
+  gates; treat generative or probabilistic work as a proposal that requires
+  explicit constraints, observable validation, and durable evidence before it
+  drives a consequential transition.
 - **Self-hosting consistency:** `as-is` uses its own skills and principles to
   establish and improve itself, and periodically checks that implementation and
   stated principles remain aligned.

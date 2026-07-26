@@ -68,6 +68,12 @@ acceptance:
   become blocked, await approval, complete, fail, or be cancelled; blocked,
   approval-waiting, and failed work may return to active through recovery. A
   completed or cancelled record is replaced only when a new bounded task starts.
+- `task.updated` is an RFC 3339 UTC timestamp recorded at each material status
+  transition or durable checkpoint. It supports ordering, stale-work detection,
+  recovery, and scheduled check-ins; it is neither execution-duration evidence
+  nor a substitute for validation evidence. The root authored record may retain
+  additional project configuration, but uses the same timestamp meaning for its
+  current task.
 - `worker` identifies the configured agent used for normal execution and
   recovery. It is not a claim, a lease, a session identifier, or a guarantee
   that the same runtime instance will be available.
@@ -120,6 +126,19 @@ The responsible orchestrator may schedule siblings concurrently only after
 verifying that their declared file, input, and budget boundaries are independent.
 The parent later reads child records, composes their results, and performs any
 required integration validation.
+
+A terminal child has status `completed`, `failed`, or `cancelled`. A parent may
+become `completed` only when every descendant is terminal, its own acceptance
+conditions are satisfied, and its result explicitly accounts for every failed or
+cancelled descendant. An active, blocked, or awaiting-approval descendant keeps
+every ancestor non-completed. The responsible worker or orchestrator validates
+this closure before changing a record to `completed`.
+
+After a record qualifies for completion, invoke
+`committing-completed-work`. The procedure stages only the completed task's
+declared scoped changes and its task record, commits the durable handoff, and
+leaves unrelated work untouched. A failed commit leaves the task non-completed
+and records the failure for recovery.
 
 On interruption, the orchestrator rereads the component record and delegates it
 to the configured worker. That worker decides whether to continue an atomic

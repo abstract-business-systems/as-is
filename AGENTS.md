@@ -24,8 +24,10 @@ directories use lowercase kebab-case unless a host requires an exact filename.
 
 ## Guard Clauses
 
-- Do not commit, amend, push, create pull requests, change branches, or alter
-  remotes unless the user explicitly requests it in the current turn.
+- Do not amend, push, create pull requests, change branches, or alter remotes
+  unless the user explicitly requests it in the current turn. When a component
+  task qualifies for completion, commit its scoped durable handoff using
+  `committing-completed-work`; do not stage unrelated work.
 - Do not put credentials, tokens, passwords, or other secrets in tracked files,
   generated artifacts, prompts, or durable agent context.
 - Do not modify files outside the repository or contact external services
@@ -68,6 +70,10 @@ directories use lowercase kebab-case unless a host requires an exact filename.
   request bounded child delegation; the responsible orchestrator may run
   independent siblings concurrently when their declared boundaries do not
   overlap.
+- A task record may become `completed` only after every descendant record is in
+  a terminal state and its own acceptance conditions account for each cancelled
+  or failed descendant. Commit the scoped completed handoff before reporting the
+  task complete to its parent or the user.
 - Use an independent reviewer or validator when risk, authority, or change
   breadth warrants it. The implementing agent's report is evidence, not the
   sole completion gate.

@@ -157,6 +157,8 @@ that govern this catalog and its implementation.
   useful confidence.
 - **Verification discipline:** Match validation depth to risk, from lightweight
   checks through end-to-end or operational validation.
+- **Completion committing:** Create a scoped, validated version-control handoff
+  when a task and all of its descendants are eligible for completion.
 
 ## Communication and Coordination
 

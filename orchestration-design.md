@@ -88,6 +88,9 @@ See `agent-skills.md` for the current taxonomy and definitions.
 - A progress marker indicates a bounded unit of work handled by one worker at a
   point in time. Worker planning, task management, and delegation procedures are
   supplied as skills rather than duplicated in the record schema.
+- A record becomes completed only after its descendants are terminal and its
+  acceptance evidence accounts for any failed or cancelled child. Its scoped
+  durable handoff is committed before the completion is reported upward.
 - Target task size is a micro-task: a few minutes of wall-clock work and a
   budget on the order of a couple of dimes. Exact limits remain configurable.
 
@@ -143,6 +146,45 @@ See `configuration.md` for the superseded JSON-manifest design,
 - Recovery is based on understanding the task record. If work is interrupted,
   the orchestrator delegates recovery to the configured worker identified in the
   record, rather than relying on an independent generic recovery process.
+
+### Minimal Execution Envelope
+
+The minimal dogfood path uses a primary `orchestrator` and a subagent
+`implementer`. Both receive repository instructions, applicable design
+principles, and permitted skills as central read-only execution context. The
+component record supplies only its bounded requirement, effective constraints,
+acceptance conditions, file and input boundaries, configured worker, and cost
+allocation.
+
+1. The orchestrator reads the parent context, rejects a lower-authority
+   weakening constraint, and creates a missing child record atomically in
+   `ready` state.
+2. The orchestrator verifies that the child allocation, including its reserve,
+   is within the parent allocation, then delegates the component to the record's
+   configured worker.
+3. The implementer changes only its declared component files, advances the
+   record through its status transition, uses the smallest task-specific checks,
+   and records validation evidence, actual host-reported cost when available,
+   residual risk, recovery state, and next action before handoff.
+4. The orchestrator reads the completed record and performs any required
+   ancestor-level integration, including exposing a newly created repository
+   skill through the host adapter.
+5. The worker or responsible orchestrator uses `committing-completed-work` to
+   commit the completed record and only its scoped changes. A failed commit keeps
+   the record recoverable rather than reporting completion.
+
+The envelope deliberately does not implement scheduling, check-ins, runtime
+session recovery, or a host-neutral lifecycle adapter. Those remain later
+increments. When a host cannot report per-component cost, the record names its
+fallback metric and leaves `spent` as non-actual rather than presenting an
+estimate as a cost.
+
+The later OpenCode adapter should prefer a host subagent when it exposes the
+required lifecycle events, cancellation, and attributable usage. A subagent
+preserves host session linkage and control better than an independently launched
+process, but it does not itself make cost attribution reliable; that remains a
+host measurement capability. A bounded `opencode run` subprocess remains the
+fallback where the host cannot provide the required subagent lifecycle contract.
 
 ### Delegation
 
