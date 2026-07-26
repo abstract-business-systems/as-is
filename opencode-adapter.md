@@ -96,6 +96,40 @@ monotonic duration is evidence for the attempt, but this adapter does not claim
 automatic cumulative budget enforcement or implement Increment 6 retry,
 backoff, stale-task, or worker-replacement policy.
 
+## Increment 6 Recovery Mapping
+
+The host-neutral recovery policy remains authoritative. The OpenCode mapping is
+limited to these host observations and invocation rules:
+
+- The orchestrator reads `task.updated` from the component record in a fresh
+  process and compares it with the effective `checkInSeconds` using its current
+  UTC observation clock. The record timestamp, configuration value, and clock
+  source are retained as the stale decision evidence; a session timestamp is
+  not substituted for `task.updated`.
+- Each recovery attempt uses a fresh bounded
+  `opencode run --format json --agent as-is --dir <project> <request>` and
+  follows the supported `as-is -> orchestrator -> implementer` mediation chain.
+  It rereads the component record rather than replaying a private prompt or
+  requiring a prior OpenCode session.
+- A parent wrapper may stop an attempt at its authorized boundary and report
+  the process status and monotonic duration. Exit status, timeout, absent
+  session, or missing private state is never a completion transition. The
+  orchestrator records the durable checkpoint and cumulative observations
+  before deleting private OpenCode sessions or temporary exports.
+- Backoff and the `maxRecoveryAttempts` bound are orchestrator policy recorded
+  in the task record; this CLI mapping does not claim that OpenCode enforces
+  either one automatically. OpenCode session costs remain model/token-derived
+  observations, and unavailable measurements remain unavailable rather than
+  being estimated.
+- A task event naming `general`, `explore`, an unexpected role, or a direct
+  top-level subagent fallback is an unavailable/wrong-role delegation blocker.
+  A wrong-role fallback is not an approved replacement and cannot silently
+  become one. A replacement requires the explicit durable direction or approval
+  required by the host-neutral policy.
+- Cleanup is limited to private OpenCode sessions, exports, prompts, and timing
+  captures after durable evidence is saved. Component records, declared
+  project artifacts, and evidence required for recovery or audit remain.
+
 ## Increment 5 Mapping
 
 Increment 5 selected the bounded `opencode run` subprocess fallback. The host

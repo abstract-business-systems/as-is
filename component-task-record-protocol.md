@@ -164,3 +164,24 @@ and records the failure for recovery.
 On interruption, the orchestrator rereads the component record and delegates it
 to the configured worker. That worker decides whether to continue an atomic
 partial result, clean it up, or start again.
+
+## Recovery Evidence
+
+Recovery uses the existing body sections rather than private runtime state or a
+new front-matter history field. For each recovery attempt, the responsible
+orchestrator records in `Progress` or `Recovery`:
+
+- the attempt ordinal and durable reason, including the source-labelled stale
+  observation when applicable;
+- the configured worker identity and availability result;
+- cumulative cost and wall-clock observations, remaining allocation, and
+  retained reserve without resetting prior values;
+- the backoff calculation and durable next action before another launch; and
+- the checkpoint, validation result, cleanup boundary, and any named approval
+  or replacement decision.
+
+An unavailable configured worker remains a durable blocker until explicit
+direction or approval names a replacement. A replacement does not erase the
+original worker identity or its failed attempt. A host fallback or wrong-role
+return is not a replacement. Recovery never infers completion from process
+exit, a missing private runtime artifact, or an unlinked host result.

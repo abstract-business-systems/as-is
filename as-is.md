@@ -11,6 +11,7 @@ config:
     checkInSeconds: 300
     maxConcurrentTasks: 1
     retryBackoffSeconds: 300
+    maxRecoveryAttempts: 2
   notifications:
     materialEvents: true
   agents:
@@ -28,10 +29,138 @@ config:
 
 task:
   status: completed
-  updated: 2026-07-26T15:19:12Z
+  updated: 2026-07-26T15:35:44Z
 ---
 
 # as-is Project
+
+## Current Increment 6
+
+### Current Task
+
+Implement Increment 6 recovery and independent validation. Define the
+host-neutral recovery policy for stale active records, bounded retries and
+backoff, cumulative budget preservation, and explicit unavailable-worker
+replacement. Validate it with a harmless interrupted child fixture recovered
+from its durable component record without a model-backed run.
+
+### Purpose
+
+Keep interruption recovery conservative and recoverable: durable component
+records remain authoritative, retries are finite and cumulative, unavailable
+workers cannot be silently substituted, and private runtime state is never a
+completion prerequisite.
+
+### Acceptance Criteria
+
+- The host-neutral contract defines source-labelled stale detection, finite
+  retry and backoff bounds, cumulative cost and wall-clock preservation,
+  record-only recovery, explicit replacement approval, descendant closure, and
+  private-artifact cleanup boundaries.
+- Recovery never resets spent observations, silently changes the configured
+  worker, infers completion from process exit, or produces duplicate durable
+  completion. Wrong-role fallback remains a blocker.
+- `opencode-adapter.md` contains only the necessary OpenCode mapping for the
+  policy and does not claim automatic enforcement absent host evidence.
+- A harmless interrupted child fixture is recovered from its component record
+  after its private runtime state is unavailable, proving status transitions,
+  preserved attempt and budget history, terminal descendant closure, and
+  private-only cleanup.
+- An independent local validation pass checks stale detection, backoff and
+  attempt bounds, cumulative budgets, replacement authorization, descendant
+  accounting, record-only recovery, and cleanup boundaries.
+- The increment uses no more than the configured USD 0.50 unit budget. No
+  model-backed or external validation run is required or authorized.
+
+### Progress
+
+- Increment 6 opened under current-turn user authorization at the configured
+  USD 0.50 unit budget. Historical Increment 5 records remain unchanged and
+  are not retried.
+- This is cross-cutting root integration across the host-neutral contract,
+  task-record protocol, orchestration design, root effective configuration,
+  and OpenCode adapter. No child owns those shared contracts.
+- A new `increment-6-recovery-fixture/as-is.md` record was created atomically
+  in `ready` state for the configured `implementer`, then completed as the
+  bounded child used only for deterministic interrupted-recovery validation.
+- The fixture's durable trace is `active -> blocked -> active -> completed`.
+  Its controlled timeout returned `124`, measured `0.141520954` monotonic
+  seconds, preserved cost `0.00 USD` with source `unavailable`, and removed
+  only its private temporary state.
+- No model-backed invocation, external lookup, or provider billing observation
+  was needed for this increment. The child handoff is committed in
+  `be93087`.
+
+### Decisions
+
+- Existing `checkInSeconds` is the stale-observation interval and existing
+  `retryBackoffSeconds` is the base retry delay. Adding
+  `scheduling.maxRecoveryAttempts: 2` is necessary because the acceptance
+  condition requires a finite retry bound and the existing configuration had
+  no attempt limit. The maximum is two recoveries after the initial attempt.
+- Stale detection uses durable `task.updated`, the effective check-in
+  interval, and the observer's current UTC clock, all source-labelled. An
+  unavailable clock or missing checkpoint yields `unknown`, not stale.
+- Recovery records each attempt, source, reason, cumulative observations,
+  remaining budget, and next backoff in existing Markdown sections. No new
+  task-record front-matter field is needed.
+- An unavailable configured worker is a durable blocker. A named replacement
+  requires explicit direction or approval and a recorded transition; OpenCode
+  wrong-role fallback is not a replacement and remains blocked.
+- Root policy and record semantics remain host-neutral. The adapter only maps a
+  fresh OpenCode attempt, timeout/observation sources, role attribution, and
+  cleanup limitations.
+
+### Validation
+
+- Independent validation ran in a separate local Python process and passed all
+  required assertions: source-labelled stale detection, finite backoff and
+  attempt bounds, cumulative budgets, named replacement approval, wrong-role
+  blocking, record-only recovery, descendant accounting, and cleanup boundary.
+- `git diff --check` passed for the current uncommitted root integration scope;
+  the child handoff passed `git diff --cached --check` before commit.
+- Fresh local OpenCode role discovery remains historical evidence from
+  Increment 5; this increment did not invoke a model-backed host run.
+- Cost source for this increment: unavailable; no model/token or provider
+  billing cost was observed. Fixture wall-clock source: local monotonic wrapper,
+  `0.141520954` seconds for the interrupted attempt. No estimate is claimed.
+
+### Result
+
+- Increment 6 policy and independent validation are complete. The host-neutral
+  recovery policy preserves lifecycle authority and cumulative observations,
+  bounds recovery at two retries with recorded exponential backoff, blocks
+  silent replacement and wrong-role fallback, and keeps completion dependent on
+  durable evidence and descendant closure. The OpenCode adapter contains only
+  the host mapping and its enforcement limitations.
+
+### Blockers And Escalations
+
+- None for Increment 6. The historical
+  `increment-5-cost-observability/as-is.md` blocked record is preserved as
+  prior evidence and was not retried or rewritten; it is not a descendant of
+  the new Increment 6 fixture task. No worker replacement was requested.
+
+### Recovery
+
+- Last durable checkpoint: the fixture completed from record-only recovery,
+  independent validation passed, and the child handoff was committed.
+- Incomplete work: root status transition and scoped root integration commit.
+- Cleanup completed: the fixture's private temporary state was removed after
+  its durable trace; no repository runtime artifact was created.
+- Recovery limitation: the stale observation used a source-labelled
+  deterministic fixture clock advanced by 301 seconds over the 300-second
+  check-in interval; this proves the policy decision path, not automatic host
+  scheduling enforcement.
+- Next safe action: mark the root task completed, run final scope and closure
+  checks, and commit only the root policy integration files.
+
+### Next Action
+
+Commit the completed Increment 6 root integration only. Do not begin a later
+increment.
+
+## Historical Increment 5 Handoff
 
 ## Current Task
 

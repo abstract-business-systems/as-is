@@ -160,6 +160,84 @@ orchestrator records that blocker and follows a later replacement policy;
 this contract does not choose the replacement, retry, backoff, or scheduling
 policy.
 
+## Recovery Policy
+
+Increment 6 supplies the conservative policy used by the lifecycle operations
+above. It is host-neutral; an adapter reports observations and invokes bounded
+attempts but does not redefine these decisions.
+
+### Stale Detection
+
+- An active record is a stale candidate only when the durable `task.updated`
+  checkpoint exists and the observer's current UTC clock is later than that
+  checkpoint by more than the effective `config.scheduling.checkInSeconds`.
+  The checkpoint, configured interval, and observation clock are recorded as
+  the sources of the decision.
+- A missing or malformed checkpoint, an unavailable observation clock, or a
+  clock result that cannot establish the interval produces `unknown`, not
+  `stale`. The orchestrator records the reason and does not infer interruption
+  or completion from it.
+- An active record may also be recovered after a durable failed handoff,
+  unavailable runtime, or controlled interruption. The durable reason is
+  recorded before recovery; a process exit, missing handle, or absent private
+  artifact is supplementary evidence only.
+
+### Attempts, Backoff, And Budget
+
+- `config.scheduling.maxRecoveryAttempts` is the finite maximum number of
+  recovery attempts after the initial launch. The default effective value for
+  this increment is `2`; a host must not start a further attempt after that
+  bound, even if private state suggests that one might help.
+- Before recovery attempt `n` (where the first recovery is `n = 1`), the
+  orchestrator records a delay of
+  `retryBackoffSeconds * 2^(n - 1)`. The delay is a scheduling wait, not a
+  worker result; its due time and source are durable in `Recovery` or `Next
+  Action` before the host waits or launches.
+- Every attempt rereads the record and carries forward cumulative
+  `constraints.cost.spent` and
+  `constraints.execution.wall-clock.spent-seconds`. Neither value may be
+  reset, replaced by a per-attempt value, or represented as zero when the host
+  cannot observe it. The reserve remains unavailable for ordinary work and is
+  consumed only by the task's configured validation, recovery, or handoff
+  policy.
+- A recovery attempt is not authorized when the remaining allocation after
+  current spent use and reserve is exhausted. The record becomes a durable
+  budget blocker requiring direction rather than silently spending the
+  reserve. Unavailable cost or duration observations remain unavailable and do
+  not justify a claim of automatic enforcement.
+- Each attempt records its ordinal, reason, source-labelled observations,
+  cumulative budget values, checkpoint, and next action in the existing task
+  record. This preserves attempt history without adding a runtime log or a new
+  front-matter field.
+
+### Worker Availability And Replacement
+
+- Recovery always identifies the worker from the reread component record. An
+  unavailable configured worker becomes a durable blocker naming that worker;
+  the orchestrator does not silently substitute another role or runtime.
+- A replacement is permitted only after explicit direction or approval names
+  the replacement and the record captures the decision, authority, reason,
+  affected attempt, and applicable policy. The original configured worker and
+  its failed availability observation remain in recovery history.
+- A host fallback, wrong-role task event, or unattributed return is not an
+  approved replacement. It is a delegation blocker and cannot advance the
+  record or consume a completion transition.
+
+### Completion, Descendants, And Cleanup
+
+- Recovery rereads the record before every status transition and rejects an
+  older revision. A terminal record is not reopened by recovery, and a
+  completed record cannot receive a duplicate completion transition.
+- Completion still requires validation evidence, terminal descendants, and
+  explicit accounting for every failed or cancelled descendant. Recovery may
+  not close a parent while a descendant is active, blocked, awaiting approval,
+  or otherwise non-terminal.
+- After the durable checkpoint, observations, blocker or approval, result, and
+  next action are saved, the host may remove only private transient runtime
+  artifacts that are not required by the configured audit or recovery
+  boundary. Component records, declared project artifacts, and evidence needed
+  to recover or explain the attempt are retained.
+
 ## State And Checkpoint Rules
 
 - Every operation that changes durable state records `task.updated` and the
@@ -182,8 +260,8 @@ policy.
 ## Boundary Of This Contract
 
 This specification does not select a host adapter, define a CLI or wire
-protocol, implement scheduling or wake timing, define retry/backoff rules,
-choose a runtime process or session model, or promise host cost attribution.
-Increment 5 maps this contract to a selected host and validates those host
-capabilities. Later recovery work may define stale detection and replacement
-policy without changing the lifecycle authority defined here.
+protocol, implement host scheduling or wake timing, choose a runtime process or
+session model, or promise host cost attribution. Increment 5 maps this contract
+to a selected host and validates those host capabilities. Increment 6 defines
+the host-neutral stale, retry, budget, replacement, and cleanup policy above;
+future adapters may map it without changing lifecycle authority.

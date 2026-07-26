@@ -173,6 +173,12 @@ See `as-is.md` for transient current project task state.
 - Recovery is based on understanding the task record. If work is interrupted,
   the orchestrator delegates recovery to the configured worker identified in the
   record, rather than relying on an independent generic recovery process.
+- Recovery uses the conservative host-neutral policy in
+  `execution-contract.md`: stale detection is source-labelled from durable
+  checkpoints, retries are finite with cumulative backoff and budget
+  observations, and unavailable-worker replacement requires explicit recorded
+  direction or approval. A host adapter may report runtime facts but cannot
+  silently replace a worker or infer completion from process exit.
 
 ### User Check-Ins And Control
 
@@ -332,12 +338,14 @@ acceptance conditions.
    Acceptance conditions: the harmless task satisfies the lifecycle contract,
    preserves component-only initial context, and records durable evidence of
    notifications, validation, and cleanup.
-6. **Implement recovery and independent validation.** Define stale-task
-   detection, retry and backoff, unavailable-worker replacement, and the risk
-   threshold for independent review. Verify that interruption recovery uses the
-   durable task record without retaining unnecessary transient files.
-   Acceptance conditions: an interrupted harmless task can be recovered from
-   its component record, and cleanup removes only private transient artifacts
+6. **Implement recovery and independent validation.** Completed in the current
+   Increment 6 task. The host-neutral contract defines stale-task detection,
+   finite retry and backoff, cumulative budget preservation,
+   unavailable-worker replacement approval, and independent review. The local
+   interrupted fixture recovered from its component record without retaining
+   unnecessary transient files.
+   Acceptance conditions met: the interrupted harmless task was recovered from
+   its component record, and cleanup removed only private transient artifacts
    not required by the configured recovery or audit boundary.
 
 ## Open Design Questions
@@ -366,7 +374,5 @@ implementing or validating a host mapping.
 
 ## Suggested Next Discussion
 
-Begin the fourth implementation increment: define the host-neutral execution
-contract for launching, resuming, observing, questioning, cancelling, and
-recovering a worker. Keep check-in timing, material-event semantics, and query
-authority independent of the selected host adapter.
+Increment 6 is complete for this bounded task. Do not begin a later increment
+until a new current-turn authorization and bounded task context are established.
