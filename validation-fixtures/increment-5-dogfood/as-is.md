@@ -59,7 +59,7 @@ and are not represented as actual use.
 
 ## Result
 
-Added only `increment-5-dogfood/README.md`; all acceptance conditions hold and
+Added only `validation-fixtures/increment-5-dogfood/README.md`; all acceptance conditions hold and
 the scoped child handoff is terminal. Commit: `0dc44ad`.
 
 ## Blockers And Escalations

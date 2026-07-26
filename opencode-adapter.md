@@ -164,7 +164,7 @@ only by the fresh task recorded in the current root `as-is.md`.
 | `recover` | Reread the configured worker and delegate a fresh bounded `opencode run` | Preserve remaining budget, descendants, and acceptance conditions; no replacement or stale-task policy is introduced here. |
 
 For the historical dogfood run, the orchestrator created
-`increment-5-dogfood/as-is.md` atomically, emitted the delegation notification
+`validation-fixtures/increment-5-dogfood/as-is.md` atomically, emitted the delegation notification
 through the durable parent transition, and used the configured 120-second /
 USD 0.10 child allocation with reserve. The worker completed the local README
 task and recorded a check-in, validation, result, unavailable cost and
