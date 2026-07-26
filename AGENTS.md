@@ -8,12 +8,19 @@ directories use lowercase kebab-case unless a host requires an exact filename.
 - Treat [as-is.md](as-is.md) as the durable source of truth for current project
   and component task state. Do not rely on chat context or machine-local state
   for facts another agent must recover.
+- Treat `as-is.md` as replaceable current-task context, not as the permanent home
+  of architecture or implementation contracts. Put enduring protocols and design
+  rationale in subject-named specifications, then link to them from current task
+  context.
 - Update durable task context when work produces a decision, blocker, result,
   or next action that matters beyond the current turn. Do not record secrets,
   temporary identifiers, or verbose execution logs there.
-- Read only the context and instructions relevant to the task. Component-local
-  policy may narrow repository policy but cannot weaken higher-authority
-  constraints.
+- The host supplies repository instructions, applicable design principles, and
+  permitted skills as read-only common execution context. A worker begins from
+  its assigned component's `as-is.md`; it reads outside that component only for
+  an explicitly identified dependency or user direction.
+- Component-local constraints may narrow repository policy but cannot weaken
+  higher-authority constraints.
 
 ## Guard Clauses
 
@@ -50,15 +57,21 @@ directories use lowercase kebab-case unless a host requires an exact filename.
 - Delegate independent, bounded work only when it has a clear input, durable
   context, expected output, and verification boundary. Preserve the result in
   repository context before dependent work proceeds.
-- A delegated agent starts with only the `as-is.md` in its assigned component
-  directory. The orchestrator resolves the fields required by the component
-  task-record protocol into that record; the agent reads outside its component
-  only when the task explicitly identifies a necessary dependency or the user
-  directs it to do so.
+- A component directory determines the scope and parent of its task. The worker
+  updates only that component's `as-is.md`. When delegating work to a component
+  that has no record, the orchestrator generates it atomically before launching
+  the worker; it reuses rather than overwrites an existing task record. Child
+  records provide durable delegation and handoff evidence without duplicating
+  their progress in a parent record.
+- A worker validates its implementation before handoff and records the result,
+  residual risk, and host-reported actual cost in its component record. It may
+  request bounded child delegation; the responsible orchestrator may run
+  independent siblings concurrently when their declared boundaries do not
+  overlap.
 - Use an independent reviewer or validator when risk, authority, or change
   breadth warrants it. The implementing agent's report is evidence, not the
   sole completion gate.
 - Use the repository-local skills in [skills](skills/) for setup, naming, and
-  knowledge organization. Adopt external or installed skills only when their
-  assumptions, tools, and output contracts fit this repository; do not copy
-  project-specific operational skills as generic defaults.
+  repository knowledge organization. Adopt external or installed skills only
+  when their assumptions, tools, and output contracts fit this repository; do
+  not copy project-specific operational skills as generic defaults.

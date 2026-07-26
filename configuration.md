@@ -5,7 +5,7 @@
 > The superseded manifest and schema were removed; Git history preserves them
 > as migration reference if needed. The historical location, ownership, and
 > policy rules below are not part of the current architecture; see
-> `orchestration-handoff.md` for the active design direction.
+> `orchestration-design.md` for the active design direction.
 
 ## Boundaries
 

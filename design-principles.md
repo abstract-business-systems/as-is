@@ -44,17 +44,21 @@ choices. A lower-authority setting cannot weaken a higher-authority constraint.
 - **Established practice by default:** Follow applicable practices, norms, and
   standards. Make an exception only for a concrete reason, and make that reason
   understandable from the surrounding context.
-- **Reusable, composable blocks:** Prefer small capabilities and artifacts that
-  can be combined in more than one context over one-off, tightly coupled
-  solutions.
+- **Compositional boundaries:** Prefer small capabilities and artifacts that can
+  be combined in more than one context over one-off, tightly coupled solutions.
+  A parent composes child results through bounded delegation and durable
+  handoff; a child updates only its own boundary and does not mutate ancestor or
+  sibling state. Independent siblings may proceed concurrently when their
+  declared boundaries do not overlap.
 - **Minimal change:** Select the smallest design and change that satisfies the
   stated acceptance conditions. Reuse an established local pattern before
   adding a new abstraction, configuration surface, artifact, or execution path;
   record the concrete need when introducing one. Treat that rationale and the
   changed-artifact set as reviewable evidence, not an implied assumption.
 - **Hierarchical composition:** Coherent blocks build larger blocks, which in
-  turn build the next level as needed. Place responsibility at the lowest level
-  that can own it correctly.
+  turn build the next level as needed. The filesystem hierarchy defines each
+  component's scope and parent; place responsibility at the lowest level that
+  can own it correctly.
 - **Avoid premature optimization:** Do not add abstraction, configuration,
   complexity, or performance work before evidence shows it is needed.
 - **Humans and systems collaborate:** Systems reduce mechanical and cognitive

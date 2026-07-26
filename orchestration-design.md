@@ -1,11 +1,11 @@
-# Knowledge-Work Automation Design Handoff
+# Knowledge-Work Automation Design
 
 ## Purpose
 
-This handoff preserves the current design direction for a durable,
-filesystem-oriented knowledge-work automation system. It is intended to let a
-future session continue the design after context compaction without treating
-open questions as settled decisions.
+This permanent design specification defines the architecture and staged
+implementation direction for a durable, filesystem-oriented knowledge-work
+automation system. It distinguishes settled design from the transient current
+task state in `as-is.md`.
 
 ## Goal
 
@@ -37,16 +37,15 @@ See `agent-skills.md` for the current taxonomy and definitions.
 - Agents are durable by persisting material task state and progress to the
   filesystem frequently enough that another agent can inspect, recover, or
   continue the work.
-- Durable records should capture task status, meaningful progress, results,
-  blockers, decisions, and the next action. The exact representation is not yet
-  specified.
+- Durable records capture task status, meaningful progress, results, blockers,
+  decisions, validation, real cost, and the next action.
 - This filesystem state is the primary recovery and delegation substrate. It is
   not merely a log of a chat session.
 - The system should preserve useful partial work rather than requiring a full
   restart after interruption or failure.
 - Durable task intent, scoped policy, decisions, progress summaries, results,
   blockers, and next actions belong in the root or relevant component's
-  authored `as-is.md`. Private runtime state belongs in a user-level state
+  `as-is.md`. Private runtime state belongs in a user-level state
   directory; it includes session links, leases, caches, detailed logs, and
   secrets. The project receives no generated runtime-state files by default.
 - Transient execution artifacts, including session links, leases, caches,
@@ -58,7 +57,9 @@ See `agent-skills.md` for the current taxonomy and definitions.
 ### Hierarchical Component Model
 
 - The project itself supplies the hierarchy. Directories represent components.
-- A change to a component is a task at that component directory level.
+- A change to a component is a task at that component directory level. The
+  component's filesystem path determines its scope and parent; task records do
+  not repeat either value.
 - At any instant, there is exactly one active task, including its task record,
   for a directory. That task may lead to subtasks in descendant directories.
 - Subtasks are recorded in an `as-is.md` in the relevant component directory,
@@ -67,8 +68,9 @@ See `agent-skills.md` for the current taxonomy and definitions.
   state may mirror it for implementation convenience but is not authoritative.
 - Work that spans multiple components is performed at their nearest common
   ancestor rather than by cross-component delegation.
-- “Co-existing” refers to tasks existing alongside the component being built,
-  not to concurrent, independent tasks competing for the same directory.
+- Independent sibling components may run concurrently when their declared file,
+  input, and budget boundaries do not overlap. Siblings do not mutate each
+  other's records or depend on another active sibling's mutable state.
 
 ### Task and Progress Protocol
 
@@ -77,13 +79,15 @@ See `agent-skills.md` for the current taxonomy and definitions.
 - Once defined, the component task-record protocol is the canonical field list
   for delegated work. Repository instructions and project decisions state only
   its applicable behavioral requirement and refer to the protocol for fields.
-- Task records use the component's `as-is.md`. Its front-matter schema,
-  Markdown section requirements, timestamps, versioning, status representation,
-  and locking mechanism remain to be defined.
-- Task records contain agent information sufficient for the orchestrator to
-  understand who is responsible for a task and to route recovery.
-- A progress marker indicates a single unit of work that should be handled by
-  one agent at that point in time.
+- Task records use the component's `as-is.md`. Their protocol is defined in
+  [Component Task-Record Protocol](component-task-record-protocol.md).
+- The record identifies the configured worker suitable for recovery, not a mutable
+  owner or lease. When recovery is required, the orchestrator rereads the record
+  and delegates it to that role; the resumed worker decides whether to continue
+  an atomic partial result, clean it up, or start again.
+- A progress marker indicates a bounded unit of work handled by one worker at a
+  point in time. Worker planning, task management, and delegation procedures are
+  supplied as skills rather than duplicated in the record schema.
 - Target task size is a micro-task: a few minutes of wall-clock work and a
   budget on the order of a couple of dimes. Exact limits remain configurable.
 
@@ -93,17 +97,18 @@ See `agent-skills.md` for the current taxonomy and definitions.
   references, examples, schemas, extensions, and adapters. It is invoked by its
   CLI or a chat slash-command adapter rather than copied into every project.
 - A target project has an authored `as-is.md` at its root for project policy and
-  project-level task context. A component with delegated work has an authored
-  `as-is.md` in that component directory for its scoped task context and any
-  permitted policy narrowing.
-- The core provides a versioned default for every supported setting. The root
-  `as-is.md` records every material effective constraint's source and precedence,
-  including fixed, external, repository, user, and default values; generated
-  runtime state remains separate and non-authoritative.
-- A component `as-is.md` records the resolved effective policy, the source and
-  precedence of each material inherited or overridden value, and any permitted
-  scoped override. Protocol validation rejects lower-authority values that
-  weaken a higher-authority constraint.
+  project-level task context. When work is first delegated to a component
+  directory, the orchestrator generates its `as-is.md` task record atomically
+  before launch; the worker then maintains it as durable scoped task context and
+  any permitted policy narrowing. A generated component record is not private
+  runtime state.
+- The core provides a versioned default for every supported setting. Common
+  policy is supplied centrally as read-only execution context; the root and
+  component records contain only their task-specific effective constraints.
+  Generated runtime state remains separate and non-authoritative.
+- A component may narrow applicable policy only within its authority. Protocol
+  validation rejects lower-authority values that weaken a higher-authority
+  constraint.
 - Extensions are supplied by the selected bundle and are declared, ordered, and
   configured through the root `as-is.md`. Changing a project's bundle is the
   controlled way to change its available extension set.
@@ -119,8 +124,9 @@ See `agent-skills.md` for the current taxonomy and definitions.
   uses a stable normalized configuration snapshot and may not silently rewrite
   its authorization policy.
 
-See `configuration.md` for the superseded JSON-manifest design and `as-is.md`
-for the current project-facing design seed.
+See `configuration.md` for the superseded JSON-manifest design,
+`component-task-record-protocol.md` for the component record contract, and
+`as-is.md` for transient current project task state.
 
 ### Orchestration and Control
 
@@ -135,7 +141,7 @@ for the current project-facing design seed.
   orchestrator also routes questions, approval requests, and material status to
   the human.
 - Recovery is based on understanding the task record. If work is interrupted,
-  the orchestrator delegates recovery to the agent identified in the task
+  the orchestrator delegates recovery to the configured worker identified in the
   record, rather than relying on an independent generic recovery process.
 
 ### Delegation
@@ -148,12 +154,13 @@ for the current project-facing design seed.
 - Cross-component work belongs to the nearest common-ancestor task.
 - Delegation should be represented through the filesystem task hierarchy so
   that its status and recovery remain durable and inspectable.
-- A delegated agent starts with only the `as-is.md` in its assigned component
-  directory. Before launch, the orchestrator resolves applicable inherited
-  policy and records the effective constraints, budget, scope, acceptance
-  conditions, and return condition there. The agent may inspect outside that
-  component only when its task explicitly identifies a necessary dependency or
-  the human authorizes broader access.
+- The delegated worker receives its component `as-is.md` plus centrally supplied
+  common execution context. Before launch, the orchestrator creates the record
+  when needed and records task-specific constraints, a real-cost allocation,
+  acceptance conditions, and return condition there. It reuses rather than
+  overwrites an existing active or recoverable record. The worker may inspect
+  outside that component only when its task explicitly identifies a necessary
+  dependency or the human authorizes broader access.
 
 ## Sequenced Implementation Plan
 
@@ -163,27 +170,24 @@ and use the smallest relevant validation before the next increment begins. Do
 not begin a later increment until the preceding increment meets its stated
 acceptance conditions.
 
-1. **Define the durable task-record protocol.** Specify the component task
-   record's placement, required fields, status state machine, task ownership,
-   acceptance conditions, progress, result, next action, and single-owner claim
-   semantics. Include allocated wall-clock, cost, context, retry, and
-   concurrency budgets. For each material new abstraction, configuration
-   surface, artifact, or execution path, require the local pattern considered,
-   the concrete need and acceptance condition, and the changed-artifact set.
-   The orchestrator rejects an incomplete material-change record before
-   beginning or delegating work and reports it for review.
-   Acceptance conditions: a new agent can locate the component record, recover
-   its task without chat context, identify the record owner, and validate its
-   claim; protocol validation can reject an invalid status or an authority-
-   weakening override; it rejects a missing material-change record before both
-   directly started and delegated work.
-2. **Define inheritance and delegation.** Specify how the orchestrator resolves
-   root and ancestor policy into the assigned component record, how local policy
-   may narrow it, and how it records a bounded vertical delegation. Keep
-   cross-component work at the nearest common ancestor.
-   Acceptance conditions: the resolved record identifies the source and
-   precedence of each material constraint; a lower-authority weakening override
-   is rejected; a worker can begin from only its component record.
+1. **Define the durable task-record protocol.** Completed. The protocol defines
+   filesystem-derived placement and parentage, strict front matter, Markdown
+   sections, status values, configured-worker recovery routing, host-reported
+   component cost, child-record handoffs, pre-handoff validation, and safe
+   sibling parallelism.
+2. **Define inheritance, delegation, and the minimal dogfood path.** Specify how
+   the orchestrator supplies central common context, records task-specific
+   effective constraints and a bounded vertical delegation, and lets a worker
+   request child work. Define the minimum orchestrator and worker agent
+   configurations needed to run one harmless self-hosting task through this
+   protocol. Keep cross-component work at the nearest common ancestor.
+   Acceptance conditions: a worker can begin from its component record plus the
+   central execution envelope; a lower-authority weakening constraint is
+   rejected; child cost allocations remain within the parent's remaining budget;
+   and the minimal orchestrator delegates one bounded task to the worker, which
+   validates and records its handoff. The dogfood task must use the repository
+   structure rules: record component purpose, preserve folder-file-section
+   lineage, and group child components by meaningful type where applicable.
 3. **Define user check-ins and control.** Add configurable periodic check-ins
    and immediate notifications for delegation, blocking, budget risk or
    exhaustion, completion, failure, cancellation, and approval-required
@@ -219,22 +223,16 @@ acceptance conditions.
 These decisions were explicitly deferred and should be discussed before
 implementation.
 
-1. **Component task-record schema:** Minimal required fields, Markdown-section
-   requirements, timestamps, versioning, marker semantics, and whether status
-   is represented by front matter, Markdown content, or both.
-2. **Claim and exclusivity mechanism:** How the single-active-task-per-directory
-   invariant is created and protected under concurrent orchestrator or agent
-   activity. Prefer the smallest reliable mechanism.
-3. **Scheduling policy:** Wake conditions, fixed versus adaptive intervals,
+1. **Scheduling policy:** Wake conditions, fixed versus adaptive intervals,
    maximum concurrency, cost budgets, and backoff behavior.
-4. **Agent identity and recovery:** What agent information is stored, what it
-   means to resume versus replace an agent, and how recovery behaves when the
+2. **Agent identity and recovery:** What it means to resume versus replace a
+   configured worker and how recovery behaves when the
    original specialist is unavailable.
-5. **HITL protocol:** Which events require a human decision, how questions and
+3. **HITL protocol:** Which events require a human decision, how questions and
    approvals are persisted, and how the human changes direction safely.
-6. **External-system protocol:** How integrations represent provenance,
+4. **External-system protocol:** How integrations represent provenance,
    credentials, approval boundaries, retries, idempotency, and failure state.
-7. **OpenCode mapping:** How the design maps to OpenCode agents, skills,
+5. **OpenCode mapping:** How the design maps to OpenCode agents, skills,
    permissions, sessions, task delegation, worktrees, and its HTTP/SDK APIs.
 
 ## OpenCode Facts Relevant to Later Implementation
@@ -255,8 +253,7 @@ implementation.
 
 ## Suggested Next Discussion
 
-Begin the first implementation increment: define the component `as-is.md`
-task-record schema and status/progress fields. It should record the responsible
-agent and acceptance conditions, support recovery without embedding
-orchestration policy into every agent prompt, and keep private runtime state out
-of the project task record.
+Begin the second implementation increment: define the central execution envelope
+and bounded delegation mechanics, then create and dogfood minimal orchestrator
+and worker agent configurations on one harmless self-hosting task. Keep common
+policy and private runtime state out of component records.
