@@ -12,6 +12,9 @@ config:
     retryBackoffSeconds: 300
   agents:
     defaultRole: implementer
+  technology-preferences:
+    runtime: bun
+    package-manager: bun
   hitl:
     onBlocked: true
     onBudgetExceeded: true
@@ -22,15 +25,15 @@ config:
 
 task:
   status: completed
-  updated: 2026-07-26T14:00:03Z
+  updated: 2026-07-26T14:09:10Z
 ---
 
 # as-is Project
 
 ## Current Task
 
- Finish Increment 2 by making component-record authority, resource-budget, and
- descendant-closure invariants deterministically verifiable.
+Add a clean user-facing primary agent and project technology preferences before
+beginning Increment 3.
 
 ## Purpose
 
@@ -44,25 +47,23 @@ Permanent implementation references:
 
 ## Acceptance Criteria
 
-- A local deterministic validator checks version 2 component records and their
-  directory-derived task trees.
-- The validator rejects weakened authority constraints, child cost or wall-clock
-  allocations beyond the parent remainder, and invalid completed-descendant
-  closure.
-- Focused automated evidence covers valid and invalid trees, while the earlier
-  bounded `verification-discipline` task remains the completed dogfood handoff
-  for the minimal execution envelope.
+- A primary `as-is` agent keeps the user-facing chat focused on intent, status,
+  and delegation rather than implementation details.
+- Project technology preferences are centrally available during foundation work
+  without becoming mandatory constraints.
+- The initial preference directs new foundations to use Bun as runtime and
+  package manager when it fits the component requirement and existing patterns.
 
 ## Progress
 
-- The earlier `structuring-content` rename, minimal execution-envelope dogfood,
-  host adapter exposure, host-neutral contract, version 2 protocol, and
-  maintenance-model correction are complete.
-- Created and delegated `schemas/task-record-validator/as-is.md` with the root
-  unit allocation (USD 0.20 and 300 seconds), unavailable host measurements,
-  no child delegation, and bounded acceptance conditions.
-- Its configured implementer completed and committed the validator handoff as
-  `c19f45b` (`feat(schemas): add task record validator`).
+- Increment 2 is complete and committed in `c19f45b` and `882f02d`.
+- The root configuration now records Bun as the runtime and package-manager
+  preference. This is a preference, not a constraint or an authorization to add
+  dependencies without a component need.
+- The root orchestrator will delegate the bounded primary-agent definition under
+  `.agents` before integrating the root configuration and guidance changes.
+- The configured implementer completed the `.agents` child handoff in
+  `ddd9227` (`feat(agents): add as-is primary agent`).
 
 ## Decisions
 
@@ -81,46 +82,43 @@ Permanent implementation references:
 - Deterministic static validation belongs in the local
   `schemas/task-record-validator` component. It checks record structure and
   tree invariants but does not claim host runtime enforcement.
+- Technology preferences guide foundation choices only. A component follows an
+  applicable higher-authority requirement and established local pattern first;
+  a material departure from a preference is recorded with its reason.
 
 ## Blockers
 
 - Per-component actual cost is not available from the current OpenCode adapter;
   task records retain the fallback metric and do not present estimates as actual
   cost.
-- Cost remains unavailable per component from the current OpenCode adapter, so
-  `spent` remains a non-estimated zero and the validator cannot verify actual
-  measurement provenance beyond the declared record fields.
-- Runtime enforcement remains deferred to Increments 4 and 5; this increment
-  provides static validation only.
+- Actual component cost and host-observed wall-clock use remain unavailable from
+  the current OpenCode adapter.
 
 ## Validation
 
-- Child observation: `python3 -m unittest -v test_task_record_validator.py`
-  passed all six focused cases: valid tree, weakened external effects, weakened
-  delegation, cost and wall-clock exhaustion, non-terminal descendant, and
-  unaccounted failed descendant.
-- Integration observation: `python3 task_record_validator.py .` printed
-  `VALID`, and `python3 -m py_compile task_record_validator.py
-  test_task_record_validator.py` completed successfully in the component.
-- Orchestrator observation: the child record is `completed`, its only changed
-  artifacts are committed in `c19f45b`, and it has no descendants. The root is
-  therefore eligible for completion with no failed or cancelled descendants to
-  account for.
-- Residual risk: the intentionally small dependency-free YAML parser rejects
-  legal YAML features outside the documented protocol subset; focused tests do
-  not cover very large or adversarial directory trees.
+- Child observation: a fresh `opencode agent list` process discovered `as-is`
+  as a primary agent with task delegation allowed and web access denied; its
+  component-local whitespace and descendant-closure checks passed.
+- Integration observation: the `.agents` child record is `completed`, has no
+  descendants, and its scoped handoff is committed in `ddd9227`.
+- Integration observation: a fresh `opencode agent list` process recognized
+  `as-is` as a primary agent after the configuration change; a JSON assertion
+  confirmed `.opencode/opencode.json` retains its schema and sets
+  `default_agent` to `as-is`.
+- Residual risk: existing interactive OpenCode sessions retain their startup
+  configuration and must be restarted before they select the new default.
 
 ## Result
 
-- Added `schemas/task-record-validator`, a dependency-free deterministic local
-  validator, six focused unittest fixtures, and component-local usage guidance.
-- The validator rejects the required authority, resource-allocation, and
-  completed-descendant violations, and accepts the documented valid task tree.
-- Increment 2 is complete: common execution context and bounded delegation were
-  defined and dogfooded previously; static validation now supplies its remaining
-  deterministic enforcement evidence.
+- Added the user-facing `as-is` primary agent. It summarizes durable status and
+  results, while delegating substantive bounded work to `orchestrator`.
+- Selected `as-is` as the OpenCode default agent and recorded the host-specific
+  mapping without changing the orchestrator's durable-record authority.
+- Added root `config.technology-preferences` with Bun as the preferred runtime
+  and package manager, and made that preference centrally available for
+  foundation work through repository guidance.
 
 ## Next Action
 
- Begin Increment 3 only after recording its bounded check-in and control
- requirements in this root task context.
+Begin Increment 3 only after recording its bounded check-in and control
+requirements in this root task context.

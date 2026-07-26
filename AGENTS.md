@@ -12,6 +12,10 @@ directories use lowercase kebab-case unless a host requires an exact filename.
   of architecture or implementation contracts. Put enduring protocols and design
   rationale in subject-named specifications, then link to them from current task
   context.
+- Treat root `config.technology-preferences` as centrally supplied, read-only
+  project preference during foundation work. It guides a choice only after
+  applicable higher-authority requirements and established local patterns; it
+  is not a mandatory constraint or permission to introduce dependencies.
 - Update durable task context when work produces a decision, blocker, result,
   or next action that matters beyond the current turn. Do not record secrets,
   temporary identifiers, or verbose execution logs there.

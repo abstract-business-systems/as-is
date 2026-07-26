@@ -14,8 +14,10 @@ policy, task-record fields, authority, or completion behavior.
   expose canonical repository skills without copying them.
 - OpenCode agents may be primary or subagents with distinct prompts, models,
   permissions, and task-delegation permissions.
-- The `orchestrator` and `implementer` definitions under `.agents/agents/` are a
-  minimal dogfood mapping of the corresponding host-neutral roles.
+- The `as-is`, `orchestrator`, and `implementer` definitions under
+  `.agents/agents/` map the user-facing entry, host-neutral orchestration, and
+  component implementation roles. The OpenCode default agent is `as-is`; it
+  routes substantive work to `orchestrator`.
 - A host-managed OpenCode subagent is preferable when it exposes lifecycle,
   cancellation, and attributable-usage observations. A bounded `opencode run`
   process is the current fallback.

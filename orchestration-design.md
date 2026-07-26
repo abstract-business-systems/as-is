@@ -134,6 +134,10 @@ See `agent-skills.md` for the current taxonomy and definitions.
 - A component may narrow applicable policy only within its authority. Protocol
   validation rejects lower-authority values that weaken a higher-authority
   constraint.
+- Root `config.technology-preferences` provides project-specific, centrally
+  supplied guidance for laying a new component's foundation. It is a preference,
+  not a constraint: implementers use it when it fits the bounded requirement and
+  established local patterns, and record a material departure with its reason.
 - Extensions are supplied by the selected bundle and are declared, ordered, and
   configured through the root `as-is.md`. Changing a project's bundle is the
   controlled way to change its available extension set.
