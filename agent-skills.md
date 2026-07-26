@@ -14,9 +14,9 @@ exhaustive list of every technique, domain practice, or tool integration.
   independently invoked, assessed, improved, permissioned, and reused.
 - **Operational skill:** A concrete procedure that applies one or more atomic
   skills to a recurring type of work.
-- **Deterministic maintenance script:** A focused versioned program that performs
-  repeatable validation or transformation without generative judgment. A skill
-  invokes and interprets it; it is not a replacement for a skill or agent role.
+- **Component-maintenance skill:** An operational skill that reviews a bounded
+  component for housekeeping and improvement opportunities, then composes the
+  smallest relevant skills and validation to address them.
 - **Domain playbook:** An organization- or domain-specific workflow that
   combines operational skills, tools, policies, and local knowledge.
 - **Agent role:** A configured bundle of skills, tools, permissions, model
@@ -33,14 +33,13 @@ exhaustive list of every technique, domain practice, or tool integration.
   worth assigning, testing, improving, observing, or governing independently.
 - Keep skills reusable across roles. For example, define prioritization once;
   do not duplicate it in every planning, research, or implementation agent.
-- Keep deterministic maintenance operations in focused, versioned scripts.
-  Operational skills invoke those scripts and interpret their results rather
-  than reproducing their logic in an agent prompt.
+- Use component-maintenance skills for bounded housekeeping and improvement work
+  that crosses individual artifacts while remaining within one component.
 - Specify operational skills with inputs, constraints, method, output, checks,
   and stopping or escalation conditions when they are implemented.
-- Introduce a maintenance script only for a concrete repeatable deterministic
-  operation. Keep its decision-free mechanics separate from a skill's workflow
-  and an agent's bounded judgment.
+- A maintenance skill may recommend a deterministic replacement for a
+  nondeterministic flow, but only when the component's requirement and evidence
+  establish a concrete correctness, cost, recovery, or repeatability benefit.
 - Keep the catalog extensible. Domain playbooks and tool adapters will expand;
   foundational capability domains should remain relatively stable.
 

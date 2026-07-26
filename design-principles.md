@@ -83,11 +83,11 @@ choices. A lower-authority setting cannot weaken a higher-authority constraint.
   semantics independent of a particular agent host. A host adapter may map those
   contracts to agents, permissions, tools, sessions, and measurements, but may
   not redefine their authority or behavior.
-- **Deterministic maintenance:** When a repeatable check or transformation needs
-  reuse beyond a simple host command, put it in a focused, versioned script.
-  Skills select and invoke those scripts, interpret their evidence, and handle
-  escalation; agents do not reimplement deterministic maintenance logic in
-  prompts or ad hoc reasoning.
+- **Component maintenance:** Improve a component through a bounded maintenance
+  skill that identifies stale, redundant, inconsistent, or unnecessarily
+  nondeterministic work and selects the smallest supported improvement. Preserve
+  intentionally generative work; replace it with deterministic behavior only
+  when the requirement, evidence, and acceptance conditions justify doing so.
 - **Self-hosting consistency:** `as-is` uses its own skills and principles to
   establish and improve itself, and periodically checks that implementation and
   stated principles remain aligned.

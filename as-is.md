@@ -22,15 +22,15 @@ config:
 
 task:
   status: completed
-  updated: 2026-07-26T13:46:37Z
+  updated: 2026-07-26T13:50:42Z
 ---
 
 # as-is Project
 
 ## Current Task
 
-Make the core task protocol and orchestration design host-neutral, reduce
-duplicated component-boundary context, and define wall-clock constraint handling.
+Correct the maintenance model by defining and exposing a component-maintenance
+skill rather than treating maintenance as a deterministic-script layer.
 
 ## Purpose
 
@@ -44,13 +44,12 @@ Permanent implementation references:
 
 ## Acceptance Criteria
 
-- Core policy and orchestration documents define no host-specific behavior.
-- Component records derive their writable scope from the directory and do not
-  duplicate file or input boundary lists.
-- Component records include a host-observed cumulative wall-clock budget while
-  retaining timestamps for checkpoint ordering and stale-work recovery.
-- Deterministic maintenance scripts have a documented role distinct from skills
-  and generative agent reasoning.
+- `maintaining-components` provides a bounded, reusable component-housekeeping
+  and improvement procedure.
+- The maintenance model preserves intentionally generative work and replaces a
+  nondeterministic flow only when evidence and acceptance conditions justify it.
+- Architecture and skill guidance no longer describe maintenance as a generic
+  deterministic-script layer.
 
 ## Progress
 
@@ -59,9 +58,8 @@ Permanent implementation references:
   completed the generated `verification-discipline` component record.
 - The parent exposed the new skill through the installed OpenCode wrapper's
   `.agents/skills` adapter and repaired its stale `structuring-content` link.
-- Host-specific facts are being moved from the core design to an adapter document.
-- The host-neutral protocol, deterministic-maintenance boundary, and version 2
-  record schema are defined.
+- The prior host-neutral and version 2 protocol work is complete.
+- The maintenance distinction is being corrected before the next validator task.
 
 ## Decisions
 
@@ -75,9 +73,8 @@ Permanent implementation references:
 - Component directory scope is the default writable boundary. External reads are
   named only as exceptions in the bounded requirement, avoiding duplicate file,
   input, and universal-context declarations.
-- Focused skills coordinate deterministic maintenance scripts; scripts contain
-  repeatable validation or transformations. No generic maintenance script is
-  added until Increment 2 has a concrete record-validation need.
+- `maintaining-components` is an operational skill, not a generic script layer.
+  It composes focused skills and validation within a bounded component task.
 
 ## Blockers
 
@@ -91,30 +88,22 @@ Permanent implementation references:
 ## Validation
 
 - `git diff --check` completed successfully.
-- Fresh `opencode debug agent orchestrator` and `opencode debug agent
-  implementer` runs load the revised directory-scope and wall-clock instructions.
-- The host-neutral core design contains no OpenCode-specific behavior; the
-  host-specific mapping is isolated in `opencode-adapter.md`.
-- The version 2 protocol contains no `boundaries.files` or `boundaries.inputs`
-  fields. The completed version 1 dogfood record remains valid under its
-  historical schema.
+- Fresh `opencode debug skill` discovery lists `maintaining-components` from its
+  `.agents/skills` adapter.
+- The core guidance contains no remaining deterministic-maintenance-script
+  policy; it defines component maintenance as an operational skill.
 
 ## Result
 
-- Added a version 2 component-record schema with cost and wall-clock allocation,
-  consumption, reserve, and measurement-source fields.
-- Made directory scope the default writable boundary and requirements the sole
-  location for exceptional external dependencies.
-- Moved host-specific facts to `opencode-adapter.md` and made the core policy,
-  architecture, and implementation sequence host-neutral.
-- Defined the phased constraint rollout: static deterministic validation in
-  Increment 2, runtime contract in Increment 4, and host-adapter enforcement in
-  Increment 5.
-- Defined deterministic maintenance scripts as focused reusable mechanics behind
-  skills, with the Increment 2 record validator as the first concrete need.
+- Added `maintaining-components`, a bounded housekeeping and improvement skill
+  that composes existing focused skills and validation.
+- Replaced the script-centric maintenance interpretation in the design
+  principles, skills architecture, and orchestration design.
+- Recorded that deterministic replacements need concrete correctness, cost,
+  recovery, or repeatability evidence; intentionally generative work remains
+  valid when it serves the component.
 
 ## Next Action
 
-Implement the focused deterministic record-validation script for authority,
-cost, wall-clock child-budget, and descendant-closure checks to finish Increment
-2.
+Implement focused deterministic validation for authority, cost, wall-clock
+child-budget, and descendant-closure checks to finish Increment 2.

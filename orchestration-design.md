@@ -98,22 +98,23 @@ See `agent-skills.md` for the current taxonomy and definitions.
   timestamps remain the separate ordering and stale-work signal. Exact limits
   remain configurable.
 
-### Constraint Enforcement And Deterministic Maintenance
+### Constraint Enforcement And Component Maintenance
 
 - Constraints are introduced in the durable task protocol now. Increment 2
   implements deterministic static record validation for authority, descendant
   closure, and cost and wall-clock budget arithmetic. Increments 4 and 5 add
   host-neutral runtime enforcement and map it through a selected host adapter.
-- Deterministic maintenance scripts own repeatable schema checks, arithmetic,
-  state-transition checks, and safe transformations. They return observable
-  results and do not make generative policy or scope decisions.
-- Skills select, invoke, and interpret deterministic scripts as part of a
-  bounded workflow; agents supply judgment only where the script has an explicit
-  input, unsupported condition, or escalation boundary.
-- Do not create a generic maintenance framework or script directory in advance.
-  The first script is justified by Increment 2's concrete task-record validation
-  need; further scripts follow only when a repeated deterministic operation
-  warrants them.
+- `maintaining-components` is the operational skill for bounded housekeeping and
+  improvement work. It evaluates stale, redundant, inconsistent, and overly
+  nondeterministic component behavior, then composes the smallest relevant skill
+  and validation for the supported change.
+- A maintenance task does not assume that deterministic behavior is always
+  preferable. It replaces a nondeterministic flow only when a concrete
+  correctness, cost, recovery, or repeatability need and acceptance condition
+  justify the change.
+- Do not create a generic maintenance framework. The skill operates through the
+  existing component task protocol and adds a subordinate technique only when a
+  bounded maintenance task demonstrates the need.
 
 ### Configuration Boundary
 
@@ -244,13 +245,13 @@ acceptance conditions.
    configurations needed to run one harmless self-hosting task through this
    protocol. Keep cross-component work at the nearest common ancestor.
     Acceptance conditions: a worker can begin from its component record plus the
-    central execution envelope; a focused deterministic record-validation script
-    rejects a lower-authority weakening constraint and child cost or wall-clock
-    allocation beyond the parent's remaining budget; and the minimal orchestrator
-    delegates one bounded task to the worker, which validates and records its
-    handoff. The dogfood task must use the repository structure rules: record
-    component purpose, preserve folder-file-section lineage, and group child
-    components by meaningful type where applicable.
+    central execution envelope; focused deterministic validation rejects a
+    lower-authority weakening constraint and child cost or wall-clock allocation
+    beyond the parent's remaining budget; and the minimal orchestrator delegates
+    one bounded task to the worker, which validates and records its handoff. The
+    dogfood task must use the repository structure rules: record component
+    purpose, preserve folder-file-section lineage, and group child components by
+    meaningful type where applicable.
 3. **Define user check-ins and control.** Add configurable periodic check-ins
    and immediate notifications for delegation, blocking, budget risk or
    exhaustion, completion, failure, cancellation, and approval-required
