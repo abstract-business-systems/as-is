@@ -1,0 +1,79 @@
+---
+asIsVersion: 1
+
+config:
+  tasks:
+    unitBudget:
+      wallClockSeconds: 300
+      costUsd: 0.20
+  scheduling:
+    wakeSeconds: 60
+    maxConcurrentTasks: 1
+    retryBackoffSeconds: 300
+  agents:
+    defaultRole: implementer
+  hitl:
+    onBlocked: true
+    onBudgetExceeded: true
+    onExternalEffect: true
+  logging:
+    level: info
+    retainDays: 30
+
+task:
+  status: completed
+  owner: architecture
+  parent: null
+  updated: 2026-07-26
+---
+
+# as-is Project
+
+## Current Task
+
+Define the first version of the `as-is.md` protocol for durable project and
+component state.
+
+## Acceptance Criteria
+
+- A root `as-is.md` can express project policy without `as-is.config.json`.
+- A descendant `as-is.md` can express both a component task and a scoped policy
+  override.
+- A new agent can recover a component task from the file without a chat
+  transcript or machine-local cache.
+- The protocol separates durable project context from transient private runtime
+  state.
+
+## Progress
+
+- Established the root file as the project-facing configuration and task-state
+  artifact.
+- Defined initial default budgets, scheduling, agent, HITL, and logging policy
+  in constrained front matter.
+- Established the initial design principles and created the setup, naming, and
+  knowledge-organization skills.
+- Added the documented OpenCode adapter for the repository-local `skills/`
+  directory.
+
+## Decisions
+
+- The active machine/user-installed bundle supplies defaults when no bundle is
+  selected in project configuration.
+- `as-is.md` supersedes the proposed `as-is.config.json` project manifest.
+- `as-is.md` is updated during work but is committed only with a coherent,
+  reviewable milestone rather than for transient checkpoints.
+- User-level state is private and non-authoritative for project task intent. It
+  may retain leases, session links, caches, secrets, and verbose logs.
+
+## Blockers
+
+- The exact front-matter schema, Markdown section requirements, status values,
+  and state-transition rules remain to be defined in a follow-up task.
+- The installed OpenCode wrapper accepted the adapter JSON but did not expose
+  custom `skills.paths` through `opencode debug config` or `opencode debug
+  skill`, including an injected absolute path. This needs host-level follow-up.
+
+## Next Action
+
+Use the initial skills to define the `as-is.md` protocol and its minimal
+component-task schema.
