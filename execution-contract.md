@@ -94,6 +94,33 @@ process exit, an absent host handle, or a missing private runtime artifact.
 The orchestrator rereads the durable record before interpreting the result and
 must reject a stale result that would overwrite a newer checkpoint.
 
+## Non-Blocking Job Boundary
+
+The submitting as-is/OpenCode/orchestrator turn and the worker job have separate
+lifetimes. A `launch` operation performs only bounded control-plane work: after
+authority, allocation, and record checks, it submits or spawns one attempt to a
+supervisor-owned job or supported server job, records the durable launch
+checkpoint, and returns without waiting for worker completion or process exit.
+The `started` outcome means that the job accepted the attempt and the launch
+checkpoint is durable; it does not mean that the worker completed.
+
+The supervisor or server job owns the long-running worker and its process group.
+It captures logs and lifecycle events, persists the state needed for later
+observation, and remains independently addressable after the submitting turn
+returns. A later orchestrator wake or check-in polls both the component record
+and source-labelled process/session or job health. Health, a handle, an event
+stream, or process exit is supplementary evidence and cannot replace a durable
+status transition, validation, handoff, or descendant-closure check.
+
+A foreground child process awaited by the submitting turn is synchronous, even
+when it was started through a subprocess API. Wrapping a nested subagent call in
+such a child is not a valid asynchronous implementation. If a host cannot safely
+detach or submit a job, retain ownership of its process group, capture and
+persist observations, and support later polling and cancellation, the adapter
+returns or records `unavailable` and the orchestrator records a capability
+blocker. It must not claim asynchronous support from a process that merely runs
+in the foreground.
+
 ## Lifecycle Operations
 
 ### Launch
@@ -101,13 +128,17 @@ must reject a stale result that would overwrite a newer checkpoint.
 `launch` is valid only for a `ready` record whose allocation and authority have
 been checked. The orchestrator creates a missing component record atomically
 before this operation and supplies the record directly to the worker. The
-worker advances the record to `active`, records its checkpoint, and begins one
-bounded attempt. A launch result must identify whether the worker started,
-was rejected, or became unavailable; it must not claim completion without the
-durable completed record and validation evidence.
+supervisor/job and worker advance the record to `active`, record the launch
+checkpoint, and begin one bounded attempt. The launch result must identify
+whether the job accepted the worker, was rejected, or became unavailable, and it
+returns after that checkpoint rather than waiting for the attempt to finish. It
+must not claim completion without the durable completed record and validation
+evidence.
 
-Launch does not prescribe a process, session, transport, model, tool set, or
-concurrency mechanism. Those are adapter concerns.
+Launch does not prescribe a particular process, session, transport, model, tool
+set, or supervisor implementation. Those are adapter concerns, but the adapter
+must satisfy the non-blocking job boundary above. A foreground child that the
+submitting turn waits on is not a valid launch mapping.
 
 ### Resume
 
@@ -130,6 +161,13 @@ records, task status, configured worker, budget allocation and host-reported
 use, blockers, required decisions, checkpoint freshness, and next action. A
 host may additionally report lifecycle or measurement facts, but the source
 and availability of each fact must be preserved.
+
+For an active attempt, a later wake or check-in also polls the supervisor/job and
+its process group or session health. A healthy process does not establish a
+current durable checkpoint, and an exited or missing process does not establish
+failure or completion by itself. The orchestrator records the durable and host
+observations separately and routes stale detection, cancellation, or bounded
+recovery from the durable record.
 
 Observation must not inspect worker-private state to answer a durable task
 query. A host can report a private runtime fact as supplementary evidence, but
@@ -155,9 +193,13 @@ questions and must not change task state.
 
 `cancel` is an orchestrator-routed control action. The orchestrator records the
 user-authorized cancellation reason and a durable checkpoint, then asks the
-host to stop the attempt when possible. The task becomes `cancelled` only
-after the record contains the cancellation transition and recovery/result
-context; a host stop signal alone is insufficient.
+host or supervisor/job to stop the attempt and its process group when possible.
+The submitting turn need not wait for process termination, but it must return
+only after the cancellation request and checkpoint are durable. The task becomes
+`cancelled` only after the record contains the cancellation transition and
+recovery/result context; a host stop signal alone is insufficient. Later
+observation confirms process-group termination and records any residual cleanup
+or recovery requirement.
 
 Cancellation is bounded and observable: it must not silently delete durable
 partial work, child records, audit evidence, or artifacts needed for recovery.
@@ -181,7 +223,10 @@ resetting spent observations, replacing the configured worker silently, or
 marking the task complete. If the configured worker is unavailable, the
 orchestrator records that blocker and follows a later replacement policy;
 this contract does not choose the replacement, retry, backoff, or scheduling
-policy.
+policy. A recovery launch uses the same non-blocking supervisor/job boundary as
+the initial launch and preserves the `as-is -> orchestrator -> implementer`
+mediation; it does not turn a foreground child or a wrong-role host fallback
+into an asynchronous attempt.
 
 ## Control-Plane Communication
 
@@ -205,7 +250,8 @@ policy.
   globally. These coordination mechanisms do not replace task-record authority.
 - Each leaf attempt retains an independent cost and wall-clock budget. Sibling
   attempts remain isolated by component scope and external dependencies; a
-  parent waits and observes child records before integrating their results.
+  parent observes child records on later wake/check-in operations before
+  integrating their results.
 - An ancestor cannot complete until every descendant is terminal and its result
   accounts for each failed or cancelled descendant.
 
@@ -314,6 +360,8 @@ attempts but does not redefine these decisions.
 This specification does not select a host adapter, define a CLI or wire
 protocol, implement host scheduling or wake timing, choose a runtime process or
 session model, or promise host cost attribution. Increment 5 maps this contract
-to a selected host and validates those host capabilities. Increment 6 defines
-the host-neutral stale, retry, budget, replacement, and cleanup policy above;
-future adapters may map it without changing lifecycle authority.
+to a selected host and validates the required non-blocking job capability;
+without safe detachment or server-job submission, the adapter records a blocker
+instead of claiming support. Increment 6 defines the host-neutral stale, retry,
+budget, replacement, and cleanup policy above; future adapters may map it
+without changing lifecycle authority.

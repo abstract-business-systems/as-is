@@ -28,9 +28,9 @@ config:
     retainDays: 30
 
 task:
-  status: blocked
+  status: completed
   worker: implementer
-  updated: 2026-07-26T19:25:00Z
+  updated: 2026-07-26T19:39:00Z
 constraints:
   cost:
     currency: USD
@@ -53,24 +53,38 @@ acceptance:
   - Reconcile this root record with the actual working tree and existing
     component records, including the committed Bun child and the supported
     `control-plane/control-plane.ts` boundary; distinguish current facts from
-    preserved historical observations without editing protected fixtures.
+    preserved historical observations without changing protected fixture
+    content.
   - Record the ordered six-step remediation plan and its decision boundary;
     this checkpoint must not implement code, launch a worker, or create ready
     records for steps 2 through 6.
   - Reuse this repository-root record as the only immediate step-1 task record;
-    retain `implementer` as the configured future worker and keep the root
-    blocked because the protected descendant is non-terminal, not active because
-    no worker attempt is running.
-  - Keep `blocked-item-visibility/` and
-    `opencode-server-mode-observation/` intact and unscheduled, classify the
-    OpenCode server-mode item as read-only evidence work, and preserve
-    `validation-fixtures/increment-5-cost-observability` exactly as blocked and
-    no-retry.
+    retain `implementer` as the configured future worker, keep the root blocked
+    while non-terminal descendants remain active, and complete it only after the
+    authorized archive removes those descendants without marking them complete.
+  - Preserve the two unscheduled planning records and the historical
+    `validation-fixtures/increment-5-cost-observability` record through the
+    explicitly authorized reversible archive described below. Keep the
+    historical record's `blocked` and no-retry state; do not retry or silently
+    complete any archived work.
+  - Replace the ambiguous hybrid subprocess wording with an explicit non-blocking
+    job model: the OpenCode/as-is/orchestrator turn submits or spawns a worker
+    attempt, records a durable launch checkpoint, and returns without waiting for
+    completion; a supervisor/job owns the worker process group, logs/events, and
+    persisted state; later check-ins poll durable state and process/session health.
+    A foreground child awaited by the submitting turn is not asynchronous.
+  - Make safe host detachment or supported server-job submission a prerequisite
+    backed by host capability evidence. If that evidence is unavailable, record a
+    durable blocker and do not claim asynchronous support. Preserve role
+    mediation, component-only context, cancellation, stale detection, bounded
+    recovery, cumulative accounting, and no silent role substitution.
   - Validate the planning checkpoint with focused path/record assertions,
     protected-record comparison, and `git diff --check`; record unavailable
     host cost and wall-clock observations rather than estimates.
-  - Commit only the scoped durable planning/root-record checkpoint. Do not
-    amend, push, create a pull request, change branches, alter remotes, stage
+  - If this bounded checkpoint qualifies for completion, use the repository-local
+    completion procedure for only its scoped durable documentation/task-context
+    handoff; otherwise record the blocker and do not commit. In either case, do
+    not amend, push, create a pull request, change branches, alter remotes, stage
     unrelated working-tree records, or invoke a worker in this task.
 ---
 
@@ -97,11 +111,12 @@ implementation task.
 The current root record is the only immediate step-1 task record and is reused
 at `/home/vc/dev/trial/as-is/as-is.md`; no speculative `root-integration/` or
 other component directory is created. Its configured worker remains
-`implementer`, but no worker is launched in this planning task. The root status
-is `blocked`: no root attempt is active, and the protected
-`validation-fixtures/increment-5-cost-observability` descendant remains a
-non-terminal blocked/no-retry record. This distinguishes the root's current
-blocked task-tree state from an active worker attempt and from completion.
+`implementer`, but no worker is launched in this planning task. The root is now
+`completed` only because the three non-terminal records were archived through
+the authorized reversible operation above; no archived record was marked
+completed. The root had been `blocked` before that operation, with no active
+root attempt, and the archived historical fixture retains its blocked/no-retry
+state.
 
 Only step 1 is recorded as the next implementation boundary. Steps 2 through 6
 remain ordered plan items without new ready records or launches. Future work
@@ -109,6 +124,82 @@ must use the canonical `as-is -> orchestrator -> implementer` mediation path;
 the orchestrator may not substitute `general` or `explore`. The current
 `config.scheduling.maxConcurrentTasks: 1`, higher-authority constraints,
 protected records, and host-neutral OpenCode live-control boundary remain fixed.
+
+The corrected execution decision is an explicit non-blocking job model. The
+OpenCode/as-is/orchestrator turn may perform validation and job submission, then
+must persist a durable launch checkpoint and return without waiting for worker
+completion. A supervisor/job process or supported server job owns the long-running
+worker, its process group, logs/events, and persisted runtime state. Later
+orchestrator wake/check-in operations poll the durable records and source-labelled
+job/process/session health; neither health nor process exit replaces durable
+validation or completion evidence. A foreground child process that the
+submitting turn waits on is synchronous and invalid for this boundary.
+
+This decision is dependent on fresh host capability evidence demonstrating safe
+detachment or server-job submission, ownership, event/log capture, persistence,
+polling, and cancellation. OpenCode server mode remains only a possible
+transport/job-submission mechanism; it is not evidence of nested navigation or
+asynchronous execution. If the host cannot establish those capabilities, the
+next task records a blocker and stops without claiming support.
+
+## Authorized Archive Decision
+
+The current-turn user explicitly authorized dropping current blocked items only
+when recovery is preserved. The root-scoped design documents cannot be separated
+into a terminal documentation task without either creating a duplicate task
+authority outside its component boundary or bypassing
+`committing-completed-work`: this root record names their acceptance and scoped
+handoff, while no separate documentation component record exists. The smallest
+completion-safe route is therefore a reversible, tracked archive of the three
+non-terminal records, followed by a root-only completed handoff. This is an
+archive from the active task tree, not a completion transition for any archived
+record.
+
+The archive operation records these source and recovery facts before the move:
+
+- `validation-fixtures/increment-5-cost-observability/as-is.md` and its
+  `README.md` are historical, `blocked`, configured for `implementer`, and have
+  an explicit no-retry boundary. Their current path was last carried by source
+  commit `e9aaa10a65fd574d5814b7fceb705d0fe28f1309`; the README fixture began
+  in `e9b740b`. The archived snapshots are owned by the root task for retention,
+  while the original child ownership and worker identity remain `implementer`.
+- `blocked-item-visibility/as-is.md` is an unlaunched `ready` planning record,
+  configured for `implementer`, created at `2026-07-26T18:05:39Z`, with no
+  attempt, validation, cost, or wall-clock observation. It has no source Git
+  commit because it is untracked in the current checkout. Its original owner
+  is the root orchestrator and its future worker remains `implementer`; it is
+  not retried by this archive.
+- `opencode-server-mode-observation/as-is.md` is likewise an unlaunched,
+  untracked `ready` planning record created at `2026-07-26T18:05:39Z`, with no
+  attempt or observations. Its bounded read-only evidence purpose, configured
+  worker `implementer`, no-external-effects policy, and no-retry-on-role-failure
+  boundary are preserved in the snapshot. The root orchestrator retains the
+  archive; any future work requires a new explicit authorization.
+
+The exact archive destinations are
+`task-archives/validation-fixtures/increment-5-cost-observability/README.md`,
+`task-archives/validation-fixtures/increment-5-cost-observability/record.md`,
+`task-archives/blocked-item-visibility/record.md`, and
+`task-archives/opencode-server-mode-observation/record.md`. Archive snapshots
+are deliberately not named `as-is.md`, so they remain recoverable audit
+artifacts without remaining active task descendants. Live navigation references
+are updated to the archive destinations; historical record prose may retain old
+paths as source-labelled lineage.
+
+The scoped handoff artifact set is `as-is.md`,
+`orchestration-design.md`, `execution-contract.md`, `opencode-adapter.md`,
+`validation-fixtures/README.md`, and the four archive snapshots at the
+destinations above, together with the tracked removal of the three former
+record paths and the former historical README path. The untracked
+`control-plane.md` file and all unrelated working-tree paths remain outside the
+handoff.
+
+To recover, use the archive commit as the source, restore each snapshot to its
+recorded old path (`README.md` plus `as-is.md` for the historical fixture, and
+`as-is.md` for either planning record), then restore this root to `blocked` and
+reassess descendant closure. The historical fixture must return as `blocked` and
+no-retry; the two planning records must return as `ready` and unscheduled. No
+recovery means retrying, replacing, or marking the historical worker complete.
 
 ## Plan
 
@@ -126,23 +217,33 @@ The remediation order is explicit and sequential:
    in record-only status, create a component record immediately before its
    future implementation, and classify read-only questions without creating
    implementation components. Reuse existing records or record a bounded
-   cleanup decision; do not duplicate or destructively delete records. No new
-   record is created now; the existing `blocked-item-visibility/` record stays
-   ready and unscheduled.
-3. **Supervise worker attempts through an orchestrator-owned asynchronous
-   subprocess boundary.** Future implementation must provide durable launch and
-   checkpoint state, process and log observation, timeout and stale handling,
-   bounded recovery, and explicit blocked escalation. Semantic subagent roles
-   remain unchanged; the subprocess is only the supervised execution envelope.
+    cleanup decision; do not duplicate or destructively delete records. No new
+    record is created now; the archived `blocked-item-visibility/` snapshot
+    remains recoverable and was never launched.
+3. **Establish and validate a non-blocking supervised job boundary.** The
+   OpenCode/as-is/orchestrator turn must submit or spawn the configured
+   `implementer` attempt to a supervisor-owned process group or supported server
+   job, persist a durable launch checkpoint, and return without waiting for
+   worker completion. The supervisor/job must capture logs/events and persist
+   state for later orchestrator polling of durable records plus process/session
+   health, cancellation, stale detection, and bounded recovery. A foreground
+   child awaited by the submitting turn is not asynchronous. Host capability
+   evidence is a prerequisite; if safe detachment or server-job submission is
+   unavailable, record a blocker and do not claim support. Preserve the
+   `as-is -> orchestrator -> implementer` mediation, component-only context,
+   cumulative accounting, and no silent role substitution.
 4. **Add cumulative cross-session accounting.** Future implementation must use
    append-only per-attempt observations, source-labelled measured/unknown
    states, reserves, no-double-counting aggregation, and admission/stop behavior
    when cost or wall-clock budgets are exceeded.
 5. **Treat OpenCode server-mode observation as read-only evidence work.** Do not
-   create an implementation component for it unless a later answer demonstrates
-   a concrete implementation need. The existing
-   `opencode-server-mode-observation/` record remains intact and unscheduled;
-   no host change or external observation is authorized now.
+    create an implementation component for it unless a later answer demonstrates
+    a concrete implementation need. The archived
+    `opencode-server-mode-observation/` snapshot remains unscheduled and
+    recoverable; no host change or external observation is authorized now.
+    Server mode may later supply a transport or job-submission mechanism, but it
+    cannot be treated as proof of nested navigation or asynchronous execution
+    without the capability evidence required by step 3.
 6. **Resume the previously authorized initiatives only after these remediations
    are accepted and committed.** Preserve their original order: finish the
    control-plane foundation at its supported boundary, then the future
@@ -158,6 +259,17 @@ to `blocked`. No worker attempt, implementation, delegation, or new component
 record was created in this task. The root record itself is the reused immediate
 step-1 record.
 
+At the design-correction checkpoint `2026-07-26T19:29:57Z`, the permanent
+orchestration, execution-contract, and OpenCode adapter documents were aligned
+on the non-blocking job model. The correction distinguishes a submitting
+OpenCode/as-is/orchestrator turn from the supervisor/job lifetime, requires a
+durable launch checkpoint before the turn returns, assigns process-group and
+log/event ownership to the supervisor/job, and requires later durable-record and
+health polling. The historical foreground `opencode run` mapping is not treated
+as asynchronous support, and OpenCode server mode remains a capability-evidence
+question rather than proof. No worker was launched, no implementation started,
+and no ready component record was created or changed.
+
 The actual supported Bun handoff is present at
 `control-plane/control-plane.ts` and
 `control-plane/control-plane.test.ts`, with the completed child record at
@@ -169,14 +281,28 @@ checkpoint does not claim that documentation or a root integration commit is
 complete. The root record no longer treats the old Python/integration wording as
 current fact.
 
-The existing `blocked-item-visibility/` and
-`opencode-server-mode-observation/` records are still `ready`, untouched, and
-unscheduled. The protected
-`validation-fixtures/increment-5-cost-observability/as-is.md` record is still
-`blocked` with its explicit no-retry boundary; it was not read as a retry
-candidate, edited, recovered, or used as a substitution reason. No records for
-remediation steps 2 through 6 were created. Step 5 is explicitly classified as
-a read-only evidence question rather than an implementation component.
+The former `blocked-item-visibility/` and
+`opencode-server-mode-observation/` records were unlaunched `ready` planning
+records. They are preserved as non-task archive snapshots and were not
+activated, retried, or completed. The former
+`validation-fixtures/increment-5-cost-observability/as-is.md` record is
+preserved byte-for-byte as a `blocked` archive snapshot with its explicit
+no-retry boundary; it was not retried, edited, recovered, or used as a
+substitution reason. No records for remediation steps 2 through 6 were created.
+Step 5 remains explicitly classified as a read-only evidence question rather
+than an implementation component.
+
+At the archive checkpoint `2026-07-26T19:39:00Z`, the orchestrator applied the
+authorized reversible tracked archive. The two unlaunched ready records and the
+historical blocked fixture were removed from active task-record discovery and
+preserved as four archive snapshots under `task-archives/`; the historical
+fixture snapshots are byte-exact, and the two planning snapshots preserve the
+inspected records without being retried or marked completed. The live
+validation-fixtures navigation entry was updated to the archived historical
+README. With no non-terminal active descendant remaining, this root record
+advanced to `completed` for the durable documentation/task-context handoff only.
+The untracked `control-plane.md` artifact remains untouched and outside this
+scoped handoff.
 
 The following prior implementation and review material remains historical
 evidence, not current tree state. Its earlier claims about root Python files and
@@ -221,8 +347,9 @@ adds only the three explicitly named child records documented above.
 
 This planning-only checkpoint used `verification-discipline` to select
 lightweight repository checks. Direct inspection confirmed the Bun child files
-and child record exist, the root Python paths are absent, the two existing ready
-records remain present, and the protected fixture remains blocked/no-retry.
+and child record exist, the root Python paths are absent, and the three archived
+snapshots preserve the two unlaunched ready records plus the protected blocked/
+no-retry fixture.
 `git diff --check -- as-is.md` reported no whitespace diagnostics before this
 commit. No worker was launched, so no implementation or host lifecycle check
 was performed. Actual host-reported monetary cost is unavailable; the root
@@ -230,11 +357,47 @@ record retains `spent: 0.00` with source `unavailable` and does not claim zero
 actual cost. Host-observed cumulative wall-clock use is unavailable; no
 validation elapsed time is treated as a task-budget observation.
 
+At the design-correction validation checkpoint `2026-07-26T19:34:36Z`,
+`verification-discipline` selected and passed the smallest relevant checks:
+
+- `git diff --check -- as-is.md orchestration-design.md execution-contract.md
+  opencode-adapter.md` exited 0 with no whitespace diagnostics.
+- `python3 schemas/task-record-validator/task_record_validator.py control-plane`
+  reported `VALID` for the existing supported child record.
+- A focused read-only assertion parsed the root front matter, confirmed the
+  root is `completed` with configured worker `implementer` and
+  `maxConcurrentTasks: 1`, checked the required non-blocking/capability wording
+  in all four changed files, and confirmed the archived historical snapshot
+  retains `Do not retry`; it reported `DESIGN_CORRECTION_ASSERTIONS: PASS`.
+- A byte-preservation assertion compared the tracked historical fixture files
+  with their archive snapshots and reported `EXACT` for both files. The two
+  untracked ready records were archived from the directly inspected working
+  tree; no source commit exists for a byte-level Git comparison. No worker,
+  component record creation, or host lifecycle check was performed.
+- `bun control-plane/control-plane.ts can-complete . .` reported
+  `eligible: true`, with no non-terminal descendants and no unaccounted failed
+  or cancelled descendants. The active supported `control-plane/` record still
+  reported `VALID`; archive snapshots were intentionally checked with path,
+  content, status, and discovery assertions rather than treated as active task
+  records.
+
+These checks validate durable wording, record shape, and protected-path
+preservation only. They do not establish safe host detachment, server-job
+submission, process-group ownership, asynchronous cancellation, or nested
+OpenCode navigation; those remain the explicit host-capability dependency and
+residual risk. Actual host-reported monetary cost and cumulative task
+wall-clock use remain unavailable, so `spent` and `spent-seconds` retain their
+source-labelled unavailable state rather than claiming zero actual use.
+
 The whole-tree task-record validator remains a known non-gating observation for
-this checkpoint because existing mixed legacy records and the protected
-historical fixture have pre-existing scope/budget conditions. This checkpoint
-does not alter those records to manufacture `VALID`; the durable blocker and
-residual validation risk are recorded below.
+this checkpoint because `.agents/agents/as-is.md` and related legacy agent
+definition records are not task records, while the root's mixed tree has
+pre-existing scope/aggregation conditions. It reported `INVALID` for those
+legacy shapes, but `bun control-plane/control-plane.ts can-complete . .`
+reported `eligible: true` with no non-terminal task descendants. The archived
+snapshots are intentionally not named `as-is.md` and therefore are not active
+descendants; this does not rewrite their statuses or manufacture validation
+evidence.
 
 ### Preserved historical validation
 
@@ -387,17 +550,33 @@ focused Bun behavior/build plus record and protected-boundary checks pass.
 ## Result
 
 The ordered remediation plan and decision boundary are durably recorded. The
-root record is blocked and non-terminal, the immediate step-1 record is the
-reused repository-root `as-is.md`, and no worker or later component task was
-launched. The root does not claim that a Python implementation exists or that
-the Bun child has already been integrated at the repository root. The protected
-fixture remains blocked/no-retry, and the two existing ready records remain
-unscheduled.
+root record is now `completed` after the authorized archive removed the three
+non-terminal records from the active task tree; the immediate step-1 record is
+the reused repository-root `as-is.md`, and no worker or later component task
+was launched. The root does not claim that a Python implementation exists or
+that the Bun child has already been integrated at the repository root. The
+historical fixture remains available as a byte-exact `blocked`/no-retry archive
+snapshot, and the two speculative ready records remain available as
+recoverable snapshots without being treated as completed work.
 
-This is a durable planning checkpoint, not a completed implementation handoff.
-Because a descendant is non-terminal, the root is not eligible for
-`completed` or for the completion-only `committing-completed-work` procedure.
-The user-authorized checkpoint commit is scoped to this root record only.
+The durable design correction is recorded in the scoped files
+`as-is.md`, `orchestration-design.md`, `execution-contract.md`, and
+`opencode-adapter.md`. They now require submission to a supervisor-owned or
+supported server job, a launch checkpoint returned before worker completion,
+later polling of durable state and process/session health, explicit cancellation
+and recovery ownership, and a capability blocker when safe detachment is not
+evidenced. The foreground OpenCode subprocess mapping is explicitly
+synchronous, and server mode is explicitly only a possible transport/job
+mechanism.
+
+This is a completed durable documentation/task-context handoff, not a worker
+implementation or an asynchronous host-capability claim. The non-terminal
+records were archived rather than silently completed, and the archive decision,
+old paths, source commits, statuses, ownership, no-retry boundary, and recovery
+instructions are recorded above. The root now has no active descendants, so it
+is eligible for the completion-only `committing-completed-work` procedure. The
+unproven host capability remains a blocker for any future asynchronous
+implementation and is not resolved by this commit.
 
 ## Historical Result (preserved; superseded)
 
@@ -430,16 +609,28 @@ preserved and must not be retried, edited, or used as a substitution reason.
 
 ## Blockers And Escalations
 
-The protected `validation-fixtures/increment-5-cost-observability` descendant
-is `blocked` and explicitly no-retry; this non-terminal descendant prevents
-root completion. It is preserved exactly and is not a reason to retry, recover,
-edit, substitute a worker, or broaden any remediation.
+The archived
+`task-archives/validation-fixtures/increment-5-cost-observability/record.md`
+retains the historical `blocked` status and explicit no-retry boundary. It is
+not a reason to retry, recover, edit, substitute a worker, or broaden any
+remediation, and it is no longer an active descendant after the reversible
+archive.
 
-The root is also not active because no worker attempt is running. Future step-1
-implementation remains a separate bounded recovery/launch decision after this
-checkpoint. Any configured-worker unavailability, wrong-role event, or
-unattributed return must be recorded as a durable blocker and must stop without
-substitution. No blocker authorizes implementing steps 2 through 6 now.
+The root completed without an active worker attempt. Any future recovery of an
+archived ready record or the historical fixture requires explicit direction,
+preserves its original configured `implementer`, and must stop without
+substitution on unavailable, wrong-role, or unattributed return. No blocker
+authorizes implementing steps 2 through 6 now.
+
+The non-blocking host capability required by the corrected step 3 is not yet
+established. The current foreground `opencode run`/parent-wrapper mapping is
+synchronous, and the repository has no validated evidence that OpenCode server
+mode can safely submit a detached job, own its process group, persist its
+events, poll its health, and cancel it after the submitting turn returns. This
+is a capability blocker for any asynchronous implementation, not permission to
+wrap a foreground child or to claim server-mode support. The next task must
+obtain or record this host evidence before creating an implementation record or
+launching a worker.
 
 ## Historical Blockers And Escalations (preserved; superseded)
 
@@ -458,14 +649,20 @@ implementation.
 ## Recovery
 
 The recovery checkpoint is this root record at
-`2026-07-26T19:25:00Z`, the committed `control-plane/` child handoff, the
-actual Bun paths, and the untouched existing ready/blocked records. On
-resumption, reread this record and inspect the actual tree before deciding
-whether to recover step 1. Preserve cumulative observations, do not infer
-worker activity from process absence, and do not retry or edit the protected
-fixture. Before any future launch, keep the root record's configured worker as
-`implementer`, create no step-2-through-6 record, and record the launch
-checkpoint first.
+`2026-07-26T19:39:00Z`, the committed `control-plane/` child handoff, the
+actual Bun paths, and the four tracked archive snapshots. On resumption,
+reread this record and inspect the archive and active task tree before deciding
+whether to recover anything. Preserve cumulative observations, do not infer
+worker activity from process absence, and do not retry or edit the archived
+historical fixture. To recover an archived record, restore its exact snapshot
+to the old path listed above, return the root to `blocked`, and reassess
+descendant closure; the historical fixture must remain `blocked`/no-retry and
+the two planning records `ready`/unscheduled. Before any future launch, keep
+the configured worker as `implementer`, create no step-2-through-6 record, and
+record the launch checkpoint first. A future worker launch is permitted only
+after a host capability check establishes the non-blocking supervisor/job
+boundary; the submitting turn must return after that checkpoint rather than
+wait for worker completion.
 
 ## Historical Recovery (preserved; superseded)
 
@@ -483,11 +680,17 @@ state. If parent review is interrupted, rerun the listed deterministic checks
 
 ## Next Action
 
-Commit this durable planning checkpoint with only the root `as-is.md` change.
-Do not launch the root step-1 worker in this task. After the checkpoint is
-committed and a later implementation turn is authorized, recover/launch only
-the root step-1 task through the configured `implementer`; then independently
-reconcile its handoff before any later remediation is recorded or launched.
+The next ordered task is to obtain fresh local host capability evidence for a
+safe detached supervisor/job or supported server-job submission. The evidence
+must cover return-before-completion, process-group ownership, log/event capture,
+durable state persistence, later polling of durable state and process/session
+health, and routed cancellation while preserving the `as-is -> orchestrator ->
+implementer` chain. If the host cannot establish those facts, retain this
+durable blocker and do not claim asynchronous support. If it can, create or
+reuse the bounded step-3 implementation record immediately before a separately
+authorized launch; do not launch a worker in this task. The protected fixture
+and both planning records remain recoverable in `task-archives/`; do not
+restore or launch them without separate authorization.
 
 ## Historical Next Action (preserved; superseded)
 
@@ -512,9 +715,15 @@ current decision boundary.
 - Remediation step 2: correct lifecycle and blocked-descendant visibility;
   create/reuse a component record immediately before future implementation and
   keep read-only questions record-free. No new record is created now.
-- Remediation step 3: implement the orchestrator-owned asynchronous subprocess
-  supervision boundary with durable launch/checkpoint state, observation,
-  timeout/stale handling, bounded recovery, and explicit escalation.
+- Remediation step 3: after host capability evidence is accepted, implement and
+  validate the non-blocking supervisor-owned job or supported server-job
+  boundary. The submitting OpenCode/as-is/orchestrator turn must persist a
+  launch checkpoint and return before worker completion; the job owns the
+  process group, logs/events, and persisted state for later durable and
+  process/session-health polling, cancellation, timeout/stale handling, bounded
+  recovery, cumulative accounting, and explicit escalation. A foreground child
+  awaited by the submitting turn is not asynchronous; absent safe detachment or
+  server-job evidence remains a blocker.
 - Remediation step 4: implement cumulative cross-session cost and wall-clock
   accounting with append-only observations, source labels, reserves,
   no-double-counting aggregation, and budget admission/stop behavior.
@@ -547,12 +756,25 @@ No other project work is pending unless it is added by a new authorized task.
 The historical `validation-fixtures/opencode-mediation-dogfood` and
 `validation-fixtures/increment-5-dogfood` records are completed evidence, the
 `validation-fixtures/increment-6-recovery-fixture` record is completed recovery
-evidence, and `validation-fixtures/increment-5-cost-observability` is blocked
-historical evidence with an explicit no-retry boundary. Their statuses and
-historical references remain authoritative.
+evidence, and
+`task-archives/validation-fixtures/increment-5-cost-observability/record.md` is
+the preserved blocked historical evidence with an explicit no-retry boundary.
+The two unscheduled planning snapshots are under `task-archives/` and are not
+current initiatives. Their statuses and historical references remain
+authoritative; restoring any of them requires a new authorized task.
 
 ## Change Log
 
+- `2026-07-26 | completed` - Preserved the historical blocked/no-retry fixture
+  and two unlaunched ready planning records as tracked, reversible non-task
+  archive snapshots after recording old paths, source history, ownership, and
+  recovery. Updated live navigation and completed only the scoped durable
+  documentation/task-context handoff; no worker was launched or retried.
+- `2026-07-26 | blocked` - Replaced the ambiguous foreground/subprocess hybrid
+  wording with the explicit non-blocking supervisor/job model, recorded the
+  host-capability dependency and ordered next task, and preserved the role,
+  context, cancellation, recovery, accounting, no-substitution, ready-record,
+  and blocked/no-retry boundaries without launching a worker.
 - `2026-07-26 | blocked` - Reconciled the root record with the actual Bun child
   tree, recorded the ordered remediation plan and decision boundary, reused the
   root record for step 1, and preserved the ready/unscheduled siblings and the

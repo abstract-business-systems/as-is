@@ -188,6 +188,23 @@ See `as-is.md` for transient current project task state.
   all decisions that a specialist can make within its delegated boundary.
 - It is self-scheduling: it wakes at self-scheduled times to inspect the task
   state and move the process forward. Wake timing is configurable.
+- An as-is/OpenCode turn is a control-plane turn, not the lifetime of a worker.
+  Launch submits or spawns a worker attempt to a supervisor-owned job or a
+  supported server job, records a durable launch checkpoint, and returns
+  without waiting for worker completion.
+- A foreground child process that the as-is or orchestrator turn waits on is
+  synchronous. Wrapping a nested subagent call in such a child does not satisfy
+  the non-blocking launch boundary and must not be accepted as asynchronous
+  execution.
+- The supervisor or server job owns the long-running worker and its process
+  group, captures logs and lifecycle events, and persists the state needed for
+  later observation, cancellation, stale detection, and recovery. Later wake or
+  check-in operations poll the durable task record and the job/process or
+  session health; runtime health supplements rather than replaces durable task
+  evidence.
+- If the selected host cannot safely detach or submit a job with that ownership,
+  observation, and cancellation boundary, the orchestrator records a durable
+  capability blocker and does not claim asynchronous support.
 - HITL provides control and direction through the orchestrator. The
   orchestrator also routes questions, approval requests, and material status to
   the human.
@@ -247,13 +264,14 @@ See `as-is.md` for transient current project task state.
 - The current effective `config.scheduling.maxConcurrentTasks` remains `1`.
   No runtime concurrency increase is part of the current design-context task.
 - Future `maxConcurrentTasks: 3` semantics count active leaf worker attempts,
-  not parent control-plane orchestrators. Parent orchestrators wait, observe,
-  and integrate; they do not consume leaf-worker slots merely by coordinating
-  children.
+  not parent control-plane orchestrators. Parent orchestrators submit and
+  return, then observe and integrate on later wake/check-in operations; they do
+  not consume leaf-worker slots merely by coordinating children.
 - Before a later implementation raises the limit, it must provide an exclusive
   per-component lease or lock, global slot accounting, independent cost and
   wall-clock budgets for each leaf attempt, sibling isolation, parent
-  waiting/observation, and descendant closure before an ancestor completes.
+  observation across wake/check-in operations, and descendant closure before an
+  ancestor completes.
 - A slot or lease is coordination evidence only. Durable component records
   remain the authority for status, approvals, history, validation, and
   completion.
@@ -276,6 +294,36 @@ that evidence. The contract intentionally leaves host selection, transport,
 session/process behavior, scheduling, retry/backoff policy, and measurement
 implementation to later adapter and recovery increments.
 
+### Non-Blocking Job Model
+
+The execution boundary has two distinct lifetimes:
+
+1. The as-is/OpenCode/orchestrator turn performs bounded control-plane work. It
+   validates the record and allocation, submits or spawns one worker attempt,
+   and returns after the supervisor or supported server job has accepted the
+   attempt and the durable launch checkpoint has been written.
+2. The supervisor/job lifetime owns the long-running `as-is -> orchestrator ->
+   implementer` mediation, its process group, logs, events, and private
+   transient runtime state. It persists durable checkpoints and remains
+   independently observable after the submitting turn returns.
+
+The supervisor/job must expose enough evidence for a later orchestrator wake or
+check-in to poll the durable component record and process/session health, request
+cancellation, detect stale or unavailable work, and perform bounded recovery.
+Process health, a job handle, an event stream, or process exit is supplementary;
+none can create a completion transition without the worker's durable validation
+and handoff. A child process started by the submitting turn and awaited by that
+turn is explicitly not this model.
+
+The host capability prerequisite is strict. A host adapter may use a detached
+supervisor process, a host-managed job, or a supported server job, but it must
+demonstrate submission-before-completion, ownership of the worker process group,
+log/event capture, durable state persistence, polling, and cancellation. If it
+cannot establish those facts safely, the result is a durable blocker and the
+adapter must not claim asynchronous execution. OpenCode server mode is only a
+possible transport or job-submission mechanism; it is not evidence by itself of
+nested navigation, detached execution, or asynchronous lifecycle support.
+
 ### Minimal Execution Envelope
 
 The minimal dogfood path uses an orchestrator role and an implementer role. Both
@@ -290,14 +338,23 @@ worker, and cost and wall-clock allocations.
 2. The orchestrator verifies that the child allocation, including its reserve,
    is within the parent allocation, then delegates the component to the record's
    configured worker.
-3. The implementer changes only its component directory, advances the
+3. The orchestrator submits or spawns the attempt through the supervisor or
+   supported server job, which preserves the `as-is -> orchestrator ->
+   implementer` role mediation and component-only task context. The orchestrator
+   records the durable launch checkpoint and returns without waiting for worker
+   completion.
+4. The supervisor/job owns the long-running worker, process group, logs, and
+   events. On later wake or check-in, the orchestrator polls the durable child
+   record and source-labelled job/process health, then routes cancellation,
+   question, stale, or bounded-recovery actions through the same role boundary.
+5. The implementer changes only its component directory, advances the
    record through its status transition, uses the smallest task-specific checks,
    and records validation evidence, actual host-reported cost when available,
    residual risk, recovery state, and next action before handoff.
-4. The orchestrator reads the completed record and performs any required
+6. The orchestrator reads the completed record and performs any required
    ancestor-level integration, including exposing a newly created repository
    skill through the host adapter.
-5. The worker or responsible orchestrator uses `committing-completed-work` to
+7. The worker or responsible orchestrator uses `committing-completed-work` to
    commit the completed record and only its scoped changes. A failed commit keeps
    the record recoverable rather than reporting completion.
 
@@ -308,12 +365,14 @@ remain later increments. When a host cannot report per-component cost, the
 record names its fallback metric and leaves `spent` as non-actual rather than
 presenting an estimate as a cost.
 
-An adapter should prefer a host-managed child worker when it exposes the
-required lifecycle events, cancellation, and attributable usage. This preserves
-host session linkage and control better than an independently launched process,
-but does not itself make cost attribution reliable; that remains a host
-measurement capability. A bounded subprocess is the fallback where a host cannot
-provide the required child-worker lifecycle contract.
+An adapter should prefer a host-managed detached job when it exposes the required
+submission-before-completion boundary, process-group ownership, lifecycle events,
+cancellation, and attributable usage. A supervisor-owned detached subprocess is
+also valid when it provides those same observations and controls. A foreground
+subprocess that the submitting OpenCode/as-is turn waits on is not a fallback; it
+is synchronous and cannot satisfy this contract. When neither a safe detached
+supervisor nor a supported server job is evidenced, the adapter must report a
+capability blocker rather than weakening the contract.
 
 ### Delegation
 
@@ -374,14 +433,21 @@ acceptance conditions.
    task record, not a duplicate of repository-wide context.
    Acceptance conditions: the contract represents every lifecycle action needed
    by the preceding task protocol without adding host-specific policy.
-5. **Implement and validate a host adapter.** Map the contract to a host-managed
-   child worker where available, or a bounded subprocess otherwise. Validate a
-   harmless child-component task using the selected adapter, including delegation
-   notification, check-ins, budget handling, completion reporting, and cleanup
-   of transient runtime artifacts.
-   Acceptance conditions: the harmless task satisfies the lifecycle contract,
-   preserves component-only initial context, and records durable evidence of
-   notifications, validation, and cleanup.
+5. **Implement and validate a host adapter.** Map the contract to a
+   supervisor-owned detached job or a supported server job. A foreground child
+   process awaited by the submitting host turn is not an asynchronous mapping.
+   Validate a harmless child-component task using the selected adapter, including
+   `as-is -> orchestrator -> implementer` mediation, component-only initial
+   context, a launch checkpoint returned before worker completion, supervisor/job
+   ownership of the process group, log/event capture, later durable and health
+   polling, cancellation, stale handling, bounded recovery, budget handling,
+   completion reporting, and cleanup of transient runtime artifacts. If host
+   evidence cannot establish safe detachment or job submission, record a blocker
+   and stop without claiming asynchronous support.
+   Acceptance conditions: the harmless task satisfies the non-blocking lifecycle
+   contract, preserves component-only initial context and role mediation, and
+   records durable evidence of launch, polling, cancellation or recovery,
+   validation, and cleanup.
 6. **Implement recovery and independent validation.** Completed in the current
    Increment 6 task. The host-neutral contract defines stale-task detection,
    finite retry and backoff, cumulative budget preservation,
@@ -408,8 +474,11 @@ implementation.
    approvals are persisted, and how the human changes direction safely.
 4. **External-system protocol:** How integrations represent provenance,
    credentials, approval boundaries, retries, idempotency, and failure state.
-5. **Host adapter selection:** Which host can enforce the execution contract and
-   report the lifecycle and measurement observations it requires.
+5. **Host adapter selection:** Which host can enforce the non-blocking job
+   boundary, own the worker process group, support polling and cancellation, and
+   report the lifecycle and measurement observations the execution contract
+   requires. OpenCode server mode remains a candidate transport/job-submission
+   mechanism, not proof of nested navigation or asynchronous execution.
 
 ## Host Adapters
 

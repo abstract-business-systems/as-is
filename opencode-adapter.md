@@ -19,10 +19,13 @@ policy, task-record fields, authority, or completion behavior.
 - The `as-is`, `orchestrator`, and `implementer` definitions under
   `.agents/agents/` map the user-facing entry, host-neutral orchestration, and
   component implementation roles. The OpenCode default agent is `as-is`.
-- A host-managed OpenCode subagent is preferable when it exposes lifecycle,
-  cancellation, and attributable-usage observations. The current fallback is
-  a bounded top-level `opencode run` addressed only to the `as-is` primary;
-  nested task mediation is required to reach subagents.
+- A host-managed OpenCode subagent is useful only when a detached supervisor or
+  supported server job submits it without waiting for completion and exposes
+  lifecycle, cancellation, process/session-health, and attributable-usage
+  observations. The currently observed fallback is a foreground bounded
+  top-level `opencode run` addressed only to the `as-is` primary; it is a
+  synchronous invocation, not an asynchronous job boundary. Nested task
+  mediation is still required to reach subagents.
 - OpenCode 1.17.18 exposes a session-level `session.cost` and per-step
   `part.data.cost`, together with token counters, through its local SQLite
   database and JSON session export. This is a model/token-derived session
@@ -52,20 +55,49 @@ policy, task-record fields, authority, or completion behavior.
   cancellation, and delegation. A CLI prompt, event stream, process exit, or
   direct private-worker message cannot replace a durable transition.
 
+## Non-Blocking Job Capability Boundary
+
+OpenCode sessions block while their nested subagents run. A foreground
+`opencode run`, a task-tool call, or a subprocess started and awaited inside the
+same synchronous OpenCode/as-is/orchestrator turn therefore remains synchronous;
+wrapping the call does not make it asynchronous.
+
+A valid non-blocking adapter must submit or spawn the worker attempt to a
+supervisor-owned job or a supported OpenCode server job, receive a durable launch
+checkpoint, and return the submitting turn before worker completion. The
+supervisor/job must own the long-running worker and its process group, capture
+logs and lifecycle events, persist state, and support later polling of durable
+records plus process/session health and routed cancellation. A foreground child
+that the submitting turn waits on is not an acceptable substitute.
+
+OpenCode server mode is a possible transport or job-submission mechanism, not
+proof that nested navigation, detached execution, job ownership, durable event
+capture, polling, or asynchronous cancellation exists. The repository currently
+has no validated evidence for those capabilities. Until fresh local capability
+evidence establishes them, the adapter must record a durable host-capability
+blocker and must not claim asynchronous support. Any future job must preserve the
+`as-is -> orchestrator -> implementer` mediation and deliver the component's
+`as-is.md` plus central read-only context, without silently substituting
+`general` or `explore`.
+
 ## Supported Mediation Chain
 
-The exact OpenCode launch and mediation chain for this repository is:
+The exact role mediation required for any supported OpenCode launch is:
 
-1. Start a fresh process with `opencode run --format json --agent as-is
-   --dir <project> <request>`.
+1. The `as-is` primary receives the current request and must route it to the
+   `orchestrator`; a host supervisor/job may start the enclosing OpenCode
+   process, but the submitting turn must not wait for the worker job to finish.
 2. The `as-is` primary must call the task tool with target `orchestrator`.
    `general` and `explore` are rejected fallback targets for this task.
 3. The nested `orchestrator` subagent rereads the named component record and
-   calls the task tool with its configured target `implementer`.
+   submits the worker attempt through the supervisor/job with its configured
+   target `implementer`; it must return a durable launch checkpoint rather than
+   waiting for worker completion.
 4. The `implementer` subagent receives only the component record plus central
-   read-only repository context, updates that component, and returns its
-   durable checkpoint and handoff.
-5. The parent process rereads the child record and accepts completion only when
+   read-only repository context, updates that component, and records its durable
+   checkpoint and handoff in the supervisor-owned job.
+5. A later orchestrator wake/check-in polls the child record and source-labelled
+   supervisor/process/session health. The parent accepts completion only when
    the worker record, validation, terminal descendants, and scoped commit are
    present.
 
@@ -111,6 +143,12 @@ monotonic duration is evidence for the attempt, but this adapter does not claim
 automatic cumulative budget enforcement or implement Increment 6 retry,
 backoff, stale-task, or worker-replacement policy.
 
+This foreground timing observation describes the historical synchronous CLI
+mapping only. A future non-blocking mapping must have the detached supervisor or
+server job measure and persist the job lifetime while the submitting turn records
+only its bounded submission/launch checkpoint; a wrapper that waits for the
+foreground command is not asynchronous evidence.
+
 ## Increment 6 Recovery Mapping
 
 The host-neutral recovery policy remains authoritative. The OpenCode mapping is
@@ -121,16 +159,18 @@ limited to these host observations and invocation rules:
   UTC observation clock. The record timestamp, configuration value, and clock
   source are retained as the stale decision evidence; a session timestamp is
   not substituted for `task.updated`.
-- Each recovery attempt uses a fresh bounded
-  `opencode run --format json --agent as-is --dir <project> <request>` and
-  follows the supported `as-is -> orchestrator -> implementer` mediation chain.
-  It rereads the component record rather than replaying a private prompt or
-  requiring a prior OpenCode session.
-- A parent wrapper may stop an attempt at its authorized boundary and report
-  the process status and monotonic duration. Exit status, timeout, absent
-  session, or missing private state is never a completion transition. The
-  orchestrator records the durable checkpoint and cumulative observations
-  before deleting private OpenCode sessions or temporary exports.
+- Each recovery attempt must be submitted to a validated supervisor-owned job or
+  supported server job, reread the component record, and follow the
+  `as-is -> orchestrator -> implementer` mediation chain. A fresh bounded
+  `opencode run --format json --agent as-is --dir <project> <request>` is the
+  currently observed foreground command, but it is only a synchronous evidence
+  path and is not supported asynchronous recovery.
+- A detached supervisor may stop an attempt at its authorized boundary and
+  report process-group status and monotonic duration. A parent wrapper that
+  waits on the foreground command is not a non-blocking launch. Exit status,
+  timeout, absent session, or missing private state is never a completion
+  transition. The orchestrator records the durable checkpoint and cumulative
+  observations before deleting private OpenCode sessions or temporary exports.
 - Backoff and the `maxRecoveryAttempts` bound are orchestrator policy recorded
   in the task record; this CLI mapping does not claim that OpenCode enforces
   either one automatically. OpenCode session costs remain model/token-derived
@@ -147,21 +187,24 @@ limited to these host observations and invocation rules:
 
 ## Increment 5 Mapping
 
-Increment 5 selected the bounded `opencode run` subprocess fallback. The host
-exposes session-level model/token cost and process timing observations, while
-the component record remains authoritative for lifecycle state and completion.
-The historical direct-subagent and wrong-role mediation attempts below remain
-blocked evidence; the new topology and supported mediation chain are validated
-only by the fresh task recorded in the current root `as-is.md`.
+Increment 5 historically selected the foreground bounded `opencode run`
+subprocess mapping. It exposes session-level model/token cost and process timing
+observations, while the component record remains authoritative for lifecycle
+state and completion, but it is not a non-blocking job boundary. The corrected
+adapter requires a supervisor-owned detached job or supported server job that
+returns a launch checkpoint before worker completion; no such capability is
+validated here. The historical direct-subagent and wrong-role mediation attempts
+below remain blocked evidence; the role topology and supported mediation chain
+are validated only by the fresh task recorded in the current root `as-is.md`.
 
 | Contract operation | OpenCode mapping | Durable requirement |
 | --- | --- | --- |
-| `launch` | `opencode run --format json --agent as-is --dir <project> <request>`, then `as-is -> orchestrator -> implementer`; a direct subagent target is rejected/falls back to the default primary | Create the child record in `ready`, notify delegation, then require task events and parent-linked sessions naming `orchestrator` and `implementer`; a fallback, `general`, or `explore` task is not a valid handoff. |
-| `resume` | A fresh bounded `opencode run` with the reread component record | Do not depend on a prior session or replay a private prompt. |
-| `observe` | Read root and component `as-is.md`; CLI output is supplementary and source-labelled | Report status, checkpoint, budget, blockers, and next action from durable records only. |
+| `launch` | No supported non-blocking mapping is established. A foreground `opencode run` is synchronous; a future supervisor/server job may submit it and preserve `as-is -> orchestrator -> implementer` | Create the child record in `ready`, write a durable launch checkpoint before returning, then require job ownership, task events, and parent-linked sessions naming `orchestrator` and `implementer`; a fallback, `general`, or `explore` task is not a valid handoff. |
+| `resume` | Submit a fresh attempt through the same validated supervisor/server job; a fresh bounded foreground `opencode run` is historical evidence only | Reread the component record; do not depend on a prior session or replay a private prompt. |
+| `observe` | Read root and component `as-is.md`, then poll supervisor/job and process/session health; CLI output is supplementary and source-labelled | Report status, checkpoint, budget, blockers, and next action from durable records; keep health observations separate. |
 | `question` | Record the question or approval requirement before presenting it; a CLI prompt is not authoritative | Keep the record `blocked` or `awaiting-approval` until a durable answer exists. |
-| `cancel` | Record the user-authorized cancellation and checkpoint, then stop the subprocess if still running | A process stop alone cannot create a cancelled task. |
-| `recover` | Reread the configured worker and delegate a fresh bounded `opencode run` | Preserve remaining budget, descendants, and acceptance conditions; no replacement or stale-task policy is introduced here. |
+| `cancel` | Record the user-authorized cancellation and checkpoint, then ask the supervisor/job to stop the process group; the foreground CLI has no validated non-blocking mapping | A process stop alone cannot create a cancelled task; later observation confirms termination. |
+| `recover` | Reread the configured worker and submit a fresh attempt through the validated supervisor/server job; otherwise record a capability blocker | Preserve remaining budget, descendants, and acceptance conditions; no role replacement or silent stale-task inference is permitted. |
 
 For the historical dogfood run, the orchestrator created
 `validation-fixtures/increment-5-dogfood/as-is.md` atomically, emitted the delegation notification
@@ -197,7 +240,10 @@ elapsed wall-clock observation; `time_created`, `time_updated`, and message
 timestamps remain session/message timestamps and are not substituted for it.
 The shell delta was not monotonic, so it is evidence of observed elapsed
 wall-clock only and is not sufficient for automatic budget enforcement. The
-cost is model/token-derived OpenCode accounting, not provider billing.
+cost is model/token-derived OpenCode accounting, not provider billing. These
+measurements describe a foreground historical run and do not establish that an
+OpenCode/as-is/orchestrator turn can submit a detached job and return before
+worker completion.
 
 The same run also demonstrated the current delegation limitation: requesting
 `--agent implementer` emitted the CLI warning that `implementer` is a subagent
