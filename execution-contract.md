@@ -11,8 +11,10 @@ does not redefine the contract.
 
 ## Authority And Context
 
-- The component `as-is.md` is the authoritative input and output for the
-  bounded task. The orchestrator supplies the worker that record plus the
+- The root or component `as-is.md` record is the sole authoritative task state
+  and the authoritative input/output for its bounded task. No XDG runtime
+  `tasks/` index or other backlog is a second authority. The orchestrator
+  supplies the worker that record plus the
   centrally supplied repository instructions, applicable design principles,
   and permitted skills.
 - The worker receives the component record, not a copied root record, a
@@ -28,6 +30,27 @@ does not redefine the contract.
 - Runtime handles, leases, prompts, caches, logs, and secrets are private host
   state. They may support an active attempt or recovery, but they are not
   required inputs to resume and are never authoritative over the task record.
+- At most one active worker attempt may modify a component at a time. A parent
+  orchestrator may update its own or root record and observe child records, but
+  it integrates at the nearest common ancestor only after children finish and
+  does not edit active sibling component files.
+
+## Private Transient Runtime State
+
+A host may place private transient state at
+`${TMPDIR:-/tmp}/as-is/<project-key>/<run-id>/<component-key>/`, or under an
+equivalent secure host temporary root. The path must be collision-resistant,
+private, disposable, and cleaned after the durable checkpoint, observations,
+and handoff evidence are saved. It is never task authority, history, approval
+state, or completion evidence.
+
+The project key alone does not distinguish concurrent or retried runs for the
+same project, so the run ID is required to prevent collisions and accidental
+cross-run reuse; the component key preserves the component boundary. `/tmp` is
+not suitable for durable records because it is a temporary, potentially shared
+location that may be cleaned, unavailable, or lost across host-lifetime
+boundaries. A secure host temporary root may provide the same disposable
+semantics with stronger isolation.
 
 ## Contract Shape
 
@@ -159,6 +182,35 @@ marking the task complete. If the configured worker is unavailable, the
 orchestrator records that blocker and follows a later replacement policy;
 this contract does not choose the replacement, retry, backoff, or scheduling
 policy.
+
+## Control-Plane Communication
+
+- Status queries read the root and component task records. They do not steer a
+  worker or depend on private runtime state.
+- General questions use a separate read-only as-is/orchestrator interaction or
+  a durable question in the affected record. A transient worker prompt or
+  direct private-worker message is not authoritative.
+- New parallel work is requested through parent-orchestrator delegation and a
+  durable child record, not through a direct worker instruction.
+- Approval and cancellation decisions are written to the durable record before
+  the host performs the approved action or attempts to stop the worker.
+
+## Concurrency Preconditions
+
+- The current effective concurrency remains `1`. Future
+  `maxConcurrentTasks: 3` counts leaf worker attempts, not parent
+  control-plane orchestrators.
+- A later runtime must acquire a per-component exclusive lease or lock before
+  an attempt can modify that component and must account for active leaf slots
+  globally. These coordination mechanisms do not replace task-record authority.
+- Each leaf attempt retains an independent cost and wall-clock budget. Sibling
+  attempts remain isolated by component scope and external dependencies; a
+  parent waits and observes child records before integrating their results.
+- An ancestor cannot complete until every descendant is terminal and its result
+  accounts for each failed or cancelled descendant.
+
+These are design prerequisites only. This contract does not implement the
+three-leaf runtime or raise the configured limit.
 
 ## Recovery Policy
 

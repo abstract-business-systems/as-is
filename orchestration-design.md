@@ -53,6 +53,21 @@ See `agent-skills.md` for the current taxonomy and definitions.
   completion. Retain them only while needed for active work, recovery, audit,
   or an explicitly configured retention period; retain durable outcomes in the
   task record instead.
+- Component `as-is.md` records remain the sole authoritative task state. There
+  is no second authoritative backlog or task tree. A conceptual or future
+  XDG `tasks/` layout may hold runtime indexes or references, but it cannot
+  replace, mirror as authority, or supersede repository-backed records.
+- Private transient runtime state may use
+  `${TMPDIR:-/tmp}/as-is/<project-key>/<run-id>/<component-key>/`, or an
+  equivalent secure host temporary root. It must be collision-resistant,
+  private to the run, disposable, and cleaned after durable evidence is saved.
+  It is never task authority, history, approval state, or completion evidence.
+  A project key alone is insufficient because concurrent or retried runs for
+  one project would otherwise collide; the run ID separates those lifetimes,
+  and the component key preserves the component boundary. `/tmp` is suitable
+  only as a temporary fallback, not for durable records, because it is
+  disposable, may be shared, and may be cleaned or unavailable across reboot
+  or host-lifetime boundaries.
 
 ### Hierarchical Component Model
 
@@ -62,12 +77,18 @@ See `agent-skills.md` for the current taxonomy and definitions.
   not repeat either value.
 - At any instant, there is exactly one active task, including its task record,
   for a directory. That task may lead to subtasks in descendant directories.
+- At most one active worker attempt may modify a component at a time. A later
+  runtime implementation must enforce this with a per-component lease or lock;
+  the lease controls exclusivity but does not become task authority.
 - Subtasks are recorded in an `as-is.md` in the relevant component directory,
   not as an arbitrarily deep nested structure inside the parent task record.
   The component-directory hierarchy is the durable task tree; private runtime
   state may mirror it for implementation convenience but is not authoritative.
 - Work that spans multiple components is performed at their nearest common
   ancestor rather than by cross-component delegation.
+- A parent orchestrator may update its own or root record, observe child
+  records, and integrate at the nearest common ancestor after children finish.
+  It must not edit sibling component files while those siblings are active.
 - Independent sibling components may run concurrently when their directory
   scopes, external dependencies, and resource allocations do not overlap.
   Siblings do not mutate each other's records or depend on another active
@@ -204,6 +225,13 @@ See `as-is.md` for transient current project task state.
   sources), blockers, required decisions or approvals, and the next check-in.
   It does not inspect worker-private runtime state and must distinguish missing
   observations from zero use.
+- Intermediate communication is control-plane communication, not worker
+  steering. Status queries read durable task records. General questions use a
+  separate read-only as-is/orchestrator interaction or a durable question;
+  they are not private instructions to a worker. New parallel work is a
+  parent-orchestrator delegation request. Approvals and cancellation are
+  durably recorded before the corresponding action is taken. Direct messages
+  to private workers are not authoritative.
 - Control is routed through the orchestrator. A user may provide direction,
   approve a recorded external effect, or cancel a task; the orchestrator records
   the resulting durable checkpoint and status transition before reporting it.
@@ -213,6 +241,22 @@ See `as-is.md` for transient current project task state.
   than inferring activity from transient host sessions. A blocked or
   approval-waiting task remains visible until a durable decision or recovery
   transition is recorded.
+
+### Concurrency Boundary
+
+- The current effective `config.scheduling.maxConcurrentTasks` remains `1`.
+  No runtime concurrency increase is part of the current design-context task.
+- Future `maxConcurrentTasks: 3` semantics count active leaf worker attempts,
+  not parent control-plane orchestrators. Parent orchestrators wait, observe,
+  and integrate; they do not consume leaf-worker slots merely by coordinating
+  children.
+- Before a later implementation raises the limit, it must provide an exclusive
+  per-component lease or lock, global slot accounting, independent cost and
+  wall-clock budgets for each leaf attempt, sibling isolation, parent
+  waiting/observation, and descendant closure before an ancestor completes.
+- A slot or lease is coordination evidence only. Durable component records
+  remain the authority for status, approvals, history, validation, and
+  completion.
 
 ### Host-Neutral Execution Contract
 
@@ -353,8 +397,10 @@ acceptance conditions.
 These decisions were explicitly deferred and should be discussed before
 implementation.
 
-1. **Scheduling policy:** Wake conditions, fixed versus adaptive intervals,
-   maximum concurrency, cost budgets, and backoff behavior.
+1. **Scheduling policy:** Wake conditions and adaptive scheduling remain open,
+   while the current limit is `1` and a future limit of `3` counts leaf worker
+   attempts only. The future implementation must satisfy the concurrency
+   boundary above before raising the configured value.
 2. **Agent identity and recovery:** What it means to resume versus replace a
    configured worker and how recovery behaves when the
    original specialist is unavailable.
@@ -374,5 +420,9 @@ implementing or validating a host mapping.
 
 ## Suggested Next Discussion
 
-Increment 6 is complete for this bounded task. Do not begin a later increment
-until a new current-turn authorization and bounded task context are established.
+The next bounded implementation should first implement and validate control-plane
+status and parallel delegation while leaving `maxConcurrentTasks` at `1`. Only
+after that evidence is accepted should a separate bounded task raise the limit
+to `3` and validate three independent child components. Do not begin either
+implementation task without a new current-turn authorization and bounded task
+context.

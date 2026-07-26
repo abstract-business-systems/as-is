@@ -37,6 +37,21 @@ policy, task-record fields, authority, or completion behavior.
 - OpenCode configuration and skill discovery load at startup; validate changes
   in a fresh process or restart the host.
 
+## Live Control Boundary
+
+- A bounded `opencode run --format json` invocation is a one-run CLI request
+  with emitted events. It is not a guaranteed live concurrent interaction
+  channel for status queries, worker questions, cancellation, or parallel
+  delegation. The default CLI must not be described as supporting parallel
+  control yet.
+- OpenCode server or SDK prompt, status, and event primitives are a possible
+  future adapter mechanism for live control-plane interactions. They are not
+  implemented or validated in this repository task and do not change the
+  current bounded CLI mapping.
+- Durable task records remain the source for status, questions, approvals,
+  cancellation, and delegation. A CLI prompt, event stream, process exit, or
+  direct private-worker message cannot replace a durable transition.
+
 ## Supported Mediation Chain
 
 The exact OpenCode launch and mediation chain for this repository is:

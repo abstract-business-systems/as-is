@@ -3,9 +3,9 @@
 > This document records the earlier JSON-manifest design. `as-is.md` is now the
 > authoritative project-facing configuration and durable task-context artifact.
 > The superseded manifest and schema were removed; Git history preserves them
-> as migration reference if needed. The historical location, ownership, and
-> policy rules below are not part of the current architecture; see
-> `orchestration-design.md` for the active design direction.
+> as migration reference if needed. The XDG state layout below is retained as a
+> conceptual or future runtime-metadata boundary, not as a second authoritative
+> task tree. See `orchestration-design.md` for the active design direction.
 
 ## Boundaries
 
@@ -15,17 +15,19 @@ as-is has three separate boundaries:
 | --- | --- | --- | --- |
 | Bundle | Machine or user installation directory | as-is distribution | Agents, skills, references, examples, schemas, extensions, and runtime adapters. |
 | Project | Target repository root | Project | One optional `as-is.config.json` manifest. |
-| Durable state | User-level state directory | as-is runtime | Task records, progress, leases, resolved configuration, logs, and transient artifacts. |
+| Runtime metadata | User-level state directory | as-is runtime | Resolved configuration, run/session metadata, leases, logs, indexes, and transient artifacts; never the authoritative task state. |
 
 The bundle is self-contained and selected by the installed `as-is` CLI or a
 chat slash-command adapter. It is not copied into each project. By default,
 as-is discovers the active machine/user-installed bundle; a project manifest can
 pin a different bundle directory, including a version vendored by that project.
 
-The only normal project incision is `as-is.config.json`. Running as-is does not
-create `.as-is/`, agent files, task records, caches, or generated configuration
-inside the target repository unless a task deliberately creates a project
-artifact as part of its requested work.
+In the superseded manifest model, the only normal project incision was
+`as-is.config.json`; that historical rule does not relocate current task
+authority. In the active repository-backed model, the authored root and
+component `as-is.md` records are durable project context, while runtime
+metadata remains outside the repository unless a bounded task deliberately
+creates a project artifact.
 
 ## Project Manifest
 
@@ -142,6 +144,18 @@ Changing an invariant requires a new configuration API version, not an override.
 
 ## Durable State
 
+The repository-backed root and component `as-is.md` records are the sole
+authoritative task state. They contain the durable task status, progress,
+decisions, approvals, results, validation, blockers, and next actions used for
+recovery and completion. The runtime must not introduce a second authoritative
+backlog or task tree.
+
+The initial XDG layout in this section is conceptual/future or auxiliary runtime
+metadata only. In particular, its `tasks/` directory must not be treated as a
+mirrored source of task status, history, approval state, or completion evidence.
+Any runtime index, lease, or reference must remain subordinate to the
+repository-backed component records and be safe to discard or rebuild.
+
 The default state root follows the operating system's user-state convention:
 
 ```text
@@ -163,36 +177,35 @@ projects/<project-key>/
   configuration/
     effective.json               # immutable policy snapshot for each run
   tasks/
-    <repository-relative-path>/  # mirrors the project component hierarchy
-      active.*                   # at most one active task for that component
-      history/                   # completed, superseded, and failed task records
+    <repository-relative-path>/  # optional future runtime index/reference only
   runs/<run-id>/                 # run/session identity, lease, and execution record
-  approvals/                     # durable HITL questions and decisions
+  approvals/                     # auxiliary references; the task record is authoritative
   artifacts/                     # bounded work products not intended for the repository
   logs/                          # operational event records, subject to retention
 ```
 
-The `tasks/` tree mirrors paths in the project but is not a second checkout. A
-task for `src/search` has state beneath `tasks/src/search/`; a child task for
-`src/search/parser` appears beneath it. This preserves the directory-based
-component and vertical-delegation model without writing task files into source
-directories.
+The conceptual `tasks/` tree is not a second checkout and is not a second
+authoritative task tree. A future runtime may index a repository component under
+its relative path, but the task for `src/search` remains the repository-backed
+`src/search/as-is.md`, and a child task for `src/search/parser` remains
+`src/search/parser/as-is.md`. This preserves the directory-based component and
+vertical-delegation model without relocating task authority.
 
 State is divided by authority and retention:
 
 | Class | Examples | Authority | Retention |
 | --- | --- | --- | --- |
-| Durable control state | Task record, progress, responsible agent, lease, next action | Required for recovery; append or replace only through the task protocol | Retained until explicit archival policy. |
+| Repository task control state | Root or component `as-is.md` task record, progress, responsible worker, decisions, result, and next action | Sole task authority; changed only through the task protocol | Retained as project history until explicit archival policy. |
 | Immutable run input | Effective configuration, bundle identity, prompt/template revision | Explains what a run was authorized to do | Retained with its run. |
-| HITL state | Question, approval, rejection, direction | Authoritative human control record | Retained with the affected task. |
-| Derived operational state | Logs, indexes, caches, temporary tool output | Never policy or recovery authority by itself | Expirable and regenerable. |
+| Runtime coordination metadata | Leases, run/session identity, logs, indexes, caches, and temporary tool output | Never task, approval, history, or completion authority by itself | Expirable and regenerable. |
+| HITL state | Question, approval, rejection, or direction recorded in the affected task record | Authoritative only after the durable record transition | Retained with the affected task. |
 | Project artifacts | Source, documentation, tests, user-requested output | Owned by the target repository | Created only by an explicit task action. |
 
-A fresh orchestrator can recover a task from durable control state plus its
-immutable run input. It must not require a chat transcript, a cache, or a
-still-live process. A lease is liveness evidence, not proof of completion: once
-it expires, the orchestrator inspects the task record and routes recovery to the
-responsible role.
+A fresh orchestrator can recover a task from its repository-backed task record
+plus immutable run input when available. It must not require a chat transcript,
+a cache, a runtime index, or a still-live process. A lease is liveness evidence,
+not proof of completion: once it expires, the orchestrator inspects the task
+record and routes recovery to the responsible role.
 
 State is private to the local user by default. Project-level collaboration and
 state synchronization are intentionally deferred; they require explicit sharing,

@@ -29,12 +29,158 @@ config:
 
 task:
   status: completed
-  updated: 2026-07-26T15:35:44Z
+  updated: 2026-07-26T15:59:45Z
 ---
 
 # as-is Project
 
-## Current Increment 6
+## Current Design-Context Task
+
+### Current Task
+
+Record and integrate the agreed task-authority, private-runtime-state,
+single-attempt ownership, future leaf-concurrency, control-plane interaction,
+and OpenCode live-control boundary decisions. This is documentation and durable
+context work only; it does not launch child work, contact external services, or
+implement interactive control or three-worker runtime support.
+
+### Purpose
+
+Make the repository's durable task authority and future runtime boundaries
+unambiguous before any later concurrency or interactive-control implementation.
+Use the repository root as the nearest common ancestor because the decisions
+span task-record authority, runtime state, control interactions, concurrency
+semantics, and the host adapter.
+
+### Plan
+
+1. Update the host-neutral specifications and configuration context without
+   changing the current concurrency value or historical evidence.
+2. Record the OpenCode-specific live-control limitation only in its adapter
+   document.
+3. Validate content, configuration, historical-record preservation, and the
+   scoped diff, then commit the completed root handoff.
+
+### Acceptance Criteria
+
+- Component `as-is.md` records remain the sole authoritative task state; the
+  conceptual/future XDG `tasks/` layout is distinguished from repository-backed
+  records and is not a second authoritative backlog or task tree.
+- Private transient runtime state has a collision-resistant, private,
+  disposable, cleaned run/component path, is never task authority, history,
+  approval state, or completion evidence, and records why project key alone and
+  `/tmp` alone are insufficient for the respective boundaries.
+- At most one active worker attempt may modify a component; parent update,
+  observation, integration, and sibling-edit boundaries are explicit.
+- Future `maxConcurrentTasks: 3` counts leaf worker attempts and records the
+  required lease/lock, global slots, independent budgets, sibling isolation,
+  parent waiting/observation, and descendant closure. The current configured
+  value remains `1`.
+- Intermediate communication is control-plane, with durable-record status
+  queries, separate/read-only general questions or durable questions,
+  parent-orchestrator delegation for new parallel work, and durable approval or
+  cancellation before action. Private-worker messages are not authoritative.
+- The OpenCode-specific live-control limitation and future adapter boundary are
+  recorded in `opencode-adapter.md`; no host-specific CLI capability is asserted
+  by the host-neutral task records.
+- The next bounded implementation first validates control-plane status and
+  parallel delegation, then separately raises concurrency to `3` and validates
+  three independent child components.
+
+### Progress
+
+- The current-turn user explicitly authorized recording these design decisions.
+  No model-backed child work, external service, concurrency increase, or later
+  interactive-control/runtime implementation is authorized or needed.
+- The root is the nearest common ancestor for this cross-cutting integration;
+  no child task record was created or launched. Existing Increment 6 fixture,
+  Increment 5 blocked evidence, and all other historical records remain
+  preserved.
+- The host-neutral authority, runtime-state, ownership, concurrency, and
+  control-plane decisions were recorded in `configuration.md`,
+  `orchestration-design.md`, and `execution-contract.md`. OpenCode-specific
+  live-control claims were confined to `opencode-adapter.md`.
+
+### Decisions
+
+- Component `as-is.md` records are the sole authoritative task state. The
+  initial XDG `$XDG_STATE_HOME/as-is/projects/<project-key>/tasks/` layout is
+  conceptual/future or runtime metadata only and is distinct from the
+  repository-backed task records.
+- Private transient state may use
+  `${TMPDIR:-/tmp}/as-is/<project-key>/<run-id>/<component-key>/`, or an
+  equivalent secure host temporary root. It is collision-resistant, private,
+  disposable, and cleaned after durable evidence; it is never task authority,
+  history, approval state, or completion evidence. Project key alone cannot
+  separate concurrent/retried runs, and `/tmp` cannot provide durable-record
+  lifetime or isolation guarantees.
+- At most one active worker attempt may modify a component. A parent
+  orchestrator may update its own/root record, observe child records, and
+  integrate at the common ancestor after children finish; it must not edit
+  active sibling component files.
+- Future `maxConcurrentTasks: 3` counts leaf worker attempts, not parent
+  control-plane orchestrators. The current configured value remains `1`; later
+  implementation must provide per-component lease/lock, global slot accounting,
+  independent budgets, sibling isolation, parent waiting/observation, and
+  descendant closure.
+- Intermediate communication is control-plane, not worker steering. Status
+  queries read durable records; general questions use a separate/read-only
+  as-is/orchestrator interaction or durable question; new parallel work is a
+  parent-orchestrator delegation request; approvals and cancellation are
+  durably recorded before action; direct private-worker messages are not
+  authoritative.
+- The OpenCode-specific live-control limitation and possible future adapter
+  boundary are recorded only in `opencode-adapter.md`; the host-specific
+  mechanism is not treated as implemented here.
+
+### Validation
+
+- Content assertions passed for the six agreed decisions, the future next
+  action, and the changed OpenCode-specific claim boundary in
+  `opencode-adapter.md`.
+- The root effective configuration check passed with
+  `maxConcurrentTasks: 1`; no configuration value was raised in this task.
+- Historical child records were byte-for-byte unchanged. No historical record
+  was rewritten or retried.
+- `git diff --check` passed for the scoped documentation and root record.
+- Actual cost and host-observed wall-clock are unavailable because no
+  model-backed run is authorized or needed.
+
+### Result
+
+- The agreed design context is recorded at the repository root and in the
+  appropriate host-neutral or host-specific specifications. No runtime support
+  or concurrency increase was implemented.
+
+### Blockers And Escalations
+
+- None for this documentation task. The future live-interaction boundary,
+  lease/lock mechanism, global slot accounting, and three-worker validation
+  remain deliberately unimplemented design boundaries.
+
+### Recovery
+
+- Last durable checkpoint: the cross-cutting design decisions and future next
+  action are recorded, all content and scope checks passed, and the root record
+  is ready for its scoped completion commit.
+- Incomplete work: none within the authorized documentation scope; no child
+  descendants exist.
+- Cleanup required: no private runtime state was created; no repository runtime
+  artifact is retained.
+- Cost source: unavailable; no model-backed or external run was authorized or
+  needed. Wall-clock source: unavailable for the same reason.
+- Next safe action: commit only the root design-document integration and this
+  root record.
+
+### Next Action
+
+After this scoped handoff, a future bounded implementation task must first
+implement and validate control-plane status and parallel delegation while
+leaving `maxConcurrentTasks` at `1`. Only after that evidence is accepted may a
+separate task raise the limit to `3` and validate three independent child
+components.
+
+## Historical Increment 6
 
 ### Current Task
 
