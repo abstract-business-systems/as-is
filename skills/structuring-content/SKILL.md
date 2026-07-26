@@ -17,10 +17,14 @@ files, and Markdown sections are all levels of the same conceptual hierarchy.
    interfaces, and related artifacts.
 3. Choose the smallest coherent place in the repository hierarchy for that
    concept, whether a section, file, or directory.
-4. Link related authoritative artifacts instead of duplicating their contents.
-5. Separate settled design from proposals, active task state, and private runtime
+4. At creation time, explicitly decide whether a known meaningful sibling set or
+   established type-directory convention warrants grouping from the first item;
+   retain a unique artifact at the current level when the required evidence is
+   absent or an exception applies, and record the decision.
+5. Link related authoritative artifacts instead of duplicating their contents.
+6. Separate settled design from proposals, active task state, and private runtime
    state.
-6. Review for discoverability, semantic grouping, replacement paths, accuracy,
+7. Review for discoverability, semantic grouping, replacement paths, accuracy,
    and stale or superseded content.
 
 ## Placement Rules
