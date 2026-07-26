@@ -64,6 +64,13 @@ component state.
   reviewable milestone rather than for transient checkpoints.
 - User-level state is private and non-authoritative for project task intent. It
   may retain leases, session links, caches, secrets, and verbose logs.
+- Repository instructions distinguish reusable skills from scoped agent roles,
+  require durable handoffs for delegated work, and reserve independent
+  validation for material risk or breadth.
+- Reviewed the agent instructions and skills in the sibling `abs-seed` and `at`
+  repositories. Adopted their portable safety, durable-context, and validation
+  practices without importing project-specific DVC, runtime, model-routing, or
+  content-generation contracts.
 
 ## Blockers
 
