@@ -36,6 +36,9 @@ files, and Markdown sections are all levels of the same conceptual hierarchy.
 - Put host-specific integration instructions in a host-specific adapter or skill.
 - Keep private runtime state, credentials, caches, verbose logs, and temporary
   tool output outside authoritative project knowledge.
+- This skill owns the reusable procedure and decision criteria; design principles
+  own broad cross-project values; component task records own current-task
+  evidence and decisions; `agent-skills.md` remains only the capability catalog.
 
 ## Structure Rules
 
@@ -75,6 +78,33 @@ files, and Markdown sections are all levels of the same conceptual hierarchy.
   lifecycle or component boundary, encode a speculative or generic-bucket
   boundary, or conflict with the component-task hierarchy. Preserve the
   smallest coherent boundary and the clear entry point in those cases.
+
+### Maintenance-time restructuring
+
+- Creation-time organization decides the initial location of a new artifact.
+  Maintenance-time restructuring is a separate evaluation of existing items;
+  creation-time policy is not a blanket exemption for legacy content.
+- Evaluate existing items only when an explicit restructuring request or an
+  evidence-based maintenance signal demonstrates a navigation or cognitive
+  benefit. Before moving or reparenting anything, create a bounded maintenance
+  task record naming the maintenance signal, target grouping or parent concept,
+  ownership, authority, and lifecycle checks, affected consumers and references,
+  authoritative entry point, migration or replacement path, acceptance
+  conditions, and audit and lineage considerations.
+- When those acceptance conditions justify change, apply the smallest safe
+  retroactive grouping. Otherwise record why existing paths are deliberately
+  retained; do not silently leave known similar items ungrouped merely because
+  they predate the rule.
+- A directory move changes component and task lineage. Therefore define the
+  explicit scope, update affected references, preserve or replace the entry
+  point, and validate the result in the maintenance record before treating the
+  move as complete.
+- Preserve these boundaries: do not cross component or authority boundaries;
+  do not perform destructive or irreversible migration without authorization;
+  do not create speculative or generic buckets; and do not cross lifecycle,
+  ownership, authority, component, or component-task hierarchy boundaries.
+  Retain existing paths when migration cost or risk outweighs the demonstrated
+  navigation or cognitive benefit.
 
 ## Examples
 

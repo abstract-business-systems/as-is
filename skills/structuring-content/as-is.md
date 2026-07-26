@@ -3,7 +3,7 @@ as-is-version: 2
 task:
   status: completed
   worker: implementer
-  updated: 2026-07-26T17:36:00Z
+  updated: 2026-07-26T17:45:00Z
 constraints:
   cost:
     currency: USD
@@ -23,11 +23,15 @@ constraints:
       source: unavailable
   external-effects: require-current-turn-user-approval
 acceptance:
-  - Update this component's SKILL.md with an evidence-based creation-time grouping default for known sibling sets and established type-directory conventions.
-  - Explain the cognitive-load benefit and preserve exceptions for ownership, authority, lifecycle, component, speculative, generic-bucket, and task-hierarchy boundaries.
-  - Add evidence and quality checks covering the expected sibling set or standard, parent concept, ownership, entry point, and migration or replacement path.
-  - Include compact positive and negative examples when needed to make the refined rule unambiguous, while keeping the skill reusable and non-duplicative.
-  - Validate the changed skill and this task record with focused Markdown/content assertions, the applicable task-record validator, and git diff --check.
+  - Distinguish creation-time organization from maintenance-time restructuring in this component's SKILL.md.
+  - State that an explicit restructuring request or an evidence-based maintenance signal authorizes evaluation of existing items, so creation-time policy is not a blanket exemption for legacy content.
+  - Require a bounded maintenance task record before moving or reparenting existing items, including the maintenance signal, target grouping or parent concept, ownership/authority/lifecycle checks, affected consumers and references, entry point, migration or replacement path, acceptance conditions, and audit/lineage considerations.
+  - Require the smallest safe retroactive grouping when acceptance conditions justify it, or a recorded reason for retaining existing paths; do not silently leave known similar items ungrouped merely because they predate the rule.
+  - Preserve exceptions for cross-component or cross-authority boundaries, destructive or irreversible migration without authorization, speculative or generic buckets, and migration cost or risk outweighing demonstrated navigation or cognitive benefit.
+  - State that directory moves change component/task lineage and require explicit scope, reference updates, and validation.
+  - Distinguish rule placement: the skill owns the reusable procedure and decision criteria; design principles own broad cross-project values; task records own current-task evidence and decisions; agent-skills.md remains only the capability catalog.
+  - Do not physically move existing fixtures in this task; update only the reusable rule for a future explicitly authorized assessment.
+  - Validate the changed skill and this task record with focused content assertions, the applicable task-record validator, and git diff --check.
 ---
 
 # Structuring Content
@@ -35,115 +39,142 @@ acceptance:
 ## Purpose
 
 Maintain the reusable `structuring-content` skill as the authoritative procedure
-for purposeful, discoverable repository organization. This task is scoped to the
-skill component and its durable handoff record.
+for purposeful, discoverable repository organization. This new bounded task
+extends its creation-time rule to explicitly cover authorized maintenance-time
+restructuring. The task is scoped to the skill component and its durable handoff
+record; it does not physically move existing fixtures.
 
 ## Requirement
 
-Refine `SKILL.md` so creation-time organization groups similar items from the
-first item when a meaningful future sibling set is known or an established
-repository, industry, or host convention requires a semantically accurate type
-directory. The rule must explain that predictable locations and stable paths
-reduce scanning, reclassification, and later migration. It must not become a
-literal always-group instruction: preserve ownership, authority, lifecycle,
-component-boundary, speculative-directory, generic-bucket, and component-task
-hierarchy exceptions. Require evidence of the sibling set or standard, parent
-concept, ownership, entry point, and migration or replacement path before
-creation; otherwise keep a unique artifact at the current level and document why.
+Refine `SKILL.md` so it distinguishes creation-time organization from
+maintenance-time restructuring. Creation-time organization groups similar items
+from the first item when a meaningful future sibling set is known or an
+established repository, industry, or host convention requires a semantically
+accurate type directory. Maintenance-time restructuring evaluates existing items
+when explicitly requested or when an evidence-based maintenance signal shows a
+navigation or cognitive benefit. Before moving or reparenting existing items,
+require a bounded maintenance task record that names the signal, target grouping
+or parent concept, ownership/authority/lifecycle checks, affected consumers and
+references, entry point, migration or replacement path, acceptance conditions,
+and audit/lineage considerations. Apply the smallest safe retroactive grouping
+when those conditions justify it, or record why existing paths are deliberately
+retained; do not silently preserve known similar items only because they predate
+the rule. Directory moves change component/task lineage, so require explicit
+scope, reference updates, and validation.
+
+The rule must explain that predictable locations and stable paths reduce
+scanning, reclassification, and later migration. It must not become a literal
+always-group instruction: preserve cross-component and cross-authority
+boundaries, destructive or irreversible migration without authorization,
+speculative-directory, generic-bucket, lifecycle, ownership, authority,
+component-boundary, and component-task hierarchy exceptions. Also retain the
+exception where migration cost or risk outweighs the demonstrated navigation or
+cognitive benefit. Existing creation-time evidence checks and examples should
+remain intact, and this task must not move the repository's existing fixtures.
+
+Keep rule placement clear without creating another policy authority: this skill
+owns the reusable procedure and decision criteria; `design-principles.md` owns
+broad cross-project values; component task records own current-task evidence and
+decisions; `agent-skills.md` remains only the capability catalog.
 
 Local pattern considered: the existing skill already treats files, folders, and
 sections as one hierarchy, requires meaningful shared roles, rejects neighboring
 directory symmetry as sufficient evidence, and preserves entry points during
-replacement. The implementation should extend that rule in place rather than add
-another skill or structure abstraction.
+replacement. `maintaining-components` requires a concrete maintenance signal,
+bounded acceptance conditions, and recorded residual risk; `verification-
+discipline` requires task-specific observable evidence without duplicating
+specialist procedures. The implementation should extend the existing skill in
+place rather than add another skill, policy authority, or structure abstraction.
 
 ## Plan
 
 Have the configured `implementer` update only this component, use the existing
-skill wording and design principles as read-only context, add only the smallest
-necessary method, structure-rule, example, and quality-check changes, and record
-focused content and task-record validation before handoff.
+skill wording, `maintaining-components`, `verification-discipline`, and design
+principles as read-only context, add only the smallest necessary maintenance
+procedure, structure-rule, example, and quality-check changes, and record
+focused content and task-record validation before handoff. No descendant is
+authorized under this task's zero-child boundary.
 
 ## Progress
 
-Advanced this record from `ready` to `active` before editing. The configured
-`implementer` updated only this component's `SKILL.md`; no descendant work was
-created or delegated, consistent with the zero-child boundary.
+New bounded maintenance task established from the prior completed handoff. The
+user explicitly authorized a retroactive-rule refinement, not a physical fixture
+move. The maintenance signal is that the existing creation-time-only wording can
+be misread as exempting legacy content from a requested or evidence-based
+restructuring assessment. The target grouping concept is a semantically accurate
+type directory under the smallest coherent parent concept, subject to ownership,
+authority, lifecycle, component, and task-hierarchy boundaries.
 
-The stale handoff identity blocker is corrected: the authoritative existing
-commit is `e7153fcd702f7318b574f78c05b12ca0df69d6e6`, not the nonexistent
-`e7153fcd702f7318b574f78c05b12ca0df69d6e4`. The existing `SKILL.md` was
-reviewed against the authorized creation-time grouping refinement. It already
-contained the substantive grouping default, rationale, exceptions, evidence
-checks, and paired examples, but its numbered Method sequence did not state the
-creation-time decision explicitly. A minimal clarification was therefore made
-in `SKILL.md`; no descendants were created or delegated.
+The affected consumer is the reusable `SKILL.md` procedure and its future users;
+existing fixture paths and their references are intentionally out of scope for
+this task. The current authoritative entry point remains
+`skills/structuring-content/SKILL.md`. Any future move must name its migration or
+replacement path, update affected references, preserve or replace the entry
+point, and record changed component/task lineage. Audit value comes from keeping
+the decision and evidence in that future task record rather than silently
+reparenting content.
+
+No descendant was created or delegated, consistent with the zero-child boundary.
+
+The configured implementer performed the required focused content assertions,
+task-record validation, and diff check. No fixture paths were changed.
 
 ## Validation
 
-Focused content assertions passed for the explicit creation-time decision in the
-Method sequence, creation-time grouping default, cognitive-load rationale, all
-named exceptions, evidence/quality checks, and paired positive/negative
-examples. Command: normalized Markdown assertions via `python3 - <<'PY' ...`
-reported `PASS: focused content assertions; creation-time decision, default,
-rationale, exceptions, evidence checks, and paired examples present`.
+Focused content assertions read `SKILL.md` and observed the creation-time and
+maintenance-time sections, explicit request or evidence-based signal gate, all
+named maintenance-record fields, smallest-safe grouping or retention rationale,
+preserved exceptions, lineage/scope/reference/validation requirements, rule
+placement, and both existing creation-time examples. The same assertion script
+read this record and observed the no-fixture boundary; all assertions reported
+`True` and the script exited 0.
 
-The applicable record-tree check passed: `python3
-schemas/task-record-validator/task_record_validator.py
-skills/structuring-content` reported `VALID`; this covers this record and its
-zero descendants. `git diff --check -- skills/structuring-content/SKILL.md
+`python3 schemas/task-record-validator/task_record_validator.py
+skills/structuring-content` reported `VALID` after this record's Validation
+section was present. `git diff --check -- skills/structuring-content/SKILL.md
 skills/structuring-content/as-is.md` completed with no output and exit 0.
 
-The first equivalent focused assertion used literal line joins and failed only
-because the Markdown source wraps two expected phrases; the normalized rerun
-passed. This is a validation-procedure observation, not an implementation
-failure.
-
-Host-reported cost: unavailable; preserved `spent: 0.00` and
-`source: unavailable`. Host-observed wall-clock: unavailable; preserved
-`spent-seconds: 0` and `source: unavailable`.
+These are direct tool observations; they establish content and record
+conditions but do not exercise an actual repository move or host-specific
+conventions. Host-reported cost is unavailable, so `spent: 0.00` and
+`source: unavailable` remain unchanged. Host-observed wall-clock evidence is
+unavailable, so `spent-seconds: 0` and `source: unavailable` remain unchanged.
 
 ## Result
 
-Completed. `SKILL.md` now makes the creation-time grouping decision explicit in
-the Method sequence and defaults known sibling sets and established type
-conventions to creation-time grouping, explains reduced scanning,
-reclassification, and migration as the cognitive-load benefit, preserves the
-ownership, authority, lifecycle, component, speculative, generic-bucket, and
-component-task hierarchy exceptions, requires the five evidence checks, and
-includes compact paired examples. This satisfies each acceptance condition;
-the validation observations above are the supporting evidence.
+Completed. `SKILL.md` now distinguishes creation-time organization from
+maintenance-time restructuring, gates evaluation of existing items on an
+explicit restructuring request or evidence-based maintenance signal, requires
+the named bounded task-record evidence before moving or reparenting, and
+requires smallest-safe grouping or recorded retention rationale. It preserves
+the listed boundaries, states the component/task lineage effect of directory
+moves and their scope/reference/validation requirements, clarifies rule
+placement, and retains the creation-time checks and examples. This result is
+supported by the Validation observations above. No descendant was created, so
+the zero-child descendant closure is terminal and complete.
 
-Residual risk: the focused checks are static content assertions and the record
-validator; they do not exercise a repository reorganization or host-specific
-directory conventions. The skill's required evidence review remains the control
-for those cases.
+Residual risk: static content assertions, the task-record validator, and the
+diff check do not exercise a real reorganization or host-specific directory
+conventions; future maintenance records must supply that evidence before any
+move.
 
 ## Blockers And Escalations
 
-Creation completed without a blocker. Direct top-level delegation to
-`implementer` is prohibited by the host adapter; use the supported
-`as-is -> orchestrator -> implementer` mediation chain. If the configured worker
-is unavailable or the return cannot be attributed to `implementer`, record a
-durable blocker and do not substitute a different role.
-
-The stale handoff identity has been resolved using the authoritative existing
-commit `e7153fcd702f7318b574f78c05b12ca0df69d6e6`. No descendant exists,
-consistent with the maximum-depth and maximum-children zero boundary.
+No blocker. No failed or cancelled descendant exists; the maximum-depth and
+maximum-children constraints are both zero. A future physical move that crosses
+a component or authority boundary, is destructive or irreversible without
+authorization, or cannot demonstrate benefit over migration cost or risk must
+remain out of scope and be escalated rather than silently implemented.
 
 ## Recovery
 
- Recovery checkpoint: the scoped `SKILL.md` clarification and this record after
-  the passing focused assertions, record validator, and diff check. If handoff is
-  interrupted before commit, reread this record, preserve the two-file scope and
-  zero-child boundary, and have the orchestrator commit only this completed
-  handoff. Actual
- host-reported cost and host-observed wall-clock remain unavailable; do not
- infer or estimate either value.
+Recovery checkpoint: the two-file implementation and this completed record are
+validated, with no fixture move and no descendants. If handoff is interrupted
+before commit, preserve this record and stage only the two permitted files after
+rechecking validation. Do not infer host cost or wall-clock use when unavailable.
 
 ## Next Action
 
- Record final validation evidence and hand off the terminal component record to
- the orchestrator for review and the required scoped commit. Do not delegate,
- amend, push, change branches, alter remotes, or modify files outside this
- component.
+ Invoke `committing-completed-work` for only `SKILL.md` and this record. Do not
+ physically move fixtures, amend, push, change branches, alter remotes, or
+ modify files outside this component.
