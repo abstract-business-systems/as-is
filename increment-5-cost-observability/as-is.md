@@ -3,7 +3,7 @@ as-is-version: 2
 task:
   status: blocked
   worker: implementer
-  updated: 2026-07-26T14:58:56Z
+  updated: 2026-07-26T14:59:20Z
 constraints:
   cost:
     currency: USD
@@ -20,7 +20,7 @@ constraints:
       allocated-seconds: 120
       spent-seconds: 21.915
       reserve-seconds: 30
-      source: parent shell monotonic timer around the opencode run process
+      source: parent shell realtime nanosecond delta around the opencode run process (not monotonic)
   external-effects: prohibited
 acceptance:
   - Add a harmless local README identifying this directory as an OpenCode cost and wall-clock observation fixture.
@@ -69,9 +69,10 @@ after the bounded run; do not edit that file from this component.
   `step-finish` `part.data.cost` values as `0.0262488`, with model/token
   counters present. This is OpenCode's model/token-derived session charge, not
   provider billing.
-- A parent monotonic timer around the full subprocess measured `21.915`
-  seconds. Session and message timestamps were inspected separately and were
-  not used as process elapsed time.
+- A parent shell realtime nanosecond delta around the full subprocess measured
+  `21.915` seconds. Session and message timestamps were inspected separately
+  and were not used as process elapsed time; this delta is not a monotonic
+  budget-enforcement measurement.
 
 ## Result
 
@@ -97,9 +98,10 @@ after the bounded run; do not edit that file from this component.
   durable; retain this record and the intentional README fixture.
 - Cost observation: `0.0262488` USD from OpenCode's session and part cost fields;
   model/token-derived and not a provider billing observation.
-- Wall-clock observation: `21.915` seconds from the parent shell's monotonic
-  timer around the full `opencode run`; session/message timestamps are not this
-  measurement.
+- Wall-clock observation: `21.915` seconds from the parent shell's realtime
+  nanosecond delta around the full `opencode run`; session/message timestamps
+  are not this measurement. The timer was not monotonic and is not sufficient
+  for automatic budget enforcement.
 - Next safe action: obtain explicit approval for any further model-backed
   validation and first define a supported primary-agent mediation path.
 

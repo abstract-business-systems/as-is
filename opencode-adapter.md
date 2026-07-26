@@ -78,11 +78,13 @@ surfaces are:
   `cost`, token, and step timing data.
 
 The bounded follow-up observed a session cost of `0.0262488` USD, matching the
-sum of 12 `step-finish` part costs, and a parent shell monotonic subprocess
-measurement of `21.915` seconds. The latter is the adapter's elapsed
-wall-clock observation; `time_created`, `time_updated`, and message timestamps
-remain session/message timestamps and are not substituted for it. The cost is
-model/token-derived OpenCode accounting, not provider billing.
+sum of 12 `step-finish` part costs, and a parent shell realtime nanosecond
+subprocess measurement of `21.915` seconds. The latter is the adapter's
+elapsed wall-clock observation; `time_created`, `time_updated`, and message
+timestamps remain session/message timestamps and are not substituted for it.
+The shell delta was not monotonic, so it is evidence of observed elapsed
+wall-clock only and is not sufficient for automatic budget enforcement. The
+cost is model/token-derived OpenCode accounting, not provider billing.
 
 The same run also demonstrated the current delegation limitation: requesting
 `--agent implementer` emitted the CLI warning that `implementer` is a subagent
