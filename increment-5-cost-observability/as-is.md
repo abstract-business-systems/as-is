@@ -3,7 +3,7 @@ as-is-version: 2
 task:
   status: blocked
   worker: implementer
-  updated: 2026-07-26T14:57:24Z
+  updated: 2026-07-26T14:58:56Z
 constraints:
   cost:
     currency: USD
@@ -92,9 +92,9 @@ after the bounded run; do not edit that file from this component.
   recorded; follow-up blocked on configured-worker invocation.
 - Incomplete work: a valid configured `implementer` delegation and successful
   dogfood completion remain unvalidated.
-- Cleanup required: delete the private OpenCode session record and temporary
-  JSON event capture only after this blocker and its observations are durable;
-  retain this record and the intentional README fixture.
+- Cleanup completed: the private OpenCode session record and temporary JSON
+  event capture were deleted after this blocker and its observations became
+  durable; retain this record and the intentional README fixture.
 - Cost observation: `0.0262488` USD from OpenCode's session and part cost fields;
   model/token-derived and not a provider billing observation.
 - Wall-clock observation: `21.915` seconds from the parent shell's monotonic
