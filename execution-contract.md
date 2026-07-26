@@ -12,8 +12,8 @@ does not redefine the contract.
 ## Authority And Context
 
 - The root or component `as-is.md` record is the sole authoritative task state
-  and the authoritative input/output for its bounded task. No XDG runtime
-  `tasks/` index or other backlog is a second authority. The orchestrator
+  and the authoritative input/output for its bounded task. No runtime index or
+  other backlog is a second authority. The orchestrator
   supplies the worker that record plus the
   centrally supplied repository instructions, applicable design principles,
   and permitted skills.

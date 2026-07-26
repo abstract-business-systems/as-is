@@ -54,9 +54,9 @@ See `agent-skills.md` for the current taxonomy and definitions.
   or an explicitly configured retention period; retain durable outcomes in the
   task record instead.
 - Component `as-is.md` records remain the sole authoritative task state. There
-  is no second authoritative backlog or task tree. A conceptual or future
-  XDG `tasks/` layout may hold runtime indexes or references, but it cannot
-  replace, mirror as authority, or supersede repository-backed records.
+  is no second authoritative backlog or task tree. A private future runtime
+  index may hold discardable references, but it cannot replace, mirror as
+  authority, or supersede repository-backed records.
 - Private transient runtime state may use
   `${TMPDIR:-/tmp}/as-is/<project-key>/<run-id>/<component-key>/`, or an
   equivalent secure host temporary root. It must be collision-resistant,

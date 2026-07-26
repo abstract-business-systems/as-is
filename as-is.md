@@ -29,119 +29,154 @@ config:
 
 task:
   status: completed
-  updated: 2026-07-26T16:09:27Z
+  worker: implementer
+  updated: 2026-07-26T17:02:00Z
 ---
 
 # as-is Project
 
-## Current Task
-
-Refactor the repository's current task records and configuration context so
-repository root and component `as-is.md` files remain the sole authoritative
-task state. This is documentation and durable-context work only: no workers,
-external services, runtime changes, concurrency increase, or prior-commit
-amendment is authorized.
-
 ## Purpose
 
-Keep current recovery context concise and discoverable while retaining the
-durable decisions, important exceptions, terminal child closure, and audit
-references needed to recover the project. Permanent protocols and rationale
-remain in their subject-named specifications.
+Maintain the repository's current durable task context and active host-neutral
+documentation without creating a second backlog, runtime state, or unrelated
+cleanup. This bounded task is assigned to `implementer` through the supported
+`as-is -> orchestrator -> implementer` mediation chain.
+
+## Requirement
+
+Apply the authorized documentation corrections, add the root agent/skill
+initiative to `Pending Work`, assess directory grouping with
+`structuring-content`, and preserve current task authority, `maxConcurrentTasks:
+1`, the blocked no-retry exception, and audit value. Changes must remain scoped
+to this repository; no external service, branch, remote, push, amend, or
+concurrency change is authorized.
 
 ## Acceptance Criteria
 
-- Root and component `as-is.md` records remain the sole current task authority;
-  optional XDG `tasks/` metadata is clearly private, future, and non-authoritative.
-- Terminal records retain identity, status, worker, result, validation, blockers,
-  recovery/next action, and useful commit references; the blocked cost record
-  remains a concise no-retry exception.
-- The root has current status, pending work, and a compact change log without
-  duplicated prior dossiers or transient execution detail.
-- The current `maxConcurrentTasks` remains `1`; future control-plane and
-  concurrency-3 work stays pending rather than being implemented here.
-- The changed records retain the wrong-role/general fallback blocker, the
-  successful `as-is -> orchestrator -> implementer` validation summary, the
-  Increment 6 recovery policy summary, and unavailable cost/wall-clock limits.
+- The active execution contract contains no obsolete XDG implementation
+  reference and no active contract prescribes XDG; any retained historical
+  wording is clearly labeled and has concrete audit value.
+- The root `Pending Work` section is the authoritative finite inventory of
+  project initiatives, explicitly distinguishes completion of the current
+  record from exhaustion of project work, and states that an empty inventory is
+  the exhaustion condition.
+- The root inventory maps current and future agent/skill work to canonical agent
+  definitions, canonical skills, host-exposure symlinks, and one bounded future
+  selection process. The catalog is non-exhaustive and does not imply one task
+  per catalog entry.
+- Historical and out-of-scope fixture records are classified without being
+  silently deleted or treated as current pending work; the blocked Increment 5
+  cost-observability record remains blocked and explicitly no-retry, not
+  completed.
+- Directory structure is assessed with `structuring-content` and the design
+  principles. Any grouping is justified, lowercase kebab case, reversible,
+  reference-safe, and updates task-record lineage; otherwise the record explains
+  why existing grouping is the smallest safe structure. `.agents` and
+  `.opencode` remain separate, and agent role files do not move into an
+  implementation directory.
+- Existing agent and skill discovery, task-record validation, and historical
+  fixture references remain correct; canonical `skills/` and `schemas/` remain
+  grouped where justified; no second backlog or new runtime abstraction is
+  introduced.
+
+## Plan
+
+Have the configured worker inspect the current records and references, make the
+smallest scoped documentation or reversible path changes, use the applicable
+maintenance and structuring skills, and validate before handoff. The parent
+will independently inspect the worker result and run the required checks.
 
 ## Progress
 
-- Reviewed repository instructions, current context, permanent specifications,
-  all component records, recovery/audit value, and recent commit history.
-- Condensed current context and terminal records in place. No task record was
-  removed; detailed prior recovery remains available through Git history
-  and the permanent specifications.
-- Root budgets, `maxConcurrentTasks: 1`, `.agents/agents/*`, OpenCode
-  configuration, runtime behavior, and existing commits remain unchanged.
-- No model-backed worker, external service, private runtime artifact, or child
-  task was launched for this refactor.
+New bounded task established from the prior terminal root record. Existing
+historical records remain in place, including the blocked Increment 5 fixture;
+no descendant has been created for this task yet.
 
-## Decisions
+Maintenance signal and scope recorded before implementation: the active
+execution contract still named an obsolete XDG `tasks/` implementation detail;
+the root inventory needed an explicit agent/skill selection boundary and
+fixture classification; and the existing hierarchy needed an evidence-based
+structure assessment. Affected artifacts are `execution-contract.md` and this
+root record. Acceptance conditions are the criteria above, with particular
+attention to record authority, no-retry blocking, canonical discovery paths,
+and preservation of audit references. Residual risk before validation is that a
+documentation-only correction could miss a stale active-contract reference or
+misstate host discovery.
 
-- Repository root and component `as-is.md` records are the sole authoritative
-  current task state. An optional XDG `tasks/` area may hold private,
-  discardable runtime indexes or references only; it is not an active backlog,
-  mirrored authority, approval store, history, or completion evidence.
-- Private per-run state remains disposable and non-authoritative guidance in the
-  execution contract. Recovery starts from the durable record and immutable run
-  input, not from transient host state.
-- Terminal component records keep concise handoff evidence; Git history carries
-  detailed prior reconstruction. Permanent contracts remain unchanged.
-- The current concurrency setting remains `1`. Future control-plane status and
-  parallel delegation must be validated before a separate concurrency-3 task.
-
-## Blockers And Escalations
-
-- The prior `increment-5-cost-observability` task remains blocked: direct
-  top-level `implementer` fallback selected `as-is`, and the approved mediated
-  attempt routed `general`, timed out, and produced no configured-worker
-  checkpoint. This is a delegation blocker and a no-retry boundary, not a
-  replacement or completion.
-- No blocker remains for this documentation refactor. Actual cost and
-  host-observed wall-clock are unavailable because this is repository-only work.
+Implemented the surgical contract wording correction and durable inventory and
+structure clarifications. No agent, skill, schema, fixture, or symlink path was
+changed; no descendant records were created.
 
 ## Validation
 
-- Structural check passed for the root and seven component task records using
-  their established v1/v2 front-matter and body conventions; the unchanged
-  `.agents/agents/as-is.md` host definition was correctly excluded. No task
-  record was removed or left unaccounted for.
-- Content assertions passed for current task, pending work, change log,
-  authority boundaries, retained exceptions, and commit references. The root
-  contains no removed historical section heading or transient trace pattern.
-- `configuration.md` assertions passed for the optional/private XDG metadata
-  distinction, non-authoritative `tasks/` area, and disposable temporary path.
-- Root configuration still reports `maxConcurrentTasks: 1` and unchanged
-  budgets. `git diff --check` passed; no runtime or host behavior was exercised.
-- Actual cost and host-observed wall-clock are unavailable because this is
-  repository-only documentation work; no estimate is claimed.
+Observed `python3 -m unittest -v test_task_record_validator.py` pass: 6 tests
+passed, including valid-tree and descendant-closure/resource rejection cases.
+Observed focused content assertions pass: active execution and design contracts
+contain no `XDG`; inventory authority/exhaustion, canonical mappings, fixture
+classification, no-retry wording, and structure rationale are present.
+Observed host-exposure path assertions pass for 6 canonical `skills/*/SKILL.md`
+directories and their `.agents/skills/` relative symlinks. Observed
+`git diff --check` pass. Agent/skill paths were unchanged, so fresh host agent
+discovery was not applicable; existing symlink inspection was sufficient for
+the changed behavior. Actual host-reported cost: unavailable. Host-observed
+wall-clock use: unavailable; no estimate is claimed.
+Residual risk: these checks validate repository content and links, not a fresh
+OpenCode process or runtime behavior; that runtime surface was intentionally
+unchanged and remains covered by the existing adapter evidence.
+
+## Structure Assessment
+
+Using `structuring-content` and the design principles, the existing grouping is
+the smallest safe structure: `.agents/agents/` owns canonical role files,
+`skills/` owns reusable canonical skills, `schemas/` owns the validator and
+schemas, and `.opencode/` remains a separate host adapter boundary. `.agents`
+and `.opencode` remain separate, and agent role files stay under
+`.agents/agents/`, not an implementation directory. The
+`.agents/skills/` relative symlinks provide host exposure without copying
+canonical skills. No new directory or path move is justified: the groups have
+clear ownership already, a new level would add navigation and reference risk,
+and role files must not move into an implementation directory. This is
+reversible by retaining the existing paths and preserves task-record lineage.
 
 ## Result
 
-The root context and terminal component records now provide concise current
-handoffs instead of duplicated prior execution dossiers. Authority remains
-with repository records; optional runtime metadata is explicitly subordinate;
-the blocked exception, successful mediation evidence, Increment 6 policy, and
-current concurrency boundary remain discoverable.
+Completed the bounded maintenance requirement. The active execution contract
+and permanent design wording no longer present XDG as an implementation
+reference; superseded configuration wording remains explicitly historical and
+non-authoritative. `Pending Work` is the sole finite initiative inventory with
+an explicit exhaustion condition and one bounded agent/skill selection process.
+Historical fixtures and the blocked Increment 5 no-retry record remain
+classified and untouched. Existing grouping and discovery paths were preserved.
+There were no descendants; descendant closure is therefore terminal by absence.
+
+## Blockers And Escalations
+
+The historical `increment-5-cost-observability` record remains a blocked,
+no-retry delegation exception: prior direct top-level fallback selected `as-is`,
+the approved mediated attempt selected `general`, timed out, and produced no
+configured-worker checkpoint. This task must not silently replace or complete
+that record. Any broader structural or implementation issue must be recorded as
+a blocker rather than expanded into this task.
 
 ## Recovery
 
-- Last durable checkpoint: current records were condensed after recovery/audit
-  review; no record was deleted and no private runtime state was created.
-- Detailed prior evidence is recoverable from Git history, including the
-  prior root integration `5ad7af8`, recovery policy `7c28607`, fixture handoff
-  `be93087`, mediation handoff `c4f0181`, and blocked fixture commit `e9b740b`.
-- Incomplete work: future control-plane interaction and concurrency-3 runtime
-  support remain intentionally unimplemented.
-- Next safe action: use the pending-work list for a separately authorized task;
-  no recovery from transient host state is required.
+The durable checkpoint is this completed root record plus the three changed
+documentation artifacts. No private host state or cleanup is required. To
+recover, reread this record and inspect `git show` for the scoped handoff; do
+not alter the blocked Increment 5 fixture or create a second inventory.
 
 ## Next Action
 
-No further change is authorized in this scope. Commit this validated root
-handoff with only the intended documentation and durable-context files.
+Commit only this scoped completed handoff using `committing-completed-work`.
 
 ## Pending Work
+
+This section is the sole authoritative finite inventory of project initiatives.
+It is separate from the current record's completion state: this task may reach
+`completed` when its acceptance conditions and descendants are terminal, while
+the project is exhausted only when this inventory is explicitly empty; an empty inventory is the exhaustion condition. A
+non-empty inventory means project work remains; it does not make this current
+record incomplete.
 
 - Implement and validate durable control-plane status queries, read-only general
   questions, durable questions/approvals/cancellation, and parent-orchestrator
@@ -153,21 +188,32 @@ handoff with only the intended documentation and durable-context files.
   closure. Do not raise the current value here.
 - Resolve the host adapter's wrong-role/general fallback only through a new
   bounded design and explicit authorization; do not retry the blocked record.
+- Map and maintain the agent/skill system through one bounded initiative: keep
+  canonical agent definitions under `.agents/agents/`, canonical skills under
+  `skills/`, preserve host-exposure symlinks and their discovery checks, and use
+  this bounded selection process for future additions or changes: identify a
+  missing or changed capability, map it to an existing canonical role/skill or
+  propose one, verify ownership and host exposure, then add one initiative here
+  only after explicit authorization and acceptance conditions are recorded. The
+  current catalog is non-exhaustive and is an inventory of capabilities, not a
+  task list; do not create one task per catalog entry.
+
+No other project work is pending unless it is added to this section by a new
+authorized task. Historical or out-of-scope fixtures are retained for lineage
+and audit and are not implied initiatives: `opencode-mediation-dogfood` and
+`increment-5-dogfood` are completed historical validation fixtures,
+`increment-6-recovery-fixture` is a completed recovery fixture, and
+`increment-5-cost-observability` is blocked historical evidence with an
+explicit no-retry boundary. Their recorded statuses remain authoritative; the
+blocked Increment 5 record is not completed.
 
 ## Change Log
 
-- `2026-07-26 | completed` - Current record-authority and control-boundary
-  decisions integrated; prior root handoff `5ad7af8`.
-- `2026-07-26 | completed` - Increment 6 recovery policy and record-only
-  interrupted-child fixture validated; policy `7c28607`, fixture `be93087`.
-- `2026-07-26 | completed` - OpenCode mediation validated through
-  `as-is -> orchestrator -> implementer`; child `2e9d4fd`, reconciliation
-  `c4f0181`, role repair `71213a9`. Full invocation observation was
-  `0.0525789` model/token-derived USD and `50.502114668` monotonic seconds;
-  these are not provider billing or automatic budget enforcement.
-- `2026-07-26 | blocked` - Increment 5 cost-observability fixture retained as
-  the wrong-role/general fallback exception; README handoff `e9b740b` and no
-  retry without new approval.
-- Earlier closed work remains referenced by its scoped commits: Increment 2
-  `c19f45b`, `882f02d`; Increment 3 `ed952de`; primary-agent component
-  `ddd9227`; OpenCode dogfood `0dc44ad`. Git history retains detailed traces.
+- `2026-07-26 | ready` - Established this bounded maintenance task from the
+  prior completed root handoff; preserved existing configuration, fixture
+  records, and the blocked no-retry exception.
+- `2026-07-26 | completed` - Corrected active contract wording, recorded the
+  bounded inventory and fixture classifications, assessed existing grouping,
+  and passed focused validator, content/path, and whitespace checks.
+- Earlier closed work remains referenced by its scoped commits in Git history,
+  including mediation, recovery, validator, and fixture handoffs.
