@@ -153,8 +153,9 @@ Permanent implementation references:
   runtime artifact or host-specific rule.
 - Scope review: no component records were created or changed; no descendant
   work was needed. `git diff --check` passed for the documentation changes.
-- Residual risk: no runtime scheduler or host notification observation exists
-  yet; those remain later host/runtime work.
+- Residual risk from Increment 3: no generic runtime scheduler was introduced;
+  the selected host notification observation is recorded below, while generic
+  scheduling remains outside this increment.
 - Increment 4 contract review: `execution-contract.md` defines all six
   lifecycle actions, component-record-only worker context, durable state and
   revision rules, source-labelled observations, question/approval handling,
