@@ -1,9 +1,9 @@
 ---
 as-is-version: 2
 task:
-  status: blocked
+  status: active
   worker: implementer
-  updated: 2026-07-26T14:59:20Z
+  updated: 2026-07-26T15:01:25Z
 constraints:
   cost:
     currency: USD
@@ -60,6 +60,11 @@ after the bounded run; do not edit that file from this component.
   agent was rejected as a subagent and OpenCode fell back to the default
   `as-is` primary agent; this is a durable delegation blocker, not a successful
   configured-worker handoff.
+- Recovery transition recorded by the root orchestrator: `blocked` to `active`
+  for one explicitly approved mediated validation. The prior `0.0262488` USD
+  cost and `21.915` second wall-clock observation remain cumulative and are not
+  reset. Remaining attempt envelope after reserve is `0.0537512` USD and
+  `68.085` seconds.
 
 ## Validation
 
@@ -84,26 +89,26 @@ after the bounded run; do not edit that file from this component.
 
 - OpenCode 1.17.18 reported that `implementer` is a subagent rather than a
   primary agent and fell back to the default `as-is` agent. A further
-  model-backed run would be needed to validate a supported primary-agent
-  mediation path; no such run is authorized in this follow-up.
+  model-backed run is now authorized only through the documented primary-agent
+  mediation path; direct top-level subagent invocation remains invalid.
 
 ## Recovery
 
-- Last durable checkpoint: local fixture committed and host observations
-  recorded; follow-up blocked on configured-worker invocation.
-- Incomplete work: a valid configured `implementer` delegation and successful
-  dogfood completion remain unvalidated.
-- Cleanup completed: the private OpenCode session record and temporary JSON
-  event capture were deleted after this blocker and its observations became
-  durable; retain this record and the intentional README fixture.
+- Last durable checkpoint: root recorded the explicit `blocked` to `active`
+  recovery transition while preserving the prior measurements.
+- Incomplete work: one mediated `as-is` to `orchestrator` to `implementer`
+  delegation remains to be validated within the remaining envelope.
+- Cleanup required: retain private session records and temporary captures until
+  the mediated worker attribution, measurements, and durable handoff are
+  recorded; then delete only those transient artifacts.
 - Cost observation: `0.0262488` USD from OpenCode's session and part cost fields;
   model/token-derived and not a provider billing observation.
 - Wall-clock observation: `21.915` seconds from the parent shell's realtime
   nanosecond delta around the full `opencode run`; session/message timestamps
   are not this measurement. The timer was not monotonic and is not sufficient
   for automatic budget enforcement.
-- Next safe action: obtain explicit approval for any further model-backed
-  validation and first define a supported primary-agent mediation path.
+- Next safe action: invoke the documented `as-is` primary once and require its
+  orchestrator to delegate this component to the configured `implementer`.
 
 ## Handoff
 
@@ -116,5 +121,6 @@ after the bounded run; do not edit that file from this component.
 
 ## Next Action
 
-Do not launch another model-backed run in this follow-up. Preserve the blocker
-until a supported configured-worker invocation is approved and validated.
+Launch exactly one mediated model-backed validation within the remaining cost
+and wall-clock envelope. Do not retry if attribution, budget, or completion
+evidence fails.
