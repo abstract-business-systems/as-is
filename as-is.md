@@ -28,15 +28,16 @@ config:
 
 task:
   status: completed
-  updated: 2026-07-26T14:12:02Z
+  updated: 2026-07-26T14:16:54Z
 ---
 
 # as-is Project
 
 ## Current Task
 
-Define Increment 3 user check-ins and control without implementing a scheduler,
-runtime notification transport, or host adapter.
+Define Increment 4's host-neutral execution contract for launching, resuming,
+observing, questioning, cancelling, and recovering workers without selecting or
+implementing a host adapter, runtime scheduler, or adapter behavior.
 
 ## Purpose
 
@@ -47,24 +48,27 @@ Permanent implementation references:
 
 - [Orchestration Design](orchestration-design.md)
 - [Component Task-Record Protocol](component-task-record-protocol.md)
+- [Host-Neutral Execution Contract](execution-contract.md)
 
 ## Acceptance Criteria
 
-- `orchestration-design.md` defines a configurable periodic check-in interval
-  derived from durable task timestamps, without conflating it with execution
-  budgets.
-- The design defines immediate notifications for delegation, blocking, budget
-  risk or exhaustion, completion, failure, cancellation, and approval-required
-  external effects, with each event observable from durable task state.
-- The design defines a query response containing active and delegated tasks,
-  status, budget use and observation source, blockers, required decisions, and
-  next check-in, without reading worker-private runtime state.
-- The design defines bounded user control for direction, approval, and
-  cancellation through the orchestrator, with durable status/checkpoint updates.
+- `execution-contract.md` defines host-neutral launch, resume, observation,
+  question, cancellation, and recovery operations around the component task
+  record.
+- The contract supplies the worker its component task record plus central
+  read-only execution context, without duplicating repository-wide context or
+  making private runtime state authoritative.
+- Each lifecycle operation has durable state/checkpoint, result, observation,
+  question, cancellation, and recovery semantics that satisfy the existing
+  task-record protocol, including descendant closure and budget evidence.
+- The contract leaves host selection, transport, session/process behavior,
+  scheduling, retry/backoff policy, and measurement implementation to later
+  increments and adds no host-specific policy.
 
 ## Progress
 
 - Increment 2 is complete and committed in `c19f45b` and `882f02d`.
+- Increment 3 is complete and committed in `ed952de`.
 - The root configuration now records Bun as the runtime and package-manager
   preference. This is a preference, not a constraint or an authorization to add
   dependencies without a component need.
@@ -72,9 +76,10 @@ Permanent implementation references:
   `.agents` before integrating the root configuration and guidance changes.
 - The configured implementer completed the `.agents` child handoff in
   `ddd9227` (`feat(agents): add as-is primary agent`).
-- Increment 3 was handled at the root because its acceptance conditions are
-  a cross-cutting durable design contract; no component implementation or child
-  delegation is required.
+- Increment 4 is handled at the root because its acceptance conditions span the
+  orchestrator lifecycle and component task-record protocol. No child
+  component owns this cross-cutting contract, so no child record or delegation
+  is required.
 - Added the minimal effective configuration surface: `config.scheduling.checkInSeconds`
   and `config.notifications.materialEvents`. The design records why these are
   needed and keeps enforcement for later increments.
@@ -108,6 +113,11 @@ Permanent implementation references:
   estimate.
 - User direction, approval, and cancellation are orchestrator-routed controls;
   queries are read-only and controls cannot weaken higher-authority constraints.
+- The lifecycle contract is normalized around the component record and keeps
+  host handles, sessions, processes, transports, scheduling, retry policy, and
+  measurement implementation outside the core. Launch, resume, observe,
+  question, cancel, and recover return durable observations; runtime state is
+  supplementary and non-authoritative.
 
 ## Blockers
 
@@ -116,8 +126,9 @@ Permanent implementation references:
   cost.
 - Actual component cost and host-observed wall-clock use remain unavailable from
   the current OpenCode adapter.
-- No Increment 3 blocker. Runtime scheduling, notification delivery, and control
-  enforcement are intentionally deferred to Increments 4 and 5.
+- No Increment 4 blocker. Host selection, runtime scheduling, adapter mapping,
+  and concrete recovery policy remain intentionally deferred to Increments 5
+  and 6.
 
 ## Validation
 
@@ -139,27 +150,37 @@ Permanent implementation references:
 - Scope review: no component records were created or changed; no descendant
   work was needed. `git diff --check` passed for the documentation changes.
 - Residual risk: no runtime scheduler or host notification observation exists
-  yet; those are explicit Increment 4/5 acceptance conditions.
+  yet; those remain later host/runtime work.
+- Increment 4 contract review: `execution-contract.md` defines all six
+  lifecycle actions, component-record-only worker context, durable state and
+  revision rules, source-labelled observations, question/approval handling,
+  cancellation, and recovery handoff without host-specific policy.
+- Static documentation check: `git diff --check` passed for the changed
+  specifications and root record.
+- Residual risk: no host adapter or runtime execution path has exercised the
+  contract; that is intentionally Increment 5 work.
 
 ## Result
 
-- Increment 3 design is complete: periodic check-ins, material-event
-  notifications, record-only query responses, and bounded user controls are
-  defined in `orchestration-design.md` and this current task context.
-- No delegated task IDs or component handoffs exist for Increment 3 because the
-  smallest satisfying change is at the root design/configuration boundary.
+- Increment 4 is complete: the host-neutral lifecycle contract is defined in
+  `execution-contract.md` and linked from `orchestration-design.md`, while
+  Increment 3's check-in and control semantics remain host-independent.
+- No delegated task IDs, child records, or component handoffs exist for
+  Increment 4 because the smallest satisfying change is at the root
+  cross-cutting design boundary.
 
 ## Recovery
 
-- Last durable checkpoint: Increment 3 requirements and design contract recorded
-  at the root; no child task is active.
-- Incomplete work: none for this increment. Runtime implementation remains
-  intentionally deferred.
+- Last durable checkpoint: Increment 4 lifecycle contract and root integration
+  review recorded; no child task is active.
+- Incomplete work: none for this increment. Host adapter and runtime behavior
+  remain intentionally deferred.
 - Cleanup required: none.
-- Next safe action: begin Increment 4 from the host-neutral execution-contract
-  requirements in `orchestration-design.md`.
+- Next safe action: select and implement a host mapping only under Increment 5
+  after this scoped handoff is committed.
 
 ## Next Action
 
-Begin Increment 4 from the host-neutral execution-contract requirements in
-`orchestration-design.md`; no Increment 3 recovery action remains.
+Increment 4 is complete and ready for its scoped root handoff commit. Begin
+Increment 5 only by selecting a host adapter; no Increment 4 recovery action
+remains.

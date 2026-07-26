@@ -155,7 +155,8 @@ See `agent-skills.md` for the current taxonomy and definitions.
 
 See `configuration.md` for the superseded JSON-manifest design,
 `component-task-record-protocol.md` for the component record contract, and
-`as-is.md` for transient current project task state.
+`execution-contract.md` for the host-neutral worker lifecycle contract.
+See `as-is.md` for transient current project task state.
 
 ### Orchestration and Control
 
@@ -207,6 +208,24 @@ See `configuration.md` for the superseded JSON-manifest design,
   approval-waiting task remains visible until a durable decision or recovery
   transition is recorded.
 
+### Host-Neutral Execution Contract
+
+The lifecycle boundary for worker execution is defined in
+`execution-contract.md`. It normalizes `launch`, `resume`, `observe`,
+`question`, `cancel`, and `recover` operations around the component task
+record. The orchestrator supplies the worker its component record plus central
+read-only execution context; it does not copy repository-wide context into the
+worker record or make private runtime state authoritative.
+
+Each operation returns durable record observations, optional source-labelled
+host observations, and a recoverable next action. Durable status transitions,
+checkpoint timestamps, budget accounting, questions, approvals, cancellation,
+and descendant closure remain governed by the task-record protocol. A runtime
+handle, process exit, session prompt, or missing private state cannot replace
+that evidence. The contract intentionally leaves host selection, transport,
+session/process behavior, scheduling, retry/backoff policy, and measurement
+implementation to later adapter and recovery increments.
+
 ### Minimal Execution Envelope
 
 The minimal dogfood path uses an orchestrator role and an implementer role. Both
@@ -232,11 +251,12 @@ worker, and cost and wall-clock allocations.
    commit the completed record and only its scoped changes. A failed commit keeps
    the record recoverable rather than reporting completion.
 
-The envelope deliberately does not implement scheduling, check-ins, runtime
-session recovery, or a host-neutral lifecycle adapter. Those remain later
-increments. When a host cannot report per-component cost, the record names its
-fallback metric and leaves `spent` as non-actual rather than presenting an
-estimate as a cost.
+The envelope does not implement scheduling, check-ins, runtime session
+recovery, or a host adapter. The host-neutral lifecycle contract is defined in
+`execution-contract.md`; host-specific enforcement and recovery behavior
+remain later increments. When a host cannot report per-component cost, the
+record names its fallback metric and leaves `spent` as non-actual rather than
+presenting an estimate as a cost.
 
 An adapter should prefer a host-managed child worker when it exposes the
 required lifecycle events, cancellation, and attributable usage. This preserves
