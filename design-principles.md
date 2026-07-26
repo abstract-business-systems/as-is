@@ -28,13 +28,30 @@ choices. A lower-authority setting cannot weaken a higher-authority constraint.
   way to be overridden.
 - **Names carry concepts:** Names usually represent concepts, roles, and
   responsibilities, not just markers. Prefer established de facto and de jure
-  terminology so artifacts align with existing paradigms.
+  terminology so artifacts align with existing paradigms. Agents may select
+  design-conformant names within their delegated boundary and communicate
+  material, user-visible choices in their handoff or status report.
+- **Exception escalation:** When evidence supports departing from an applicable
+  non-fixed instruction, surface the proposed deviation, alternatives, reasons,
+  and material effects to the caller, whether user, orchestrator, or delegating
+  agent. Proceed only with the required authority; a lower-authority request
+  cannot weaken a higher-authority constraint.
+- **Purposeful presence:** An artifact, setting, abstraction, process, or
+  retained state should exist only while it serves a concrete need. Before
+  removing something as unneeded, assess its current consumers, recovery or
+  audit value, ownership, and cost to recreate; remove or retain it deliberately
+  rather than by default.
 - **Established practice by default:** Follow applicable practices, norms, and
   standards. Make an exception only for a concrete reason, and make that reason
   understandable from the surrounding context.
 - **Reusable, composable blocks:** Prefer small capabilities and artifacts that
   can be combined in more than one context over one-off, tightly coupled
   solutions.
+- **Minimal change:** Select the smallest design and change that satisfies the
+  stated acceptance conditions. Reuse an established local pattern before
+  adding a new abstraction, configuration surface, artifact, or execution path;
+  record the concrete need when introducing one. Treat that rationale and the
+  changed-artifact set as reviewable evidence, not an implied assumption.
 - **Hierarchical composition:** Coherent blocks build larger blocks, which in
   turn build the next level as needed. Place responsibility at the lowest level
   that can own it correctly.

@@ -3,7 +3,9 @@
 > This document records the earlier JSON-manifest design. `as-is.md` is now the
 > authoritative project-facing configuration and durable task-context artifact.
 > The superseded manifest and schema were removed; Git history preserves them
-> as migration reference if needed.
+> as migration reference if needed. The historical location, ownership, and
+> policy rules below are not part of the current architecture; see
+> `orchestration-handoff.md` for the active design direction.
 
 ## Boundaries
 
@@ -126,7 +128,9 @@ overridable unless marked fixed below.
 
 The following are fixed invariants:
 
-- A project has one authored as-is configuration entry point.
+- A project has one authored root `as-is.md` configuration entry point.
+  Component `as-is.md` task records may carry resolved policy and permitted
+  scoped narrowing, but do not introduce additional configuration entry points.
 - Runtime-owned state is never treated as project policy.
 - The active configuration validates against its declared `apiVersion`.
 - Extensions cannot relax approval requirements for irreversible external

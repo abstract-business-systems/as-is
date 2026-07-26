@@ -34,6 +34,9 @@ task:
 Define the first version of the `as-is.md` protocol for durable project and
 component state.
 
+The staged master-orchestrator implementation plan is maintained in
+[orchestration-handoff.md](orchestration-handoff.md).
+
 ## Acceptance Criteria
 
 - A root `as-is.md` can express project policy without `as-is.config.json`.
@@ -59,6 +62,9 @@ component state.
   wrapper. A fresh process discovered all three skills.
 - Ran a fresh, read-only `opencode run` session that loaded and used
   `setting-up-as-is` to inspect the self-hosting integration.
+- Planned the next orchestration increment around a durable delegation record,
+  a scheduler/check-in contract, an OpenCode execution adapter, and a recovery
+  path before implementing a master orchestrator.
 
 ## Decisions
 
@@ -83,6 +89,21 @@ component state.
 - OpenCode loads skills only at process startup. Restart OpenCode after changing
   skill content, skill links, or OpenCode configuration; no live reload command
   is available.
+- Agents may select design-conformant names within their delegated boundary and
+  report material, user-visible choices in their handoff or status report.
+- When a non-fixed instruction merits departure, the agent surfaces the
+  deviation, alternatives, reasons, and material effects to its caller and
+  proceeds only with the required authority. Lower-authority requests cannot
+  weaken higher-authority constraints.
+- Artifacts, settings, abstractions, processes, and retained state exist only
+  for a concrete need. Before removal, assess consumers, recovery or audit
+  value, ownership, and recreation cost rather than dropping items by default.
+- Delegated agents start with only their assigned component's `as-is.md`.
+  Before launch, the orchestrator completes the component task-record protocol;
+  broader repository context is supplied only when necessary.
+- Transient runtime artifacts are removed after successful implementation unless
+  active recovery, audit, or configured retention requires them. Durable task
+  outcomes remain in project task records.
 
 ## Blockers
 
@@ -95,5 +116,7 @@ component state.
 
 ## Next Action
 
-Use the initial skills to define the `as-is.md` protocol and its minimal
-component-task schema.
+Define the durable task-record protocol, including component placement,
+delegation inputs, budgets, acceptance conditions, progress, results, and
+single-owner claim semantics. This unblocks the scheduler/check-in and OpenCode
+execution-adapter increments.

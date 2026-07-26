@@ -26,8 +26,18 @@ directories use lowercase kebab-case unless a host requires an exact filename.
 - Before destructive removal, determine whether the target is tracked or has
   untracked or ignored contents. Prefer reversible, tracked removal for tracked
   paths.
+- Before removing an artifact as unneeded, assess its current consumers,
+  recovery or audit value, ownership, and cost to recreate. Preserve or record
+  what remains necessary; remove only the identified unnecessary scope.
 - Keep changes scoped and surgical. If evidence requires work beyond the stated
   scope, stop and request direction rather than expanding autonomously.
+- When evidence supports departing from an applicable non-fixed instruction,
+  present the proposed deviation, alternatives, reasons, and material effects to
+  the user or delegating agent. Do not weaken a higher-authority constraint.
+- Before introducing a material abstraction, configuration surface, artifact, or
+  execution path, inspect the applicable local pattern. Record the acceptance
+  condition or concrete need that requires the addition in durable task context;
+  include it in the completion report for review.
 - Validate a changed behavior with the smallest relevant existing automation or
   check before reporting completion. State the validation performed and any
   residual risk.
@@ -40,6 +50,11 @@ directories use lowercase kebab-case unless a host requires an exact filename.
 - Delegate independent, bounded work only when it has a clear input, durable
   context, expected output, and verification boundary. Preserve the result in
   repository context before dependent work proceeds.
+- A delegated agent starts with only the `as-is.md` in its assigned component
+  directory. The orchestrator resolves the fields required by the component
+  task-record protocol into that record; the agent reads outside its component
+  only when the task explicitly identifies a necessary dependency or the user
+  directs it to do so.
 - Use an independent reviewer or validator when risk, authority, or change
   breadth warrants it. The implementing agent's report is evidence, not the
   sole completion gate.
