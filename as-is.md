@@ -28,16 +28,17 @@ config:
 
 task:
   status: completed
-  updated: 2026-07-26T14:16:54Z
+  updated: 2026-07-26T14:31:00Z
 ---
 
 # as-is Project
 
 ## Current Task
 
-Define Increment 4's host-neutral execution contract for launching, resuming,
-observing, questioning, cancelling, and recovering workers without selecting or
-implementing a host adapter, runtime scheduler, or adapter behavior.
+Select the documented OpenCode host adapter, map the host-neutral execution
+contract to its bounded subprocess fallback, and validate one harmless child
+component through delegation, notification/check-in, budget handling, durable
+completion reporting, and transient runtime cleanup.
 
 ## Purpose
 
@@ -52,18 +53,14 @@ Permanent implementation references:
 
 ## Acceptance Criteria
 
-- `execution-contract.md` defines host-neutral launch, resume, observation,
-  question, cancellation, and recovery operations around the component task
-  record.
-- The contract supplies the worker its component task record plus central
-  read-only execution context, without duplicating repository-wide context or
-  making private runtime state authoritative.
-- Each lifecycle operation has durable state/checkpoint, result, observation,
-  question, cancellation, and recovery semantics that satisfy the existing
-  task-record protocol, including descendant closure and budget evidence.
-- The contract leaves host selection, transport, session/process behavior,
-  scheduling, retry/backoff policy, and measurement implementation to later
-  increments and adds no host-specific policy.
+- Select the OpenCode adapter already documented in `opencode-adapter.md` and
+  map all six operations in `execution-contract.md` without changing core
+  policy or implementing Increment 6 recovery policy.
+- Validate one harmless child-component task through the adapter, including
+  delegation notification/check-in, budget handling, durable completion
+  reporting, descendant closure, and cleanup of transient runtime artifacts.
+- Preserve component-only initial context and record unavailable cost or
+  wall-clock observations without presenting estimates as actual measurements.
 
 ## Progress
 
@@ -83,6 +80,13 @@ Permanent implementation references:
 - Added the minimal effective configuration surface: `config.scheduling.checkInSeconds`
   and `config.notifications.materialEvents`. The design records why these are
   needed and keeps enforcement for later increments.
+- Increment 5 is handled at the root because adapter selection and lifecycle
+  mapping are cross-cutting. The harmless validation task is delegated to the
+  new `increment-5-dogfood` child because its README and task handoff have a
+  distinct component boundary.
+- The selected adapter is the documented bounded `opencode run` fallback. A
+  host-managed child is not selected because this CLI does not expose reliable
+  lifecycle cancellation and per-component usage observations.
 
 ## Decisions
 
@@ -126,9 +130,9 @@ Permanent implementation references:
   cost.
 - Actual component cost and host-observed wall-clock use remain unavailable from
   the current OpenCode adapter.
-- No Increment 4 blocker. Host selection, runtime scheduling, adapter mapping,
-  and concrete recovery policy remain intentionally deferred to Increments 5
-  and 6.
+- No Increment 5 blocker. Per-component actual cost and host-observed wall-clock
+  use remain unavailable from this OpenCode adapter; records retain the
+  unavailable source and do not present estimates as actual measurements.
 
 ## Validation
 
@@ -157,30 +161,56 @@ Permanent implementation references:
   cancellation, and recovery handoff without host-specific policy.
 - Static documentation check: `git diff --check` passed for the changed
   specifications and root record.
-- Residual risk: no host adapter or runtime execution path has exercised the
-  contract; that is intentionally Increment 5 work.
+- Residual risk before this increment: no host adapter or runtime execution
+  path had exercised the contract; the bounded OpenCode dogfood below closes
+  that gap, while host cost attribution remains unavailable.
+- Increment 5 adapter mapping review: `opencode-adapter.md` maps all six
+  lifecycle operations to bounded CLI invocations and durable record reads,
+  preserving component-only worker context and deferring stale-task and
+  replacement policy.
+- Dogfood delegation notification/check-in: created
+  `increment-5-dogfood/as-is.md` atomically in `ready`, emitted delegation from
+  the durable parent transition, and observed the child worker checkpoint and
+  completion through its record.
+- Dogfood budget handling: child allocation was USD 0.10 with USD 0.02 reserve
+  and 120 seconds with 30 seconds reserve, within the configured unit budget;
+  cost and elapsed wall-clock observations remained unavailable from the host
+  and were not represented as actual use.
+- Dogfood completion: the child added only its local README, passed focused
+  content validation and `git diff --check`, reached terminal `completed`, and
+  had no descendants requiring closure accounting.
+- Dogfood cleanup: the two private OpenCode session records created for the
+  parent/child run were deleted after durable handoff; no project runtime
+  artifact was retained. The durable child record and README remain.
+- Validation limitation: the repository-wide Increment 2 validator is not a
+  valid check for this mixed historical tree because it interprets host agent
+  definitions and version-1 records as task records. The new child record was
+  checked locally instead; no validator behavior was changed.
 
 ## Result
 
-- Increment 4 is complete: the host-neutral lifecycle contract is defined in
+- Increment 5 is complete: the selected OpenCode fallback maps the host-neutral
+  lifecycle contract and successfully exercised a harmless delegated child
+  task with durable notification/check-in, budget evidence, completion, and
+  cleanup. Increment 4's host-neutral lifecycle contract remains defined in
   `execution-contract.md` and linked from `orchestration-design.md`, while
   Increment 3's check-in and control semantics remain host-independent.
-- No delegated task IDs, child records, or component handoffs exist for
-  Increment 4 because the smallest satisfying change is at the root
-  cross-cutting design boundary.
+- Delegated task: `increment-5-dogfood`, record
+  `increment-5-dogfood/as-is.md`, configured worker `implementer`, terminal
+  `completed`, no descendants.
 
 ## Recovery
 
-- Last durable checkpoint: Increment 4 lifecycle contract and root integration
-  review recorded; no child task is active.
-- Incomplete work: none for this increment. Host adapter and runtime behavior
-  remain intentionally deferred.
-- Cleanup required: none.
-- Next safe action: select and implement a host mapping only under Increment 5
-  after this scoped handoff is committed.
+- Last durable checkpoint: Increment 5 child completion was reread, runtime
+  sessions were cleaned, and adapter mapping was integrated.
+- Incomplete work: none for Increment 5. Stale-task recovery, retry/backoff, and
+  worker replacement remain intentionally deferred to Increment 6.
+- Cleanup required: none; private sessions were deleted and durable outcomes
+  remain in the records.
+- Next safe action: commit this scoped root handoff and the child handoff; do
+  not begin Increment 6 in this task.
 
 ## Next Action
 
-Increment 4 is complete and ready for its scoped root handoff commit. Begin
-Increment 5 only by selecting a host adapter; no Increment 4 recovery action
-remains.
+Increment 5 is complete and ready for scoped handoff commits. No Increment 5
+recovery action remains; Increment 6 is not part of this task.
