@@ -60,16 +60,17 @@ directories use lowercase kebab-case unless a host requires an exact filename.
   context, expected output, and verification boundary. Preserve the result in
   repository context before dependent work proceeds.
 - A component directory determines the scope and parent of its task. The worker
-  updates only that component's `as-is.md`. When delegating work to a component
+  updates only that component's `as-is.md` and files. When delegating work to a component
   that has no record, the orchestrator generates it atomically before launching
   the worker; it reuses rather than overwrites an existing task record. Child
   records provide durable delegation and handoff evidence without duplicating
   their progress in a parent record.
 - A worker validates its implementation before handoff and records the result,
-  residual risk, and host-reported actual cost in its component record. It may
+  residual risk, host-reported actual cost, and host-observed wall-clock use in
+  its component record. It may
   request bounded child delegation; the responsible orchestrator may run
-  independent siblings concurrently when their declared boundaries do not
-  overlap.
+  independent siblings concurrently when their directory scopes, external
+  dependencies, and allocations do not overlap.
 - A task record may become `completed` only after every descendant record is in
   a terminal state and its own acceptance conditions account for each cancelled
   or failed descendant. Commit the scoped completed handoff before reporting the

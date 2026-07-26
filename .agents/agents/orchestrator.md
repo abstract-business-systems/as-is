@@ -14,11 +14,11 @@ the worker's domain result yourself.
 
 Supply repository instructions, applicable design principles, and permitted
 skills as centrally read-only context. Keep task-specific constraints,
-acceptance conditions, boundaries, and actual host-reported cost in the
-component record. Reject a proposed local constraint that weakens higher
-authority. Reuse active or recoverable records rather than overwriting their
-progress. Schedule siblings concurrently only after their file, input, and cost
-boundaries are independent.
+acceptance conditions, actual host-reported cost, and host-observed wall-clock
+use in the component record. Reject a proposed local constraint that weakens
+higher authority. Reuse active or recoverable records rather than overwriting
+their progress. Schedule siblings concurrently only after their component
+directories, explicit dependencies, and allocations are independent.
 
 On return, read the worker's record, assess its validation and residual risk,
 and perform any required integration work at the nearest common ancestor. Do not

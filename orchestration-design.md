@@ -68,9 +68,10 @@ See `agent-skills.md` for the current taxonomy and definitions.
   state may mirror it for implementation convenience but is not authoritative.
 - Work that spans multiple components is performed at their nearest common
   ancestor rather than by cross-component delegation.
-- Independent sibling components may run concurrently when their declared file,
-  input, and budget boundaries do not overlap. Siblings do not mutate each
-  other's records or depend on another active sibling's mutable state.
+- Independent sibling components may run concurrently when their directory
+  scopes, external dependencies, and resource allocations do not overlap.
+  Siblings do not mutate each other's records or depend on another active
+  sibling's mutable state.
 
 ### Task and Progress Protocol
 
@@ -92,13 +93,33 @@ See `agent-skills.md` for the current taxonomy and definitions.
   acceptance evidence accounts for any failed or cancelled child. Its scoped
   durable handoff is committed before the completion is reported upward.
 - Target task size is a micro-task: a few minutes of wall-clock work and a
-  budget on the order of a couple of dimes. Exact limits remain configurable.
+  budget on the order of a couple of dimes. A host records cumulative
+  wall-clock observations against the component budget; durable checkpoint
+  timestamps remain the separate ordering and stale-work signal. Exact limits
+  remain configurable.
+
+### Constraint Enforcement And Deterministic Maintenance
+
+- Constraints are introduced in the durable task protocol now. Increment 2
+  implements deterministic static record validation for authority, descendant
+  closure, and cost and wall-clock budget arithmetic. Increments 4 and 5 add
+  host-neutral runtime enforcement and map it through a selected host adapter.
+- Deterministic maintenance scripts own repeatable schema checks, arithmetic,
+  state-transition checks, and safe transformations. They return observable
+  results and do not make generative policy or scope decisions.
+- Skills select, invoke, and interpret deterministic scripts as part of a
+  bounded workflow; agents supply judgment only where the script has an explicit
+  input, unsupported condition, or escalation boundary.
+- Do not create a generic maintenance framework or script directory in advance.
+  The first script is justified by Increment 2's concrete task-record validation
+  need; further scripts follow only when a repeated deterministic operation
+  warrants them.
 
 ### Configuration Boundary
 
 - as-is is a self-contained machine/user-installed bundle of agents, skills,
-  references, examples, schemas, extensions, and adapters. It is invoked by its
-  CLI or a chat slash-command adapter rather than copied into every project.
+  references, examples, schemas, extensions, and adapters. A host adapter
+  invokes it without copying the core into every target project.
 - A target project has an authored `as-is.md` at its root for project policy and
   project-level task context. When work is first delegated to a component
   directory, the orchestrator generates its `as-is.md` task record atomically
@@ -149,12 +170,11 @@ See `configuration.md` for the superseded JSON-manifest design,
 
 ### Minimal Execution Envelope
 
-The minimal dogfood path uses a primary `orchestrator` and a subagent
-`implementer`. Both receive repository instructions, applicable design
-principles, and permitted skills as central read-only execution context. The
-component record supplies only its bounded requirement, effective constraints,
-acceptance conditions, file and input boundaries, configured worker, and cost
-allocation.
+The minimal dogfood path uses an orchestrator role and an implementer role. Both
+receive repository instructions, applicable design principles, and permitted
+skills as central read-only context. The component record supplies only its
+bounded requirement, effective constraints, acceptance conditions, configured
+worker, and cost and wall-clock allocations.
 
 1. The orchestrator reads the parent context, rejects a lower-authority
    weakening constraint, and creates a missing child record atomically in
@@ -162,7 +182,7 @@ allocation.
 2. The orchestrator verifies that the child allocation, including its reserve,
    is within the parent allocation, then delegates the component to the record's
    configured worker.
-3. The implementer changes only its declared component files, advances the
+3. The implementer changes only its component directory, advances the
    record through its status transition, uses the smallest task-specific checks,
    and records validation evidence, actual host-reported cost when available,
    residual risk, recovery state, and next action before handoff.
@@ -179,12 +199,12 @@ increments. When a host cannot report per-component cost, the record names its
 fallback metric and leaves `spent` as non-actual rather than presenting an
 estimate as a cost.
 
-The later OpenCode adapter should prefer a host subagent when it exposes the
-required lifecycle events, cancellation, and attributable usage. A subagent
-preserves host session linkage and control better than an independently launched
-process, but it does not itself make cost attribution reliable; that remains a
-host measurement capability. A bounded `opencode run` subprocess remains the
-fallback where the host cannot provide the required subagent lifecycle contract.
+An adapter should prefer a host-managed child worker when it exposes the
+required lifecycle events, cancellation, and attributable usage. This preserves
+host session linkage and control better than an independently launched process,
+but does not itself make cost attribution reliable; that remains a host
+measurement capability. A bounded subprocess is the fallback where a host cannot
+provide the required child-worker lifecycle contract.
 
 ### Delegation
 
@@ -198,11 +218,11 @@ fallback where the host cannot provide the required subagent lifecycle contract.
   that its status and recovery remain durable and inspectable.
 - The delegated worker receives its component `as-is.md` plus centrally supplied
   common execution context. Before launch, the orchestrator creates the record
-  when needed and records task-specific constraints, a real-cost allocation,
-  acceptance conditions, and return condition there. It reuses rather than
-  overwrites an existing active or recoverable record. The worker may inspect
-  outside that component only when its task explicitly identifies a necessary
-  dependency or the human authorizes broader access.
+  when needed and records task-specific constraints, real-cost and wall-clock
+  allocations, acceptance conditions, and return condition there. It reuses
+  rather than overwrites an existing active or recoverable record. The worker may
+  inspect outside that component only when its requirement explicitly identifies
+  a necessary dependency or the human authorizes broader access.
 
 ## Sequenced Implementation Plan
 
@@ -223,13 +243,14 @@ acceptance conditions.
    request child work. Define the minimum orchestrator and worker agent
    configurations needed to run one harmless self-hosting task through this
    protocol. Keep cross-component work at the nearest common ancestor.
-   Acceptance conditions: a worker can begin from its component record plus the
-   central execution envelope; a lower-authority weakening constraint is
-   rejected; child cost allocations remain within the parent's remaining budget;
-   and the minimal orchestrator delegates one bounded task to the worker, which
-   validates and records its handoff. The dogfood task must use the repository
-   structure rules: record component purpose, preserve folder-file-section
-   lineage, and group child components by meaningful type where applicable.
+    Acceptance conditions: a worker can begin from its component record plus the
+    central execution envelope; a focused deterministic record-validation script
+    rejects a lower-authority weakening constraint and child cost or wall-clock
+    allocation beyond the parent's remaining budget; and the minimal orchestrator
+    delegates one bounded task to the worker, which validates and records its
+    handoff. The dogfood task must use the repository structure rules: record
+    component purpose, preserve folder-file-section lineage, and group child
+    components by meaningful type where applicable.
 3. **Define user check-ins and control.** Add configurable periodic check-ins
    and immediate notifications for delegation, blocking, budget risk or
    exhaustion, completion, failure, cancellation, and approval-required
@@ -244,11 +265,11 @@ acceptance conditions.
    task record, not a duplicate of repository-wide context.
    Acceptance conditions: the contract represents every lifecycle action needed
    by the preceding task protocol without adding host-specific policy.
-5. **Implement and validate the OpenCode adapter.** Map the contract to an
-   OpenCode subagent where available, or a bounded `opencode run` subprocess
-   otherwise. Validate a harmless child-component task in a fresh OpenCode
-   process, including delegation notification, check-ins, budget handling,
-   completion reporting, and cleanup of transient runtime artifacts.
+5. **Implement and validate a host adapter.** Map the contract to a host-managed
+   child worker where available, or a bounded subprocess otherwise. Validate a
+   harmless child-component task using the selected adapter, including delegation
+   notification, check-ins, budget handling, completion reporting, and cleanup
+   of transient runtime artifacts.
    Acceptance conditions: the harmless task satisfies the lifecycle contract,
    preserves component-only initial context, and records durable evidence of
    notifications, validation, and cleanup.
@@ -274,24 +295,15 @@ implementation.
    approvals are persisted, and how the human changes direction safely.
 4. **External-system protocol:** How integrations represent provenance,
    credentials, approval boundaries, retries, idempotency, and failure state.
-5. **OpenCode mapping:** How the design maps to OpenCode agents, skills,
-   permissions, sessions, task delegation, worktrees, and its HTTP/SDK APIs.
+5. **Host adapter selection:** Which host can enforce the execution contract and
+   report the lifecycle and measurement observations it requires.
 
-## OpenCode Facts Relevant to Later Implementation
+## Host Adapters
 
-- Agent skills are discovered from `.opencode/skills/<name>/SKILL.md` and
-  compatible `.agents/skills/<name>/SKILL.md` locations.
-- Skill availability can be controlled per agent with pattern-based `skill`
-  permissions. Denied skills are hidden from an agent.
-- Agents can be configured as primary or subagents with distinct prompts,
-  models, permissions, and task-delegation permissions.
-- OpenCode exposes session lifecycle, message, question, permission, event,
-  and worktree-related operations through its HTTP server and SDK.
-- Worktrees isolate branch checkouts and uncommitted changes, but are not a
-  complete filesystem or context-security boundary by themselves.
-- OpenCode configuration and skill/agent discovery should be validated against
-  the installed version when implementation begins; configuration changes may
-  require an OpenCode restart.
+Host-specific discovery, permission, session, and measurement facts belong in
+adapter documents. They map the host-neutral execution contract without changing
+the core protocol or policy. Select the applicable adapter document when
+implementing or validating a host mapping.
 
 ## Suggested Next Discussion
 

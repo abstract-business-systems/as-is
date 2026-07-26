@@ -20,7 +20,8 @@ The root `as-is.md` is authored project context. When the orchestrator delegates
 work to a component directory that has no task record, it generates that
 component's `as-is.md` atomically from this protocol before launching the worker.
 It supplies the bounded requirement, effective constraints, cost allocation,
-acceptance conditions, configured worker, and initial `ready` status. This
+wall-clock budget, acceptance conditions, configured worker, and initial `ready`
+status. This
 system-generated record is durable project context, not private generated runtime
 state.
 
@@ -35,7 +36,7 @@ The front matter is strict and machine-validatable:
 
 ```yaml
 ---
-as-is-version: 1
+as-is-version: 2
 task:
   status: ready
   worker: implementer
@@ -50,9 +51,12 @@ constraints:
   delegation:
     maximum-depth: 2
     maximum-children: 3
-  boundaries:
-    files: []
-    inputs: []
+  execution:
+    wall-clock:
+      allocated-seconds: 300
+      spent-seconds: 0
+      reserve-seconds: 60
+      source: host-reported
   external-effects: require-current-turn-user-approval
 acceptance:
   - Implement the bounded component result.
@@ -85,10 +89,25 @@ acceptance:
   never represents an estimate as actual cost. The worker updates `spent` at
   material checkpoints and before every handoff, block, escalation, or child
   delegation.
-- `constraints.boundaries.files` and `constraints.boundaries.inputs` declare the
-  component's intended mutable files and required inputs relative to its
-  directory. The responsible orchestrator uses them, together with cost
-  allocations, to determine whether siblings may run concurrently.
+- `constraints.execution.wall-clock.allocated-seconds` is the maximum cumulative
+  wall-clock time authorized for the component. `spent-seconds` is the cumulative
+  host-observed elapsed time across attempts, `reserve-seconds` is retained for
+  validation, recovery, and handoff, and `source` identifies the observation. A
+  component may not allocate more wall-clock time to children than its remaining
+  allocation after its own spent time and reserve. A host uses a monotonic timer
+  for an active attempt and records its observation at material checkpoints. If
+  it cannot provide an observation, it records `source: unavailable` and does
+  not claim automatic enforcement. This duration budget is distinct from
+  `task.updated`: duration limits work; the timestamp orders durable checkpoints
+  and supports stale-work recovery.
+- The component directory is the default read/write boundary, so front matter
+  does not repeat file lists. The `Requirement` names an external dependency
+  only when work must read outside that directory; it does not duplicate common
+  execution context.
+- Version 1 records retain the historical `constraints.boundaries` block and are
+  interpreted by the version 1 schema. Version 2 removes that block and adds the
+  wall-clock resource. Validators select the schema from `as-is-version`; a
+  completed historical record is not rewritten solely to adopt a newer schema.
 - Task-specific effective constraints belong in the record. Repository
   instructions, applicable design principles, and permitted skills are supplied
   centrally as read-only execution context and are not repeated as `sources` in
@@ -123,7 +142,9 @@ need, acceptance condition, and changed-artifact set.
 ## Delegation And Parallelism
 
 The responsible orchestrator may schedule siblings concurrently only after
-verifying that their declared file, input, and budget boundaries are independent.
+verifying that their component directories are independent, no requirement names
+another active sibling as an external dependency, and their cost and wall-clock
+allocations fit the available parent budget.
 The parent later reads child records, composes their results, and performs any
 required integration validation.
 

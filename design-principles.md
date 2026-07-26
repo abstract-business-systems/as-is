@@ -79,6 +79,15 @@ choices. A lower-authority setting cannot weaken a higher-authority constraint.
   gates; treat generative or probabilistic work as a proposal that requires
   explicit constraints, observable validation, and durable evidence before it
   drives a consequential transition.
+- **Host-neutral core:** Keep policy, task records, orchestration, and completion
+  semantics independent of a particular agent host. A host adapter may map those
+  contracts to agents, permissions, tools, sessions, and measurements, but may
+  not redefine their authority or behavior.
+- **Deterministic maintenance:** When a repeatable check or transformation needs
+  reuse beyond a simple host command, put it in a focused, versioned script.
+  Skills select and invoke those scripts, interpret their evidence, and handle
+  escalation; agents do not reimplement deterministic maintenance logic in
+  prompts or ad hoc reasoning.
 - **Self-hosting consistency:** `as-is` uses its own skills and principles to
   establish and improve itself, and periodically checks that implementation and
   stated principles remain aligned.

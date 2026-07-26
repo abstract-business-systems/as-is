@@ -22,15 +22,15 @@ config:
 
 task:
   status: completed
-  updated: 2026-07-26T13:35:44Z
+  updated: 2026-07-26T13:46:37Z
 ---
 
 # as-is Project
 
 ## Current Task
 
-Strengthen completion semantics and make a completed `as-is.md` produce a scoped
-durable commit, while recording execution-model fit as a design principle.
+Make the core task protocol and orchestration design host-neutral, reduce
+duplicated component-boundary context, and define wall-clock constraint handling.
 
 ## Purpose
 
@@ -44,11 +44,13 @@ Permanent implementation references:
 
 ## Acceptance Criteria
 
-- Parent records cannot become `completed` while a descendant is non-terminal.
-- A completed record's scoped handoff is committed without staging unrelated
-  work.
-- Agent instructions use the shared verification and completion procedures.
-- Design principles distinguish deterministic enforcement from generative work.
+- Core policy and orchestration documents define no host-specific behavior.
+- Component records derive their writable scope from the directory and do not
+  duplicate file or input boundary lists.
+- Component records include a host-observed cumulative wall-clock budget while
+  retaining timestamps for checkpoint ordering and stale-work recovery.
+- Deterministic maintenance scripts have a documented role distinct from skills
+  and generative agent reasoning.
 
 ## Progress
 
@@ -57,59 +59,62 @@ Permanent implementation references:
   completed the generated `verification-discipline` component record.
 - The parent exposed the new skill through the installed OpenCode wrapper's
   `.agents/skills` adapter and repaired its stale `structuring-content` link.
-- Completion closure, scoped automatic committing, and execution-model fit are
-  now defined and exposed to both OpenCode agents.
+- Host-specific facts are being moved from the core design to an adapter document.
+- The host-neutral protocol, deterministic-maintenance boundary, and version 2
+  record schema are defined.
 
 ## Decisions
 
-- `verification-discipline` is the canonical cross-cutting capability name from
-  `agent-skills.md`; it composes task-specific tools and evidence rather than
-  replacing specialist validation procedures.
-- A timestamp remains required because stale-work detection and check-ins need
-  a durable ordering signal; it is not evidence of cost, elapsed work, or
-  completion.
-- Completion and commits are governed by focused skills. A broad "maintain
-  components" skill would mix unrelated responsibilities and obscure their
-  verification boundaries.
-- Universal repository rules remain centrally supplied read-only context. Child
-  records carry only the bounded requirement and task-specific effective
-  constraints, not a duplicate of universal rules.
-- A future OpenCode adapter should prefer subagents when their lifecycle and
-  attributable usage capabilities satisfy the execution contract; a separate
-  process remains a bounded fallback rather than a cost-accounting solution.
+- Constraint declarations are introduced now in the task protocol. Increment 2
+  adds deterministic static validation; Increment 4 defines host-neutral runtime
+  enforcement; and a selected host adapter implements that enforcement in
+  Increment 5.
+- `task.updated` remains necessary: a wall-clock budget controls cumulative
+  runtime, while a timestamp orders durable checkpoints and supports stale-work
+  recovery. Neither substitutes for validation evidence.
+- Component directory scope is the default writable boundary. External reads are
+  named only as exceptions in the bounded requirement, avoiding duplicate file,
+  input, and universal-context declarations.
+- Focused skills coordinate deterministic maintenance scripts; scripts contain
+  repeatable validation or transformations. No generic maintenance script is
+  added until Increment 2 has a concrete record-validation need.
 
 ## Blockers
 
-- Per-component actual cost is not available from the current OpenCode CLI;
-  component records retain the fallback metric and do not present estimates as
-  actual cost.
-- Constraint weakening and child-budget enforcement are currently agent
-  instructions, not machine-validated protocol checks.
+- Per-component actual cost is not available from the current OpenCode adapter;
+  task records retain the fallback metric and do not present estimates as actual
+  cost.
+- Constraint and wall-clock fields are declarative until Increment 2 provides
+  deterministic record validation and Increments 4 and 5 provide runtime
+  enforcement through the host-neutral contract and selected adapter.
 
 ## Validation
 
 - `git diff --check` completed successfully.
 - Fresh `opencode debug agent orchestrator` and `opencode debug agent
-  implementer` runs load the completion and verification instructions.
-- Fresh `opencode debug skill` discovery lists
-  `committing-completed-work` from its `.agents/skills` adapter.
-- The only descendant record, `skills/verification-discipline/as-is.md`, has
-  `status: completed`; no failed or cancelled child needs parent accounting.
+  implementer` runs load the revised directory-scope and wall-clock instructions.
+- The host-neutral core design contains no OpenCode-specific behavior; the
+  host-specific mapping is isolated in `opencode-adapter.md`.
+- The version 2 protocol contains no `boundaries.files` or `boundaries.inputs`
+  fields. The completed version 1 dogfood record remains valid under its
+  historical schema.
 
 ## Result
 
-- Added `committing-completed-work`, which stages and commits only a completed
-  task's scoped durable handoff after validation and descendant closure.
-- Removed the blanket no-commit rule while preserving prohibitions on amend,
-  push, branch, and remote changes.
-- Made descendant closure a completion precondition in the protocol, repository
-  instructions, and OpenCode agent prompts.
-- Kept RFC 3339 task timestamps as a state and stale-work signal, not completion
-  or cost evidence.
-- Recorded deterministic enforcement versus nondeterministic generative work as
-  a project design principle.
+- Added a version 2 component-record schema with cost and wall-clock allocation,
+  consumption, reserve, and measurement-source fields.
+- Made directory scope the default writable boundary and requirements the sole
+  location for exceptional external dependencies.
+- Moved host-specific facts to `opencode-adapter.md` and made the core policy,
+  architecture, and implementation sequence host-neutral.
+- Defined the phased constraint rollout: static deterministic validation in
+  Increment 2, runtime contract in Increment 4, and host-adapter enforcement in
+  Increment 5.
+- Defined deterministic maintenance scripts as focused reusable mechanics behind
+  skills, with the Increment 2 record validator as the first concrete need.
 
 ## Next Action
 
-Implement the machine-validatable authority and child-budget checks needed to
-finish Increment 2.
+Implement the focused deterministic record-validation script for authority,
+cost, wall-clock child-budget, and descendant-closure checks to finish Increment
+2.
