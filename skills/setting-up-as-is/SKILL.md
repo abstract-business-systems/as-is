@@ -42,10 +42,12 @@ directory. Keep the required
 Validate the JSON after editing. Then use `opencode debug config` and
 `opencode debug skill`, or an equivalent available command, to confirm the
 configuration is accepted and the skills are discoverable. If the host accepts
-the configuration but does not expose the configured skills, report that as an
-adapter or host limitation instead of duplicating the skills into a second
-directory. OpenCode loads configuration and skills at startup, so tell the user
-to restart OpenCode after any change to configuration or skill files.
+the configuration but does not expose the configured skills while it scans
+`.agents/skills`, create relative symlinks from that directory to each
+canonical `skills/<skill-name>` directory. Do not copy the skills. Record the
+effective host behavior as an adapter limitation. OpenCode loads configuration
+and skills at startup, so tell the user to restart OpenCode after any change to
+configuration, skills, or skill symlinks.
 
 ## Completion Evidence
 

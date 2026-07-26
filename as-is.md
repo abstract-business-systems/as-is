@@ -54,6 +54,9 @@ component state.
   knowledge-organization skills.
 - Added the documented OpenCode adapter for the repository-local `skills/`
   directory.
+- Exposed the three canonical local skills through relative symlinks in
+  `.agents/skills/`, the effective discovery path of the installed OpenCode
+  wrapper. A fresh process discovered all three skills.
 
 ## Decisions
 
@@ -71,14 +74,22 @@ component state.
   repositories. Adopted their portable safety, durable-context, and validation
   practices without importing project-specific DVC, runtime, model-routing, or
   content-generation contracts.
+- The installed OpenCode wrapper overrides configured `skills.paths` with its
+  own shared-store and `.agents/skills` paths. Keep the standard OpenCode
+  `skills.paths` configuration for compatible hosts, and use relative
+  `.agents/skills` symlinks as the non-duplicating adapter for this wrapper.
+- OpenCode loads skills only at process startup. Restart OpenCode after changing
+  skill content, skill links, or OpenCode configuration; no live reload command
+  is available.
 
 ## Blockers
 
 - The exact front-matter schema, Markdown section requirements, status values,
   and state-transition rules remain to be defined in a follow-up task.
-- The installed OpenCode wrapper accepted the adapter JSON but did not expose
-  custom `skills.paths` through `opencode debug config` or `opencode debug
-  skill`, including an injected absolute path. This needs host-level follow-up.
+- The installed OpenCode wrapper ignores project `skills.paths`, including an
+  injected path. The `.agents/skills` symlink adapter preserves local discovery,
+  but the wrapper's configuration-precedence behavior remains a host-level
+  limitation.
 
 ## Next Action
 
