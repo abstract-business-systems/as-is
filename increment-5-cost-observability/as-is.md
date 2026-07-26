@@ -3,7 +3,7 @@ as-is-version: 2
 task:
   status: blocked
   worker: implementer
-  updated: 2026-07-26T15:03:46Z
+  updated: 2026-07-26T15:06:55Z
 constraints:
   cost:
     currency: USD
@@ -119,8 +119,8 @@ after the bounded run; do not edit that file from this component.
   was reconciled to a precise blocked result with cumulative observations.
 - Incomplete work: configured `implementer` delegation, durable completion, and
   descendant closure remain unvalidated.
-- Cleanup required: delete the four private OpenCode session records and the
-  temporary JSON event capture only after this blocked result is committed;
+- Cleanup completed: the four private OpenCode session records and temporary
+  JSON event capture were deleted after this blocked result was committed;
   retain this record and the intentional README fixture.
 - Cost observation: cumulative `0.0981479` USD from OpenCode session cost fields;
   model/token-derived and not a provider billing observation.
@@ -164,5 +164,4 @@ preserve this blocked handoff and its measurements for future design review.
 - Durable blocker: the host's primary-agent task routing did not select the
   configured mediation role, and the attempt timed out. Do not retry
   speculatively.
-- Completion status: blocked; private runtime cleanup remains pending until
-  after this record is committed.
+- Completion status: blocked; private runtime cleanup is complete.
