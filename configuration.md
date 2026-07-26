@@ -145,71 +145,39 @@ Changing an invariant requires a new configuration API version, not an override.
 ## Durable State
 
 The repository-backed root and component `as-is.md` records are the sole
-authoritative task state. They contain the durable task status, progress,
-decisions, approvals, results, validation, blockers, and next actions used for
-recovery and completion. The runtime must not introduce a second authoritative
-backlog or task tree.
+authoritative current task state. They contain the durable status, progress,
+decisions, approvals, results, validation, blockers, recovery, and next actions
+used for delegation and completion. No runtime directory may become a second
+backlog, task tree, history, approval store, or completion authority.
 
-The initial XDG layout in this section is conceptual/future or auxiliary runtime
-metadata only. In particular, its `tasks/` directory must not be treated as a
-mirrored source of task status, history, approval state, or completion evidence.
-Any runtime index, lease, or reference must remain subordinate to the
-repository-backed component records and be safe to discard or rebuild.
+An optional future or private runtime may use the user-level XDG state root
+`${XDG_STATE_HOME:-~/.local/state}/as-is/projects/<project-key>/` for resolved
+configuration, run metadata, leases, logs, indexes, or disposable artifacts.
+Its `tasks/` area, if present, is only a discardable index or reference to the
+repository records; it is not an active task backlog and must never mirror,
+supersede, or relocate authority. Runtime metadata must remain subordinate to
+the repository records and safe to rebuild.
 
-The default state root follows the operating system's user-state convention:
-
-```text
-${XDG_STATE_HOME:-~/.local/state}/as-is/projects/<project-key>/
-```
-
-The runtime derives `<project-key>` from the Git repository identity when
-available, using the canonical root and configured remote identity. For a
-non-Git project it uses the canonical root path. `project.id` replaces that
-derived key when a stable, intentional identity is required. The exact hashing
-and migration rules remain an implementation detail, but unrelated projects
-must never share a state directory accidentally.
-
-Each state directory has this conceptual layout:
-
-```text
-projects/<project-key>/
-  identity.json                  # project root, derived identity inputs, bundle identity
-  configuration/
-    effective.json               # immutable policy snapshot for each run
-  tasks/
-    <repository-relative-path>/  # optional future runtime index/reference only
-  runs/<run-id>/                 # run/session identity, lease, and execution record
-  approvals/                     # auxiliary references; the task record is authoritative
-  artifacts/                     # bounded work products not intended for the repository
-  logs/                          # operational event records, subject to retention
-```
-
-The conceptual `tasks/` tree is not a second checkout and is not a second
-authoritative task tree. A future runtime may index a repository component under
-its relative path, but the task for `src/search` remains the repository-backed
-`src/search/as-is.md`, and a child task for `src/search/parser` remains
-`src/search/parser/as-is.md`. This preserves the directory-based component and
-vertical-delegation model without relocating task authority.
+Private per-run host state may instead use
+`${TMPDIR:-/tmp}/as-is/<project-key>/<run-id>/<component-key>/`, or an equivalent
+secure temporary root. This path is disposable runtime guidance only: it is
+private, collision-resistant, cleaned after durable evidence, and never task
+authority or recovery evidence. A fresh orchestrator recovers from the
+repository record and immutable run input when available, not from a cache,
+index, chat transcript, or live process.
 
 State is divided by authority and retention:
 
 | Class | Examples | Authority | Retention |
 | --- | --- | --- | --- |
-| Repository task control state | Root or component `as-is.md` task record, progress, responsible worker, decisions, result, and next action | Sole task authority; changed only through the task protocol | Retained as project history until explicit archival policy. |
-| Immutable run input | Effective configuration, bundle identity, prompt/template revision | Explains what a run was authorized to do | Retained with its run. |
-| Runtime coordination metadata | Leases, run/session identity, logs, indexes, caches, and temporary tool output | Never task, approval, history, or completion authority by itself | Expirable and regenerable. |
-| HITL state | Question, approval, rejection, or direction recorded in the affected task record | Authoritative only after the durable record transition | Retained with the affected task. |
-| Project artifacts | Source, documentation, tests, user-requested output | Owned by the target repository | Created only by an explicit task action. |
+| Repository task control state | Root or component `as-is.md` records, progress, decisions, results, and next actions | Sole task authority; changed through the task protocol | Retained as project history until explicit archival policy. |
+| Immutable run input | Effective configuration and bundle identity | Explains what a run was authorized to do | Retained with its run when available. |
+| Runtime coordination metadata | Leases, run identity, logs, indexes, caches, and temporary tool output | Never task, approval, history, or completion authority | Private, expirable, and regenerable. |
+| HITL state | Questions, approvals, rejection, or direction recorded in the affected task record | Authoritative only after the durable record transition | Retained with the affected task. |
+| Project artifacts | Source, documentation, tests, and requested output | Owned by the target repository | Created only by an explicit task action. |
 
-A fresh orchestrator can recover a task from its repository-backed task record
-plus immutable run input when available. It must not require a chat transcript,
-a cache, a runtime index, or a still-live process. A lease is liveness evidence,
-not proof of completion: once it expires, the orchestrator inspects the task
-record and routes recovery to the responsible role.
-
-State is private to the local user by default. Project-level collaboration and
-state synchronization are intentionally deferred; they require explicit sharing,
-locking, access control, and secret-redaction semantics.
+Project-level collaboration and state synchronization remain deferred; they
+require explicit sharing, locking, access control, and secret-redaction rules.
 
 ## Extensions
 

@@ -23,73 +23,55 @@ constraints:
       source: unavailable
   external-effects: prohibited
 acceptance:
-  - Add a harmless local README documenting that this component is an Increment 5 OpenCode adapter dogfood fixture.
-  - Keep all changes inside this component and do not contact external services or create runtime state.
-  - Validate the README and durable task record, then record the completed handoff.
+  - Add a harmless local README documenting this Increment 5 OpenCode adapter
+    dogfood fixture.
+  - Keep changes inside this component and do not create runtime state.
+  - Validate the README and durable task record before handoff.
 ---
 
 # Increment 5 Dogfood
 
 ## Purpose
 
-Provide one isolated child component for validating the selected OpenCode
+Provide an isolated child component for validating the selected OpenCode
 subprocess adapter without domain changes or external effects.
 
 ## Requirement
 
-Add a short local `README.md` that identifies this directory as a harmless
-Increment 5 adapter-validation fixture. The worker must update this record with
-its progress and handoff evidence, and must not modify parent or sibling files.
+Add the local README fixture and maintain this record through a bounded worker
+handoff. The worker must not modify parent or sibling files.
 
 ## Plan
 
-1. Advance this record to `active` and record the delegation check-in.
-2. Add the local README only.
-3. Run a focused local content check and record completion, budget observations,
-   cleanup, and the next action.
+Add the README, run focused content and whitespace checks, and record the
+terminal handoff.
 
 ## Progress
 
-- Record created atomically by the root orchestrator in `ready` state before
-  OpenCode delegation.
-- Delegation notification and check-in are reported by the parent Increment 5
-  record; no child runtime artifact is authoritative.
-- Worker check-in completed; scope is limited to this record and the local
-  README fixture.
+Completed with no descendants. The child record was created before delegation,
+the worker checkpoint was recorded, and only the local README was added.
 
 ## Validation
 
-- Passed focused local checks: README is non-empty and contains the required
-  Increment 5 OpenCode adapter dogfood/validation wording; this record contains
-  the worker check-in and completed status; `git diff --check` passed for the
-  record. The preferred `rg` executable was unavailable, so equivalent local
-  assertions were used. The task made no task-directed external effect.
+The README content, worker check-in, completed status, and component whitespace
+passed focused local checks. Cost and wall-clock observations remain unavailable
+and are not represented as actual use.
 
 ## Result
 
-- Added only `increment-5-dogfood/README.md` with a short harmless fixture
-  description. All acceptance conditions hold and the bounded handoff is
-  complete.
+Added only `increment-5-dogfood/README.md`; all acceptance conditions hold and
+the scoped child handoff is terminal. Commit: `0dc44ad`.
 
 ## Blockers And Escalations
 
-- None known. The OpenCode model runtime was used only to execute this bounded
-  host validation; the child made no task-directed external effect.
+None. The child made no task-directed external effect.
 
 ## Recovery
 
-- Last durable checkpoint: completed child record and local README.
-- Incomplete work: none.
-- Cleanup required: private OpenCode parent and child sessions were deleted
-  after handoff; no project runtime artifact was created. Retain this record
-  and README.
-- Cost observation: allocated and spent cost are unavailable; no metered cost
-  was observed.
-- Wall-clock observation: allocated and spent wall-clock measurements are
-  unavailable; no host timing was recorded.
-- Next safe action: parent may consume this completed handoff.
+Private host sessions were removed after handoff. The durable record and README
+remain; no project runtime artifact was created. Parent may consume this
+completed child result.
 
 ## Next Action
 
-Parent may accept the completed bounded handoff after verifying the scoped Git
-status.
+None; parent may accept the completed handoff after scoped Git checks.

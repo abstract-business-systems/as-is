@@ -28,79 +28,56 @@ constraints:
 acceptance:
   - Add a discoverable verification-discipline skill with matching directory,
     front matter, and heading.
-  - Define a reusable method for selecting task-specific checks, collecting
-    evidence, and recording supported completion claims and residual risk.
-  - Do not duplicate specialist test procedures or change files outside this
-    component.
+  - Define reusable evidence and residual-risk guidance without duplicating
+    specialist procedures or changing files outside this component.
 ---
 
 # Verification Discipline
 
 ## Purpose
 
-Provide the reusable cross-cutting method that lets agents establish whether a
-bounded task satisfies its acceptance conditions using appropriate evidence.
+Provide a reusable method for establishing whether a bounded task satisfies its
+acceptance conditions using appropriate evidence.
 
 ## Requirement
 
-Create the `verification-discipline` skill as a bounded self-hosting dogfood
-task. It must direct agents to use task-specific tools, distinguish observation
-from inference, and report supported completion claims with residual risk.
+Create the `verification-discipline` skill as a bounded self-hosting task. It
+must direct agents to use task-specific checks, distinguish observation from
+inference, and report residual risk.
 
 ## Plan
 
-1. Inspect the declared inputs and nearby skill conventions.
-2. Create `SKILL.md` with one primary verification responsibility.
-3. Validate the skill's discoverability and record the outcome.
+Inspect local skill conventions, create the single-purpose skill, and validate
+its structure and discoverability boundary.
 
 ## Progress
 
-- Advanced task record from `ready` to `active`.
-- Created `SKILL.md` with front matter (`name: verification-discipline`,
-  `description: ...`), heading `# Verification Discipline`, and a reusable
-  method for selecting task-specific checks, collecting evidence, and recording
-  supported completion claims and residual risk.
-- Did not duplicate specialist test procedures or modify files outside this
-  component.
+Completed with no descendants. `SKILL.md` was added with matching front matter,
+heading, evidence method, and risk-tier guidance; no outside file was changed.
 
 ## Validation
 
-- Structural check: directory `verification-discipline/` matches front matter
-  `name` field — PASS.
-- Structural check: heading `# Verification Discipline` matches skill name —
-  PASS.
-- Discoverability check: `SKILL.md` resides in the `skills/` directory
-  configured via `.opencode/opencode.json` `skills.paths: ["skills"]`. The
-  running opencode session has cached global paths
-  (`/shared/store/ai-scaffold/skills`, `.agents/skills`) and does not yet list
-  the skill; a host restart is required to load the project `skills` path.
-  This is a runtime caching limitation, not a skill structure defect.
-- No external services contacted; no files outside this component changed.
+- Directory, `name` field, and heading match.
+- The skill resides under the configured `skills/` path. A running host may
+  require restart before loading newly added project skills; this is residual
+  host context, not a structure defect.
+- No external service was contacted and no outside component changed.
 
 ## Result
 
-- `SKILL.md` created and structurally validated against the OpenCode skill
-  loader conventions (directory, front matter, heading). The skill defines a
-  reusable verification method with risk tiers, evidence recording guidance,
-  and quality checks. Acceptance conditions 1 and 2 are satisfied. Condition 3
-  (no duplication, no external changes) is satisfied by construction.
+The reusable verification skill is structurally valid and records supported
+claims with evidence and residual risk.
 
 ## Blockers And Escalations
 
-- Per-component cost is unavailable from the current OpenCode CLI. No estimate
-  recorded as actual cost; `spent` remains 0.00.
-- Runtime skill discovery requires a host restart to load the project
-  `skills.paths` configuration. Not a blocker for this component; recorded as
-  residual infrastructure context.
+None for the component. Host skill discovery is startup-cached and requires a
+fresh process or restart.
 
 ## Recovery
 
-- Last durable checkpoint: `SKILL.md` created and structurally validated;
-  task record advanced to `completed`.
-- Incomplete work: none.
-- Cleanup required: none.
-- Next safe action: none within this component; await next assigned task.
+`SKILL.md` and this completed record are retained; no cleanup or private runtime
+artifact is required.
 
 ## Next Action
 
-Task complete. No further action required in this component.
+None within this component; await the next bounded assignment.
