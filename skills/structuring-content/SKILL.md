@@ -54,6 +54,24 @@ files, and Markdown sections are all levels of the same conceptual hierarchy.
   the component exists; `Requirement` states the bounded work currently assigned
   to it.
 
+### Creation-time grouping
+
+- When creating the first item in a known, meaningful sibling set, create the
+  type directory from the outset. Apply the same default when an established
+  repository, industry, or host convention requires a semantically accurate
+  type directory, even if the set is not yet populated locally. Predictable
+  locations and stable paths reduce scanning, reclassification, and later
+  migration.
+- Before creating that directory, record evidence for the expected sibling set or
+  applicable standard, the parent concept, ownership, authoritative entry point,
+  and migration or replacement path. If that evidence is absent, keep the unique
+  artifact at its current level and document why.
+- This is a creation-time default, not an always-group rule. Do not introduce a
+  type directory when it would obscure ownership or authority, cut across a
+  lifecycle or component boundary, encode a speculative or generic-bucket
+  boundary, or conflict with the component-task hierarchy. Preserve the
+  smallest coherent boundary and the clear entry point in those cases.
+
 ## Examples
 
 Use paired positive and negative examples when a structural rule is likely to be
@@ -62,12 +80,22 @@ small, state the reason the positive example fits, and state the specific rule
 the negative example violates. Do not add examples that merely repeat an
 unambiguous rule or create an alternate source of truth.
 
+- Positive: create `services/health-check.md` when the repository has a known
+  set of service procedures and `services/` is its established type convention;
+  the shared role, owner, entry point, and replacement path are explicit.
+- Negative: do not create `services/one-off-note.md` merely because a nearby
+  `components/` directory exists. With no meaningful sibling set or standard,
+  the extra generic bucket adds a level without a distinct boundary.
+
 ## Quality Checks
 
 - Prefer one authoritative home for a decision or rule.
 - Preserve meaningful context, source, and rationale when compressing notes.
 - Use hierarchy to group related knowledge, but do not create a level that has
   no distinct ownership or navigational purpose.
+- Before creating a type directory, check and retain the expected sibling set or
+  standard, parent concept, owner, authoritative entry point, and migration or
+  replacement path.
 - Confirm that a proposed file-to-directory expansion preserves the subject,
   discoverability, and authoritative entry point.
 - Remove or clearly mark superseded material once its replacement is
