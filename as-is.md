@@ -57,6 +57,8 @@ component state.
 - Exposed the three canonical local skills through relative symlinks in
   `.agents/skills/`, the effective discovery path of the installed OpenCode
   wrapper. A fresh process discovered all three skills.
+- Ran a fresh, read-only `opencode run` session that loaded and used
+  `setting-up-as-is` to inspect the self-hosting integration.
 
 ## Decisions
 
