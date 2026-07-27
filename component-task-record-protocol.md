@@ -87,6 +87,14 @@ acceptance:
 - `worker` identifies the configured agent used for normal execution and
   recovery. It is not a claim, a lease, a session identifier, or a guarantee
   that the same runtime instance will be available.
+- The component's canonical repository-relative path is the durable task and
+  job identity. A task incarnation has a durable `task-revision`, and each new
+  worker invocation within that revision has a one-based `attempt` ordinal.
+  The stable observation key is `component-path/task-revision/attempt`;
+  `task.updated` remains a mutable checkpoint/staleness marker, not an
+  accounting identity. A runtime `JobId` is a private diagnostic alias and
+  must not be required in current task context, used as public status authority,
+  or required to recover the record.
 - `constraints.cost.allocated` is the component's maximum authorized real cost;
   `spent` is actual cost reported by the host or CLI; and `reserve` is retained
   for validation, recovery, and handoff. A component may not allocate more to
@@ -106,6 +114,27 @@ acceptance:
   not claim automatic enforcement. This duration budget is distinct from
   `task.updated`: duration limits work; the timestamp orders durable checkpoints
   and supports stale-work recovery.
+- Cost and wall-clock fields remain record-local for budget admission. A parent
+  subtracts its own recorded spent use and retained reserve before checking
+  child allocations; it does not add child actual use into the parent's
+  `spent` fields. Child actual observations remain owned by the child path, and
+  the control plane reports parent and child observations separately. A parent
+  still accounts for failed or cancelled descendants in its completion result;
+  that evidence is not a second resource observation.
+- Recovery checkpoints preserve cumulative observations for the current task's
+  path/revision/attempt keys. A retry or recovery that starts a new worker
+  invocation increments `attempt`; a supervisor re-observation of the same
+  invocation updates one key. Runtime JobIds may be retained as source-labelled
+  diagnostics, but a JobId change never creates an attempt or resets use.
+- `change-log.md` is the concise cumulative history overview. Its summary uses
+  the canonical `worker-subtree` attribution boundary and stable observation
+  keys; a `full-invocation` measurement is retained as a non-additive view.
+  Repeated observations update one key, corrections supersede one key, and
+  parent/child observations are not summed twice. An unavailable individual
+  value remains `unavailable`; an incomplete cumulative total is `unknown`,
+  never zero. The permanent identity and reconciliation design is in
+  `execution-accounting-design.md`; version 2 records do not make the change
+  log or a runtime map task authority.
 - The component directory is the default read/write boundary, so front matter
   does not repeat file lists. The `Requirement` names an external dependency
   only when work must read outside that directory; it does not duplicate common

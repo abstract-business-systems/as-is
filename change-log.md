@@ -1,3 +1,27 @@
+---
+change-log-version: 1
+summary:
+  scope: repository-history
+  aggregation: cumulative-by-component-path-task-revision-attempt
+  attribution-boundary: worker-subtree
+  completeness: incomplete
+  cost:
+    value: unknown
+    currency: USD
+    source: historical change-log entries; no complete deduplicated observation set
+    unknown: true
+  wall-clock:
+    value: unknown
+    unit: seconds
+    source: historical change-log entries; no complete deduplicated observation set
+    unknown: true
+  build-count: unknown
+  fail-count: unknown
+  count-source: historical entries do not provide a complete build/failure event set
+  unknown-semantics: unknown is not zero; an unavailable observation is retained as unavailable
+  update-rule: upsert one finalized worker-subtree observation per stable key; corrections supersede rather than add
+---
+
 # Change Log
 
 This concise log records why historical task work was deferred, cancelled, or
@@ -6,6 +30,51 @@ authority, a backlog, a runtime index, or a substitute for a current root or
 component `as-is.md`. Historical detail remains recoverable through Git history;
 entries below intentionally do not duplicate full task records or preserve
 secrets.
+
+## Summary And Accounting Convention
+
+The front matter is the current cumulative overview of finalized observations,
+not a budget and not a claim that every historical run is represented. The
+summary is cumulative across the repository's history, but only the canonical
+`worker-subtree` attribution boundary contributes to its cost, wall-clock,
+build, and failure totals. A `full-invocation` observation is retained in its
+entry as a non-additive end-to-end view; it is not added to the worker-subtree
+total. Parent allocations are authorization evidence, not actual use, and a
+child's actual use is not copied into the parent summary.
+
+Every counted observation carries the stable key
+`component-path/task-revision/attempt` and an attribution boundary. Repeated
+polls, checkpoints, or supervisor `JobId` aliases for the same key update one
+observation and do not increment a total. A retry or recovery that starts a new
+worker invocation increments the attempt and is a new observation. A correction
+uses the same key and supersedes the prior value; it is not a second
+observation. The component path is the durable identity; `JobId` is only a
+diagnostic runtime alias.
+
+`build-count` counts unique observations explicitly classified as a build,
+whether they succeed or fail. `fail-count` counts unique observations whose
+final durable outcome is `failed`, including a failed build and a failed task
+attempt; a cancellation or block is not a failure unless it is explicitly
+classified as one. A failed build therefore contributes once to each count,
+while a failed non-build attempt contributes only to `fail-count`.
+
+Numeric cost is summed only when all included canonical observations have
+numeric values in the same currency. Numeric wall-clock values are summed only
+when all included observations have numeric seconds from compatible sources.
+An individual host measurement that cannot be supplied is recorded as
+`unavailable` with its source and is never converted to zero. A cumulative
+summary with any unresolved included observation is `unknown` (and retains the
+known observations and reason in the relevant entry); `unknown` likewise is
+not zero. Currency and unit remain explicit even when the cumulative value is
+unknown. Historical facts below remain separate from this design summary and
+are not retroactively remeasured.
+
+When a task reaches a durable handoff, failure, cancellation, or retirement,
+the responsible owner adds or updates one concise entry for each finalized
+observation key. A parent entry may record a full invocation, but must mark it
+non-additive when child worker-subtree entries are also present. This update
+rule lets the front-matter summary evolve without double counting and keeps the
+change log an overview rather than a second task record or runtime ledger.
 
 ## Retention Convention
 
@@ -63,6 +132,11 @@ secrets.
 
 - **Disposition:** Cancelled/retired as historical blocked/no-retry evidence;
   it is not an active descendant and must not be retried.
+- **Observation identity:** Historical component path
+  `validation-fixtures/increment-5-cost-observability`; task revision and
+  attempt ordinals were not retained in the concise entry, so this observation
+  is preserved as historical evidence and excluded from the deduplicated
+  cumulative summary.
 - **Relevant commits:** `e9b740b` added the README fixture and `e9aaa10`
   grouped the fixture and record under the validation-fixtures tree.
 - **Recovery point:** `e9aaa10` for the grouped tracked record, or the
@@ -74,3 +148,30 @@ secrets.
   `81.994` seconds, neither provider billing nor automatic budget enforcement.
   The explicit no-retry boundary remains in this entry. No uncommitted
   implementation evidence was removed for this fixture.
+
+## 2026-07-27 — OpenCode mediation dogfood observation
+
+- **Disposition:** Completed historical validation fixture; this entry preserves
+  the observed result and does not authorize host integration.
+- **Observation identity:** Component path
+  `validation-fixtures/opencode-mediation-dogfood`; task revision and attempt
+  ordinal were not recorded in the historical handoff, so the values remain a
+  separately preserved fact rather than a deduplicated cumulative contribution.
+- **Observed facts:** The configured `as-is -> orchestrator -> implementer`
+  mediation reached the worker. OpenCode model/token-derived cost was
+  `0.0525789` USD and the parent monotonic duration was `50.502114668` seconds;
+  neither is provider billing or automatic cumulative enforcement.
+- **Lineage:** Worker commit `2e9d4fd`; parent reconciliation `c4f0181`.
+
+## 2026-07-27 — Execution accounting and identity design
+
+- **Disposition:** Design-only, independently verifiable, and intentionally
+  before implementation. No worker was launched and no application or
+  component implementation code was changed.
+- **Design authority:** `execution-accounting-design.md`, linked from the
+  component task-record, execution, orchestration, configuration, and current
+  task-context specifications.
+- **Measurement status:** This entry records no new cost, wall-clock, build, or
+  failure measurement. The front-matter summary remains `unknown` where the
+  historical set cannot be proven complete; existing measured facts remain in
+  their historical entries above.

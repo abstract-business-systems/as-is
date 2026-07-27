@@ -143,6 +143,28 @@ completion evidence existed. The full snapshot is intentionally not duplicated
 after the consumer and audit assessment found no supported consumer outside
 its own retired adapter/test and historical documentation.
 
+### Durable accounting audit
+
+The current version-2 accounting model is cumulative and component-local:
+`spent` and `spent-seconds` carry actual or host-observed use across attempts,
+while parent delegation checks child allocations against the parent's own
+remaining allocation and reserve. Parent and child actual-use observations are
+reported separately; no inclusive parent/root roll-up or cross-record
+deduplication is implemented. The protocol clarification in
+`component-task-record-protocol.md` records this boundary.
+
+The supervisor has per-component durable `budget-observed` checkpoints with
+attempt ordinals and runtime JobId diagnostics, source-labelled cost and
+wall-clock values, unavailable values, and per-job accounting guards. That is
+not a cross-session historical summary.
+No append-only summary covering both money and time, unknown observations,
+attempt/session identity, and cross-record double-count prevention was found in
+the current design, records, implementation, tests, Git history, or
+`change-log.md`. The retired cost-observability lineage remains recoverable from
+Git and its concise cost facts remain in `change-log.md`; its private session
+state was not byte-preserved. The bounded accounting and identity design is
+recorded in `execution-accounting-design.md` and its current task record at
+`execution-accounting-design/as-is.md`.
 ## Validation
 
 `verification-discipline` selected focused structural checks. The path-qualified

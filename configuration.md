@@ -15,7 +15,7 @@ as-is has three separate boundaries:
 | --- | --- | --- | --- |
 | Bundle | Machine or user installation directory | as-is distribution | Agents, skills, references, examples, schemas, extensions, and runtime adapters. |
 | Project | Target repository root | Project | One optional `as-is.config.json` manifest. |
-| Runtime metadata | User-level state directory | as-is runtime | Resolved configuration, run/session metadata, leases, logs, indexes, and transient artifacts; never the authoritative task state. |
+| Runtime metadata | User-level state directory | as-is runtime | Resolved configuration, run/session metadata, leases, the restart-reconcilable JobId map, and transient artifacts; never the authoritative task state. |
 
 The bundle is self-contained and selected by the installed `as-is` CLI or a
 chat slash-command adapter. It is not copied into each project. By default,
@@ -158,6 +158,17 @@ repository records; it is not an active task backlog and must never mirror,
 supersede, or relocate authority. Runtime metadata must remain subordinate to
 the repository records and safe to rebuild.
 
+While an attempt is active, a supervisor must persist its private runtime map at
+`${XDG_STATE_HOME:-~/.local/state}/as-is/projects/<project-key>/runtime/job-map.json`.
+Each generated JobId maps to component path, task revision, attempt, adapter,
+private process/session handles, runtime state, and reconciliation timestamps.
+The map is atomically updated for restart diagnostics and expires only after a
+terminal record, confirmed cleanup, and the configured retention boundary. A
+restart reconciles live handles against the durable path/revision/attempt and
+marks missing observations unknown or unavailable; it never infers task
+completion from a missing map entry. If the map cannot be persisted, stable
+component-path status remains available while runtime fields are unavailable.
+
 Private per-run host state may instead use
 `${TMPDIR:-/tmp}/as-is/<project-key>/<run-id>/<component-key>/`, or an equivalent
 secure temporary root. This path is disposable runtime guidance only: it is
@@ -172,7 +183,7 @@ State is divided by authority and retention:
 | --- | --- | --- | --- |
 | Repository task control state | Root or component `as-is.md` records, progress, decisions, results, and next actions | Sole current-task authority; changed through the task protocol | Current records remain in place; historical committed state is recovered from Git and concise `change-log.md` entries, not archive folders. |
 | Immutable run input | Effective configuration and bundle identity | Explains what a run was authorized to do | Retained with its run when available. |
-| Runtime coordination metadata | Leases, run identity, logs, indexes, caches, and temporary tool output | Never task, approval, history, or completion authority | Private, expirable, and regenerable. |
+| Runtime coordination metadata | Leases, run identity, logs, the private JobId map, indexes, caches, and temporary tool output | Never task, approval, history, accounting, or completion authority | Private, expirable, and regenerable; active map entries support restart reconciliation. |
 | HITL state | Questions, approvals, rejection, or direction recorded in the affected task record | Authoritative only after the durable record transition | Retained with the affected task. |
 | Project artifacts | Source, documentation, tests, and requested output | Owned by the target repository | Created only by an explicit task action. |
 
@@ -217,5 +228,7 @@ external-effect policy require explicit human approval.
 ## Deferred Implementation Details
 
 The task/progress-record schema, state-file encoding, state locking, project-key
-hashing, retention implementation, extension manifest filename, and the
-OpenCode adapter remain to be designed within this boundary.
+hashing, retention implementation, extension manifest filename, the concrete
+adapter/job-spec serialization, and public status/watch integration remain to
+be designed or validated within this boundary. The OpenCode adapter document
+records its current limitations; it is not a completion claim.

@@ -87,6 +87,11 @@ See `agent-skills.md` for the current taxonomy and definitions.
 - A change to a component is a task at that component directory level. The
   component's filesystem path determines its scope and parent; task records do
   not repeat either value.
+- The canonical durable task/job identity is the repository-relative component
+  path. A durable task revision identifies one task incarnation and a one-based
+  attempt identifies each new worker invocation within it. A runtime `JobId`
+  is only a private operational alias and cannot replace the path, authorize a
+  transition, or be required for recovery.
 - At any instant, there is exactly one active task, including its task record,
   for a directory. That task may lead to subtasks in descendant directories.
 - At most one active worker attempt may modify a component at a time. A later
@@ -105,6 +110,33 @@ See `agent-skills.md` for the current taxonomy and definitions.
   scopes, external dependencies, and resource allocations do not overlap.
   Siblings do not mutate each other's records or depend on another active
   sibling's mutable state.
+
+### Accounting And Runtime Identity
+
+The change log is the concise cumulative functional and non-functional history
+overview. Its front matter carries cost with currency/source, wall-clock with
+unit/source, build count, and failure count. The summary is cumulative only over
+finalized, canonical `worker-subtree` observations keyed by
+`component-path/task-revision/attempt`; repeated observations update one key and
+corrections supersede one key. An individual unavailable value remains
+`unavailable`, and an incomplete aggregate is `unknown`, never zero. A
+`full-invocation` observation is retained as a non-additive end-to-end view.
+
+The parent owns its own orchestration and integration observations. A child owns
+its worker-subtree actual use. Parent child allocations are authorization
+boundaries rather than actual-use roll-ups, and parent completion still names
+failed or cancelled descendants. New retries/recoveries receive the next
+attempt ordinal; a supervisor restart or new JobId for the same invocation does
+not create a duplicate observation.
+
+The reusable supervisor must persist a private restart-reconcilable map for an
+active attempt at
+`${XDG_STATE_HOME:-~/.local/state}/as-is/projects/<project-key>/runtime/job-map.json`.
+It maps JobId to component path, task revision, attempt, adapter, private
+handles, and state. It is subordinate runtime metadata and expires terminal,
+cleaned entries only after retention. Public status accepts component path and
+optional attempt; JobId is optional diagnostic output. OpenCode-specific
+session/event behavior remains at the adapter boundary.
 
 ### Task and Progress Protocol
 

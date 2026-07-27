@@ -30,6 +30,11 @@ does not redefine the contract.
 - Runtime handles, leases, prompts, caches, logs, and secrets are private host
   state. They may support an active attempt or recovery, but they are not
   required inputs to resume and are never authoritative over the task record.
+- The canonical durable identity for a task and its observations is the
+  repository-relative component path plus durable task revision and one-based
+  attempt ordinal. A generated `JobId` is an operational handle only. It may
+  be returned as source-labelled diagnostic data, but it is not a required task
+  record field, stable public lookup key, or completion authority.
 - Historical committed task state is recovered from Git history and concise
   `change-log.md` entries. This contract does not create or depend on a
   `task-archives/` tree or a separate host-specific historical recovery path.
@@ -56,7 +61,19 @@ cross-run reuse; the component key preserves the component boundary. `/tmp` is
 not suitable for durable records because it is a temporary, potentially shared
 location that may be cleaned, unavailable, or lost across host-lifetime
 boundaries. A secure host temporary root may provide the same disposable
- semantics with stronger isolation.
+semantics with stronger isolation.
+
+For active attempts, a supervisor that claims restart/recovery diagnostics must
+persist its private `JobId` map at
+`${XDG_STATE_HOME:-~/.local/state}/as-is/projects/<project-key>/runtime/job-map.json`.
+The map associates each JobId with component path, task revision, attempt,
+adapter, private process/session handles, and runtime state. It is atomically
+written private runtime metadata, not a second task tree. Restart reconciliation
+reattaches live handles to the same path/revision/attempt, marks dead or
+unavailable handles unknown without inferring a durable outcome, and expires
+terminal/cleaned entries only after configured retention. A missing map reduces
+runtime diagnostics to unavailable; it does not invalidate path-based durable
+status or authorize completion.
 
 ## Permission And Liveness Boundary
 
@@ -381,6 +398,12 @@ attempts but does not redefine these decisions.
   cumulative budget values, checkpoint, and next action in the existing task
   record. This preserves attempt history without adding a runtime log or a new
   front-matter field.
+- The accounting identity for each attempt is the component path, durable task
+  revision, and attempt ordinal. A retry or recovery that starts a new worker
+  invocation gets the next ordinal; a supervisor restart observing the same
+  invocation updates the same identity. Parent allocations remain separate
+  from child actual use. The canonical summary uses worker-subtree observations;
+  full-invocation elapsed/cost observations are retained as non-additive views.
 
 ### Worker Availability And Replacement
 
@@ -425,6 +448,10 @@ attempts but does not redefine these decisions.
 - Budget observations are cumulative across attempts. Cost and wall-clock use
   are actual only when reported by the host; otherwise the record retains the
   unavailable source and does not claim automatic enforcement.
+- Repeated checkpoints and runtime JobId aliases for one path/revision/attempt
+  are reconciled as one observation. An unavailable value is not zero, and an
+  incomplete cumulative summary is `unknown` with its source and unresolved
+  observation preserved in `change-log.md`.
 - The orchestrator treats a changed record revision as authoritative. An
   operation returning against an older revision must be discarded or reconciled
   through a new durable checkpoint rather than overwriting newer work.
