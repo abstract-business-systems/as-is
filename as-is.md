@@ -29,8 +29,8 @@ config:
 
 task:
   status: completed
-  worker: implementer
-  updated: 2026-07-27T07:39:36Z
+  worker: orchestrator
+  updated: 2026-07-28T01:30:00Z
 constraints:
   cost:
     currency: USD
@@ -40,8 +40,8 @@ constraints:
     source: unavailable
     fallback-metric: validation elapsed-seconds (not monetary cost)
   delegation:
-    maximum-depth: 1
-    maximum-children: 7
+    maximum-depth: 2
+    maximum-children: 8
   execution:
     wall-clock:
       allocated-seconds: 300
@@ -50,20 +50,28 @@ constraints:
       source: unavailable
   external-effects: require-current-turn-user-approval
 acceptance:
-  - Replace separate archive-folder recovery with current root/component records,
-    Git history, and concise entries in change-log.md; do not claim Git history
-    preserves uncommitted content.
-  - Retire the superseded systemd flow after the accepted
-    subprocess-execution-foundation handoff, preserve commit 3e54fcd as history,
-    and record the uncommitted repair evidence that is not in Git.
-  - Update repository instructions, agent definitions, the task-record protocol,
-    execution/orchestration specifications, and navigation documents so future
-    work does not create task-archives/ or depend on a separate systemd recovery
-    path.
-  - Keep universal guard clauses intact, do not alter control-plane.md, do not
-    launch a worker, and do not modify accepted subprocess implementation code.
-  - Validate references, task records, control-plane status, document and agent
-    syntax, Git whitespace, and tracked/untracked consumers before handoff.
+  - Add budget enforcement (wall-clock time and monetary cost) to the
+    spawning-pi-subagents launcher so that a child Pi process given budget
+    limits stops the current action and returns when a limit is reached, rather
+    than running unbounded.
+  - Let a delegating agent forward time and money constraints to the executing
+    agent through the launcher, and record that the constraints were passed so a
+    parent can account for a budget-stopped return.
+  - Preserve the existing launcher contract (agent file, task, cwd, model,
+    tools, skills, approve flags, dry-run, private system-prompt handoff,
+    JSON/print/no-session mode) and do not weaken the skill's stated
+    non-properties unless this task explicitly implements them.
+  - Keep the change dependency-free and Bun/TypeScript-compatible per the
+    centrally supplied runtime preference; do not add a host integration,
+    credential, or external service dependency.
+  - Do not modify control-plane.md, the retired systemd lineage, accepted
+    component implementation code, or the execution-accounting-design
+    specification; update the spawning-pi-subagents SKILL.md and agent
+    guidance only as needed to document the new budget surface.
+  - Validate the launcher syntax/dry-run, the new budget behavior with the
+    smallest deterministic focused check, task-record validity, and
+    git diff --check before handoff; record residual risk, host-reported cost,
+    and host-observed wall-clock use.
 ---
 
 # as-is Project
@@ -77,156 +85,132 @@ recoverable from Git history and summarized, without verbose duplication, in
 
 ## Requirement
 
-Complete the authorized structural migration from separate archive folders to
-Git history plus concise change-log entries, and retire the superseded systemd
-flow in favor of the accepted subprocess execution foundation. This is a
-documentation and task-state migration only. It does not launch an
-implementer, change application or accepted component implementation code, or
-alter `control-plane.md`.
+Add budget enforcement through the pi-subagent so that a delegated Pi child
+process accepts time (wall-clock) and money (cost) limits, stops the current
+action, and returns when a limit is reached. Any delegating agent must forward
+these constraints to the executing agent through the launcher. The prior root
+migration (archive folders to Git history plus `change-log.md`) is terminal and
+committed; its history is recovered from `change-log.md` and commits
+`d6b03b7` and `e8fb1da`, not from this record.
 
 ## Decision Boundary
 
-- The accepted subprocess foundation is the current execution implementation;
-  its scoped handoff is commit `e8fb1da` and its component record is terminal.
-- The former systemd user-job repair is retired as `cancelled`/`superseded`,
-  not completed. Its accepted-scope baseline remains recoverable from commit
-  `3e54fcd`; no systemd component record, implementation, archive folder, or
-  recovery flow remains active.
-- The historical blocked cost-observability fixture and the two unlaunched
-  planning records are no longer task descendants. Their status, rationale,
-  measured observations, source commits, and recovery points are summarized in
-  `change-log.md`. They are not retried, restored, or treated as completed
-  current work.
-- No existing change-log convention was found during repository inspection.
-  `change-log.md` is the smallest subject-named artifact required by the user's
-  retention policy. It is a concise historical index, not task authority, a
-  backlog, an archive folder, or a replacement for current `as-is.md` records.
-  Its concrete acceptance condition is that every retired/deferred item names
-  why it changed state, relevant Git commit(s), a recovery point, and any
-  necessary fact about uncommitted evidence without secrets or verbose record
-  duplication.
-- The root remains the nearest common ancestor for this cross-cutting
-  documentation/task-state migration. The accepted subprocess component was
-  already independently completed; no implementer is launched by this task.
+- The `spawning-pi-subagents` skill previously disclaimed hard budgets,
+  watchdog enforcement, and non-blocking launch acceptance. This task closed
+  the hard wall-clock budget gap for the synchronous launcher path only; it
+  did not add a detached supervisor, restart reconciliation, or non-blocking
+  launch acceptance. Cost enforcement is forwarded, not launcher-observed.
+- The accounting substrate (path/revision/attempt identity, parent/child
+  budget ownership, unavailable-observation semantics) is defined by
+  `execution-accounting-design.md` and its terminal component record; this task
+  implements enforcement, not a new accounting model.
+- The accepted `control-plane` Bun implementation and
+  `subprocess-execution-foundation` supervisor remain unchanged.
+  `control-plane.md` is a pre-existing untracked file and stays untouched.
+- The retired systemd lineage stays retired; no archive folder or systemd
+  recovery path is created or depended on.
+- The root is the nearest common ancestor for any cross-cutting integration
+  edits (launcher plus agent guidance). Bounded implementation work is routed
+  to the orchestrator, which creates the component record and delegates to the
+  configured worker; as-is does not implement the component-domain change.
 
 ## Plan
 
-1. Inspect all prior archive snapshots, current fixtures, records, instructions,
-   agents, host configuration, and code/document consumers.
-2. Audit tracked, untracked, and ignored archive/systemd artifacts, including
-   ownership, consumers, recovery/audit value, and recreation cost.
-3. Preserve the necessary concise facts in `change-log.md`; retain committed
-   recovery through Git and do not imply that uncommitted repair files are in
-   Git history.
-4. Remove archive folders and the retired systemd flow, update current records
-   and documents, and leave `control-plane.md` untouched.
-5. Run focused reference, record, syntax, status, whitespace, and consumer
-   checks; record observations and residual risk before completion.
+1. Recover current root and component records, the spawning-pi-subagents skill,
+   execution-accounting-design, control-plane, and Git history before scoping.
+2. Record this new task in the root durable context and route the bounded work
+   to `.agents/agents/orchestrator.md` through the spawning-pi-subagents
+   launcher; do not launch an implementer directly.
+3. The orchestrator creates the component `as-is.md`, delegates to the
+   configured worker, and the worker implements budget flags, enforcement, and
+   constraint forwarding in the launcher plus minimal SKILL.md/agent guidance
+   updates.
+4. On return, reread the component record, assess validation and residual risk,
+   perform any nearest-common-ancestor integration, and commit only the scoped
+   completed handoff.
 
 ## Progress
 
-At the inspection checkpoint, the repository had no `change-log.md`,
-`CHANGELOG`, or equivalent convention. The tracked archive snapshots contained
-two ready but unscheduled planning records and one blocked/no-retry fixture.
-The systemd repair archive also contained an untracked blocked record and an
-uncommitted adapter/test snapshot. The active systemd implementation paths were
-already removed in the working tree but had not yet been replaced by a durable
-retirement decision.
+The root migration task is terminal and committed; this record carried the
+budget-enforcement task as current context per the replaceable-context policy.
+The orchestrator created the component record at
+`skills/spawning-pi-subagents/as-is.md`, delegated it to the configured
+`implementer` through the spawning-pi-subagents launcher, and the implementer
+completed the scoped handoff in commit `9dc2090`. The orchestrator then
+reread the component record, independently re-ran the required validations,
+and performed nearest-common-ancestor integration by recording the finalized
+handoff in `change-log.md` and this root record. The component record is
+`completed` with no descendants; the bounded task is terminal.
 
-The tracked systemd baseline is commit `3e54fcd`; the accepted subprocess
-foundation is commit `e8fb1da`. The uncommitted repair snapshot is not
-recoverable from Git. Its necessary facts are retained in `change-log.md`: the
-record was blocked for worker/session loss, the record-schema indentation and
-cleanup-confirmation defects remained unresolved, the validator raised a
-`TypeError` on the unavailable cost value, and no current repair validation or
-completion evidence existed. The full snapshot is intentionally not duplicated
-after the consumer and audit assessment found no supported consumer outside
-its own retired adapter/test and historical documentation.
-
-### Durable accounting audit
-
-The current version-2 accounting model is cumulative and component-local:
-`spent` and `spent-seconds` carry actual or host-observed use across attempts,
-while parent delegation checks child allocations against the parent's own
-remaining allocation and reserve. Parent and child actual-use observations are
-reported separately; no inclusive parent/root roll-up or cross-record
-deduplication is implemented. The protocol clarification in
-`component-task-record-protocol.md` records this boundary.
-
-The supervisor has per-component durable `budget-observed` checkpoints with
-attempt ordinals and runtime JobId diagnostics, source-labelled cost and
-wall-clock values, unavailable values, and per-job accounting guards. That is
-not a cross-session historical summary.
-No append-only summary covering both money and time, unknown observations,
-attempt/session identity, and cross-record double-count prevention was found in
-the current design, records, implementation, tests, Git history, or
-`change-log.md`. The retired cost-observability lineage remains recoverable from
-Git and its concise cost facts remain in `change-log.md`; its private session
-state was not byte-preserved. The bounded accounting and identity design is
-recorded in `execution-accounting-design.md` and its current task record at
-`execution-accounting-design/as-is.md`.
 ## Validation
 
-`verification-discipline` selected focused structural checks. The path-qualified
-reference search found no `task-archives/<item>` or retired adapter path in the
-current tree; remaining `task-archives/` mentions are policy prohibitions or
-retention instructions. No active systemd command, adapter consumer, or
-separate systemd recovery reference remains; the only implementation search hit
-is a historical comment in the accepted supervisor and is not an executable
-consumer.
+`verification-discipline` selected delegation, component-handoff, and
+integration checks for this turn. The delegation target was the configured
+`orchestrator` agent file; no implementer was launched directly from the root.
+The component record front matter parses as a version-2 task record and the
+orchestrator independently confirmed the worker's validation:
 
-- `python3 schemas/task-record-validator/task_record_validator.py
-  subprocess-execution-foundation` reported `VALID`.
-- `bun control-plane/control-plane.ts status .` reported root `completed`, no
-  active tasks, and the configured `maxConcurrentTasks` value `1` from
-  repository records only. `bun control-plane/control-plane.ts can-complete . .`
-  reported `eligible: true` with no non-terminal or unaccounted failed/cancelled
-  descendants.
-- `python3 -m unittest -v schemas/task-record-validator/test_task_record_validator.py`
-  passed all 6 tests.
-- The OpenCode configuration parsed as JSON, and a fresh `opencode agent list`
-  exposed `as-is (primary)`, `orchestrator (subagent)`, and
-  `implementer (subagent)`; no configuration or agent syntax error was
-  observed. Markdown files were inspected for required headings and links.
-- `git diff --check` passed with no whitespace diagnostics.
-- The tracked/untracked artifact audit found no remaining `task-archives/`
-  directory or retired adapter files. A user-systemd unit query found no
-  matching retired job and no live retired process. The unrelated untracked
-  `control-plane.md` was not changed.
+- Launcher syntax build (`bun build --no-bundle --target bun`) transpiled
+  cleanly.
+- `--dry-run` emits a `budget` object with `wall-clock-seconds` and `cost-usd`
+  (values when supplied, `null` when unset) alongside the unchanged contract
+  fields.
+- Smallest deterministic focused enforcement check (no provider contact): a
+  stub `pi` sleeping 30s with `--budget-wall-clock-seconds 1` returned in
+  ~1030ms with exit `124` and stderr `as-is budget-stopped: limit=wall-clock
+  seconds=1 exit=124`; no lingering child process remained.
+- Regression: a non-budget stub exiting `7` forwarded exit `7` and stdout
+  unchanged; negative budget values are rejected.
+- Tree-wide `python3 schemas/task-record-validator/task_record_validator.py .`
+  reports the pre-existing `INVALID` set only (mixed agent-record shape,
+  root-only `config`, legacy skill-record fields, aggregate descendant
+  issues); no error mentions `skills/spawning-pi-subagents`, and the committed
+  change introduces no new validator error.
+- `git diff --check` over the committed change and the working tree is clean.
 
-Host-reported monetary cost and cumulative task wall-clock are unavailable;
-the numeric compatibility values above are not measured-use claims.
+Host-reported monetary cost for the implementer run was observed in the Pi
+JSON stream (~$0.012) but is not directly observable to the launcher or
+component record; the component record records cost `unavailable` with
+worker-subtree wall-clock `150` seconds. Root-own orchestration cost remains
+unavailable.
 
 ## Result
 
-The migration is complete when the only historical recovery surfaces are Git
-history and concise `change-log.md` entries, current task authority remains in
-current `as-is.md` records, the retired systemd flow has no active consumer or
-live job, and the accepted subprocess foundation remains unchanged. The former
-systemd work is accounted for as cancelled/superseded, while the historical
-blocked and unlaunched records remain historical evidence rather than hidden
-successes.
+Completed. The synchronous `spawning-pi-subagents` launcher now enforces a
+hard wall-clock budget at the process level (SIGTERM then SIGKILL on the child
+process group, with a distinguishable exit `124` and `as-is budget-stopped`
+stderr marker), forwards wall-clock and cost constraints to the executing
+agent through the private system-prompt handoff, and records the forwarded
+budget in `--dry-run` output so a parent can account for a budget-stopped
+return. The existing launcher contract is preserved; the change is
+dependency-free and Bun/TypeScript-compatible. SKILL.md and the orchestrator
+agent guidance document the new surface. The single descendant
+`skills/spawning-pi-subagents` is terminal (`completed`); no failed or
+cancelled descendant requires accounting. Scoped worker commit: `9dc2090`.
 
 ## Blockers And Escalations
 
-No current task blocker is known. Residual risk: the uncommitted systemd repair
-snapshot was not committed and therefore cannot be reconstructed byte-for-byte
-from Git; the change log preserves the necessary decision, defect, ownership,
-and recovery facts. Future recovery of implementation details would require a
-new explicit task based on commit `3e54fcd`, not restoration of an archive
-folder or inference from the change log.
+No blocker. Residual risk: the launcher enforces a true wall-clock hard stop,
+but Pi monetary cost is not directly observable from the launcher; cost
+enforcement is forwarded to the child for self-limiting and is an
+approximation that a child could overrun before self-limiting. The wall-clock
+budget bounds only the child run (not prompt preparation or `--dry-run`) and
+has a short SIGKILL grace after SIGTERM. Tree-wide task-record validity
+remains pre-existing `INVALID` for unrelated records outside this task's
+scope. If the orchestrator target had been unavailable, a durable blocker
+would have been recorded rather than substituting a role.
 
 ## Recovery
 
-Recover this migration from the current root record and `change-log.md`. For
-historical committed state, inspect the pre-migration repository checkpoint
-`e8fb1da` and the systemd baseline `3e54fcd` with Git. Do not restore or create
-`task-archives/`, do not revive the retired systemd flow, and do not infer
-uncommitted repair content from Git. If a future authorized task needs any
-retired behavior, it must create a new bounded component record at the
-appropriate common ancestor and use only current policy plus Git evidence.
+Recover this task from the current root record and `change-log.md`. For the
+prior terminal migration, inspect commits `d6b03b7` and `e8fb1da` with Git. Do
+not restore or create `task-archives/`, do not revive the retired systemd flow,
+and do not infer uncommitted repair content from Git. If the orchestrator
+return is interrupted, reread this record and the component `as-is.md` the
+orchestrator created before resuming.
 
 ## Next Action
 
-None for this completed migration. A fresh OpenCode process is required before
-agent-definition changes are expected to affect discovery.
+The bounded budget-enforcement task is complete and committed. The scoped
+completed handoff (root record plus change-log entry) is ready for commit via
+`committing-completed-work`. No further implementer launch is required.

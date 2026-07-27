@@ -163,6 +163,24 @@ change log an overview rather than a second task record or runtime ledger.
   neither is provider billing or automatic cumulative enforcement.
 - **Lineage:** Worker commit `2e9d4fd`; parent reconciliation `c4f0181`.
 
+## 2026-07-28 — Spawning-pi-subagents budget enforcement
+
+- **Disposition:** Completed bounded implementation. The synchronous launcher
+  now enforces a hard wall-clock budget at the process level and forwards time
+  and money constraints to the executing agent.
+- **Observation identity:** Component path `skills/spawning-pi-subagents`;
+  task revision was not retained in the record, so attempt 1 is preserved as a
+  finalized fact and excluded from the deduplicated cumulative summary.
+- **Relevant commits:** Worker scoped handoff `9dc2090`.
+- **Observed facts:** Worker-subtree wall-clock was `150` seconds
+  (host-observed); monetary cost was `unavailable` from the launcher, so the
+  cumulative cost summary remains `unknown`. No build or failure was
+  classified.
+- **Residual risk:** Pi cost is not directly observable from the launcher;
+  cost enforcement is forwarded to the child for self-limiting and is an
+  approximation. The wall-clock budget bounds only the child run and has a
+  short SIGKILL grace after SIGTERM.
+
 ## 2026-07-27 — Execution accounting and identity design
 
 - **Disposition:** Design-only, independently verifiable, and intentionally
