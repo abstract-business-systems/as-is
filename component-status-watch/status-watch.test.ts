@@ -168,6 +168,29 @@ async function eventuallyStatus(
   return value;
 }
 
+/**
+ * The detached supervisor is allowed to append durable observations while a
+ * status/watch query is running. Establish a real quiescent boundary before
+ * taking the byte-preservation snapshot: the final supervisor checkpoint is
+ * `budget-observed`, and no owned process may remain alive after it.
+ */
+async function waitForSupervisorQuiescence(data: Fixture, handle: JobHandle): Promise<void> {
+  await eventuallyStatus(data, (value) => {
+    const runtime = value.runtime as Record<string, unknown>;
+    const lastEvent = value.lastEvent as Record<string, unknown>;
+    return runtime.hostStatus === "completed" && lastEvent.event === "budget-observed";
+  });
+  const deadline = Date.now() + 3_000;
+  while (Date.now() < deadline) {
+    const leftovers = await noLeftover(handle);
+    if (leftovers.processGroupAlive === false
+      && leftovers.supervisorAlive === false
+      && leftovers.supervisorProcessGroupAlive === false) return;
+    await sleep(10);
+  }
+  throw new Error("detached supervisor did not become quiescent within focused test bound");
+}
+
 async function cleanupHandle(data: Fixture, handle: JobHandle | undefined): Promise<void> {
   if (!handle) return;
   try {
@@ -233,7 +256,6 @@ describe("component-status-watch", () => {
         lastObservedAt: new Date().toISOString(),
       });
 
-      const beforeReads = await readFile(join(data.componentDirectory, "as-is.md"), "utf8");
       const withoutAttempt = await readStatus(data);
       const withAttempt = await readStatus(data, 1);
       expect(withoutAttempt.resolution).toMatchObject({ status: "resolved" });
@@ -254,7 +276,25 @@ describe("component-status-watch", () => {
       expect(watched.map((entry) => (entry.watch as Record<string, unknown>).sequence)).toEqual([0, 1, 2]);
       expect(watched.every((entry) => (entry.watch as Record<string, unknown>).completionInferredFromPolling === false)).toBe(true);
       expect(watched.every((entry) => (entry.identity as Record<string, unknown>).key === (withoutAttempt.identity as Record<string, unknown>).key)).toBe(true);
-      expect(await readFile(join(data.componentDirectory, "as-is.md"), "utf8")).toBe(beforeReads);
+
+      await waitForSupervisorQuiescence(data, handle);
+      const beforeReadOnlyQueries = await readFile(join(data.componentDirectory, "as-is.md"), "utf8");
+      const quiescentStatus = await readStatus(data, 1);
+      const quiescentWatched: Record<string, unknown>[] = [];
+      for await (const observation of watchComponentStatus({ ...{
+        projectRoot: data.root,
+        componentPath: data.componentPath,
+        stateHome: data.stateHome,
+        attempt: 1,
+      }, intervalMilliseconds: 10, count: 3 })) quiescentWatched.push(observation);
+      expect(quiescentStatus.identity).toEqual(withoutAttempt.identity);
+      expect(quiescentWatched.map((entry) => (entry.identity as Record<string, unknown>).key)).toEqual([
+        (withoutAttempt.identity as Record<string, unknown>).key,
+        (withoutAttempt.identity as Record<string, unknown>).key,
+        (withoutAttempt.identity as Record<string, unknown>).key,
+      ]);
+      expect(quiescentWatched.every((entry) => (entry.watch as Record<string, unknown>).completionInferredFromPolling === false)).toBe(true);
+      expect(await readFile(join(data.componentDirectory, "as-is.md"), "utf8")).toBe(beforeReadOnlyQueries);
     } finally {
       await cleanupHandle(data, handle);
       await rm(data.root, { recursive: true, force: true });
