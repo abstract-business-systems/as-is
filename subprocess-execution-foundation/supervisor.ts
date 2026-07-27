@@ -1140,6 +1140,26 @@ async function runSupervisor(configPath: string): Promise<void> {
   // observed, cumulative cost is unavailable rather than a copied or guessed
   // prior value.
   const cumulativeCost: number | UnavailableValue = "unavailable";
+  // Publish the terminal durable checkpoint before exposing the terminal
+  // private state. Readers may observe both files concurrently; making the
+  // durable failure/complete/cancel checkpoint first prevents a terminal host
+  // status from racing ahead of its source-labelled durable evidence.
+  await writeRecordCheckpoint(
+    request.recordPath,
+    makeCheckpoint(handle.jobId, "observe", status === "failed" ? "failure" : status === "cancelled" ? "cancellation-confirmed" : "host-completed", {
+      source: watchdogTriggered ? "supervisor-watchdog" : "host-process",
+      exitCode,
+      hostStatus: status,
+      ...(watchdogTriggered ? { reason: "watchdog deadline exceeded" } : {}),
+      wallClockSeconds,
+      wallClockSource: "host:monotonic-supervisor-lifetime",
+      cost: "unavailable",
+      costSource: "host:supervisor-cost-not-reported",
+      cumulativeWallClockSeconds: cumulativeWall,
+      note: "host observation does not replace durable validation or handoff",
+    }),
+    status === "cancelled" ? "cancelled" : status === "failed" ? "failed" : undefined,
+  );
   current = await appendPrivateEvent(
     handle.statePath,
     privateEvent(handle.jobId, "observe", "worker-exited", {
@@ -1169,22 +1189,6 @@ async function runSupervisor(configPath: string): Promise<void> {
         wallClockSource: "host:monotonic-supervisor-lifetime",
       },
     },
-  );
-  await writeRecordCheckpoint(
-    request.recordPath,
-    makeCheckpoint(handle.jobId, "observe", status === "failed" ? "failure" : status === "cancelled" ? "cancellation-confirmed" : "host-completed", {
-      source: watchdogTriggered ? "supervisor-watchdog" : "host-process",
-      exitCode,
-      hostStatus: status,
-      ...(watchdogTriggered ? { reason: "watchdog deadline exceeded" } : {}),
-      wallClockSeconds,
-      wallClockSource: "host:monotonic-supervisor-lifetime",
-      cost: "unavailable",
-      costSource: "host:supervisor-cost-not-reported",
-      cumulativeWallClockSeconds: cumulativeWall,
-      note: "host observation does not replace durable validation or handoff",
-    }),
-    status === "cancelled" ? "cancelled" : status === "failed" ? "failed" : undefined,
   );
   await writeRecordCheckpoint(
     request.recordPath,
