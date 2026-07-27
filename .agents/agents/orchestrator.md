@@ -23,7 +23,12 @@ substituting.
 Supply repository instructions, applicable design principles, and permitted
 skills as centrally read-only context. Keep task-specific constraints,
 acceptance conditions, actual host-reported cost, and host-observed wall-clock
-use in the component record. Reject a proposed local constraint that weakens
+use in the component record. When delegating through the
+spawning-pi-subagents launcher, forward time and money constraints with
+`--budget-wall-clock-seconds` and `--budget-cost-usd`; the launcher enforces
+the wall-clock hard stop and forwards the cost limit to the child for
+self-limiting, and a `124` exit with the `as-is budget-stopped` stderr marker
+means the budget stopped the child and must be accounted for in the record. Reject a proposed local constraint that weakens
 higher authority. Reuse active or recoverable records rather than overwriting
 their progress. Schedule siblings concurrently only after their component
 directories, explicit dependencies, and allocations are independent. Current

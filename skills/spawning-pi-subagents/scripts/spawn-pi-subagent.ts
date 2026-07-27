@@ -16,6 +16,8 @@ type Options = {
   noApprove?: boolean;
   noTools?: boolean;
   dryRun: boolean;
+  budgetWallClockSeconds?: number;
+  budgetCostUsd?: number;
 };
 
 type AgentDefinition = {
@@ -28,6 +30,16 @@ type PiInvocation = {
   command: string;
   args: string[];
 };
+
+type RunResult = {
+  exitCode: number;
+  budgetStopped: boolean;
+  budgetLimit?: "wall-clock";
+  budgetSeconds?: number;
+};
+
+const BUDGET_STOPPED_EXIT_CODE = 124;
+const BUDGET_KILL_GRACE_SECONDS = 5;
 
 const skillDirectory = resolve(import.meta.dir, "..");
 
@@ -48,6 +60,12 @@ Optional:
   --no-approve               Ignore project-local files for this run
   --no-tools                 Disable all Pi tools
   --dry-run                  Print the resolved launch without starting Pi
+  --budget-wall-clock-seconds <n>
+                             Hard wall-clock budget. When > 0, stop the child
+                             after n seconds and return a budget-stopped result
+  --budget-cost-usd <n>      Monetary cost budget (USD) forwarded to the child
+                             agent for self-limiting; not directly observable
+                             from the launcher
   --help                     Show this help
 `;
 
@@ -59,6 +77,8 @@ const valueOptions = new Set([
   "--model",
   "--tools",
   "--skill",
+  "--budget-wall-clock-seconds",
+  "--budget-cost-usd",
 ]);
 
 const parseOptions = (args: string[]): Options => {
@@ -88,6 +108,20 @@ const parseOptions = (args: string[]): Options => {
     }
     if (option === "--no-tools") {
       options.noTools = true;
+      continue;
+    }
+    if (option === "--budget-wall-clock-seconds" || option === "--budget-cost-usd") {
+      const value = args[index + 1];
+      if (!value || value.startsWith("--")) {
+        throw new Error(`Missing value for ${option}`);
+      }
+      index += 1;
+      const parsed = Number(value);
+      if (!Number.isFinite(parsed) || parsed < 0) {
+        throw new Error(`${option} must be a non-negative number, got: ${value}`);
+      }
+      if (option === "--budget-wall-clock-seconds") options.budgetWallClockSeconds = parsed;
+      else options.budgetCostUsd = parsed;
       continue;
     }
     if (!valueOptions.has(option)) {
@@ -169,28 +203,71 @@ const resolvePi = (requested: string | undefined, cwd: string): PiInvocation => 
 
 const uniquePaths = (paths: string[]): string[] => [...new Set(paths.map((path) => resolve(path)))];
 
-const runChild = (command: string, args: string[], cwd: string): Promise<number> =>
+const runChild = (
+  command: string,
+  args: string[],
+  cwd: string,
+  budgetWallClockSeconds?: number,
+): Promise<RunResult> =>
   new Promise((resolveExit, reject) => {
     const child = spawn(command, args, {
       cwd,
       env: process.env,
       shell: false,
+      detached: true,
       stdio: ["ignore", "inherit", "inherit"],
     });
+    const groupPid = -child.pid!;
 
-    const forwardSignal = (signal: NodeJS.Signals) => {
-      if (!child.killed) child.kill(signal);
+    const signalGroup = (signal: NodeJS.Signals) => {
+      try {
+        process.kill(groupPid, signal);
+      } catch {
+        if (!child.killed) child.kill(signal);
+      }
     };
+
+    let budgetStopped = false;
+    let budgetTimer: NodeJS.Timeout | undefined;
+    let killTimer: NodeJS.Timeout | undefined;
+
+    const clearBudgetTimers = () => {
+      if (budgetTimer) clearTimeout(budgetTimer);
+      if (killTimer) clearTimeout(killTimer);
+      budgetTimer = undefined;
+      killTimer = undefined;
+    };
+
+    if (budgetWallClockSeconds && budgetWallClockSeconds > 0) {
+      budgetTimer = setTimeout(() => {
+        budgetStopped = true;
+        signalGroup("SIGTERM");
+        killTimer = setTimeout(() => {
+          signalGroup("SIGKILL");
+        }, BUDGET_KILL_GRACE_SECONDS * 1000);
+      }, budgetWallClockSeconds * 1000);
+    }
+
+    const forwardSignal = (signal: NodeJS.Signals) => signalGroup(signal);
     const onInterrupt = () => forwardSignal("SIGINT");
     const onTerminate = () => forwardSignal("SIGTERM");
     process.once("SIGINT", onInterrupt);
     process.once("SIGTERM", onTerminate);
 
-    child.once("error", reject);
+    child.once("error", (error) => {
+      clearBudgetTimers();
+      reject(error);
+    });
     child.once("close", (code) => {
+      clearBudgetTimers();
       process.removeListener("SIGINT", onInterrupt);
       process.removeListener("SIGTERM", onTerminate);
-      resolveExit(code ?? 1);
+      resolveExit({
+        exitCode: code ?? 1,
+        budgetStopped,
+        budgetLimit: budgetStopped ? "wall-clock" : undefined,
+        budgetSeconds: budgetStopped ? budgetWallClockSeconds : undefined,
+      });
     });
   });
 
@@ -217,6 +294,11 @@ const main = async() => {
   if (options.noApprove) baseArgs.push("--no-approve");
   for (const skillPath of skillPaths) baseArgs.push("--skill", skillPath);
 
+  const budget = {
+    "wall-clock-seconds": options.budgetWallClockSeconds ?? null,
+    "cost-usd": options.budgetCostUsd ?? null,
+  };
+
   if (options.dryRun) {
     process.stdout.write(`${JSON.stringify({
       command: piInvocation.command,
@@ -232,22 +314,36 @@ const main = async() => {
       skills: skillPaths,
       model: model ?? null,
       tools: tools ?? null,
+      budget,
     }, null, 2)}\n`);
     return;
   }
 
   const promptDirectory = await mkdtemp(join(tmpdir(), "as-is-pi-agent-"));
   const promptPath = join(promptDirectory, `${basename(agentPath, ".md")}-system-prompt.md`);
+  const budgetLines: string[] = [];
+  if (options.budgetWallClockSeconds !== undefined || options.budgetCostUsd !== undefined) {
+    budgetLines.push(
+      "",
+      "Budget constraints forwarded by the delegating agent through the launcher:",
+      `- wall-clock-seconds: ${options.budgetWallClockSeconds ?? "unset"}`,
+      `- cost-usd: ${options.budgetCostUsd ?? "unset"}`,
+      "The launcher enforces the wall-clock limit as a hard process-level stop. The",
+      "cost limit is not directly observable from the launcher; self-limit on cost",
+      "and stop and return promptly when either limit is approached.",
+    );
+  }
   const prompt = [
     `You are running under the repository agent contract loaded from ${basename(agentPath)}.`,
     "The host-selected Pi tools and approval flags are authoritative for this process.",
     "",
     definition.body,
+    ...budgetLines,
   ].join("\n");
 
   try {
     await writeFile(promptPath, prompt, { encoding: "utf8", mode: 0o600 });
-    const exitCode = await runChild(
+    const result = await runChild(
       piInvocation.command,
       [
         ...piInvocation.args,
@@ -257,8 +353,16 @@ const main = async() => {
         `Task:\n${task}`,
       ],
       cwd,
+      options.budgetWallClockSeconds,
     );
-    process.exitCode = exitCode;
+    if (result.budgetStopped) {
+      process.stderr.write(
+        `as-is budget-stopped: limit=${result.budgetLimit} seconds=${result.budgetSeconds} exit=${BUDGET_STOPPED_EXIT_CODE}\n`,
+      );
+      process.exitCode = BUDGET_STOPPED_EXIT_CODE;
+    } else {
+      process.exitCode = result.exitCode;
+    }
   } finally {
     await rm(promptDirectory, { recursive: true, force: true });
   }

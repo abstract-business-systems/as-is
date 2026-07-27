@@ -18,7 +18,30 @@ The launcher accepts:
   `.agents/agents/orchestrator.md`, or `.agents/agents/implementer.md`;
 - one task string;
 - the repository working directory;
-- optional Pi model, tool, approval, and additional skill settings.
+- optional Pi model, tool, approval, and additional skill settings;
+- optional wall-clock and monetary-cost budget constraints.
+
+### Budget Surface
+
+The launcher forwards and enforces delegation budgets so a parent can bound a
+child run and account for a budget-stopped return:
+
+- `--budget-wall-clock-seconds <n>` — a hard wall-clock limit. When `n > 0`,
+  the launcher starts a process-level timer when the child launches. On expiry
+  it sends `SIGTERM` to the child's process group, then `SIGKILL` after a short
+  grace, and returns a distinguishable budget-stopped outcome. The launcher's
+  own `--dry-run` and prompt-preparation time are not counted against the
+  budget; only the child run is bounded.
+- `--budget-cost-usd <n>` — a monetary cost limit in USD forwarded to the
+  executing agent through the private system-prompt handoff. Pi cost is not
+  directly observable from the launcher, so cost is self-limited by the child;
+  the launcher records that the constraint was forwarded so a parent can
+  account for it.
+
+When a wall-clock budget stops the child, the launcher writes a recorded
+stderr marker of the form
+`as-is budget-stopped: limit=wall-clock seconds=<n> exit=124` and exits with
+status `124`. A zero or unset budget disables enforcement.
 
 The launcher extracts the agent file body and passes it to Pi as an appended
 system prompt. It reads simple `model:` and `tools:` front-matter values when
@@ -35,6 +58,17 @@ bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
   --cwd "$PWD" \
   --tools read,grep,find,ls,bash,edit,write \
   --approve
+```
+
+With delegation budgets forwarded to the child:
+
+```bash
+bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
+  --agent .agents/agents/implementer.md \
+  --task "Implement the bounded task recorded in the assigned component." \
+  --cwd "$PWD" \
+  --budget-wall-clock-seconds 220 \
+  --budget-cost-usd 0.35
 ```
 
 For a short task:
@@ -75,13 +109,22 @@ starting a model process.
   output.
 - The launcher uses `--mode json`, `--print`, `--no-session`, a shell-free child
   process, and a private temporary system-prompt file. It forwards child output
-  and removes the temporary prompt after exit.
+  and removes the temporary prompt after exit. Budget constraints are appended
+  to the private system prompt so the child can self-limit on cost; the
+  wall-clock budget is enforced at the launcher process level.
 - A zero Pi exit code is only a host observation. Reread the durable component
   record and validate its status, handoff, acceptance evidence, and cleanup
-  before treating the task as complete.
+  before treating the task as complete. An exit status of `124` with the
+  `as-is budget-stopped` stderr marker means the wall-clock budget stopped the
+  child; account for that as a budget-stopped return rather than a normal
+  completion.
 - This skill does not provide restart reconciliation, a durable JobId map,
-  cancellation ownership, watchdog enforcement, hard budgets, or non-blocking
-  launch acceptance. Do not claim those properties from this launcher.
+  cancellation ownership, watchdog enforcement beyond the wall-clock budget
+  timer, cost-budget enforcement at the launcher, or non-blocking launch
+  acceptance. Cost enforcement is forwarded to the child for self-limiting
+  because Pi cost is not directly observable from the launcher; record that
+  approximation when relying on it. Do not claim stronger properties from this
+  launcher.
 
 ## Agent Handoff
 
@@ -113,3 +156,27 @@ bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
 
 Confirm that the dry-run names the expected agent file, repository directory,
 Pi executable, system-prompt handoff, and task without contacting a provider.
+When budgets are supplied, confirm the dry-run `budget` object records the
+forwarded `wall-clock-seconds` and `cost-usd` values.
+
+A smallest deterministic enforcement check that does not contact a provider:
+point `--pi` at a stub that sleeps longer than the budget and assert the
+launcher returns promptly with exit `124` and the `as-is budget-stopped`
+stderr marker, leaving no lingering child process.
+
+```bash
+cat > /tmp/as-is-pi-stub.sh <<'EOF'
+#!/usr/bin/env bash
+sleep 30
+exit 0
+EOF
+chmod +x /tmp/as-is-pi-stub.sh
+bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
+  --agent .agents/agents/as-is.md \
+  --task "Stub task for budget enforcement." \
+  --cwd "$PWD" \
+  --pi /tmp/as-is-pi-stub.sh \
+  --budget-wall-clock-seconds 1 \
+  --budget-cost-usd 0.1
+echo "exit=$? (expect 124)"
+```
