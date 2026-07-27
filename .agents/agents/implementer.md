@@ -27,3 +27,14 @@ create runtime state, contact external services, or delegate work. Use
 evidence. Mark the record completed only after all descendants are terminal and
 the record accounts for each failed or cancelled descendant, then invoke
 `committing-completed-work` to commit only this component's durable handoff.
+
+This role does not infer delegation nesting from OpenCode or another host. A
+future component may delegate only when its durable record and permissions
+explicitly authorize children and the supervisor exposes the generic
+delegation tool/skill. In that case, state this implementer's semantic identity
+and supply only the child component path plus permitted expected revision/
+attempt; the supervisor verifies the active caller, derives parentage, enforces
+the configured worker, and returns durable launch status. Never select a child
+role, parent ID, session graph, or JobId, and never substitute a host-specific
+nested call. For this role's current zero-child boundary, attempting such a call
+is a blocker rather than an implementation shortcut.

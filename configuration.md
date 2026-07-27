@@ -126,6 +126,35 @@ and session behavior belong only to `opencode-adapter.md`; they are not core
 configuration assumptions. Shell, CI, remote, and other adapters may resolve
 different backend specifications without changing the delegate protocol.
 
+### Generic Delegation-Tool Resolution
+
+The supervisor may expose the logical `delegate-component` operation to an
+active agent through a host-provided tool or skill. This is a host-neutral
+capability contract, not a new public manifest field and not an implementation
+claim. The agent supplies its semantic caller identity and the child component
+path with optional expected task revision/attempt. The supervisor verifies the
+caller against its supervisor-issued active invocation binding and the durable
+caller record, derives the parent from that context, resolves the child record
+and its configured `task.worker`, assigns the next attempt and diagnostic-only
+JobId, and selects the adapter/job specification from the stable configuration
+snapshot.
+
+The tool request cannot select a worker role, parent identity, JobId, command,
+or host-specific nested session. Requirement, acceptance, constraints, budget,
+common context, permissions, and integration authority remain record/config
+resolution results. The supervisor returns only after a durable launch
+checkpoint; the stable observation key remains
+`component-path/task-revision/attempt`. Missing or mismatched caller, missing
+parent, wrong role/component, duplicate attempt, permission denial, and
+unavailable supervisor are explicit outcomes. OpenCode, shell, CI, and remote
+adapters expose or translate this same contract and report unavailable rather
+than silently weakening it when they cannot carry the active binding.
+
+An OpenCode event stream is optional diagnostic input. It is not required to
+represent delegation nesting, and it cannot replace the supervisor's verified
+caller, derived parent, configured-role check, durable launch acceptance, or
+component-path status.
+
 This boundary does not introduce a new public manifest field by implication.
 The selected bundle/host integration and current records resolve the effective
 adapter/job specification until a separately authorized configuration task

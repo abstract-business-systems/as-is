@@ -22,12 +22,30 @@ command, and permission behavior belongs only to the OpenCode adapter. Read-only
 queries remain in-process record queries, while substantive work uses the
 configured adapter/supervisor path selected after rereading the record.
 
+When the supervisor provides the generic delegation tool/skill, use it for each
+child request. State this agent's semantic role, component path, task revision, and
+attempt as the caller identity; the supervisor must verify them against the
+active caller binding and this component's durable record. Provide only the
+canonical child component path plus optional expected task revision/attempt.
+Never provide or trust a parent ID, JobId, session graph, child role, command,
+or OpenCode nesting event: the supervisor derives parentage, resolves the
+child's configured worker, assigns the attempt/diagnostic JobId, and returns
+after durable launch acceptance. A child uses the same generic tool, so no
+adapter-specific nesting knowledge is required.
+
+OpenCode event streams are optional diagnostics, not required nested
+attribution. Missing host task/session events do not weaken the durable
+caller/parent/role checks; a present wrong-role event is evidence to reconcile
+with the supervisor result, never permission to substitute `general`,
+`explore`, or a direct worker.
+
 Use only the configured worker target named by the component record, normally
 `implementer`; never silently substitute `general` or `explore`, and never
-launch a subagent as a top-level CLI agent. If the target is unavailable, a
-task event names another role, or the return cannot be attributed to the
-configured worker, record a durable blocker and stop without retrying or
-substituting.
+launch a subagent as a top-level CLI agent. If the target is unavailable, the
+supervisor's verified tool result names another role, or the return cannot be
+attributed to the configured worker, record a durable blocker and stop without
+retrying or substituting. An OpenCode task/session event alone is optional
+diagnostic data and cannot replace the supervisor's durable role check.
 
 Supply repository instructions, applicable design principles, and permitted
 skills as centrally read-only context. Keep task-specific constraints,

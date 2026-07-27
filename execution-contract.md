@@ -3,12 +3,12 @@
 ## Purpose
 
 This specification defines the host-neutral delegate protocol and supervisor
-boundary between the orchestrator and a worker runtime. It describes how the
-orchestrator launches, resumes, observes, questions, cancels, and recovers a
-worker while keeping policy and durable authority in the filesystem task
-record. A host adapter maps this contract to its own sessions, processes,
-permissions, and measurement APIs; it does not redefine the protocol or its
-authority.
+boundary between an agent, its supervisor, and a worker runtime. It describes
+how an agent requests delegation and how the supervisor launches, resumes,
+observes, questions, cancels, and recovers a worker while keeping policy and
+durable authority in the filesystem task record. A host adapter maps this
+contract to its own sessions, processes, permissions, and measurement APIs; it
+does not redefine the protocol or its authority.
 
 ## Layered Boundary
 
@@ -76,6 +76,153 @@ The OpenCode mapping is documented separately in `opencode-adapter.md`. Shell,
 CI, remote, and other job adapters remain valid extension points without being
 requirements of this contract. The retired systemd flow is historical lineage
 only and is not an active adapter, fallback, or recovery path.
+
+## Agent-Facing Generic Delegation Tool
+
+The required host boundary supplies agents with one supervisor-provided generic
+delegation tool or skill. The
+logical operation name used by this specification is `delegate-component`; it
+is a contract name, not a claim that the operation is implemented in the
+current repository. When exposed, the tool is available only inside an active
+supervisor-managed caller context. An agent states its own semantic identity in
+the request, but the supervisor binds and verifies that identity against the
+active context and the durable caller record. An arbitrary caller field is
+never accepted as proof of role, component, or authority.
+
+The smallest normalized request is:
+
+```text
+DelegateComponentRequest {
+  caller: {
+    role,
+    componentPath,
+    taskRevision,
+    attempt
+  },
+  child: {
+    componentPath,
+    taskRevision?,
+    attempt?
+  }
+}
+```
+
+`caller.role` is the semantic agent role, not a host session name. The caller
+also states the component path, durable task revision, and one-based attempt it
+believes it is executing. The supervisor establishes an opaque, supervisor-
+issued active binding when it launches the caller. That binding contains the
+repository, caller component path, durable task revision, attempt, configured
+worker role, effective configuration snapshot, and the supervisor job context.
+The supervisor compares every supplied caller field with that binding and
+rereads the caller component record. It accepts the request only when the
+binding, the durable record, and the stated semantic identity agree, the
+record permits delegation, and the role equals the binding's expected semantic
+role. When the caller is itself a delegated component worker, that expected role
+must also equal the caller record's configured `task.worker`; an entrypoint role
+such as the `as-is` primary is valid only when the supervisor explicitly bound
+that role for the active root invocation. The adapter may transport the binding,
+but the agent cannot create, replace, or weaken it.
+
+The request contains no parent identity, parent JobId, child worker role,
+command, session graph, or host-specific nesting field. Parent identity is
+derived from the active supervisor job/tool context and the verified caller
+record. The supervisor records the parent component path, task revision,
+attempt, and semantic role from that context; a caller-supplied parent is
+rejected rather than trusted or merged.
+
+The child input and durable resolution boundary are:
+
+- `child.componentPath` is required and must be a canonical repository-relative
+  component path within the verified parent's authorized descendant scope.
+  The supervisor resolves its `as-is.md`, parent relationship, current status,
+  record revision, task revision, acceptance, constraints, and integration
+  authority from durable records. A missing component record is created only
+  through the existing component-task-record protocol and an already authorized
+  parent operation; the tool does not accept free-form task prose or create a
+  second task authority.
+- `child.taskRevision`, when supplied, is an expected-value assertion. When it
+  is omitted, the supervisor resolves the current immutable task revision from
+  the durable child record. A mismatch is rejected as stale or wrong-component
+  input; `task.updated` is not used as a task revision.
+- `child.attempt`, when supplied, is an idempotency/freshness assertion only.
+  When omitted, the supervisor assigns the next one-based attempt under the
+  durable record and its per-component exclusivity boundary. It never accepts
+  an arbitrary attempt ordinal or reuses an active attempt. A new retry or
+  recovery receives the next ordinal.
+- The configured child worker role is resolved from the child record's
+  `task.worker`. It is not selected by the agent or by the host adapter. The
+  supervisor passes that role to the selected adapter and rejects a missing,
+  unavailable, or differently attributed worker; `general`, `explore`, a
+  primary-agent fallback, and a direct top-level worker are not substitutes.
+- Requirement, acceptance, effective task constraints, repository context,
+  permitted skills, budget, record revision, adapter/job specification, and
+  ancestor integration authority are resolved from the child record and
+  centrally supplied read-only context. They are not duplicated in the tool
+  request.
+
+After the supervisor has verified the caller and parent, resolved the child,
+assigned the attempt and a runtime JobId, completed permission/capability
+preflight, submitted the configured worker through the selected adapter, and
+persisted the durable launch checkpoint, it returns:
+
+```text
+DelegateComponentResult {
+  outcome: started | waiting | rejected | failed | unavailable,
+  status,
+  componentPath,
+  taskRevision,
+  attempt,
+  parent: { componentPath, taskRevision, attempt, role },
+  workerRole,
+  launch: { checkpoint, adapter, acceptedAt },
+  handle: { jobId?, source?, diagnosticOnly: true },
+  blocker?,
+  nextAction?
+}
+```
+
+`status` reports the durable launch state, such as `launch-accepted`,
+`awaiting-approval`, `blocked`, or `unavailable`. The result is returned after
+launch acceptance, not after worker completion. The optional handle and
+`jobId` are source-labelled runtime diagnostics only. Stable lookup and later
+status use `componentPath/taskRevision/attempt`; a JobId is not task identity,
+parent identity, a public lookup key, or completion authority. If the
+supervisor cannot persist and verify the launch checkpoint, it does not return
+`started`.
+
+The normalized failure classes are explicit and non-fallbacking:
+
+| Failure | Meaning and required behavior |
+| --- | --- |
+| `missing-caller` | The request has no semantic caller identity or no active supervisor binding. Do not infer identity from a host process, prompt, or event stream. |
+| `mismatched-caller` | The stated role/path/revision/attempt disagrees with the supervisor binding or reread caller record. Reject without launching. |
+| `missing-parent` | No active verified parent supervisor context or durable parent record can be established. A caller-supplied parent cannot repair this. |
+| `wrong-role` | The caller is not the configured role, the child role is absent/unavailable, or the adapter reports another role. Do not substitute a role. |
+| `wrong-component` | The child path is non-canonical, outside the authorized descendant scope, missing its required durable record, or its revision/authority does not match. Do not launch a guessed component. |
+| `duplicate-attempt` | The path/revision/attempt is already active, already claimed by a conflicting launch, or is an invalid reuse. Keep the existing durable observation authoritative. |
+| `permission-denied` | Generic or host-specific preflight denied the operation. Record the denial durably and do not retry through a prompt or weaker profile. A pending approval is reported as `awaiting-approval`, not success. |
+| `unavailable-supervisor` | No supervisor/tool binding, adapter, or required durable launch/checkpoint capability is available. Record a capability blocker; do not fall back to a foreground call or direct worker. |
+
+The child uses this same operation for any further authorized delegation. It
+states its own semantic identity from its active context, while the next
+supervisor invocation derives parentage from that context again. Neither the
+child nor an adapter needs to understand nested OpenCode sessions or any other
+host's nesting model.
+
+### Adapter Exposure
+
+An adapter merely exposes or translates `delegate-component` to the host's
+tool, command, or RPC surface and returns the normalized result. It does not
+derive parentage from host events, own the configured-role decision, assign
+task identity, or implement nesting semantics. OpenCode may expose the tool to
+an agent through a tool/skill bridge; the supervisor still verifies the
+semantic caller and launches the configured child. Shell may expose the same
+contract through a command or standard-input RPC, CI through a job step or
+service endpoint, and a remote adapter through an authenticated RPC or
+sidecar. In each case the adapter must carry the supervisor-issued active
+binding and preserve the same request, resolution, failure, and result
+semantics. If it cannot do so, it reports `unavailable-supervisor` rather than
+simulating delegation.
 
 ## Authority And Context
 

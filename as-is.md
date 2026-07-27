@@ -30,7 +30,7 @@ config:
 task:
   status: blocked
   worker: implementer
-  updated: 2026-07-27T13:09:43Z
+  updated: 2026-07-27T16:56:42Z
 constraints:
   cost:
     currency: USD
@@ -51,20 +51,31 @@ constraints:
   external-effects: require-current-turn-user-approval
 acceptance:
   - Preserve the separation between the delegate protocol's parent-child
-    semantics and the reusable supervisor core; keep OpenCode-specific
-    session, event, and permission behavior at the adapter boundary, with a
-    clear extension point for other job backends.
+    semantics and the reusable supervisor core; expose one generic
+    supervisor-provided delegation tool/skill whose caller identity is stated
+    by the agent but verified against the active supervisor context and durable
+    caller record. Keep OpenCode-specific session, event, and permission
+    behavior at the adapter boundary, with a clear extension point for shell,
+    CI, remote, and other job backends.
   - Provide one supported non-blocking host integration that maps an
-    orchestrator launch to the accepted detached supervisor, submits the
-    configured implementer through the `as-is -> orchestrator -> implementer`
-    chain, and returns after a durable launch checkpoint rather than waiting
-    for worker completion or foreground process exit.
+    orchestrator delegation-tool call to the accepted detached supervisor,
+    resolves the child component and configured implementer from durable
+    records, establishes parentage from the active supervisor context, assigns
+    the attempt/runtime JobId, and returns after a durable launch checkpoint
+    rather than waiting for worker completion or foreground process exit.
+  - Run a harmless fresh real-OpenCode smoke in which an OpenCode-hosted agent
+    calls the supervisor-provided delegation tool. The evidence must show the
+    verified caller identity, derived parent, configured child launch, and
+    component-path/task-revision/attempt status after submission. Nested
+    OpenCode agent/session events are optional diagnostics and are not an
+    acceptance requirement.
    - Provide a user/as-is/orchestrator-invocable, read-only, machine-readable
      live-job status command or API addressable by component path and optional
      attempt. Repeated calls must resolve the related durable record without
      relying on an in-memory handle; a runtime JobId may be exposed only as
      diagnostic data and is not task identity. The response must report the
-     durable record, attempt, role/session chain,
+     durable record, attempt, verified role/derived parent chain (and optional
+     host-session diagnostics),
     supervisor and worker PIDs, process-group IDs and health, host status and
     outcome, stale classification, source-labelled budget observations, logs
     or their unavailable state, and the next safe action.
@@ -101,12 +112,16 @@ Integrate the accepted detached subprocess supervisor with the real
 as-is/orchestrator host path and expose a repeatable live-job observation
 surface. The integration must establish the user's stated behavior without
 turning a foreground OpenCode/task-tool call into a falsely asynchronous
-launch. The delegate protocol remains the semantic layer for parent-child
-scope, role attribution, component path, acceptance, handoff, and ancestor
-integration authority. The supervisor remains a host-neutral core for arbitrary
-job backends; OpenCode session, event, and permission behavior belongs only to
-its adapter. It must not replace durable task records with private runtime
-state or silently substitute a role.
+launch. Agents call the generic supervisor-provided delegation tool and state
+their semantic identity; the supervisor verifies the caller, derives parentage
+from its active context, resolves the child path and configured role, assigns
+attempt/runtime correlation, and returns after durable launch acceptance. The
+delegate protocol remains the semantic layer for parent-child scope, role
+attribution, component path, acceptance, handoff, and ancestor integration
+authority. The supervisor remains a host-neutral core for arbitrary job
+backends; OpenCode session, event, and permission behavior belongs only to its
+adapter. It must not replace durable task records with private runtime state or
+silently substitute a role.
 
 ## Decision Boundary
 
@@ -123,6 +138,13 @@ state or silently substitute a role.
   common context, and integration authority are derived from `as-is.md` and
   centrally supplied read-only context rather than duplicated in command
   arguments.
+- The agent-facing delegation request is intentionally smaller than a host
+  nesting event: caller semantic identity plus child component path and
+  optional expected task revision/attempt. The supervisor-issued active binding
+  verifies the caller; parent identity, configured worker, effective child
+  context, attempt assignment, and runtime JobId are resolved or assigned by
+  the supervisor. JobId remains diagnostic-only and path/revision/attempt is
+  the stable lookup identity.
 - Proactive permission profiles are inputs to the supervisor and selected
   adapter. Generic capability preflight belongs to the reusable supervisor;
   OpenCode-specific permission settings and event limitations belong only to
@@ -147,9 +169,11 @@ state or silently substitute a role.
    interface. This remains a separate
    acceptance slice from the launch seam.
 3. Wire the as-is/orchestrator path and fresh-host mediation to those
-   boundaries;
-   reject synchronous foreground fallback, wrong-role events, missing parent
-   links, and unavailable user-event bridges as durable blockers.
+   boundaries through the generic delegation tool; reject synchronous
+   foreground fallback, mismatched caller, missing parent, wrong role or
+   component, duplicate attempt, permission denial, and unavailable supervisor
+   as durable blockers. OpenCode nested event attribution is optional
+   diagnostics rather than a required semantic edge.
 4. Validate repeated status polling and the permission, stale, cancellation,
    recovery, cleanup, attribution, and connection-loss boundaries with harmless
    local evidence and a fresh host invocation.
@@ -183,9 +207,32 @@ resolved adapter/job specification; task meaning is derived from `as-is.md`
 rather than duplicated in command arguments. Generated JobId and parent-job identifiers
 remain optional runtime correlation data, not task identity.
 
+### Architectural correction: generic delegation-tool boundary
+
+The corrected model does not require OpenCode to understand delegation nesting
+or emit nested agent/session events. An active agent states its semantic
+identity to the supervisor-provided generic delegation tool; the supervisor
+verifies it against the supervisor-issued caller binding and durable caller
+record, derives parent identity from the active supervisor job/tool context,
+resolves the child component and configured worker from durable records, assigns
+the attempt and diagnostic-only JobId, launches through the selected adapter,
+and returns after durable launch acceptance. The child uses the same tool for
+further authorized delegation. OpenCode, shell, CI, and remote adapters only
+expose or translate this contract; they do not own nesting semantics.
+
+The full request, result, failure classes, and stable
+`component-path/task-revision/attempt` lookup identity are now authoritative in
+`execution-contract.md`. A new bounded `delegation-tool-boundary/` task record
+was created for the next implementation task with the configured worker
+`implementer`, but no worker was launched and no tool implementation is claimed
+in this correction. Historical accounting and the accepted public
+`component-status-watch` surface remain dependencies, not scope of that new
+task.
+
 The end-to-end host path is not ready. `opencode-adapter.md` records that the
-current `opencode run` and task-tool path is synchronous, that no validated
-OpenCode server/job mapping exists, and that live control is unimplemented.
+current `opencode run` and task-tool path is synchronous, that the generic
+delegation tool is not yet implemented, that no validated OpenCode server/job
+mapping exists, and that live control is unimplemented.
 The accepted supervisor exports `launch()` and `observe(handle)` as library
 APIs, while the delegated `component-status-watch` component now supplies the
 new path/attempt CLI and API boundary; its independent acceptance remains
@@ -198,9 +245,11 @@ classification, budget, and durable events, while the new status surface can
 join those observations only when the documented runtime map is available.
 The existing control-plane record-only output still has no runtime process
 chain. No validated SSH-disconnect observation or OpenCode live user-event
-bridge was found. These are blockers for the acceptance conditions above, not
-permission to substitute a host fallback or modify accepted implementation
-code outside the bounded child.
+bridge was found. Nested OpenCode event attribution is no longer an acceptance
+requirement under the correction; the missing generic tool implementation and a
+future tool-mediated smoke are the current blockers. These are not permission
+to substitute a host fallback or modify accepted implementation code outside
+the bounded child.
 
 At the initial child checkpoint, the launch adapter and a scoped status/watch
 implementation were present, but no full OpenCode host mediation was claimed.
@@ -275,14 +324,16 @@ Those are local fixture observations only. Fresh `opencode --version` and
 `opencode agent list` proved installed discovery (`1.17.18`, with `as-is`,
 `orchestrator`, and `implementer`), but no live model/session event bridge.
 
-The exact durable blocker is that this host cannot prove a live OpenCode
-session/event mediation with parent-linked task attribution or a real
-connection-loss/SSH-equivalent host-loss observation without an external model
-or provider service and an authorized loss harness. The child explicitly did
-not promote fixture-shaped events, process exit, missing private state, or
-discovery output to live-host evidence, did not retry or substitute a role, and
-did not invoke a foreground fallback. The component remains recoverable only
-after the required host capability is explicitly authorized and available.
+Under the earlier event-attribution criterion, the exact durable blocker was
+that this host could not prove a live OpenCode session/event mediation with
+parent-linked task attribution or a real connection-loss/SSH-equivalent
+host-loss observation without an external model or provider service and an
+authorized loss harness. The child explicitly did not promote fixture-shaped
+events, process exit, missing private state, or discovery output to live-host
+evidence, did not retry or substitute a role, and did not invoke a foreground
+fallback. The corrected criterion now treats nested event attribution as
+optional; the current child record names the unimplemented generic tool and
+missing tool-mediated smoke as the active blocker.
 
 ### Deterministic generic-boundary fixture
 
@@ -311,8 +362,9 @@ only. The adapter result explicitly records `openCodeEvidence: false`; no
 OpenCode command, model, provider, network, session, or event bridge was used.
 
 This fixture does not unblock the separate `opencode-host-integration` child:
-real OpenCode session/event mediation, parent-linked live task attribution, and
-real SSH-equivalent host-loss evidence remain unavailable and blocked.
+the generic tool-mediated OpenCode call/verified parent evidence and real
+SSH-equivalent host-loss evidence remain unavailable and blocked. Its
+parent-linked fixture events remain generic-boundary evidence only.
 
 ### Durable accounting audit
 
@@ -474,30 +526,86 @@ the accepted supervisor has no `job-map.json` writer, so production runtime
 diagnostics remain `missing`/`unavailable` while path/attempt lookup remains
 usable; no map producer was added.
 
+### Architectural-correction validation
+
+- Focused reference assertions passed for the generic request/result contract,
+  caller binding, derived parent, configured-role enforcement, stable identity,
+  all required failure classes, adapter neutrality, optional OpenCode
+  diagnostics, and the revised host-integration acceptance.
+- `python3 schemas/task-record-validator/task_record_validator.py
+  delegation-tool-boundary` and the same command for
+  `opencode-host-integration` both reported `VALID`. The focused validator unit
+  suite passed all 6 tests. The repository-wide validator remains blocked by
+  pre-existing mixed-record/configuration and aggregate budget/delegation
+  issues; no unrelated record was repaired.
+- `python3 -m json.tool .opencode/opencode.json`, the focused agent
+  front-matter/config check, fresh `opencode agent list`, and `git diff --check`
+  all passed. Fresh discovery exposed `as-is (primary)`, `orchestrator
+  (subagent)`, and `implementer (subagent)`; no role guard was weakened.
+- These are design, record, syntax, discovery, and whitespace observations
+  only. No worker was launched, no delegation tool implementation exists yet,
+  and no real tool-mediated OpenCode smoke was attempted. Host-reported cost
+  and root orchestrator wall-clock use remain unavailable.
+
+### Explicit subprocess-method scope switch
+
+The user has explicitly changed the next bounded implementation from the
+blocked OpenCode custom-tool path to a subprocess-backed host integration that
+must preserve the same caller/parent, configured-worker, non-blocking launch,
+stable identity, runtime-map, status/watch, permission, cancellation, cleanup,
+and controller-loss control-plane behavior. The existing
+`opencode-host-integration/` record remains a distinct blocked descendant and
+is not reopened or rewritten; its exact residual blocker is still the
+unproven OpenCode custom-tool/permission host boundary and tool-mediated smoke.
+
+The smallest new component record was created atomically at
+`subprocess-host-integration/as-is.md` for the configured `implementer`. It
+must reuse the accepted detached subprocess supervisor and adapter seams and
+the completed generic delegation boundary without changing those components,
+reviving systemd, touching untracked `control-plane.md`, or claiming actual
+OpenCode custom-tool invocation.
+
+The configured worker returned the component handoff in scoped commit
+`1207bce`, but the orchestrator's independent `bun test
+subprocess-host-integration/subprocess-host-integration.test.ts` rerun reported
+**4 pass, 1 fail, 80 expects**: after same-host controller termination, the
+detached child completed but cleanup returned `unavailable` rather than the
+required `cleanup-complete` at test line 463. The component record was durably
+re-blocked; the worker's earlier three passing runs do not override this fresh
+contradiction. Accepted supervisor, launch-adapter, status/watch, and generic
+delegation regressions passed independently. No completion commit is accepted
+for the new scope until the configured implementer repairs this boundary and a
+fresh independent rerun passes. The new child therefore remains non-terminal;
+the original OpenCode custom-tool/permission blocker remains distinct and
+unchanged.
+
 ## Result
 
 The bounded adapter-to-supervisor launch slice is complete in child component
 `opencode-launch-adapter`, but this parent task is not complete. The full
-pipeline is ready only when a real user/as-is invocation reaches the configured
-implementer through the orchestrator and accepted detached supervisor, returns
-before worker completion, and can be repeatedly inspected by component path
-(and optional attempt) with the required durable and process-chain evidence. A
-record-only task status or the supervisor's internal typed API is not sufficient
-for that claim; a runtime JobId may supplement the response but cannot authorize
-it.
+pipeline is ready only when a real user/as-is invocation can call the generic
+delegation tool, the supervisor verifies the caller and derives parentage,
+launches the configured implementer through the accepted detached supervisor,
+returns before worker completion, and exposes repeated component-path status
+(and optional attempt). A record-only task status or the supervisor's internal
+typed API is not sufficient for that claim; a runtime JobId may supplement the
+response but cannot authorize it. Nested OpenCode event attribution is optional
+diagnostic evidence, not a required acceptance field.
 
 ## Blockers And Escalations
 
-Current blockers are the missing supervisor job-map writer (the status/watch
-child reports map absence as explicit unavailable runtime observation), the
-unproven live OpenCode session/event and SSH-disconnect capabilities, and the
-absence of fresh-host end-to-end mediation. The accepted foundation, its
-scoped repair, launch adapter, and status/watch handoff do not establish those
-host capabilities. Do not substitute a foreground `opencode run`, direct
-`implementer` target, `general`/`explore` fallback, private runtime inspection,
-automatic worker retry, or systemd revival. The completed child handoffs do not
-make this parent complete; the parent remains blocked on its own host-boundary
-acceptance conditions.
+Current blockers are the not-yet-implemented generic delegation tool, the
+missing supervisor job-map writer (the status/watch child reports map absence as
+explicit unavailable runtime observation), the unproven tool-mediated fresh
+OpenCode smoke, and the separate SSH-disconnect capability. The accepted
+foundation, its scoped repair, launch adapter, and status/watch handoff do not
+establish those host capabilities. The latest real smoke's absent nested event
+attribution is retained as optional diagnostic evidence, not treated as a
+requirement or as proof of the new tool boundary. Do not substitute a
+foreground `opencode run`, direct `implementer` target, `general`/`explore`
+fallback, private runtime inspection, automatic worker retry, or systemd
+revival. The completed child handoffs do not make this parent complete; the
+parent remains blocked on its own host-boundary acceptance conditions.
 
 The new `opencode-host-integration` child is an additional non-terminal
 `blocked` descendant. Its local map, detached wrapper, status/watch composition,
@@ -508,6 +616,20 @@ not observe a real connection-loss or SSH-equivalent host-loss boundary without
 an external model/provider service and an authorized loss harness. These exact
 capability gaps are recorded in the child record; no fixture-shaped event,
 process exit, missing private state, or discovery result is completion evidence.
+
+The new `delegation-tool-boundary` child is a `ready`, non-terminal design/task
+record for the next authorized implementation. It is configured for
+`implementer`, has no descendants, and was created without launching a worker
+or changing implementation code. Its acceptance requires the generic request,
+caller verification, derived parent, configured-role enforcement, attempt and
+diagnostic JobId handling, explicit failure states, adapter neutrality, and the
+focused real-smoke handoff described in the durable specifications.
+
+This architectural correction is not a completed root handoff: the existing
+host-integration descendant is blocked and the new tool-boundary descendant is
+ready. The `committing-completed-work` precondition therefore is not satisfied;
+no commit was attempted. The pre-existing untracked `control-plane.md` remains
+untouched and outside this scope.
 
 ## Recovery
 
@@ -520,17 +642,20 @@ Git commit `d6b03b7`; the accepted supervisor handoff is `e8fb1da`, its repair i
 `57ed2d2`, and the separate status/watch repair handoff is `3a02974` (with the
 implementation handoff at `85116d5`). Do not restore an archive folder, revive
 systemd, infer host capability from process exit, or overwrite this record's
-blocker without fresh evidence.
+blocker without fresh evidence. `delegation-tool-boundary/as-is.md` is the next
+implementation boundary; begin from it only after an authorized delegation.
 
 ## Next Action
 
 The launch-seam child, supervisor repair, and status/watch repair are terminal
 and have separate scoped handoffs (`94e3d04`, `57ed2d2`, and `3a02974`). The
-new `opencode-host-integration` child is blocked with no completion commit, so
-the parent remains blocked and non-terminal. Stop here without retrying or
-substituting a role. The next authorized action requires an explicitly
-available local live OpenCode session/event fixture or approved external model
-connection, plus a real connection-loss or SSH-equivalent loss harness; then
-the configured `implementer` may recover the existing child record. Do not
-expand into historical aggregation, full permission-event UI, connection-loss
-claims without host evidence, or systemd revival.
+`opencode-host-integration` child remains blocked with no completion commit, and
+the new `delegation-tool-boundary` child is ready but has no worker attempt, so
+the parent remains blocked and non-terminal. Stop here without launching an
+implementer in this turn or substituting a role. The next authorized action is
+the configured `implementer` implementation of the generic delegation tool;
+only after that handoff may a fresh real OpenCode smoke prove tool-mediated
+caller verification, derived parentage, configured child launch, and
+component-path status. Do not expand into historical aggregation, public
+status/watch implementation, full permission-event UI, unproven connection-loss
+claims, or systemd revival.

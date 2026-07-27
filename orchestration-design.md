@@ -142,11 +142,48 @@ OpenCode-specific.
    is prematurely implemented here. The retired systemd flow remains retired
    and is not an active adapter or recovery requirement.
 
-OpenCode's primary/subagent behavior drives the OpenCode adapter's mediation
-shape at that boundary: a supported OpenCode path must preserve
-`as-is -> orchestrator -> configured worker` and reject direct or wrong-role
-fallbacks. That observation does not constrain a non-OpenCode adapter or the
-supervisor core.
+OpenCode's primary/subagent behavior informs the OpenCode adapter's tool
+exposure at that boundary, but it does not define delegation semantics. A
+supported OpenCode path must preserve `as-is -> orchestrator -> configured
+worker` through the generic supervisor-provided delegation tool and reject
+direct or wrong-role fallbacks. OpenCode is not required to understand
+delegation nesting or emit nested agent/session events. That observation does
+not constrain a non-OpenCode adapter or the supervisor core.
+
+### Generic Delegation-Tool Boundary
+
+Agents receive a host-neutral supervisor-provided delegation tool/skill. The
+logical operation is `delegate-component` (a design contract only; no current
+implementation is implied). The agent supplies its own semantic identity:
+role, component path, durable task revision, and one-based attempt. The
+supervisor verifies those values against a supervisor-issued active caller
+binding and a fresh read of the caller's durable record. It never trusts an
+arbitrary role, session ID, parent ID, or event payload supplied by the agent.
+
+The tool accepts the canonical child component path and optional expected child
+task revision and attempt. The supervisor resolves the child record, parent
+relationship, record revision, configured worker, effective constraints,
+authority, and adapter/job specification from durable state and centrally
+supplied context. It derives the parent from the active supervisor job/tool
+context; the agent cannot spoof or choose it. It assigns the next valid attempt
+and a runtime JobId, performs the role and permission checks, establishes the
+durable parent/child edge, and launches through the selected adapter. The
+returned launch checkpoint is non-blocking: it confirms durable launch
+acceptance, not child completion. The stable lookup key is
+`component-path/task-revision/attempt`; JobId is diagnostic-only.
+
+Missing or mismatched caller, missing parent, wrong role or component,
+duplicate attempt, permission denial, and unavailable supervisor are explicit
+failure outcomes. No host fallback, direct worker launch, or role substitution
+is permitted. A child uses the same tool for further authorized delegation,
+with its own active context becoming the next verified caller context. Host
+adapters only expose/translate the tool and carry the supervisor-issued
+binding. OpenCode, shell, CI, and remote adapters therefore share the same
+contract without sharing nesting or session topology.
+
+The full request/result and failure taxonomy are authoritative in
+`execution-contract.md`. This design does not add a public configuration key
+or claim that a tool implementation exists.
 
 ### Accounting And Runtime Identity
 
@@ -273,9 +310,11 @@ See `as-is.md` for transient current project task state.
   component records. They do not need a worker session, private runtime state,
   or a supervisor handle to answer the durable part of a question.
 - Substantive work delegates through the orchestrator. The orchestrator rereads
-  the component record, selects the configured adapter/supervisor/backend path,
-  and supplies the minimal component/job envelope; a host cannot bypass that
-  semantic boundary with a direct worker launch.
+  the component record and calls the generic supervisor-provided delegation
+  tool with its verified semantic identity and the child component path. The
+  supervisor resolves the configured worker, parent edge, attempt, and
+  adapter/supervisor/backend path; a host cannot bypass that semantic boundary
+  with a direct worker launch or an arbitrary nested-agent event.
 - A submitting host turn is a control-plane turn, not the lifetime of a worker.
   Launch submits or spawns a worker attempt to a supervisor-owned job or a
   supported server job, records a durable launch checkpoint, and returns
@@ -289,7 +328,8 @@ See `as-is.md` for transient current project task state.
   later observation, cancellation, stale detection, and recovery. Later wake or
   check-in operations poll the durable task record and the job/process or
   session health; runtime health supplements rather than replaces durable task
-  evidence.
+  evidence. Host session events are optional diagnostics and are not required
+  to reconstruct delegation parentage when the generic tool recorded it.
 - If the selected host cannot safely detach or submit a job with that ownership,
   observation, and cancellation boundary, the orchestrator records a durable
   capability blocker and does not claim asynchronous support.
