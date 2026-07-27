@@ -3,7 +3,7 @@ as-is-version: 2
 task:
   status: completed
   worker: implementer
-  updated: 2026-07-27T17:00:05Z
+  updated: 2026-07-27T17:22:30Z
 constraints:
   cost:
     currency: USD
@@ -18,38 +18,154 @@ constraints:
   execution:
     wall-clock:
       allocated-seconds: 240
-      spent-seconds: 0
+      spent-seconds: 3.406739
       reserve-seconds: 60
-      source: unavailable
+      source: host-monotonic-validation-wrapper
   external-effects: require-current-turn-user-approval
 acceptance:
-  - Research the installed OpenCode CLI when available using fresh version and
-    help output, and consult authoritative OpenCode documentation or repository
-    sources where available. Record exact URLs or local commands/output, source
-    freshness, and the exact version scope. Do not claim that `--auto`,
-    `--yolo`, or any other option enables all-permissions unless authoritative
-    source evidence or local installed CLI help verifies it; record conflicts
-    rather than resolving them by assertion.
-  - Update only this component record with one precise, actionable TODO for
-    future adapter work. The TODO must require preflight detection and use of
-    the verified supported all-permissions/YOLO option for the installed
-    OpenCode version only inside an explicitly authorized disposable run with
-    bounded scope; it must not implement adapter behavior or modify related
-    components or documents.
-  - The TODO must require post-launch fail-closed handling when a permission
-    request occurs outside preflight or cannot be auto-approved: record the
-    permission reason and state, terminate the OpenCode subprocess/process
-    group and associated resources cleanly, and prevent a hung detached run.
-  - The TODO and its evidence must define acceptance checks for version/flag
-    detection, the selected permission profile, graceful shutdown and cleanup,
-    no leftover processes/sessions/runtime entries, and residual risk when the
-    CLI option is version-dependent.
-  - Validate the durable record without changing parent or sibling records,
-    `opencode-host-integration`, subprocess components, systemd history,
-    `control-plane.md`, or the root `as-is.md`; record actual host-reported cost,
-    host-observed wall-clock use, validation, residual risk, recovery, and next
-    action before handoff. There are no child records.
+  - Preflight the installed OpenCode version and `opencode run --help` or an
+    equivalent capability surface before launch. For verified OpenCode
+    1.17.18, construct the documented `--auto` path and preserve explicit
+    deny rules. For an unsupported version, failed capability probe, or drift,
+    reject or use a safe non-auto path; never assume hidden `--yolo` aliases.
+  - Keep the selected permission profile and secret-free command construction
+    observable. If a permission request appears after launch or cannot be
+    approved under the preflight profile, fail closed: durably record the
+    permission reason/request/state, terminate the OpenCode subprocess and
+    process group plus associated resources, await bounded cleanup, and prevent
+    a detached hang.
+  - Reuse the accepted supervisor/launch seam and add focused deterministic
+    coverage for capability detection, `--auto` construction, explicit deny
+    handling, unsupported/version drift, unexpected permission detection,
+    process-group termination, bounded cleanup, and no leftover runtime
+    entries. Do not add a parallel execution path or weaken security for tests.
+  - Run one explicitly authorized, disposable, bounded real OpenCode smoke
+    with the installed CLI and `--auto` only when credentials are already
+    available. Use a temporary project, harmless prompt/marker, strict timeout
+    and budget, redact output, persist no transcript or secret, clean every
+    process/resource, and claim only the permission/preflight path. If
+    provider/auth/permission infrastructure blocks it, record the exact
+    blocker and retain deterministic evidence without retry loops.
+  - Change only `opencode-adapter/` (including this record); do not modify
+    `opencode-host-integration`, `subprocess-host-integration`, systemd
+    history, root unrelated work, or untracked `control-plane.md`. There are
+    no child records. Record validation, residual risk, recovery, next action,
+    host-reported actual cost, and host-observed wall-clock use before handoff.
 ---
+
+## Task Revision
+
+`opencode-auto-permission-2026-07-27`
+
+# Current OpenCode Auto-Permission Task
+
+## Purpose
+
+Make the smallest component-local adapter change that starts verified
+OpenCode `1.17.18` runs with `--auto` as the first permission strategy while
+preserving explicit deny rules and fail-closed cleanup. The existing research
+handoff below is retained as historical evidence for this new bounded task.
+
+## Requirement
+
+Implement the version/capability-gated permission strategy at the existing
+adapter/launch seam. Read the repository's execution contract, supervisor,
+launch seam, adapter documentation, and local patterns as named dependencies,
+but write only inside this component directory. Do not change host integration,
+the reusable supervisor, sibling components, systemd history, root records, or
+the untracked control-plane document. The real smoke is authorized by the
+current user request only within the disposable bounds in the acceptance list.
+
+## Plan
+
+1. Inspect the existing adapter and supervisor seam and choose the smallest
+   component-local implementation that reuses it rather than creating a second
+   execution path.
+2. Add deterministic capability/command/deny/permission/termination tests and
+   implementation, with secret-free observable evidence.
+3. Run focused tests and independent checks, then perform at most one bounded
+   real installed-CLI smoke when local credentials make it possible.
+4. Record the exact evidence, accounting, cleanup scan, residual risk, and
+   recovery checkpoint before the scoped handoff.
+
+## Progress
+
+The prior record was completed for research only. This bounded implementation
+task is complete. Its installed-CLI and official-source evidence remains below
+and is not discarded. No child records were permitted or created; implementation
+and validation stayed inside this component while the existing supervisor and
+launch adapter were composed read-only.
+
+## Validation
+
+- `bun test adapter.test.ts` in this component: **7 passed, 0 failed**. The
+  deterministic suite covers exact version/help capability detection,
+  documented `--auto` construction, explicit deny precedence, unsupported and
+  failed probe rejection, permission-event parsing, fail-closed durable state,
+  process-group termination, bounded cleanup, and no leftover runtime entries.
+- `bun test adapter.test.ts` in `opencode-launch-adapter/`: **2 passed, 0
+  failed**. This was a read-only adjacent seam regression check; no file in
+  that component changed.
+- `bun build --target bun --outdir /tmp/opencode-adapter-check adapter.ts
+  runner.ts`: passed; both component modules bundled successfully.
+- Fresh installed-CLI preflight through `preflightOpenCode("opencode")`:
+  observed version `1.17.18`, version exit `0`, help exit `0`, documented
+  `--auto` present, explicit-deny wording present, selected strategy `auto`.
+  The help output is emitted on stderr by this CLI and the probe observes both
+  output channels. No provider/model run occurred.
+- `git diff --check -- opencode-adapter`: passed. Git scope inspection showed
+  only this component changed; no parent, sibling, supervisor, systemd, root,
+  or control-plane artifact was modified.
+- Deterministic cleanup evidence observed `processGroupAlive: false`,
+  `supervisorAlive: false`, `supervisorProcessGroupAlive: false`, and
+  `runtimeExists: false`; the disposable prompt-file directory was also
+  removed. The durable failure checkpoint preceded termination and recorded a
+  non-secret permission reason/request/state plus a bounded termination event.
+- Host-observed monotonic wall-clock for the final validation wrapper was
+  `3.406739` seconds (`VALIDATION_WALL_CLOCK_SECONDS`); this is validation
+  elapsed time, not a claim about an OpenCode provider run.
+- Host-reported monetary cost is **unavailable**. No provider/model call was
+  made by validation. The configured fallback is the recorded validation
+  elapsed-seconds metric, not monetary cost.
+- Real OpenCode smoke outcome: **not run; blocked before provider launch**.
+  `opencode auth list` was inspected without printing credentials (exit `0`,
+  non-empty local output), but the current accepted launch seam does not prove
+  disposable isolation of OpenCode's credential/session store. Running a real
+  provider request would risk persisting an OpenCode transcript outside this
+  component, contrary to the smoke's no-transcript/no-secret condition. No
+  retry was made. Deterministic preflight and permission/process cleanup
+  evidence is retained instead.
+
+## Result
+
+Implemented the component-local, capability-gated OpenCode permission adapter.
+Verified `1.17.18` selects documented `--auto`; explicit deny rules remain
+authoritative; unsupported, drifted, or failed capability evidence rejects
+before launch; unexpected or non-approvable permission events are durably
+recorded and fail closed through the existing detached launch/supervisor seam.
+
+## Blockers And Escalations
+
+The authorized real smoke remains blocked by the lack of a proven disposable
+OpenCode credential/session-store boundary. This is an infrastructure blocker,
+not a deterministic adapter-test failure; no provider call or retry occurred.
+
+## Recovery
+
+Recovery checkpoint: reread this record, `adapter.ts`, `runner.ts`, and
+`adapter.test.ts`; rerun the focused tests/build and inspect the durable
+permission-failure and cleanup assertions. Preserve unrelated worktree changes
+and do not retry the blocked real smoke unless a disposable credential/session
+boundary is explicitly established.
+
+## Next Action
+
+The orchestrator should review the component-only validation evidence and
+scoped completed-work commit. Any future real smoke must first establish
+disposable OpenCode credential/session storage; do not change the reusable
+supervisor or launch adapter for this handoff.
+
+## Previous Research Handoff (retained)
 
 # OpenCode Adapter
 
