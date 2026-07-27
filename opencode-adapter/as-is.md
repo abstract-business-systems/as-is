@@ -332,6 +332,23 @@ by assuming that a hidden alias is portable.
   Do not implement this behavior or modify the adapter, parent, sibling, or
   related records in this task.
 
+- **SHELVED TODO — defer custom `delegate-component` tool permission mediation:**
+  Custom-tool permission/mediation is deferred and is not a current acceptance
+  blocker for the accepted version-gated `--auto` path. When this work is
+  resumed, an actual OpenCode-hosted agent must invoke the supervisor-provided
+  generic `delegate-component` tool. Acceptance must observe caller identity
+  verified from the active binding, parentage derived by the supervisor, and
+  enforcement of the configured child role, component, and attempt. The launch
+  must return only after durable acceptance, and permission denial or an
+  unexpected permission request plus the resulting cleanup behavior must be
+  observed. OpenCode nesting or event attribution may remain diagnostic, but
+  must not become the authority for caller identity, parentage, configured
+  child selection, launch acceptance, permission decisions, or cleanup. This
+  shelved boundary builds on, and must remain linked to, the completed
+  version-gated `--auto` preflight and fail-closed cleanup evidence recorded in
+  [Validation](#validation) and [Result](#result); it does not reopen or
+  invalidate that accepted implementation.
+
 ## Validation
 
 Passed the task-specific evidence checks and record-scope checks:
