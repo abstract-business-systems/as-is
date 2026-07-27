@@ -567,7 +567,20 @@ export class DetachedSubprocessAdapter implements DelegateAdapter {
     const handle = decodeHandle(input.runtimeHandle);
     if (!handle) return { accepted: false, reason: "persisted subprocess runtime handle is missing or malformed" };
     try {
-      const cleaned = await cleanupSupervisor(handle);
+      let cleaned = await cleanupSupervisor(handle);
+      const retryableReasons = new Set([
+        "process group still owned or health unavailable",
+        "supervisor still owned or health unavailable",
+        "supervisor process group still owned or health unavailable",
+      ]);
+      // Terminal durable state can become visible just before the detached
+      // supervisor exits. Wait through that bounded handoff instead of
+      // converting a transient liveness observation into unavailable.
+      for (const delayMilliseconds of [25, 50, 100, 200, 400, 800, 1_200]) {
+        if (cleaned.cleaned || !retryableReasons.has(cleaned.reason ?? "")) break;
+        await new Promise<void>((resolvePromise) => setTimeout(resolvePromise, delayMilliseconds));
+        cleaned = await cleanupSupervisor(handle);
+      }
       return cleaned.cleaned ? { accepted: true } : { accepted: false, reason: cleaned.reason };
     } catch (error) {
       return { accepted: false, reason: `subprocess cleanup unavailable: ${errorMessage(error)}` };

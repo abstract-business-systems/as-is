@@ -3,7 +3,7 @@ as-is-version: 2
 task:
   status: completed
   worker: implementer
-  updated: 2026-07-27T16:51:16Z
+  updated: 2026-07-27T18:15:06Z
 constraints:
   cost:
     currency: USD
@@ -18,7 +18,7 @@ constraints:
   execution:
     wall-clock:
       allocated-seconds: 300
-      spent-seconds: 16.866818
+      spent-seconds: 45.037263
       reserve-seconds: 60
       source: host:monotonic-validation-wrapper
   external-effects: require-current-turn-user-approval
@@ -152,6 +152,27 @@ and patches the existing private map with the post-supervisor record hash
 before the generic boundary continues. This preserves the accepted generic
 behavior without erasing either durable checkpoint.
 
+The orchestrator's independent rerun found a lifecycle race that prevented
+acceptance: the controller-loss test reached the detached child's completed
+state, but the subsequent supervisor cleanup returned `unavailable` instead of
+`cleanup-complete` at
+`subprocess-host-integration/subprocess-host-integration.test.ts:463`. The
+worker's three earlier runs passed, but this fresh independent observation is a
+contradiction at the required cleanup boundary. No implementation change or
+worker retry was authorized in that earlier turn; the task was re-blocked
+rather than promoted on the worker's assertion.
+
+The user then explicitly authorized the configured `implementer` repair of this
+same component-local cleanup boundary. The repair keeps the accepted supervisor
+unchanged and adds only a bounded adapter-side wait for the detached supervisor
+or its process group to finish exiting. Permanent missing-state, filesystem,
+and incomplete-durable-evidence failures remain unavailable rather than being
+retried or inferred as success.
+
+The repair was applied and the component was rerun independently. The earlier
+failure remains preserved as the reason for this repair incarnation; it is not
+being erased or reclassified as a passing observation.
+
 ## Validation
 
 `verification-discipline` selected an end-to-end local integration check because
@@ -177,8 +198,16 @@ commands and results follow:
   It reported `HOST_MONOTONIC_WALL_CLOCK_SECONDS=12.081275` and
   `RUN_EXIT_CODES=[0, 0, 0, 0, 0]`: focused **5/0, 79 expects**;
   supervisor **10/0, 106 expects**; launch adapter **2/0, 30 expects**;
-  status/watch **4/0, 46 expects**; and generic delegation **10/0, 120
-  expects**.
+   status/watch **4/0, 46 expects**; and generic delegation **10/0, 120
+   expects**.
+- The independent orchestrator rerun was `bun test
+  subprocess-host-integration/subprocess-host-integration.test.ts`. It reported
+  **4 pass, 1 fail, 80 expect() calls**. The failure was the controller-loss
+  cleanup assertion at line 463: expected `cleanup-complete`, received
+  `unavailable`. The same independent run of the accepted supervisor,
+  launch-adapter, status/watch, and generic delegation suites passed (**10/0,
+  106 expects; 2/0, 30 expects; 4/0, 46 expects; 10/0, 120 expects**). This is
+  an orchestrator-observed contradiction, not evidence that cleanup is safe.
 - `bun --check subprocess-host-integration/subprocess-host-integration.ts`
   exited `0`. `bun build --no-bundle subprocess-host-integration/subprocess-host-integration.ts --outfile /dev/null`
   and the equivalent command for
@@ -198,15 +227,43 @@ commands and results follow:
 
 Host-reported monetary cost is **unavailable**. The supplied `spent: 0.00`
 remains a non-billing placeholder and is not represented as provider cost. The
-host-observed monotonic validation use recorded here is **16.866818 seconds**:
-4.785543 seconds for the final repeated focused bundle plus 12.081275 seconds
-for the accepted seam regression bundle, below the 300-second allocation. This
-is validation elapsed time, not monetary usage or a measurement of the full
+host-observed monotonic validation use recorded here is **45.037263 seconds**:
+the prior **16.866818 seconds**, the repaired focused suite's ten independent
+runs (**16.029468 seconds**), and the final sequential focused/regression
+bundle (**12.140977 seconds**), below the 300-second allocation. This is
+validation elapsed time, not monetary usage or a measurement of the full
 implementer turn.
+
+### Authorized Cleanup-Repair Validation
+
+- The repaired focused command `bun test
+  subprocess-host-integration/subprocess-host-integration.test.ts` passed **5
+  pass, 0 fail, 84 expect() calls**.
+- Ten independent sequential reruns of that focused command passed **5 pass, 0
+  fail, 84 expect() calls** each, with
+  `HOST_MONOTONIC_WALL_CLOCK_SECONDS=16.029468` and
+  `RUN_EXIT_CODES=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]`.
+- The final sequential regression bundle passed: subprocess host **5/0, 84
+  expects**; supervisor **10/0, 106 expects**; launch adapter **2/0, 30
+  expects**; status/watch **4/0, 46 expects**; and generic delegation **10/0,
+  120 expects**. The bundle measured
+  `HOST_MONOTONIC_WALL_CLOCK_SECONDS=12.140977` and
+  `RUN_EXIT_CODES=[0, 0, 0, 0, 0]`.
+- `bun --check subprocess-host-integration/subprocess-host-integration.ts`,
+  no-bundle builds for the implementation and test, scoped task-record
+  validation, and `git diff --check -- subprocess-host-integration` passed.
+- Post-suite process scanning found no subprocess-host controller, detached
+  supervisor, or matching worker process. No `/tmp/as-is-subprocess-host-*`
+  fixture roots remained.
+- The repair changes only the component-local adapter and this record. The
+  accepted supervisor, generic delegation boundary, launch adapter,
+  status/watch implementation, mock fixture, OpenCode integration, and root
+  records were not modified by this repair.
 
 ## Result
 
-Completed. The smallest local subprocess-backed host integration now accepts
+The configured worker implementation and authorized cleanup repair provide the
+smallest local subprocess-backed host integration. The local evidence accepts
 only the normalized caller/child request through the accepted generic boundary,
 derives parent identity from the active supervisor binding, rereads durable
 caller and child records, resolves the configured `implementer`, assigns the
@@ -237,16 +294,23 @@ Exact changed-artifact set:
 - `subprocess-host-integration/subprocess-host-integration.test.ts`
 - `subprocess-host-integration/as-is.md`
 
-There are no descendants (`maximum-children: 0`), so the terminal descendant
-set is empty and there are no failed or cancelled descendants to account for.
+There are no descendants (`maximum-children: 0`), so the descendant set is
+empty; the independent validation failure belongs to this task and is not a
+descendant result.
 
 ## Blockers And Escalations
 
-No implementation blocker remains for the bounded local subprocess host path.
-Residual risk is limited to POSIX `setsid`/process-group semantics, the
-host-unavailable billing surface, the accepted generic-to-supervisor checkpoint
-composition documented in Progress, and the fact that controller-loss evidence
-is same-host local process termination only. It does not prove general SSH loss,
+The earlier controller-loss cleanup blocker is resolved at the component-local
+adapter boundary. Cleanup now waits through the bounded detached-supervisor
+exit transition only for the three observed transient liveness outcomes; it
+still returns unavailable for missing state, failed filesystem removal, or
+incomplete durable evidence. The prior failure remains retained above as
+historical repair evidence.
+
+Residual risk also includes POSIX `setsid`/process-group semantics, the
+host-unavailable billing surface, the accepted generic-to-supervisor
+checkpoint composition documented in Progress, and same-host-only
+controller-loss evidence. The implementation does not prove general SSH loss,
 remote host recovery, OpenCode session/event mediation, OpenCode custom-tool
 exposure, provider/model use, or a live approval UI. Those remain explicit
 OpenCode/host blockers rather than fallback claims.
@@ -259,13 +323,15 @@ focused command `bun test
 subprocess-host-integration/subprocess-host-integration.test.ts`; no private
 runtime state is required. If a handoff is interrupted, rerun the focused test,
 the accepted seam regressions, the no-bundle checks, the scoped validator, and
-the process/whitespace checks. Preserve the non-fallbacking failure taxonomy and
-do not revive systemd or claim OpenCode evidence.
+the process/whitespace checks. Preserve the non-fallbacking failure taxonomy,
+the bounded cleanup retry, and do not revive systemd or claim OpenCode evidence.
 
 ## Next Action
 
-The orchestrator must independently inspect this completed record and scoped
-diff, rerun the selected checks as needed, account for the residual OpenCode and
-controller-loss limits, and commit only this component's durable handoff with
-`committing-completed-work`. No parent, sibling, accepted dependency, systemd
-history, or external service was changed.
+The configured implementer repair is complete, all descendants are terminal by
+the component's zero-child boundary, and the scoped handoff is eligible for
+`committing-completed-work`. The parent/root task remains blocked by the
+separate unproven OpenCode custom-tool path; this completion does not claim
+OpenCode, provider, network, remote-host, or general SSH-loss evidence. No
+parent, sibling, accepted dependency, systemd history, or external service was
+changed.
