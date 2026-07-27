@@ -111,6 +111,43 @@ See `agent-skills.md` for the current taxonomy and definitions.
   Siblings do not mutate each other's records or depend on another active
   sibling's mutable state.
 
+### Delegate, Supervisor, And Adapter Layers
+
+The delegation model has three separate responsibilities. Keeping them
+separate allows the observed behavior of one host, especially OpenCode, to be
+adapted without making the supervisor or the reusable orchestration model
+OpenCode-specific.
+
+1. **Delegate protocol / semantic layer.** The parent and child records define
+   component scope and path, parent-child authority, configured role and role
+   attribution, the bounded requirement, effective task constraints,
+   acceptance conditions, validation, durable handoff, and which nearest common
+   ancestor may integrate the result. Descendant closure and failed/cancelled
+   child accounting are semantic completion rules. These facts are derived from
+   the component `as-is.md` records and remain valid for every backend.
+2. **Supervisor core.** The reusable supervisor owns host-neutral job and
+   attempt IDs, lifecycle, detached execution, runtime state, proactive
+   capability-profile preflight, logs/events, polling/watch, cancellation,
+   durable-heartbeat and stale detection, cleanup, and source-labelled cost and
+   wall-clock accounting. It supervises arbitrary job backends through a
+   backend interface. It does not know OpenCode session topology, command-line
+   flags, nested-agent rules, or provider billing, and it cannot replace task
+   records as authority.
+3. **Host adapter.** The selected adapter resolves a backend/job
+   specification from the records and effective configuration, maps the
+   delegate protocol to host sessions or commands, supplies capability facts
+   and permission-profile mapping, and translates host events and limitations
+   back into the host-neutral supervisor boundary. OpenCode is one possible
+   adapter. Shell, CI, remote, and other adapters remain extension points; none
+   is prematurely implemented here. The retired systemd flow remains retired
+   and is not an active adapter or recovery requirement.
+
+OpenCode's primary/subagent behavior drives the OpenCode adapter's mediation
+shape at that boundary: a supported OpenCode path must preserve
+`as-is -> orchestrator -> configured worker` and reject direct or wrong-role
+fallbacks. That observation does not constrain a non-OpenCode adapter or the
+supervisor core.
+
 ### Accounting And Runtime Identity
 
 The change log is the concise cumulative functional and non-functional history
@@ -232,7 +269,14 @@ See `as-is.md` for transient current project task state.
   all decisions that a specialist can make within its delegated boundary.
 - It is self-scheduling: it wakes at self-scheduled times to inspect the task
   state and move the process forward. Wake timing is configurable.
-- An as-is/OpenCode turn is a control-plane turn, not the lifetime of a worker.
+- User and as-is queries remain in-process, read-only queries over the root and
+  component records. They do not need a worker session, private runtime state,
+  or a supervisor handle to answer the durable part of a question.
+- Substantive work delegates through the orchestrator. The orchestrator rereads
+  the component record, selects the configured adapter/supervisor/backend path,
+  and supplies the minimal component/job envelope; a host cannot bypass that
+  semantic boundary with a direct worker launch.
+- A submitting host turn is a control-plane turn, not the lifetime of a worker.
   Launch submits or spawns a worker attempt to a supervisor-owned job or a
   supported server job, records a durable launch checkpoint, and returns
   without waiting for worker completion.
@@ -353,6 +397,12 @@ that evidence. The contract intentionally leaves host selection, transport,
 session/process behavior, scheduling, retry/backoff policy, and measurement
 implementation to later adapter and recovery increments.
 
+The contract's semantic delegate protocol and its supervisor lifecycle are
+independent of the OpenCode adapter. OpenCode-specific session, event,
+permission, and role-mediation behavior belongs only to that adapter; a shell,
+CI, remote, or other adapter may provide a different backend mapping without
+changing the parent-child protocol or supervisor responsibilities.
+
 ### Non-Blocking Job Model
 
 The execution boundary has two distinct lifetimes:
@@ -361,10 +411,12 @@ The execution boundary has two distinct lifetimes:
    validates the record and allocation, submits or spawns one worker attempt,
    and returns after the supervisor or supported server job has accepted the
    attempt and the durable launch checkpoint has been written.
-2. The supervisor/job lifetime owns the long-running `as-is -> orchestrator ->
-   implementer` mediation, its process group, logs, events, and private
-   transient runtime state. It persists durable checkpoints and remains
-   independently observable after the submitting turn returns.
+2. The supervisor/job lifetime owns the long-running delegated attempt, its
+   process group or backend execution boundary, logs, events, and private
+   transient runtime state. The selected adapter owns any host-specific
+   `as-is -> orchestrator -> configured worker` mediation. The supervisor
+   persists durable checkpoints and remains independently observable after the
+   submitting turn returns.
 
 The supervisor/job must expose enough evidence for a later orchestrator wake or
 check-in to poll the durable component record and process/session health, request
@@ -385,11 +437,20 @@ nested navigation, detached execution, or asynchronous lifecycle support.
 
 ### Minimal Execution Envelope
 
-The minimal dogfood path uses an orchestrator role and an implementer role. Both
-receive repository instructions, applicable design principles, and permitted
-skills as central read-only context. The component record supplies only its
-bounded requirement, effective constraints, acceptance conditions, configured
-worker, and cost and wall-clock allocations.
+The minimum durable launch envelope is intentionally smaller than a copied
+prompt or task record. It contains the component path, durable task revision and
+attempt, the current record revision, and an adapter/job specification resolved
+from the component
+record and effective configuration. The component `as-is.md` supplies the
+bounded requirement, configured worker, effective constraints, acceptance
+conditions, and cost and wall-clock allocations; repository instructions,
+design principles, and permitted skills are centrally supplied read-only
+context. None of those durable facts is duplicated in command arguments.
+
+The minimal dogfood path uses an orchestrator role and an implementer role. The
+selected adapter may carry host-private session or command details separately,
+but the supervisor receives a normalized, secret-free job specification and a
+proactive capability profile rather than OpenCode-specific assumptions.
 
 1. The orchestrator reads the parent context, rejects a lower-authority
    weakening constraint, and creates a missing child record atomically in
@@ -397,9 +458,10 @@ worker, and cost and wall-clock allocations.
 2. The orchestrator verifies that the child allocation, including its reserve,
    is within the parent allocation, then delegates the component to the record's
    configured worker.
-3. The orchestrator submits or spawns the attempt through the supervisor or
-   supported server job, which preserves the `as-is -> orchestrator ->
-   implementer` role mediation and component-only task context. The orchestrator
+3. The orchestrator resolves the selected adapter/job specification and submits
+   or spawns the attempt through the reusable supervisor or supported server
+   job. The adapter preserves the required role mediation and component-only
+   task context; the supervisor remains backend-neutral. The orchestrator
    records the durable launch checkpoint and returns without waiting for worker
    completion.
 4. The supervisor/job owns the long-running worker, process group, logs, and
@@ -420,9 +482,12 @@ worker, and cost and wall-clock allocations.
 The envelope does not implement scheduling, check-ins, runtime session
 recovery, or a host adapter. The host-neutral lifecycle contract is defined in
 `execution-contract.md`; host-specific enforcement and recovery behavior
-remain later increments. When a host cannot report per-component cost, the
-record names its fallback metric and leaves `spent` as non-actual rather than
-presenting an estimate as a cost.
+remain later increments. Permission profiles are proactive inputs to the
+adapter and supervisor: the core validates generic capability classes, while
+the selected adapter translates them to host-specific permission behavior.
+When a host cannot report per-component cost, the record names its fallback
+metric and leaves `spent` as non-actual rather than presenting an estimate as a
+cost.
 
 An adapter should prefer a host-managed detached job when it exposes the required
 submission-before-completion boundary, process-group ownership, lifecycle events,
@@ -492,10 +557,13 @@ acceptance conditions.
    task record, not a duplicate of repository-wide context.
    Acceptance conditions: the contract represents every lifecycle action needed
    by the preceding task protocol without adding host-specific policy.
-5. **Implement and validate a host adapter.** Map the contract to a
+5. **Implement and validate one host adapter.** Map the contract to a
    supervisor-owned detached job or a supported server job. A foreground child
    process awaited by the submitting host turn is not an asynchronous mapping.
-   Validate a harmless child-component task using the selected adapter, including
+   The selected adapter may be OpenCode and may therefore need to mediate its
+   primary/subagent behavior, but that host behavior must remain outside the
+   reusable supervisor. Validate a harmless child-component task using the
+   selected adapter, including
    `as-is -> orchestrator -> implementer` mediation, component-only initial
    context, a launch checkpoint returned before worker completion, supervisor/job
    ownership of the process group, log/event capture, later durable and health
@@ -553,11 +621,21 @@ adapter documents. They map the host-neutral execution contract without changing
 the core protocol or policy. Select the applicable adapter document when
 implementing or validating a host mapping.
 
+The current OpenCode document is a boundary and evidence record, not a claim
+that the adapter or public job status/watch integration is complete. The
+accepted `subprocess-execution-foundation` handoff supplies the reusable
+supervisor core; it does not supply OpenCode session wiring. A future adapter
+must preserve the minimal launch envelope and record a capability blocker when
+its host cannot provide detached ownership, observable lifecycle, cancellation,
+permission-event routing, or attributable usage.
+
 ## Suggested Next Discussion
 
-The next bounded implementation should first implement and validate control-plane
-status and parallel delegation while leaving `maxConcurrentTasks` at `1`. Only
-after that evidence is accepted should a separate bounded task raise the limit
-to `3` and validate three independent child components. Do not begin either
-implementation task without a new current-turn authorization and bounded task
-context.
+The smallest next implementation task is to establish and validate the selected
+adapter-to-supervisor launch seam with the minimal
+component-path/task-revision/attempt envelope and optional diagnostic JobId.
+Public status/watch, live permission-event routing, and
+connection-loss evidence remain separate acceptance work and must not be implied
+by that launch checkpoint. Leave `maxConcurrentTasks` at `1`; do not raise it or
+begin any adapter implementation without a new current-turn authorization and
+bounded task context.

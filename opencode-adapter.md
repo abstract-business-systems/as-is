@@ -2,9 +2,56 @@
 
 ## Purpose
 
-This host-specific document records how the current OpenCode dogfood adapter
-maps the host-neutral as-is execution contract. It does not define orchestration
-policy, task-record fields, authority, or completion behavior.
+This host-specific document records the observed and required boundary for an
+OpenCode adapter mapping the host-neutral as-is execution contract. It does not
+define orchestration policy, task-record fields, authority, or completion
+behavior. The adapter is not complete: the current CLI mapping is synchronous,
+and no public OpenCode job status/watch integration has been validated.
+
+## Architectural Boundary
+
+OpenCode's behavior at the adapter boundary drives the OpenCode delegation
+mapping. Its primary/subagent distinction and task-event/session topology mean
+that a supported OpenCode path must preserve
+`as-is -> orchestrator -> configured worker`, attribute each edge, and reject a
+direct or wrong-role fallback. This is an OpenCode adapter responsibility; it is
+not a rule embedded in the reusable supervisor core.
+
+The layers remain separate:
+
+- The **delegate protocol** carries component scope, parent-child authority,
+  configured role attribution, requirement, acceptance, validation, handoff,
+  and nearest-common-ancestor integration authority from durable records.
+- The **supervisor core** owns host-neutral job/attempt IDs, detached lifecycle,
+  runtime state, capability-profile preflight, logs/events, polling/watch,
+  cancellation, stale detection, cleanup, and source-labelled accounting for
+  any supported backend. It has no OpenCode session or command assumptions.
+- This **OpenCode adapter** maps that protocol to OpenCode sessions/commands,
+  translates OpenCode events and permission behavior, and supplies the
+  normalized job specification to the supervisor. Shell, CI, remote, and other
+  adapters remain possible without being implemented here.
+
+The retired systemd flow remains retired historical lineage. It is not an
+OpenCode fallback, supervisor requirement, or active recovery path.
+
+## Minimal OpenCode Launch Envelope
+
+The adapter must carry only the component path, durable task revision and
+attempt, the current record revision, and the resolved adapter/job
+specification (including its proactive capability profile). A generated JobId
+and parent-job ID may be carried as private runtime correlation data, but they
+are not task identity or authority. The component's `as-is.md` supplies the requirement, configured
+worker, effective constraints, acceptance conditions, and integration
+authority; central repository instructions, design principles, and permitted
+skills are read-only context. Those facts are derived from records and are not
+repeated as command arguments. OpenCode session IDs, event cursors, prompts,
+and private exports remain adapter/runtime state, not task authority.
+
+Permission profiles are proactive inputs shared by the supervisor and this
+adapter. The supervisor preflights generic capability classes and lifecycle
+controls; this adapter alone maps them to OpenCode permission settings,
+approval events, and the host's session/event limitations. An OpenCode prompt,
+stderr line, or missing event bridge cannot be treated as approval.
 
 ## Current Mapping
 
@@ -42,6 +89,15 @@ policy, task-record fields, authority, or completion behavior.
 
 ## Live Control Boundary
 
+- Read-only user/as-is queries remain in-process queries over root and component
+  `as-is.md` records. They do not require an OpenCode session or supervisor
+  handle. Substantive work goes through the orchestrator, which selects this
+  adapter and the reusable supervisor/backend path after rereading the record.
+- A future live status surface must accept component path and optional attempt,
+  then join the durable record with source-labelled OpenCode/supervisor
+  observations. A JobId may be returned as optional diagnostic data, but it is
+  not the stable lookup key and a missing session or map entry is unavailable,
+  not completion.
 - A bounded `opencode run --format json` invocation is a one-run CLI request
   with emitted events. It is not a guaranteed live concurrent interaction
   channel for status queries, worker questions, cancellation, or parallel

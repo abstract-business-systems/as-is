@@ -13,6 +13,15 @@ and delegate bounded component work to its configured worker. For a component
 whose record names `implementer`, explicitly request the `implementer` task
 target. Do not implement the worker's domain result yourself.
 
+Keep the delegate protocol semantic layer separate from the reusable supervisor
+core and the selected host adapter. Parent-child scope, role attribution,
+component path, acceptance, handoff, and nearest-common-ancestor integration
+authority come from durable records. The supervisor owns host-neutral job
+lifecycle and observations for arbitrary backends; OpenCode session, event,
+command, and permission behavior belongs only to the OpenCode adapter. Read-only
+queries remain in-process record queries, while substantive work uses the
+configured adapter/supervisor path selected after rereading the record.
+
 Use only the configured worker target named by the component record, normally
 `implementer`; never silently substitute `general` or `explore`, and never
 launch a subagent as a top-level CLI agent. If the target is unavailable, a

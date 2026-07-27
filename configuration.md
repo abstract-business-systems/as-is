@@ -15,7 +15,7 @@ as-is has three separate boundaries:
 | --- | --- | --- | --- |
 | Bundle | Machine or user installation directory | as-is distribution | Agents, skills, references, examples, schemas, extensions, and runtime adapters. |
 | Project | Target repository root | Project | One optional `as-is.config.json` manifest. |
-| Runtime metadata | User-level state directory | as-is runtime | Resolved configuration, run/session metadata, leases, the restart-reconcilable JobId map, and transient artifacts; never the authoritative task state. |
+| Runtime metadata | User-level state directory | as-is runtime | Resolved configuration, run/session metadata, leases, logs, the restart-reconcilable JobId map, and transient artifacts; never the authoritative task state. |
 
 The bundle is self-contained and selected by the installed `as-is` CLI or a
 chat slash-command adapter. It is not copied into each project. By default,
@@ -86,6 +86,52 @@ Objects merge recursively. Scalars replace defaults. Arrays replace defaults;
 `extensions` is the exception because it is an ordered, unique-ID declaration.
 `null` is not a deletion mechanism. Settings with an unconfigured state use an
 explicit value such as `"disabled"`.
+
+## Execution Resolution Boundary
+
+Execution configuration is resolved in layers rather than copied into every
+worker command:
+
+1. The component and parent `as-is.md` records provide the delegate protocol:
+   component path and scope, configured role, requirement, effective
+   task-specific constraints, acceptance conditions, budget, durable handoff,
+   and ancestor integration authority.
+2. The effective bundle/project configuration and host capability facts select
+   an adapter and normalize an adapter/job specification. The specification
+   includes the selected backend and proactive permission/capability profile,
+   excludes secrets, and is stable for the attempt.
+3. The supervisor receives that normalized specification plus generated
+   host-neutral job, attempt, and parent-job identifiers. It owns generic job
+   lifecycle, detached execution, runtime state, logs/events, polling/watch,
+   cancellation, stale detection, cleanup, and source-labelled accounting. It
+   does not interpret OpenCode sessions or commands. The generated JobId is a
+   runtime correlation handle, not the component task identity.
+
+The durable launch envelope is therefore the component path, durable task
+revision and attempt, the record revision needed for freshness, and the
+resolved adapter/job specification. Generated JobId and parent-job identifiers
+may be carried as private runtime correlation data. The requirement, worker
+role, acceptance, common
+repository context, and integration authority are derived from `as-is.md` and
+centrally supplied read-only context instead of being duplicated in command
+arguments. Private session handles, event cursors, logs, and backend metadata
+may support observation but never become a second task authority.
+
+Permission profiles are proactive inputs to both the supervisor and selected
+adapter. The supervisor validates generic capability classes, approved
+workspace/process controls, input policy, event persistence, and deadlines.
+The adapter translates those classes to its host-specific permission and event
+surfaces. In particular, OpenCode permission settings, approval-event limits,
+and session behavior belong only to `opencode-adapter.md`; they are not core
+configuration assumptions. Shell, CI, remote, and other adapters may resolve
+different backend specifications without changing the delegate protocol.
+
+This boundary does not introduce a new public manifest field by implication.
+The selected bundle/host integration and current records resolve the effective
+adapter/job specification until a separately authorized configuration task
+defines and validates a public key. A foreground command is not an asynchronous
+adapter merely because it is placed behind a subprocess API. The retired
+systemd flow is not an active configuration option or recovery path.
 
 Example:
 

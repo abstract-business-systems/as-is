@@ -2,12 +2,80 @@
 
 ## Purpose
 
-This specification defines the host-neutral boundary between the orchestrator
-and a worker runtime. It describes how the orchestrator launches, resumes,
-observes, questions, cancels, and recovers a worker while keeping policy and
-durable authority in the filesystem task record. A host adapter maps this
-contract to its own sessions, processes, permissions, and measurement APIs; it
-does not redefine the contract.
+This specification defines the host-neutral delegate protocol and supervisor
+boundary between the orchestrator and a worker runtime. It describes how the
+orchestrator launches, resumes, observes, questions, cancels, and recovers a
+worker while keeping policy and durable authority in the filesystem task
+record. A host adapter maps this contract to its own sessions, processes,
+permissions, and measurement APIs; it does not redefine the protocol or its
+authority.
+
+## Layered Boundary
+
+The execution model has deliberately separate semantic, supervision, and host
+adapter layers. OpenCode is one adapter at the outer boundary, not a property
+of the supervisor or of the delegate protocol.
+
+### Delegate Protocol / Semantic Layer
+
+The delegate protocol describes the meaning of parent-child work:
+
+- the parent and child component scopes and the component path that determines
+  the child's record and filesystem boundary;
+- the configured role and machine-observable role attribution for each
+  delegation edge;
+- the child's requirement, effective task-specific constraints, acceptance
+  conditions, return condition, validation, durable handoff, and residual risk;
+- the parent's authority to create or observe the child and to integrate its
+  result at the nearest common ancestor; and
+- descendant closure, failed/cancelled-child accounting, and the rule that a
+  durable record—not a runtime handle—authorizes completion.
+
+These are semantic facts of the component task-record protocol. They remain
+the same when the work is run by a subprocess, shell command, CI job, remote
+worker, server job, or an agent host. A role name, component path, acceptance
+condition, or handoff cannot be inferred from process exit or silently replaced
+by a host fallback.
+
+### Supervisor Core
+
+The supervisor is a reusable, host-neutral job-runtime core. Its concerns are
+host-neutral job and attempt identifiers, lifecycle transitions, detached job
+execution, runtime state, capability-profile preflight, logs and events,
+polling/watch, cancellation, durable-heartbeat and stale detection, cleanup,
+and source-labelled cost and wall-clock accounting. It owns the backend job and
+its termination boundary while the job is active, but it does not own task
+meaning or completion authority.
+
+The supervisor may supervise arbitrary backend kinds through an adapter/backend
+interface. It treats backend handles, session identifiers, event payloads,
+permission results, and usage measurements as source-labelled observations. It
+must not contain OpenCode session assumptions, OpenCode command flags, nested
+subagent rules, provider billing semantics, or a requirement that every job be
+an agent session. A backend-specific capability that cannot be mapped safely
+is reported as unavailable or blocked; it is not simulated by the core.
+
+Proactive permission profiles are inputs to the supervisor and the selected
+adapter. The supervisor preflights generic capability classes, approved
+workspace and process controls, input policy, event persistence, and
+deadlines. The adapter maps that profile to host-specific permission APIs and
+returns host observations; host-specific permission handling does not leak
+into the reusable supervisor core.
+
+### Adapter Boundary
+
+An adapter resolves the selected backend and maps the delegate protocol to it.
+It may translate role attribution, commands or sessions, event streams,
+permission prompts, cancellation, and usage surfaces, but it cannot relax
+record authority, replace the configured worker, or turn a synchronous child
+into a detached job. The adapter supplies the normalized job specification
+and capability facts to the supervisor and reports unsupported capabilities as
+durable blockers.
+
+The OpenCode mapping is documented separately in `opencode-adapter.md`. Shell,
+CI, remote, and other job adapters remain valid extension points without being
+requirements of this contract. The retired systemd flow is historical lineage
+only and is not an active adapter, fallback, or recovery path.
 
 ## Authority And Context
 
@@ -146,25 +214,49 @@ retained.
 ## Contract Shape
 
 Each operation has a normalized request and result. The names below describe
-concepts, not a required serialization format or host API.
+concepts, not a required serialization format or host API. A host may carry a
+larger private request internally, but the durable launch envelope is kept
+small and correlation-oriented.
 
 An `ExecutionRequest` contains:
 
 - `operation`: one of `launch`, `resume`, `observe`, `question`, `cancel`, or
   `recover`;
-- `component`: the filesystem component path and its task-record path;
+- `component-path`: the filesystem component path. The component's
+  `as-is.md` path, parent, scope, worker, requirement, acceptance, and current
+  status are derived from this path and the durable record rather than copied
+  into command arguments;
 - `record-revision`: the durable record revision or equivalent freshness
   marker observed by the orchestrator;
-- `record`: the component task record supplied as the worker's task-specific
-  context for `launch`, `resume`, and `recover`;
-- `configuration`: the normalized effective configuration and constraints for
-  this attempt, excluding secrets and host-specific settings;
+- `launch-envelope` for `launch`, `resume`, and `recover`, containing only the
+  component path, durable task revision, attempt ordinal, optional generated
+  runtime `job-id`, nullable runtime `parent-job-id`, and the selected
+  adapter/job specification. The specification is resolved from the current
+  record, effective configuration, and host capability profile before launch;
+  it is not an arbitrary command-line override and excludes secrets. The
+  runtime JobId is correlation data, not task identity or authority;
 - `input`: operation-specific direction, question, cancellation reason, or
   recovery reason, when applicable;
+- `record`: the component task record supplied as the worker's task-specific
+  context for `launch`, `resume`, and `recover`, when the operation needs it;
+- `configuration`: the normalized effective configuration and constraints for
+  this attempt, including the proactive capability profile, excluding secrets
+  and host-private state; and
 - `budget`: the remaining authorized cost and wall-clock allocation, including
-  reserve handling from the task record; and
+  reserve handling derived from the task record; and
 - `return-condition`: the durable state or checkpoint the operation must
   report before returning.
+
+The minimum durable launch envelope is therefore the component path, durable
+task revision and attempt, the record revision needed to reject stale results,
+and the resolved adapter/job specification. A generated JobId and parent-job
+identifier may be carried as private runtime correlation data. The requirement,
+configured worker, acceptance conditions, effective task constraints,
+repository instructions, design principles, permitted skills, and integration
+authority are derived from `as-is.md` and centrally supplied context; they are
+not duplicated in command arguments. A host may persist a private backend
+handle or detailed job state for observation, but that state is supplementary
+and disposable.
 
 An `ExecutionResult` contains:
 
@@ -321,8 +413,22 @@ into an asynchronous attempt.
 
 ## Control-Plane Communication
 
+- Read-only user and as-is queries remain in-process record queries. They read
+  the root and component `as-is.md` records and do not require a worker job,
+  adapter session, or supervisor handle. They report missing or unavailable
+  runtime observations explicitly when a query asks for them.
+- Substantive work is delegated through the orchestrator, which selects the
+  configured adapter and supervisor/backend path after rereading the applicable
+  component record. A query does not become an implicit delegation, and a
+  direct host launch does not bypass the orchestrator's role and scope checks.
 - Status queries read the root and component task records. They do not steer a
   worker or depend on private runtime state.
+- The stable public status request is a canonical component path with an
+  optional attempt ordinal. Without an attempt it resolves the current task
+  revision's latest durable attempt. The response always includes the durable
+  record and source-labelled unavailable runtime fields when private state is
+  missing. A runtime JobId may appear only as optional diagnostic data; a
+  JobId-only lookup is not the public task interface.
 - General questions use a separate read-only as-is/orchestrator interaction or
   a durable question in the affected record. A transient worker prompt or
   direct private-worker message is not authoritative.
@@ -458,13 +564,16 @@ attempts but does not redefine these decisions.
 
 ## Boundary Of This Contract
 
-This specification does not select a host adapter, define a CLI or wire
-protocol, implement host scheduling or wake timing, choose a runtime process or
-session model, or promise host cost attribution. Increment 5 maps this contract
-to a selected host and validates the required non-blocking job capability;
-without safe detachment or server-job submission, the adapter records a blocker
-instead of claiming support. Increment 6 defines the host-neutral stale, retry,
+This specification does not select a particular host adapter, define a public
+CLI or wire protocol, implement host scheduling or wake timing, choose an
+OpenCode or other host session model, or promise provider billing attribution.
+An adapter maps this contract to a selected backend and validates the required
+non-blocking job capability; without safe detachment or supported job
+submission, it records a blocker instead of claiming support. The supervisor
+core remains reusable for any backend that supplies the required lifecycle and
+observation boundary. Increment 6 defines the host-neutral stale, retry,
 budget, replacement, and cleanup policy above; future adapters may map it
-without changing lifecycle authority. The accepted subprocess foundation is the
-current repository mapping; the retired systemd flow is historical lineage only
-and is not a supported fallback or recovery path.
+without changing lifecycle authority. The accepted subprocess foundation is
+the current supervisor-core implementation mapping; the OpenCode adapter and
+public status/watch path remain unvalidated. The retired systemd flow is
+historical lineage only and is not a supported fallback or recovery path.
