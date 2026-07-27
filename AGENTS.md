@@ -6,8 +6,9 @@ directories use lowercase kebab-case unless a host requires an exact filename.
 ## Durable Context
 
 - Treat [as-is.md](as-is.md) as the durable source of truth for current project
-  and component task state. Do not rely on chat context or machine-local state
-  for facts another agent must recover.
+  and component task state. Recover historical committed state from Git history
+  and concise entries in [change-log.md](change-log.md); do not rely on chat
+  context or machine-local state for facts another agent must recover.
 - Treat `as-is.md` as replaceable current-task context, not as the permanent home
   of architecture or implementation contracts. Put enduring protocols and design
   rationale in subject-named specifications, then link to them from current task
@@ -19,6 +20,10 @@ directories use lowercase kebab-case unless a host requires an exact filename.
 - Update durable task context when work produces a decision, blocker, result,
   or next action that matters beyond the current turn. Do not record secrets,
   temporary identifiers, or verbose execution logs there.
+- Do not create or depend on `task-archives/` or another archive-folder task
+  tree. Current state stays in the applicable `as-is.md`; historical state is
+  recovered from Git plus the change log, which is a concise index rather than
+  task authority.
 - The host supplies repository instructions, applicable design principles, and
   permitted skills as read-only common execution context. A worker begins from
   its assigned component's `as-is.md`; it reads outside that component only for
@@ -42,6 +47,10 @@ directories use lowercase kebab-case unless a host requires an exact filename.
 - Before removing an artifact as unneeded, assess its current consumers,
   recovery or audit value, ownership, and cost to recreate. Preserve or record
   what remains necessary; remove only the identified unnecessary scope.
+- Git history does not preserve uncommitted content. Before removing an
+  uncommitted historical artifact, preserve its necessary concise facts in the
+  change log/task record or obtain an appropriately scoped evidence commit; do
+  not imply byte-for-byte recovery when none exists.
 - Keep changes scoped and surgical. If evidence requires work beyond the stated
   scope, stop and request direction rather than expanding autonomously.
 - When evidence supports departing from an applicable non-fixed instruction,
@@ -69,6 +78,10 @@ directories use lowercase kebab-case unless a host requires an exact filename.
   the worker; it reuses rather than overwrites an existing task record. Child
   records provide durable delegation and handoff evidence without duplicating
   their progress in a parent record.
+- A worker begins from the current component `as-is.md` and centrally supplied
+  context. Historical recovery uses Git and concise change-log entries; it does
+  not restore an archive folder or treat a historical snapshot as active task
+  authority.
 - A worker validates its implementation before handoff and records the result,
   residual risk, host-reported actual cost, and host-observed wall-clock use in
   its component record. It may

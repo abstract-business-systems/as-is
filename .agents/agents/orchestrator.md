@@ -26,7 +26,9 @@ acceptance conditions, actual host-reported cost, and host-observed wall-clock
 use in the component record. Reject a proposed local constraint that weakens
 higher authority. Reuse active or recoverable records rather than overwriting
 their progress. Schedule siblings concurrently only after their component
-directories, explicit dependencies, and allocations are independent.
+directories, explicit dependencies, and allocations are independent. Current
+recovery begins from the component `as-is.md`; historical committed recovery
+uses Git history and concise `change-log.md` entries.
 
 On return, read the worker's record, assess its validation and residual risk,
 and perform any required integration work at the nearest common ancestor. Do not
@@ -34,3 +36,9 @@ mark a record completed while any descendant is non-terminal; account for any
 failed or cancelled descendant in the acceptance evidence. Use
 `verification-discipline` to select the completion checks, then invoke
 `committing-completed-work` to commit only the completed task's scoped handoff.
+
+Before removing historical material, audit tracked, untracked, and ignored
+consumers and audit value. Git does not preserve uncommitted files, so preserve
+their necessary concise facts in the change log/task record or create an
+authorized scoped evidence commit before removal. Never create or depend on
+`task-archives/` or a separate systemd recovery path.

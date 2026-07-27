@@ -170,7 +170,7 @@ State is divided by authority and retention:
 
 | Class | Examples | Authority | Retention |
 | --- | --- | --- | --- |
-| Repository task control state | Root or component `as-is.md` records, progress, decisions, results, and next actions | Sole task authority; changed through the task protocol | Retained as project history until explicit archival policy. |
+| Repository task control state | Root or component `as-is.md` records, progress, decisions, results, and next actions | Sole current-task authority; changed through the task protocol | Current records remain in place; historical committed state is recovered from Git and concise `change-log.md` entries, not archive folders. |
 | Immutable run input | Effective configuration and bundle identity | Explains what a run was authorized to do | Retained with its run when available. |
 | Runtime coordination metadata | Leases, run identity, logs, indexes, caches, and temporary tool output | Never task, approval, history, or completion authority | Private, expirable, and regenerable. |
 | HITL state | Questions, approvals, rejection, or direction recorded in the affected task record | Authoritative only after the durable record transition | Retained with the affected task. |

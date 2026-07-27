@@ -68,6 +68,12 @@ acceptance:
   validation.
 - `task.status` is one of `ready`, `active`, `blocked`,
   `awaiting-approval`, `completed`, `failed`, or `cancelled`.
+- A permission gate uses the schema-compatible `awaiting-approval` status and
+  records the exact durable permission state `awaiting-user-approval` in its
+  execution checkpoint, together with the structured `permission-needed` event,
+  approval scope, and user-visible escalation evidence. This preserves strict
+  front-matter validation while distinguishing a permission decision from a
+  generic question. A transient prompt or host reply is not a durable answer.
 - A new task begins as `ready`; a worker advances it to `active`; active work may
   become blocked, await approval, complete, fail, or be cancelled; blocked,
   approval-waiting, and failed work may return to active through recovery. A
@@ -112,6 +118,33 @@ acceptance:
   instructions, applicable design principles, and permitted skills are supplied
   centrally as read-only execution context and are not repeated as `sources` in
   every child record.
+
+## Historical Recovery And Retirement
+
+Current task authority remains in the root or component `as-is.md`. Historical
+task recovery uses Git history plus the repository's concise `change-log.md`
+entries; it does not use a `task-archives/` directory, a second task tree, or a
+separate host-specific recovery path. The change log records why work was
+deferred, cancelled, superseded, or retired, the relevant commit(s), the
+recovery point, and only the necessary facts that are not already recoverable
+from Git. It is an index, not task authority, and must not duplicate verbose
+records or secrets.
+
+Before removing historical material, the responsible orchestrator audits
+tracked, untracked, and ignored contents, current consumers, ownership,
+recovery/audit value, and cost to recreate. Git history does not preserve
+uncommitted content. Necessary concise facts from an uncommitted artifact must
+be retained in the change log or current task record, or an appropriately
+scoped evidence commit must be created before removal when authorized. A claim
+of byte-for-byte recovery is prohibited when no such commit exists.
+
+The protocol has no `superseded` status. When a task is genuinely cancelled,
+use the terminal `cancelled` status and account for it in the nearest ancestor's
+result; when a completed implementation replaces an unlaunched or deferred
+task, record the supersession decision in the current record and change log
+without manufacturing a completion transition. A retired host adapter is not
+recovered by restoring an archive folder; any future need requires a new
+authorized bounded task based on current policy and Git evidence.
 
 ## Markdown Body
 

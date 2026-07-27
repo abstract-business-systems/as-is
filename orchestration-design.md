@@ -53,6 +53,18 @@ See `agent-skills.md` for the current taxonomy and definitions.
   completion. Retain them only while needed for active work, recovery, audit,
   or an explicitly configured retention period; retain durable outcomes in the
   task record instead.
+- Current task state is kept in the root or component `as-is.md`. Historical
+  committed state is recovered from Git history and concise entries in
+  `change-log.md`; the repository does not create a `task-archives/` tree or a
+  host-specific historical recovery path. The change log records the reason for
+  deferral, cancellation, supersession, or retirement, relevant commits, and a
+  recovery point without becoming task authority or duplicating full records.
+- Before removing a historical artifact, the orchestrator checks tracked,
+  untracked, and ignored contents, consumers, ownership, audit/recovery value,
+  and recreation cost. Git does not preserve uncommitted content, so necessary
+  concise facts are retained in the change log/current record or an authorized
+  scoped evidence commit is made before removal. No byte-level recovery claim is
+  made without a commit.
 - Component `as-is.md` records remain the sole authoritative task state. There
   is no second authoritative backlog or task tree. A private future runtime
   index may hold discardable references, but it cannot replace, mirror as
@@ -254,6 +266,21 @@ See `as-is.md` for transient current project task state.
   the resulting durable checkpoint and status transition before reporting it.
   A query is read-only, and no control action silently weakens higher-authority
   constraints or changes the active configuration snapshot.
+- Permission-aware execution is preflighted before launch, resume, or recovery.
+  The supervisor owns a private approved workspace, disables hidden interactive
+  prompts, and records a structured `permission-needed` event before escalating
+  to the user. The schema-compatible task status is `awaiting-approval` with a
+  durable checkpoint state of `awaiting-user-approval`; approval is scoped to the
+  recorded operation and configuration, denial leaves durable blocked evidence,
+  and resume rereads the record rather than replaying a transient prompt. A host
+  that cannot prove user-event bubbling is a capability blocker, not permission
+  to simulate success.
+- Liveness is bounded by supervisor heartbeats and a deadline. Stale detection
+  uses durable checkpoint age and the effective check-in interval, while missing
+  or inconclusive clocks remain `unknown`. Recovery is finite and cumulative,
+  fingerprints repeated permission/liveness blockers to suppress retry loops,
+  and requires durable cancellation plus process-group and workspace cleanup
+  confirmation before private state is removed.
 - If no task is active, a query reports that state and no next check-in rather
   than inferring activity from transient host sessions. A blocked or
   approval-waiting task remains visible until a durable decision or recovery
@@ -457,6 +484,13 @@ acceptance conditions.
    Acceptance conditions met: the interrupted harmless task was recovered from
    its component record, and cleanup removed only private transient artifacts
    not required by the configured recovery or audit boundary.
+
+The accepted current implementation for the execution-foundation boundary is
+the dependency-free subprocess supervisor recorded by the terminal
+`subprocess-execution-foundation/as-is.md` handoff and commit `e8fb1da`. The
+previous systemd user-job flow is retired/superseded and is not a fallback,
+active sequencing dependency, or separate recovery path. Its historical
+baseline is recoverable only through Git and `change-log.md`.
 
 ## Open Design Questions
 

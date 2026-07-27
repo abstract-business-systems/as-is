@@ -30,6 +30,12 @@ does not redefine the contract.
 - Runtime handles, leases, prompts, caches, logs, and secrets are private host
   state. They may support an active attempt or recovery, but they are not
   required inputs to resume and are never authoritative over the task record.
+- Historical committed task state is recovered from Git history and concise
+  `change-log.md` entries. This contract does not create or depend on a
+  `task-archives/` tree or a separate host-specific historical recovery path.
+  Uncommitted evidence is not presumed to be in Git; its necessary facts must
+  be preserved in the current record/change log or in an authorized scoped
+  evidence commit before removal.
 - At most one active worker attempt may modify a component at a time. A parent
   orchestrator may update its own or root record and observe child records, but
   it integrates at the nearest common ancestor only after children finish and
@@ -50,7 +56,75 @@ cross-run reuse; the component key preserves the component boundary. `/tmp` is
 not suitable for durable records because it is a temporary, potentially shared
 location that may be cleaned, unavailable, or lost across host-lifetime
 boundaries. A secure host temporary root may provide the same disposable
-semantics with stronger isolation.
+ semantics with stronger isolation.
+
+## Permission And Liveness Boundary
+
+Permission is a launch prerequisite, not an exception discovered by a worker
+after an opaque attempt has started. Before `launch`, `resume`, or `recover`,
+the host adapter performs a capability preflight for the normalized command,
+configured worker, record and checkpoint paths, process-group controls,
+approved workspace, standard-input policy, event persistence, and watchdog
+deadline. A failed preflight returns or records `rejected` or `unavailable`
+before starting the worker; it does not wait for a prompt or consume an
+unbounded attempt.
+
+The supervisor creates and owns one collision-resistant approved workspace for
+the attempt. It is private to the run, has restrictive permissions (normally
+`0700`), is inside the host's disposable runtime root, and is the only transient
+workspace exposed to the worker. The supervisor records the workspace class,
+ownership, permission mode, and component/attempt association in a durable
+checkpoint. A workspace handle or private state remains supplementary evidence;
+the component record remains task authority. The worker must not silently widen
+the approved path or use an unrecorded workspace.
+
+The worker receives no hidden interactive prompt. The adapter closes or safely
+disables standard input for a non-interactive attempt and treats a permission,
+capability, or input refusal as a structured event. A `permission-needed` event
+contains, at minimum, the operation and capability class, a non-secret resource
+class, source, attempt/job and record revision, observed time, reason, and the
+approval decision state. It is written to the durable task record before the
+host presents an escalation. A transient prompt, stderr line, or host reply is
+not an approval and cannot advance the task.
+
+The schema-compatible durable task status for this condition is
+`awaiting-approval`; its checkpoint payload must additionally carry the exact
+permission state `awaiting-user-approval`. The orchestrator exposes the
+structured event and required decision to the user through a supported,
+machine-observable control-plane event path. If the host cannot prove that
+permission-needed events bubble to that path and that an answer returns to the
+durable record, it records a capability blocker and must not simulate a user
+event or claim approval support.
+
+Approval is scoped to the recorded operation, resource class, record revision,
+and unchanged effective configuration. The orchestrator durably records the
+approval before the supervisor retries or resumes; the resumed worker may use
+only the approved workspace and configured role. A denial is durably recorded,
+leaves the task blocked (or failed when the task cannot safely continue), and
+does not trigger an automatic retry. Resume requires a new explicit direction
+or approval and rereads the current record; it may continue, clean up, or start
+an atomic unit again without reusing a transient prompt or stale handle.
+
+The supervisor emits a durable heartbeat/checkpoint and enforces a bounded
+deadline for each attempt. The observer records the heartbeat source, deadline,
+observation clock, and age. Missing, malformed, or clock-inconclusive data is
+`unknown`, not stale. An active task is a stale candidate only when its durable
+checkpoint is older than the effective check-in interval or its watchdog
+deadline has elapsed with no newer heartbeat; process health cannot override
+that durable classification. Recovery is finite, preserves cumulative budget
+and partial evidence, records backoff before waiting, and escalates after the
+configured bound.
+
+Every permission or liveness blocker has a stable fingerprint made from its
+non-secret capability, operation, resource class, and failure class. A repeated
+fingerprint within the same bounded task suppresses an automatic retry loop and
+records escalation/next action instead. Cancellation first writes a durable
+request, then asks the supervisor to stop the owned process group; confirmation
+requires an observed terminated group and a durable cancellation transition.
+Cleanup is allowed only after the cancellation, failure, approval-wait, or
+handoff evidence is durable and confirms that no owned process, supervisor, or
+workspace remains. The durable record and evidence needed for recovery are
+retained.
 
 ## Contract Shape
 
@@ -364,4 +438,6 @@ to a selected host and validates the required non-blocking job capability;
 without safe detachment or server-job submission, the adapter records a blocker
 instead of claiming support. Increment 6 defines the host-neutral stale, retry,
 budget, replacement, and cleanup policy above; future adapters may map it
-without changing lifecycle authority.
+without changing lifecycle authority. The accepted subprocess foundation is the
+current repository mapping; the retired systemd flow is historical lineage only
+and is not a supported fallback or recovery path.

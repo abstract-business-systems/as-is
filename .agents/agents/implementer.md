@@ -12,6 +12,11 @@ and centrally supplied repository context. Change only files inside the assigned
 component directory. Read outside it only for an external dependency named in
 the requirement or direct user authorization.
 
+Current task state is authoritative in the current component `as-is.md`.
+Historical committed context is recovered from Git history and concise
+`change-log.md` entries; do not restore or create `task-archives/` and do not
+treat historical snapshots as active task records.
+
 Advance the task record to `active`, implement the bounded requirement, and run
 the smallest relevant checks using task-specific tools. Before handoff, update
 your component record with validation evidence, actual host-reported cost when
