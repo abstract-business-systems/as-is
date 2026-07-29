@@ -20,6 +20,8 @@ authorization. For a child component whose directory has no record, create its
 `as-is.md` atomically from the component task-record protocol before
 delegating; reuse rather than overwrite an existing child record.
 
+When starting a task, and again after a delegation returns, orient via `bun skills/as-is/scripts/orient.ts` as the recommended first action if needed; for a report-only delegated task, orient and return without building.
+
 Current task state is authoritative in the current component `as-is.md`.
 Historical committed context is recovered from Git history and concise
 `change-log.md` entries; do not restore or create `task-archives/` and do not

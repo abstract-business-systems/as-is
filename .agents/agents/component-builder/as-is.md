@@ -1,9 +1,9 @@
 ---
 as-is-version: 2
 task:
-  status: ready
+  status: completed
   worker: component-builder
-  updated: 2026-07-29T19:30:00Z
+  updated: 2026-07-29T19:52:00Z
 constraints:
   cost:
     currency: USD
@@ -92,8 +92,9 @@ The component-builder agent contract line was applied directly: the
 orientation-script usage direction and the report-only handling note were
 added, and the commit-on-complete / preserve-on-incomplete line was added.
 The duplicated front-matter fragment from the directory-layout migration was
-fixed. The orientation script itself is still pending (to be built by a
-delegated as-is run).
+fixed. Implemented `skills/as-is/scripts/orient.ts` and its focused test. The script
+uses `ControlPlane.status()` for task snapshots, then adds next-action,
+change-log, open-decision grep, and working-tree observations.
 
 ## Validation
 
@@ -101,11 +102,14 @@ delegated as-is run).
   report-only handling note.
 - `opencode agent list` discovers `component-builder (subagent)`.
 - The agent file front-matter is valid with no duplicated fragment.
-- The orientation script is not yet implemented (pending).
+- `bun test skills/as-is/scripts/orient.test.ts` passed (1 test).
+- `bun build --no-bundle --target bun --outfile /tmp/orient.js skills/as-is/scripts/orient.ts` passed.
+- `git diff --check` passed.
 
 ## Result
 
-Contract line applied directly. Script pending.
+Completed the bounded orientation snapshot and contract update. No child
+records or descendants were created; all acceptance work is terminal.
 
 ## Blockers And Escalations
 
@@ -125,5 +129,5 @@ re-runnable; no private runtime state is required.
 
 ## Next Action
 
-Inspect control-plane for TaskSnapshot, then implement the script and the
-contract line.
+No further action for this bounded task. Residual risk: the compact parser
+intentionally uses the repository's narrow Markdown conventions.
