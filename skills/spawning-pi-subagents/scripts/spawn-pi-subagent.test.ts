@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const SCRIPT = "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts";
-const AGENT = ".agents/agents/as-is.md";
+const AGENT = ".agents/agents/as-is/agent.md";
 
 type RunResult = { stdout: string; stderr: string; exitCode: number };
 
@@ -84,7 +84,7 @@ test("detach dry-run reports the detach flag and forwarded budget", async () => 
   expect(parsed.budget["wall-clock-seconds"]).toBe(120);
   expect(parsed.budget["cost-usd"]).toBe(0.3);
   expect(parsed.command).toBeTruthy();
-  expect(parsed.agent).toContain("as-is.md");
+  expect(parsed.agent).toContain("as-is/agent.md");
 });
 
 test("detach appends a handle to the configured registry", async () => {

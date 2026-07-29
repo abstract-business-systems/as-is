@@ -10,12 +10,12 @@ compatibility: Requires the repository-local spawning-pi-subagents skill, Bun, a
 
 This skill intentionally uses the role name `as-is` instead of the repository's
 usual capability-phrase naming pattern. It is the user-facing entrypoint and
-must be easy to identify beside the `.agents/agents/as-is.md` role and the
+must be easy to identify beside the `.agents/agents/as-is/agent.md` role and the
 `as-is` project records. This is an exceptional convenience alias for this
 single entrypoint, not a precedent for naming other skills after agent roles.
 
 Use this skill as the Pi host entrypoint for a new user request. It starts the
-repository's `.agents/agents/as-is.md` contract through the generic
+repository's `.agents/agents/as-is/agent.md` contract through the generic
 `spawning-pi-subagents` launcher rather than invoking OpenCode task routing.
 
 ## Start
@@ -24,7 +24,7 @@ Launch the root agent with the user request as the task text:
 
 ```bash
 bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
-  --agent .agents/agents/as-is.md \
+  --agent .agents/agents/as-is/agent.md \
   --task "<the user's request and concise bounded direction>" \
   --cwd "$PWD" \
   --skill skills/as-is \
@@ -51,7 +51,7 @@ The started process must:
   concise `change-log.md` entries;
 - treat the root record as current task authority and preserve higher-authority
   repository instructions and design principles;
-- route substantive bounded work to `.agents/agents/component-builder.md` using
+- route substantive bounded work to `.agents/agents/component-builder/agent.md` using
   the `spawning-pi-subagents` launcher as another separate Pi process;
 - pass the component-builder the bounded requirement, relevant component record,
   and named dependencies;
@@ -63,7 +63,7 @@ with task text that identifies the requested component and its current record:
 
 ```bash
 bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
-  --agent .agents/agents/component-builder.md \
+  --agent .agents/agents/component-builder/agent.md \
   --task "Build <component> using its current as-is.md and named dependencies." \
   --cwd "$PWD" \
   --tools read,grep,find,ls,bash,edit,write \
@@ -97,7 +97,7 @@ bun build --no-bundle --target bun \
   --outfile /tmp/as-is-spawn-pi-subagent.js \
   skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts
 bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
-  --agent .agents/agents/as-is.md \
+  --agent .agents/agents/as-is/agent.md \
   --task "Inspect the current root task record without changing files." \
   --cwd "$PWD" \
   --skill skills/as-is \
@@ -105,6 +105,6 @@ bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
   --dry-run
 ```
 
-Confirm the resolved agent is `.agents/agents/as-is.md`, the child working
+Confirm the resolved agent is `.agents/agents/as-is/agent.md`, the child working
 directory is the repository root, the two repository skills are loaded, and no
 provider was contacted by the dry-run.

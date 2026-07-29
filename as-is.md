@@ -118,7 +118,7 @@ ephemeral `/tmp/as-is-child-*/` job directories with no index.
 1. Recover current root and component records, the launcher source and test,
    the SKILL.md, and `independent-delegation.md` before scoping.
 2. Record this task in the root durable context and route the bounded work to
-   `.agents/agents/component-builder.md` through the spawning-pi-subagents
+   `.agents/agents/component-builder/agent.md` through the spawning-pi-subagents
    launcher; do not launch a worker directly.
 3. The component-builder advances the component record to `active`, implements
    the registry append, the `--no-registry` flag, the focused test, and the

@@ -133,8 +133,8 @@ launched; a supervisor does the same for the children it supervises.
   permission, and recovery rules of that contract remain in force.
 - **Merges roles**: `orchestrator` + `implementer` become `component-builder`.
   `.agents/agents/orchestrator.md` and `.agents/agents/implementer.md` are
-  removed; `.agents/agents/component-builder.md` is added. References in
-  `.agents/agents/as-is.md`, [configuration.md](configuration.md),
+  removed; `.agents/agents/component-builder/agent.md` is added. References in
+  `.agents/agents/as-is/agent.md`, [configuration.md](configuration.md),
   `control-plane/control-plane.ts`, and the
   [spawning-pi-subagents](skills/spawning-pi-subagents/SKILL.md) skill are
   updated accordingly.

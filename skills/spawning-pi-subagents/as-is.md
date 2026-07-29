@@ -150,7 +150,7 @@ Required checks ran without provider contact: `bun build --no-bundle --target bu
 
 2. `--dry-run` budget-field output:
    `bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts --agent
-   .agents/agents/as-is.md --task "Inspect the current root task record." --cwd
+   .agents/agents/as-is/agent.md --task "Inspect the current root task record." --cwd
    "$PWD" --budget-wall-clock-seconds 30 --budget-cost-usd 0.25 --dry-run`
    outcome: JSON includes `"budget": { "wall-clock-seconds": 30, "cost-usd":
    0.25 }` and the unchanged command/args/agent/skills/model/tools fields.

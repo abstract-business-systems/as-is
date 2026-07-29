@@ -21,8 +21,8 @@ the status of all registered jobs on demand.
 
 The launcher accepts:
 
-- an agent Markdown file, such as `.agents/agents/as-is.md` or
-  `.agents/agents/component-builder.md`;
+- an agent Markdown file, such as `.agents/agents/as-is/agent.md` or
+  `.agents/agents/component-builder/agent.md`;
 - one task string;
 - the repository working directory;
 - optional Pi model, tool, approval, and additional skill settings;
@@ -60,7 +60,7 @@ controls.
 
 ```bash
 bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
-  --agent .agents/agents/component-builder.md \
+  --agent .agents/agents/component-builder/agent.md \
   --task "Delegate the bounded component task recorded in the named component as-is.md." \
   --cwd "$PWD" \
   --tools read,grep,find,ls,bash,edit,write \
@@ -71,7 +71,7 @@ With delegation budgets forwarded to the child:
 
 ```bash
 bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
-  --agent .agents/agents/component-builder.md \
+  --agent .agents/agents/component-builder/agent.md \
   --task "Implement the bounded task recorded in the assigned component." \
   --cwd "$PWD" \
   --budget-wall-clock-seconds 220 \
@@ -82,7 +82,7 @@ For a short task:
 
 ```bash
 bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
-  --agent .agents/agents/component-builder.md \
+  --agent .agents/agents/component-builder/agent.md \
   --task "Implement the bounded task recorded in the assigned component." \
   --cwd "$PWD"
 ```
@@ -244,7 +244,7 @@ bun build --no-bundle --target bun \
   --outfile /tmp/as-is-spawn-pi-subagent.js \
   skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts
 bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
-  --agent .agents/agents/as-is.md \
+  --agent .agents/agents/as-is/agent.md \
   --task "Inspect the current root task record." \
   --cwd "$PWD" \
   --dry-run
@@ -268,7 +268,7 @@ exit 0
 EOF
 chmod +x /tmp/as-is-pi-stub.sh
 bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
-  --agent .agents/agents/as-is.md \
+  --agent .agents/agents/as-is/agent.md \
   --task "Stub task for budget enforcement." \
   --cwd "$PWD" \
   --pi /tmp/as-is-pi-stub.sh \

@@ -1,8 +1,12 @@
 ---
+name: as-is
 description: Routes user intent through durable as-is orchestration and reports concise results.
 mode: primary
 permission:
   task: allow
+  webfetch: deny
+  websearch: deny
+---
   webfetch: deny
   websearch: deny
 ---

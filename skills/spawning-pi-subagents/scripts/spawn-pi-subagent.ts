@@ -32,6 +32,7 @@ type AgentDefinition = {
   body: string;
   model?: string;
   tools?: string;
+  name?: string;
 };
 
 type PiInvocation = {
@@ -256,6 +257,7 @@ const parseFrontMatter = (raw: string, filePath: string): AgentDefinition => {
     body,
     model: values.get("model"),
     tools: values.get("tools"),
+    name: values.get("name"),
   };
 };
 
@@ -295,7 +297,16 @@ const uniquePaths = (paths: string[]): string[] => [...new Set(paths.map((path) 
 const newJobId = (): string =>
   `j-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
-const identityFromAgent = (agentPath: string): string => basename(agentPath, ".md");
+// Derive the agent identity for the job registry and lineage. Prefer the
+// front-matter `name:` field (authoritative for OpenCode discovery); fall back
+// to the parent directory name when the file is `agent.md` (the directory
+// layout); finally fall back to the file basename for legacy flat layout.
+const identityFromAgent = (agentPath: string, definition?: AgentDefinition): string => {
+  if (definition?.name) return definition.name;
+  const file = basename(agentPath, ".md");
+  if (file === "agent") return basename(dirname(agentPath));
+  return file;
+};
 
 const registryPath = (): string => process.env.AS_IS_JOBS_REGISTRY ?? "/tmp/as-is-jobs.jsonl";
 
@@ -590,7 +601,7 @@ const main = async() => {
 
   // Caller identity and parent job id propagate through env so a child agent's
   // own delegations record the correct lineage without OS parentage.
-  const identity = identityFromAgent(agentPath);
+  const identity = identityFromAgent(agentPath, definition);
   const caller = options.caller ?? process.env.AS_IS_IDENTITY ?? "user";
   const parentJobId = options.parentJobId ?? process.env.AS_IS_JOB_ID ?? null;
 
