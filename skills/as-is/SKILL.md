@@ -76,11 +76,13 @@ as a top-level role, or treat Pi process exit as task completion.
 
 ## Boundary
 
-This entrypoint establishes separate Pi processes and agent-file loading. It
-does not yet establish a detached supervisor, durable JobId map, restart
-reconciliation, watchdog, hard budget enforcement, or a non-blocking launch
-checkpoint. The parent process waits for the child and must report those host
-capabilities as unavailable rather than inferring them.
+This entrypoint establishes separate Pi processes and agent-file loading.
+Non-blocking launch and a detached wall-clock supervisor are available via the
+launcher's `--detach` mode; the parent receives a handle and may observe the
+child by polling its record and log. It does not yet establish a durable JobId
+map or handle registry, restart reconciliation, watchdog enforcement beyond the
+wall-clock budget, or hard cost-budget enforcement at the launcher. Report those
+remaining host capabilities as unavailable rather than inferring them.
 
 The root and component `as-is.md` files remain the authority. Private Pi
 sessions, prompt files, process handles, and output streams are supplementary

@@ -1,21 +1,23 @@
 ---
 name: spawning-pi-subagents
-description: Starts an isolated Pi child process from a repository agent Markdown file and returns its process output. Use when delegating a bounded task to as-is, orchestrator, implementer, or another named agent.
+description: Starts an isolated Pi child process from a repository agent Markdown file. In blocking mode it returns the child's process output; with --detach it returns a handle and runs the child independently under a detached budget supervisor. Use when delegating a bounded task to as-is, component-builder, or another named agent.
 compatibility: Requires Bun and a local Pi package or binary. The child process must run in the target repository and receive an explicit agent file and task.
 ---
 
 # Spawning Pi Subagents
 
 Use this skill when a role must run in a separate Pi process with an isolated
-context window. The process boundary is real, but this skill is not yet a
-detached supervisor: the caller waits for the child process to exit.
+context window. The process boundary is real. By default the caller blocks on
+the child's exit and receives its output; with `--detach` the caller receives a
+handle and the child runs independently, with a detached supervisor enforcing
+any wall-clock budget so the parent is free to move on or observe by polling.
 
 ## Contract
 
 The launcher accepts:
 
-- an agent Markdown file, such as `.agents/agents/as-is.md`,
-  `.agents/agents/orchestrator.md`, or `.agents/agents/implementer.md`;
+- an agent Markdown file, such as `.agents/agents/as-is.md` or
+  `.agents/agents/component-builder.md`;
 - one task string;
 - the repository working directory;
 - optional Pi model, tool, approval, and additional skill settings;
@@ -53,7 +55,7 @@ controls.
 
 ```bash
 bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
-  --agent .agents/agents/orchestrator.md \
+  --agent .agents/agents/component-builder.md \
   --task "Delegate the bounded component task recorded in the named component as-is.md." \
   --cwd "$PWD" \
   --tools read,grep,find,ls,bash,edit,write \
@@ -64,7 +66,7 @@ With delegation budgets forwarded to the child:
 
 ```bash
 bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
-  --agent .agents/agents/implementer.md \
+  --agent .agents/agents/component-builder.md \
   --task "Implement the bounded task recorded in the assigned component." \
   --cwd "$PWD" \
   --budget-wall-clock-seconds 220 \
@@ -75,7 +77,7 @@ For a short task:
 
 ```bash
 bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
-  --agent .agents/agents/implementer.md \
+  --agent .agents/agents/component-builder.md \
   --task "Implement the bounded task recorded in the assigned component." \
   --cwd "$PWD"
 ```
@@ -95,6 +97,35 @@ first use, so treat the first real launch as an external setup effect. Set
 binary when needed. Use `--dry-run` to inspect the resolved command without
 starting a model process.
 
+## Detach Mode
+
+With `--detach`, the launcher spawns the child as an independent detached
+process and returns a handle on stdout instead of blocking on completion:
+
+```json
+{
+  "jobId": "j-...",
+  "pid": 12345,
+  "logPath": "/tmp/as-is-child-XXX/child.log",
+  "recordPath": "./component/as-is.md",
+  "budgetWallClockSeconds": 120,
+  "budgetCostUsd": 0.3
+}
+```
+
+The child's stdout and stderr go to `logPath`. The child's `as-is.md` record is
+the result and handoff; there is no talk-back channel to the parent. Any agent
+— the parent, `as-is`, a sibling, or a supervisor — observes the child by
+polling its record (structured status) and `logPath` (detail).
+
+When a wall-clock budget is set in detach mode, the launcher spawns a detached
+supervisor (an internal `--supervise` invocation) that outlives the launcher and
+kills the child's process group on expiry, exiting early once the group is gone.
+The parent is not the budget holder and may move on to other work.
+
+Pass `--record <path>` to include the component record path in the handle. The
+parent usually knows this path since it created the record.
+
 ## Process Rules
 
 - Invoke one configured role at a time unless the parent task explicitly
@@ -108,10 +139,11 @@ starting a model process.
   attempt. Do not place credentials or tokens in task arguments, task files, or
   output.
 - The launcher uses `--mode json`, `--print`, `--no-session`, a shell-free child
-  process, and a private temporary system-prompt file. It forwards child output
-  and removes the temporary prompt after exit. Budget constraints are appended
-  to the private system prompt so the child can self-limit on cost; the
-  wall-clock budget is enforced at the launcher process level.
+  process, and a private temporary system-prompt file. In blocking mode it
+  forwards child output and removes the temporary prompt after exit. Budget
+  constraints are appended to the private system prompt so the child can
+  self-limit on cost; the wall-clock budget is enforced at the launcher process
+  level in blocking mode, or by a detached supervisor in `--detach` mode.
 - A zero Pi exit code is only a host observation. Reread the durable component
   record and validate its status, handoff, acceptance evidence, and cleanup
   before treating the task as complete. An exit status of `124` with the
@@ -120,8 +152,9 @@ starting a model process.
   completion.
 - This skill does not provide restart reconciliation, a durable JobId map,
   cancellation ownership, watchdog enforcement beyond the wall-clock budget
-  timer, cost-budget enforcement at the launcher, or non-blocking launch
-  acceptance. Cost enforcement is forwarded to the child for self-limiting
+  timer, cost-budget enforcement at the launcher, or a durable handle registry.
+  Non-blocking launch acceptance is available via `--detach`. Cost enforcement
+  is forwarded to the child for self-limiting
   because Pi cost is not directly observable from the launcher; record that
   approximation when relying on it. Do not claim stronger properties from this
   launcher.

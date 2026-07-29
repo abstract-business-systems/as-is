@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, open, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, dirname, isAbsolute, join, resolve } from "node:path";
 
@@ -16,6 +16,9 @@ type Options = {
   noApprove?: boolean;
   noTools?: boolean;
   dryRun: boolean;
+  detach?: boolean;
+  record?: string;
+  supervise?: { childPid: number; seconds: number };
   budgetWallClockSeconds?: number;
   budgetCostUsd?: number;
 };
@@ -38,15 +41,25 @@ type RunResult = {
   budgetSeconds?: number;
 };
 
+type Handle = {
+  jobId: string;
+  pid: number | null;
+  logPath: string;
+  recordPath: string | null;
+  budgetWallClockSeconds: number | null;
+  budgetCostUsd: number | null;
+};
+
 const BUDGET_STOPPED_EXIT_CODE = 124;
 const BUDGET_KILL_GRACE_SECONDS = 5;
+const SUPERVISOR_POLL_MILLIS = 1000;
 
 const skillDirectory = resolve(import.meta.dir, "..");
 
 const usage = `Usage:
   bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts [options]
 
-Required:
+Required (unless --supervise):
   --agent <path>             Agent Markdown file to load
   --task <text>              Task direction
 
@@ -60,9 +73,19 @@ Optional:
   --no-approve               Ignore project-local files for this run
   --no-tools                 Disable all Pi tools
   --dry-run                  Print the resolved launch without starting Pi
+  --detach                   Launch the child independently and return a handle
+                             (job id, PID, log path, record path) without
+                             blocking on completion. The child's stdout and
+                             stderr go to a log file; its as-is.md record is the
+                             result. A wall-clock budget, if set, is enforced by
+                             a detached supervisor that outlives this launcher
+  --record <path>            Component as-is.md record path to include in the
+                             detach handle (the parent usually knows this)
   --budget-wall-clock-seconds <n>
                              Hard wall-clock budget. When > 0, stop the child
                              after n seconds and return a budget-stopped result
+                             (or, with --detach, a detached supervisor kills the
+                             child's process group on expiry)
   --budget-cost-usd <n>      Monetary cost budget (USD) forwarded to the child
                              agent for self-limiting; not directly observable
                              from the launcher
@@ -77,6 +100,7 @@ const valueOptions = new Set([
   "--model",
   "--tools",
   "--skill",
+  "--record",
   "--budget-wall-clock-seconds",
   "--budget-cost-usd",
 ]);
@@ -110,6 +134,20 @@ const parseOptions = (args: string[]): Options => {
       options.noTools = true;
       continue;
     }
+    if (option === "--detach") {
+      options.detach = true;
+      continue;
+    }
+    if (option === "--supervise") {
+      const childPid = Number(args[index + 1]);
+      const seconds = Number(args[index + 2]);
+      if (!Number.isFinite(childPid) || !Number.isFinite(seconds) || childPid <= 0 || seconds < 0) {
+        throw new Error("--supervise requires <childPid> <seconds> (positive pid, non-negative seconds)");
+      }
+      options.supervise = { childPid, seconds };
+      index += 2;
+      continue;
+    }
     if (option === "--budget-wall-clock-seconds" || option === "--budget-cost-usd") {
       const value = args[index + 1];
       if (!value || value.startsWith("--")) {
@@ -139,13 +177,16 @@ const parseOptions = (args: string[]): Options => {
     else if (option === "--pi") options.pi = value;
     else if (option === "--model") options.model = value;
     else if (option === "--tools") options.tools = value;
+    else if (option === "--record") options.record = value;
   }
 
   if (options.approve && options.noApprove) {
     throw new Error("Use only one of --approve and --no-approve");
   }
-  if (!options.agent) throw new Error("--agent is required");
-  if (!options.task) throw new Error("--task is required");
+  if (!options.supervise) {
+    if (!options.agent) throw new Error("--agent is required");
+    if (!options.task) throw new Error("--task is required");
+  }
 
   return options;
 };
@@ -202,6 +243,49 @@ const resolvePi = (requested: string | undefined, cwd: string): PiInvocation => 
 };
 
 const uniquePaths = (paths: string[]): string[] => [...new Set(paths.map((path) => resolve(path)))];
+
+const newJobId = (): string =>
+  `j-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+
+// A detached budget supervisor. It outlives the launcher process so a parent
+// that has moved on still has its child's wall-clock budget enforced. It polls
+// the child's process-group liveness and exits early once the group is gone; on
+// the deadline it sends SIGTERM then SIGKILL after a short grace.
+const supervise = (childPid: number, seconds: number): Promise<void> =>
+  new Promise((resolveExit) => {
+    if (seconds <= 0) {
+      resolveExit();
+      return;
+    }
+    const groupPid = -childPid;
+    const deadline = Date.now() + seconds * 1000;
+
+    const signalGroup = (signal: NodeJS.Signals) => {
+      try {
+        process.kill(groupPid, signal);
+      } catch {
+        /* group already gone */
+      }
+    };
+
+    const poll = setInterval(() => {
+      try {
+        process.kill(groupPid, 0);
+      } catch {
+        clearInterval(poll);
+        resolveExit();
+        return;
+      }
+      if (Date.now() >= deadline) {
+        clearInterval(poll);
+        signalGroup("SIGTERM");
+        setTimeout(() => {
+          signalGroup("SIGKILL");
+          resolveExit();
+        }, BUDGET_KILL_GRACE_SECONDS * 1000);
+      }
+    }, SUPERVISOR_POLL_MILLIS);
+  });
 
 const runChild = (
   command: string,
@@ -271,13 +355,32 @@ const runChild = (
     });
   });
 
+const buildBudgetLines = (options: Options): string[] => {
+  if (options.budgetWallClockSeconds === undefined && options.budgetCostUsd === undefined) return [];
+  return [
+    "",
+    "Budget constraints forwarded by the delegating agent through the launcher:",
+    `- wall-clock-seconds: ${options.budgetWallClockSeconds ?? "unset"}`,
+    `- cost-usd: ${options.budgetCostUsd ?? "unset"}`,
+    "The launcher enforces the wall-clock limit as a hard process-level stop. The",
+    "cost limit is not directly observable from the launcher; self-limit on cost",
+    "and stop and return promptly when either limit is approached.",
+  ];
+};
+
 const main = async() => {
   const options = parseOptions(process.argv.slice(2));
+
+  if (options.supervise) {
+    await supervise(options.supervise.childPid, options.supervise.seconds);
+    return;
+  }
+
   const cwd = resolve(options.cwd);
   const agentPath = resolveFromCwd(options.agent as string, cwd);
   const definition = parseFrontMatter(await readFile(agentPath, "utf8"), agentPath);
   const task = options.task;
-  if (!task.trim()) throw new Error("Task direction is empty");
+  if (!task || !task.trim()) throw new Error("Task direction is empty");
 
   const model = options.model ?? definition.model;
   const tools = options.tools ?? definition.tools;
@@ -314,44 +417,71 @@ const main = async() => {
       skills: skillPaths,
       model: model ?? null,
       tools: tools ?? null,
+      detach: options.detach ?? false,
       budget,
     }, null, 2)}\n`);
     return;
   }
 
-  const promptDirectory = await mkdtemp(join(tmpdir(), "as-is-pi-agent-"));
-  const promptPath = join(promptDirectory, `${basename(agentPath, ".md")}-system-prompt.md`);
-  const budgetLines: string[] = [];
-  if (options.budgetWallClockSeconds !== undefined || options.budgetCostUsd !== undefined) {
-    budgetLines.push(
-      "",
-      "Budget constraints forwarded by the delegating agent through the launcher:",
-      `- wall-clock-seconds: ${options.budgetWallClockSeconds ?? "unset"}`,
-      `- cost-usd: ${options.budgetCostUsd ?? "unset"}`,
-      "The launcher enforces the wall-clock limit as a hard process-level stop. The",
-      "cost limit is not directly observable from the launcher; self-limit on cost",
-      "and stop and return promptly when either limit is approached.",
-    );
-  }
   const prompt = [
     `You are running under the repository agent contract loaded from ${basename(agentPath)}.`,
     "The host-selected Pi tools and approval flags are authoritative for this process.",
     "",
     definition.body,
-    ...budgetLines,
+    ...buildBudgetLines(options),
   ].join("\n");
 
+  const childArgs = [
+    ...piInvocation.args,
+    ...baseArgs,
+    "--append-system-prompt",
+    "<prompt-path>",
+    `Task:\n${task}`,
+  ];
+
+  if (options.detach) {
+    const jobDirectory = await mkdtemp(join(tmpdir(), "as-is-child-"));
+    const promptPath = join(jobDirectory, "system-prompt.md");
+    const logPath = join(jobDirectory, "child.log");
+    await writeFile(promptPath, prompt, { encoding: "utf8", mode: 0o600 });
+    const logFile = await open(logPath, "w");
+    const resolvedChildArgs = childArgs.map((arg) => (arg === "<prompt-path>" ? promptPath : arg));
+    const child = spawn(piInvocation.command, resolvedChildArgs, {
+      cwd,
+      env: process.env,
+      shell: false,
+      detached: true,
+      stdio: ["ignore", logFile.fd, logFile.fd],
+    });
+    child.unref();
+
+    if (options.budgetWallClockSeconds && options.budgetWallClockSeconds > 0) {
+      spawn(
+        Bun.which("bun") ?? "bun",
+        [import.meta.path, "--supervise", String(child.pid), String(options.budgetWallClockSeconds)],
+        { detached: true, stdio: "ignore" },
+      ).unref();
+    }
+
+    const handle: Handle = {
+      jobId: newJobId(),
+      pid: child.pid,
+      logPath,
+      recordPath: options.record ?? null,
+      budgetWallClockSeconds: options.budgetWallClockSeconds ?? null,
+      budgetCostUsd: options.budgetCostUsd ?? null,
+    };
+    process.stdout.write(`${JSON.stringify(handle, null, 2)}\n`);
+    return;
+  }
+
+  const promptDirectory = await mkdtemp(join(tmpdir(), "as-is-pi-agent-"));
+  const promptPath = join(promptDirectory, `${basename(agentPath, ".md")}-system-prompt.md`);
   try {
     await writeFile(promptPath, prompt, { encoding: "utf8", mode: 0o600 });
     const result = await runChild(
       piInvocation.command,
-      [
-        ...piInvocation.args,
-        ...baseArgs,
-        "--append-system-prompt",
-        promptPath,
-        `Task:\n${task}`,
-      ],
+      childArgs.map((arg) => (arg === "<prompt-path>" ? promptPath : arg)),
       cwd,
       options.budgetWallClockSeconds,
     );
