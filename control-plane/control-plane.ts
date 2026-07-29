@@ -818,7 +818,7 @@ export class ControlPlane {
     const acceptanceLines = options.acceptance.map((item) => `  - ${yamlQuote(item)}`).join("\n");
     const delegated = eventLine({
       event: "delegated",
-      by: "parent-orchestrator",
+      by: "parent-builder",
       parent: options.parent,
       execution: "queued",
       maxConcurrentTasks: 1,
@@ -854,7 +854,7 @@ ${acceptanceLines}
 
 ## Purpose
 
-Provide a bounded child component for parent-orchestrator delegation.
+Provide a bounded child component for parent-builder delegation.
 
 ## Requirement
 
@@ -866,7 +866,7 @@ The configured worker performs only this child scope and records its durable han
 
 ## Progress
 
-Created in \`ready\` state by the parent orchestrator; execution remains queued while
+Created in \`ready\` state by the parent builder; execution remains queued while
 the effective leaf limit is \`maxConcurrentTasks: 1\`.
 
 ## Validation
@@ -892,7 +892,7 @@ ${delegated}
 
 ## Next Action
 
-The parent orchestrator observes this record and activates it only when the
+The parent builder observes this record and activates it only when the
 configured leaf slot is available.
 `;
   }
@@ -908,8 +908,8 @@ configured leaf slot is available.
     externalEffects?: string;
     delegatedBy?: string;
   }): string {
-    const delegatedBy = options.delegatedBy ?? "parent-orchestrator";
-    if (delegatedBy !== "parent-orchestrator") throw new ControlPlaneError("new parallel work must be requested by parent-orchestrator");
+    const delegatedBy = options.delegatedBy ?? "parent-builder";
+    if (delegatedBy !== "parent-builder") throw new ControlPlaneError("new parallel work must be requested by parent-builder");
     if (this.rootMaxConcurrent() !== 1) throw new ControlPlaneError("initiative 1 requires config.scheduling.maxConcurrentTasks to remain 1");
     if (!options.requirement.trim() || !options.acceptance.length || options.acceptance.some((item) => !item.trim())) {
       throw new ControlPlaneError("delegated requirement and acceptance must be non-empty");
@@ -944,7 +944,7 @@ configured leaf slot is available.
     if (!(externalEffects in EFFECT_RANK) || EFFECT_RANK[externalEffects] > EFFECT_RANK[effect(parentRecord)]) {
       throw new ControlPlaneError("child external-effects policy weakens its parent");
     }
-    const worker = options.worker ?? "implementer";
+    const worker = options.worker ?? "component-builder";
     if (!worker.trim()) throw new ControlPlaneError("child worker must be non-empty");
 
     const childDir = resolve(parentRecord.directory, child);
@@ -959,7 +959,7 @@ configured leaf slot is available.
     parentRecord = this.writeEvent(parentRecord, {
       event: "delegation-request",
       id: requestId,
-      by: "parent-orchestrator",
+      by: "parent-builder",
       child: relative(parentRecord.directory, childDir).split(sep).join("/"),
       execution: "queued",
       maxConcurrentTasks: 1,

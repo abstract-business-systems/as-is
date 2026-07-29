@@ -12,7 +12,7 @@ config:
     maxConcurrentTasks: 1
 task:
   status: ${status}
-  worker: implementer
+  worker: component-builder
   updated: ${updated}
 constraints:
   cost:

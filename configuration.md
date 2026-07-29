@@ -122,8 +122,8 @@ overridable unless marked fixed below.
 | Area | Default | Purpose |
 | --- | --- | --- |
 | `tasks.unitBudget` | `{"wallClockSeconds": 300, "costUsd": 0.20}` | Bound for one progress unit. |
-| `scheduling` | `{"wakeSeconds": 60, "maxConcurrentTasks": 1, "retryBackoffSeconds": 300}` | Orchestrator wake, concurrency, and retry policy. |
-| `agents.defaultRole` | `"implementer"` | Role used when a task does not name one. |
+| `scheduling` | `{"wakeSeconds": 60, "maxConcurrentTasks": 1, "retryBackoffSeconds": 300}` | Wake, concurrency, and retry policy. |
+| `agents.defaultRole` | `"component-builder"` | Role used when a task does not name one. |
 | `agents.roles` | `{}` | Role-specific model, skill, tool, and permission settings. |
 | `hitl` | `{"onBlocked": true, "onBudgetExceeded": true, "onExternalEffect": true}` | Events requiring human direction or approval. |
 | `logging` | `{"level": "info", "retainDays": 30}` | Operational record detail and retention. |
@@ -173,7 +173,7 @@ Private per-run host state may instead use
 `${TMPDIR:-/tmp}/as-is/<project-key>/<run-id>/<component-key>/`, or an equivalent
 secure temporary root. This path is disposable runtime guidance only: it is
 private, collision-resistant, cleaned after durable evidence, and never task
-authority or recovery evidence. A fresh orchestrator recovers from the
+authority or recovery evidence. A fresh component-builder recovers from the
 repository record and immutable run input when available, not from a cache,
 index, chat transcript, or live process.
 

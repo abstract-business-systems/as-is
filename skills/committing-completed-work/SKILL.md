@@ -27,7 +27,7 @@ unrelated, or unvalidated work.
    integration artifacts and record.
 3. Leave pre-existing, unrelated, and out-of-boundary changes unstaged. If task
    changes cannot be separated safely, leave the record non-completed, record
-   the blocker, and request the responsible orchestrator's direction.
+   the blocker, and request the responsible component-builder's direction.
 4. Run the smallest relevant validation, then verify the proposed staged patch
    with `git diff --cached --check`.
 5. Set the record to `completed`, stage only the identified handoff, and create

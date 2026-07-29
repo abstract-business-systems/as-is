@@ -51,26 +51,26 @@ The started process must:
   concise `change-log.md` entries;
 - treat the root record as current task authority and preserve higher-authority
   repository instructions and design principles;
-- route substantive bounded work to `.agents/agents/orchestrator.md` using the
-  `spawning-pi-subagents` launcher as another separate Pi process;
-- pass the orchestrator the bounded requirement, relevant component record, and
-  named dependencies without directly launching an implementer;
-- reread durable records after the orchestrator process exits and report
+- route substantive bounded work to `.agents/agents/component-builder.md` using
+  the `spawning-pi-subagents` launcher as another separate Pi process;
+- pass the component-builder the bounded requirement, relevant component record,
+  and named dependencies;
+- reread durable records after the component-builder process exits and report
   completion, blockers, validation, and next action from those records.
 
-To start the orchestrator from the as-is process, use the previous skill with
-task text that identifies the requested component and its current record:
+To start the component-builder from the as-is process, use the previous skill
+with task text that identifies the requested component and its current record:
 
 ```bash
 bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
-  --agent .agents/agents/orchestrator.md \
-  --task "Delegate <component> using its current as-is.md and named dependencies." \
+  --agent .agents/agents/component-builder.md \
+  --task "Build <component> using its current as-is.md and named dependencies." \
   --cwd "$PWD" \
   --tools read,grep,find,ls,bash,edit,write \
   --approve
 ```
 
-The orchestrator must select the configured worker named by the component
+The component-builder must select the configured worker named by each child
 record. It must not substitute `general` or `explore`, invoke a worker directly
 as a top-level role, or treat Pi process exit as task completion.
 

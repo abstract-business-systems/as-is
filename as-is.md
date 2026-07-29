@@ -29,7 +29,7 @@ config:
 
 task:
   status: completed
-  worker: orchestrator
+  worker: component-builder
   updated: 2026-07-28T01:30:00Z
 constraints:
   cost:

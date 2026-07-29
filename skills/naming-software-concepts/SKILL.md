@@ -24,7 +24,7 @@ concept, role, scope, and responsibility of an artifact.
   `AGENTS.md` and OpenCode `SKILL.md`.
 - Skills use capability phrases that read as real skills, such as
   `setting-up-as-is`, not function-like names such as `setup-as-is`.
-- Agents use role names, such as `orchestrator`, `implementer`, and `reviewer`.
+- Agents use role names, such as `component-builder` and `reviewer`.
 - Adapters identify their host, such as `opencode-adapter`.
 - Documents name their subject, such as `design-principles.md`.
 
