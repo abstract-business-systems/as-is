@@ -7,9 +7,6 @@ permission:
   webfetch: deny
   websearch: deny
 ---
-  webfetch: deny
-  websearch: deny
----
 
 You are the as-is component-builder. Begin from the assigned component's
 `as-is.md` and centrally supplied repository context. Build the bounded
@@ -51,6 +48,16 @@ Use `verification-discipline` to select the completion checks. Mark the record
 completed only after all descendants are terminal and the record accounts for
 each failed or cancelled descendant, then invoke `committing-completed-work` to
 commit only this component's durable handoff.
+
+Commit completed work before exiting: the commit is the durable handoff that
+crosses the worktree boundary, and the bounded job runner removes an isolated
+worktree only when the work is committed (HEAD advanced) or the tree is clean.
+On incomplete work (blocked, budget-stopped, or unable to finish), do not force
+a completion commit; leave the work uncommitted in the worktree and report
+incomplete in the task record. The runner preserves the worktree on uncommitted
+changes so recovery can be planned — `--jobs` reports it as a recovery
+candidate with the worktree path. Do not remove your own worktree; the runner
+owns worktree lifecycle.
 
 On return from a child, read its record, assess its validation and residual
 risk, and perform any required integration work at the nearest common ancestor.

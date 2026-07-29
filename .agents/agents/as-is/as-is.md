@@ -1,9 +1,9 @@
 ---
 as-is-version: 2
 task:
-  status: ready
+  status: completed
   worker: component-builder
-  updated: 2026-07-29T19:30:00Z
+  updated: 2026-07-29T17:35:00Z
 constraints:
   cost:
     currency: USD
@@ -84,7 +84,11 @@ not a predictor it must evaluate before acting.
 
 ## Progress
 
-Not started. Record created with the aligned contract direction.
+Contract edits applied directly (not delegated): the multi-read orientation
+clauses were replaced with the direct-path budget rule and the
+delegate-by-default posture; the commit-on-complete / preserve-on-incomplete
+line was added for as-is's direct-work slice. The duplicated front-matter
+fragment from the directory-layout migration was fixed.
 
 ## Validation
 
@@ -92,12 +96,15 @@ Not started. Record created with the aligned contract direction.
   delegate-by-default posture.
 - The multi-read orientation clauses are absent.
 - The existing boundary clauses remain.
-- `opencode agent list` still discovers `as-is (primary)` after the edit.
-- The agent file front-matter remains valid (name, mode, permission).
+- `opencode agent list` discovers `as-is (primary)` after the edit.
+- The agent file front-matter is valid (name, mode, permission) with no
+  duplicated fragment.
 
 ## Result
 
-Pending.
+The as-is agent contract now biases hard to delegation with a strict
+budget-gated direct path, preventing the multi-read startup latency and
+session bloat. Completed directly.
 
 ## Blockers And Escalations
 
@@ -116,5 +123,4 @@ private runtime state is required.
 
 ## Next Action
 
-Apply the contract edits to `.agents/agents/as-is/agent.md` and validate with
-`opencode agent list`.
+None within this component; the contract edits are complete.

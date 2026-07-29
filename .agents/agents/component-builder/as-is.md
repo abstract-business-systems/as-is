@@ -88,22 +88,24 @@ The script replaces the multi-read orientation that made delegated tasks slow.
 
 ## Progress
 
-Not started. Record created with the aligned contract direction.
+The component-builder agent contract line was applied directly: the
+orientation-script usage direction and the report-only handling note were
+added, and the commit-on-complete / preserve-on-incomplete line was added.
+The duplicated front-matter fragment from the directory-layout migration was
+fixed. The orientation script itself is still pending (to be built by a
+delegated as-is run).
 
 ## Validation
 
-- The script runs in one command and prints the snapshot sections above.
-- It builds on `TaskSnapshot` where control-plane provides the field.
-- `bun build` succeeds with no type errors.
-- A focused test asserts the script exits 0 and the output contains a root
-  status line and at least one component record line.
 - The component-builder contract file contains the orientation line and the
   report-only handling note.
-- `opencode agent list` still discovers `component-builder (subagent)`.
+- `opencode agent list` discovers `component-builder (subagent)`.
+- The agent file front-matter is valid with no duplicated fragment.
+- The orientation script is not yet implemented (pending).
 
 ## Result
 
-Pending.
+Contract line applied directly. Script pending.
 
 ## Blockers And Escalations
 
