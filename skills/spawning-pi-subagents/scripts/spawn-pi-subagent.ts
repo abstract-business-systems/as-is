@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
-import { mkdtemp, open, readFile, rm, writeFile } from "node:fs/promises";
+import { appendFile, mkdtemp, open, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, dirname, isAbsolute, join, resolve } from "node:path";
 
@@ -17,6 +17,7 @@ type Options = {
   noTools?: boolean;
   dryRun: boolean;
   detach?: boolean;
+  noRegistry?: boolean;
   record?: string;
   supervise?: { childPid: number; seconds: number };
   budgetWallClockSeconds?: number;
@@ -79,6 +80,7 @@ Optional:
                              stderr go to a log file; its as-is.md record is the
                              result. A wall-clock budget, if set, is enforced by
                              a detached supervisor that outlives this launcher
+  --no-registry              Do not append a detached handle to the job registry
   --record <path>            Component as-is.md record path to include in the
                              detach handle (the parent usually knows this)
   --budget-wall-clock-seconds <n>
@@ -136,6 +138,10 @@ const parseOptions = (args: string[]): Options => {
     }
     if (option === "--detach") {
       options.detach = true;
+      continue;
+    }
+    if (option === "--no-registry") {
+      options.noRegistry = true;
       continue;
     }
     if (option === "--supervise") {
@@ -246,6 +252,18 @@ const uniquePaths = (paths: string[]): string[] => [...new Set(paths.map((path) 
 
 const newJobId = (): string =>
   `j-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+
+const registryPath = (): string => process.env.AS_IS_JOBS_REGISTRY ?? "/tmp/as-is-jobs.jsonl";
+
+const appendHandleToRegistry = async (handle: Handle): Promise<void> => {
+  try {
+    await appendFile(registryPath(), `${JSON.stringify(handle)}\n`, "utf8");
+  } catch (error) {
+    process.stderr.write(
+      `as-is detached registry note: unable to append ${registryPath()}: ${error instanceof Error ? error.message : String(error)}\n`,
+    );
+  }
+};
 
 // A detached budget supervisor. It outlives the launcher process so a parent
 // that has moved on still has its child's wall-clock budget enforced. It polls
@@ -471,6 +489,7 @@ const main = async() => {
       budgetWallClockSeconds: options.budgetWallClockSeconds ?? null,
       budgetCostUsd: options.budgetCostUsd ?? null,
     };
+    if (!options.noRegistry) await appendHandleToRegistry(handle);
     process.stdout.write(`${JSON.stringify(handle, null, 2)}\n`);
     return;
   }

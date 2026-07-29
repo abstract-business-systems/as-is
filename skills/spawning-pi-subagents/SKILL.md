@@ -126,6 +126,11 @@ The parent is not the budget holder and may move on to other work.
 Pass `--record <path>` to include the component record path in the handle. The
 parent usually knows this path since it created the record.
 
+Each detached handle is appended as one JSON line to `/tmp/as-is-jobs.jsonl`,
+or to the path in `AS_IS_JOBS_REGISTRY` when set. Registry writes are
+best-effort: an unwritable registry emits a stderr note but never fails the
+launch. Pass `--no-registry` to suppress the append for a detached launch.
+
 ## Process Rules
 
 - Invoke one configured role at a time unless the parent task explicitly

@@ -2,8 +2,8 @@
 as-is-version: 2
 task:
   status: completed
-  worker: implementer
-  updated: 2026-07-27T19:54:38Z
+  worker: component-builder
+  updated: 2026-07-28T02:45:00Z
 constraints:
   cost:
     currency: USD
@@ -48,7 +48,7 @@ acceptance:
     and host-observed wall-clock use in this record.
 ---
 
-# Spawning Pi Subagents Budget Enforcement
+# Spawning Pi Subagents Detached Handle Registry
 
 ## Purpose
 
@@ -59,6 +59,10 @@ constraint forwarding to that launcher so delegation is bounded and a parent can
 account for a budget-stopped return.
 
 ## Requirement
+
+Add a best-effort detached handle registry, `AS_IS_JOBS_REGISTRY` override,
+`--no-registry`, focused deterministic coverage, and documentation while
+preserving the existing launcher contract.
 
 Implement budget enforcement in
 `skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts` and document the new
@@ -106,10 +110,8 @@ do not add a host integration, credential, or external service dependency.
 
 ## Progress
 
-Implemented budget enforcement in
-`skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts` and documented the
-new surface in `skills/spawning-pi-subagents/SKILL.md` and minimally in
-`.agents/agents/orchestrator.md`.
+Registry implementation is complete in the launcher, focused test, and skill
+documentation. The existing budget enforcement is preserved.
 
 Changes to the launcher:
 - Added `--budget-wall-clock-seconds <n>` and `--budget-cost-usd <n>` options,
@@ -139,7 +141,7 @@ Bun/TypeScript built-ins.
 
 ## Validation
 
-All required checks ran from the repository root without contacting a provider.
+Required checks ran without provider contact: `bun build --no-bundle --target bun --outfile /tmp/as-is-spawn-pi-subagent.js skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts` succeeds; `bun test skills/spawning-pi-subagents/scripts/spawn-pi-subagent.test.ts` passes the deterministic registry and detach tests; dry-run confirms `detach: true` and budget/handle contract fields; `git diff --check` passes. Host-observed wall-clock use: approximately 8 seconds. Host-reported cost unavailable; fallback metric is elapsed seconds.
 
 1. Launcher syntax build:
    `bun build --no-bundle --target bun --outfile /tmp/as-is-spawn-pi-subagent.js \
@@ -182,8 +184,10 @@ All required checks ran from the repository root without contacting a provider.
 
 ## Result
 
-Completed. The synchronous spawning-pi-subagents launcher now enforces a hard
-wall-clock budget at the process level (SIGTERM then SIGKILL on the child
+Completed. Detached launches append one handle JSON line to the configured
+registry, tolerate registry failures, and support `--no-registry`. Documentation
+and focused deterministic test are included. No descendants were spawned. The
+synchronous spawning-pi-subagents launcher now enforces a hard wall-clock budget at the process level (SIGTERM then SIGKILL on the child
 process group, with a distinguishable exit `124` and `as-is budget-stopped`
 stderr marker), forwards wall-clock and cost constraints to the executing agent
 through the private system-prompt handoff, and records the forwarded budget in
@@ -216,7 +220,7 @@ retired systemd flow.
 
 ## Next Action
 
-The implementer's scoped handoff is ready for commit via
+The scoped handoff is ready for commit via
 `committing-completed-work` (this component's files plus the named
 `.agents/agents/orchestrator.md` documentation dependency only). The parent
 should then reread this record, confirm the recorded residual risk is

@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { spawn } from "node:child_process";
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -65,6 +65,25 @@ test("detach dry-run reports the detach flag and forwarded budget", async () => 
   expect(parsed.budget["cost-usd"]).toBe(0.3);
   expect(parsed.command).toBeTruthy();
   expect(parsed.agent).toContain("as-is.md");
+});
+
+test("detach appends a handle to the configured registry", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "as-is-registry-test-"));
+  try {
+    const stubPi = writeSleepStub(dir, 0);
+    const registry = join(dir, "jobs.jsonl");
+    const configured = await new Promise<RunResult>((resolveRun) => {
+      const child = spawn(Bun.which("bun") ?? "bun", [SCRIPT, "--agent", AGENT, "--task", "Registry configured task.", "--cwd", process.cwd(), "--pi", stubPi, "--detach"], { cwd: process.cwd(), env: { ...process.env, AS_IS_JOBS_REGISTRY: registry }, stdio: ["ignore", "pipe", "pipe"] });
+      let stdout = ""; let stderr = "";
+      child.stdout.on("data", (chunk) => { stdout += chunk; }); child.stderr.on("data", (chunk) => { stderr += chunk; });
+      child.on("close", (code) => resolveRun({ stdout, stderr, exitCode: code ?? 1 }));
+    });
+    expect(configured.exitCode).toBe(0);
+    const line = readFileSync(registry, "utf8").trim();
+    const registered = JSON.parse(line);
+    expect(registered.jobId).toBe(JSON.parse(configured.stdout).jobId);
+    expect(registered.pid).toBe(JSON.parse(configured.stdout).pid);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
 test("detach returns a handle immediately and the detached supervisor kills the child on budget", async () => {
