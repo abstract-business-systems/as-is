@@ -30,11 +30,11 @@ config:
 task:
   status: completed
   worker: component-builder
-  updated: 2026-07-28T01:30:00Z
+  updated: 2026-07-29T12:22:18Z
 constraints:
   cost:
     currency: USD
-    allocated: 0.50
+    allocated: 0.60
     spent: 0.00
     reserve: 0.05
     source: unavailable
@@ -44,34 +44,38 @@ constraints:
     maximum-children: 8
   execution:
     wall-clock:
-      allocated-seconds: 300
-      spent-seconds: 0
+      allocated-seconds: 480
+      spent-seconds: 180
       reserve-seconds: 60
       source: unavailable
   external-effects: require-current-turn-user-approval
 acceptance:
-  - Add budget enforcement (wall-clock time and monetary cost) to the
-    spawning-pi-subagents launcher so that a child Pi process given budget
-    limits stops the current action and returns when a limit is reached, rather
-    than running unbounded.
-  - Let a delegating agent forward time and money constraints to the executing
-    agent through the launcher, and record that the constraints were passed so a
-    parent can account for a budget-stopped return.
+  - Add a detached handle registry to the spawning-pi-subagents launcher: when
+    `--detach` launches a child, append the handle JSON as one line to a
+    discoverable registry file so any agent or supervisor can find active and
+    past detached jobs by scanning one file.
+  - The registry path resolves from `AS_IS_JOBS_REGISTRY` if set, otherwise
+    defaults to `/tmp/as-is-jobs.jsonl`. Appends are best-effort and must not
+    fail the launch if the registry is unwritable (log a stderr note and
+    continue).
+  - Add a `--no-registry` flag that suppresses the registry append for a
+    detached launch.
+  - Add a deterministic focused test (no real Pi provider contact): launch
+    `--detach` with a stub `pi` and assert the registry file receives a line
+    whose parsed JSON contains the handle's `jobId` and `pid`.
+  - Update the `spawning-pi-subagents` SKILL.md `Detach Mode` section to
+    document the registry path, the env override, and the `--no-registry`
+    flag.
   - Preserve the existing launcher contract (agent file, task, cwd, model,
-    tools, skills, approve flags, dry-run, private system-prompt handoff,
-    JSON/print/no-session mode) and do not weaken the skill's stated
+    tools, skills, approve, dry-run, blocking mode, detach mode, budget
+    surface, private system-prompt handoff). Do not weaken the skill's stated
     non-properties unless this task explicitly implements them.
   - Keep the change dependency-free and Bun/TypeScript-compatible per the
-    centrally supplied runtime preference; do not add a host integration,
-    credential, or external service dependency.
-  - Do not modify control-plane.md, the retired systemd lineage, accepted
-    component implementation code, or the execution-accounting-design
-    specification; update the spawning-pi-subagents SKILL.md and agent
-    guidance only as needed to document the new budget surface.
-  - Validate the launcher syntax/dry-run, the new budget behavior with the
-    smallest deterministic focused check, task-record validity, and
-    git diff --check before handoff; record residual risk, host-reported cost,
-    and host-observed wall-clock use.
+    centrally supplied runtime preference.
+  - Validate with `bun build`, `bun test` of the launcher test file,
+    `--dry-run --detach` (confirm `detach: true` and unchanged handle shape),
+    and `git diff --check` before handoff; record residual risk and
+    host-observed wall-clock use.
 ---
 
 # as-is Project
@@ -85,132 +89,92 @@ recoverable from Git history and summarized, without verbose duplication, in
 
 ## Requirement
 
-Add budget enforcement through the pi-subagent so that a delegated Pi child
-process accepts time (wall-clock) and money (cost) limits, stops the current
-action, and returns when a limit is reached. Any delegating agent must forward
-these constraints to the executing agent through the launcher. The prior root
-migration (archive folders to Git history plus `change-log.md`) is terminal and
-committed; its history is recovered from `change-log.md` and commits
-`d6b03b7` and `e8fb1da`, not from this record.
+Add a detached handle registry to the `spawning-pi-subagents` launcher so that
+every `--detach` launch appends its handle to a single discoverable file. This
+closes the "durable handle registry" gap recorded as unavailable in the skill and
+in `independent-delegation.md` open decision #1: handles currently live only in
+ephemeral `/tmp/as-is-child-*/` job directories with no index.
 
 ## Decision Boundary
 
-- The `spawning-pi-subagents` skill previously disclaimed hard budgets,
-  watchdog enforcement, and non-blocking launch acceptance. This task closed
-  the hard wall-clock budget gap for the synchronous launcher path only; it
-  did not add a detached supervisor, restart reconciliation, or non-blocking
-  launch acceptance. Cost enforcement is forwarded, not launcher-observed.
-- The accounting substrate (path/revision/attempt identity, parent/child
-  budget ownership, unavailable-observation semantics) is defined by
-  `execution-accounting-design.md` and its terminal component record; this task
-  implements enforcement, not a new accounting model.
-- The accepted `control-plane` Bun implementation and
-  `subprocess-execution-foundation` supervisor remain unchanged.
-  `control-plane.md` is a pre-existing untracked file and stays untouched.
-- The retired systemd lineage stays retired; no archive folder or systemd
-  recovery path is created or depended on.
+- The launcher already implements `--detach` (fire-and-forget handle, detached
+  budget supervisor, log + record as observation surfaces) and the blocking
+  budget surface. This task adds only the registry append on detach; it does not
+  add restart reconciliation, watchdog beyond the wall-clock budget, hard
+  cost-budget enforcement at the launcher, or cancellation ownership.
+- The registry is a best-effort observable index, not task authority. The
+  component `as-is.md` record and `change-log.md` remain authoritative; the
+  registry must not become a second task tree.
+- Cost enforcement remains forwarded to the child for self-limiting; Pi cost is
+  not directly observable from the launcher.
 - The root is the nearest common ancestor for any cross-cutting integration
-  edits (launcher plus agent guidance). Bounded implementation work is routed
-  to the orchestrator, which creates the component record and delegates to the
-  configured worker; as-is does not implement the component-domain change.
+  edits. Bounded implementation work is routed to `component-builder`, which
+  creates or reuses the component record at
+  `skills/spawning-pi-subagents/as-is.md` and implements within that component
+  directory only.
 
 ## Plan
 
-1. Recover current root and component records, the spawning-pi-subagents skill,
-   execution-accounting-design, control-plane, and Git history before scoping.
-2. Record this new task in the root durable context and route the bounded work
-   to `.agents/agents/orchestrator.md` through the spawning-pi-subagents
-   launcher; do not launch an implementer directly.
-3. The orchestrator creates the component `as-is.md`, delegates to the
-   configured worker, and the worker implements budget flags, enforcement, and
-   constraint forwarding in the launcher plus minimal SKILL.md/agent guidance
-   updates.
+1. Recover current root and component records, the launcher source and test,
+   the SKILL.md, and `independent-delegation.md` before scoping.
+2. Record this task in the root durable context and route the bounded work to
+   `.agents/agents/component-builder.md` through the spawning-pi-subagents
+   launcher; do not launch a worker directly.
+3. The component-builder advances the component record to `active`, implements
+   the registry append, the `--no-registry` flag, the focused test, and the
+   SKILL.md update within the component directory.
 4. On return, reread the component record, assess validation and residual risk,
-   perform any nearest-common-ancestor integration, and commit only the scoped
-   completed handoff.
+  perform any nearest-common-ancestor integration, and commit only the scoped
+  completed handoff.
 
 ## Progress
 
-The root migration task is terminal and committed; this record carried the
-budget-enforcement task as current context per the replaceable-context policy.
-The orchestrator created the component record at
-`skills/spawning-pi-subagents/as-is.md`, delegated it to the configured
-`implementer` through the spawning-pi-subagents launcher, and the implementer
-completed the scoped handoff in commit `9dc2090`. The orchestrator then
-reread the component record, independently re-ran the required validations,
-and performed nearest-common-ancestor integration by recording the finalized
-handoff in `change-log.md` and this root record. The component record is
-`completed` with no descendants; the bounded task is terminal.
+Task was routed to `component-builder` through the spawning-pi-subagents
+launcher with `--approve` and `read,grep,find,ls,bash,edit,write` tools. The
+component-builder completed and committed the bounded implementation as
+`6e9a7e1` (`Add detached job handle registry`). The prior budget-enforcement
+task remains terminal and committed (`9dc2090`, `07be8b4`); its history is
+recovered from `change-log.md` and Git, not from this record.
 
 ## Validation
 
-`verification-discipline` selected delegation, component-handoff, and
-integration checks for this turn. The delegation target was the configured
-`orchestrator` agent file; no implementer was launched directly from the root.
-The component record front matter parses as a version-2 task record and the
-orchestrator independently confirmed the worker's validation:
-
-- Launcher syntax build (`bun build --no-bundle --target bun`) transpiled
-  cleanly.
-- `--dry-run` emits a `budget` object with `wall-clock-seconds` and `cost-usd`
-  (values when supplied, `null` when unset) alongside the unchanged contract
-  fields.
-- Smallest deterministic focused enforcement check (no provider contact): a
-  stub `pi` sleeping 30s with `--budget-wall-clock-seconds 1` returned in
-  ~1030ms with exit `124` and stderr `as-is budget-stopped: limit=wall-clock
-  seconds=1 exit=124`; no lingering child process remained.
-- Regression: a non-budget stub exiting `7` forwarded exit `7` and stdout
-  unchanged; negative budget values are rejected.
-- Tree-wide `python3 schemas/task-record-validator/task_record_validator.py .`
-  reports the pre-existing `INVALID` set only (mixed agent-record shape,
-  root-only `config`, legacy skill-record fields, aggregate descendant
-  issues); no error mentions `skills/spawning-pi-subagents`, and the committed
-  change introduces no new validator error.
-- `git diff --check` over the committed change and the working tree is clean.
-
-Host-reported monetary cost for the implementer run was observed in the Pi
-JSON stream (~$0.012) but is not directly observable to the launcher or
-component record; the component record records cost `unavailable` with
-worker-subtree wall-clock `150` seconds. Root-own orchestration cost remains
-unavailable.
+- `bun test` passed.
+- Bare `bun build` was run and exited 1 because no entrypoint was supplied;
+  the task-specific launcher build (`bun build --no-bundle --target bun
+  --outfile /tmp/as-is-spawn-pi-subagent.js
+  skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts`) passed.
+- `git diff --check` passed.
+- `python3 schemas/task-record-validator/task_record_validator.py .` was run; its result is recorded as a pre-existing tree-wide validator failure outside this bounded integration.
+- Focused component evidence recorded registry append, detach dry-run/handle shape, and deterministic stub coverage without provider contact.
+- Host-observed worker-subtree wall-clock was approximately 150 seconds; this root execution is approximately 180 seconds including orchestration. Host-reported cost is unavailable.
 
 ## Result
 
-Completed. The synchronous `spawning-pi-subagents` launcher now enforces a
-hard wall-clock budget at the process level (SIGTERM then SIGKILL on the child
-process group, with a distinguishable exit `124` and `as-is budget-stopped`
-stderr marker), forwards wall-clock and cost constraints to the executing
-agent through the private system-prompt handoff, and records the forwarded
-budget in `--dry-run` output so a parent can account for a budget-stopped
-return. The existing launcher contract is preserved; the change is
-dependency-free and Bun/TypeScript-compatible. SKILL.md and the orchestrator
-agent guidance document the new surface. The single descendant
-`skills/spawning-pi-subagents` is terminal (`completed`); no failed or
-cancelled descendant requires accounting. Scoped worker commit: `9dc2090`.
+Completed root integration of the detached handle registry handoff from commit
+`6e9a7e1`. The component implementation appends one handle JSON line to
+`AS_IS_JOBS_REGISTRY` (default `/tmp/as-is-jobs.jsonl`), tolerates registry
+write failure, and supports `--no-registry`; its documentation and focused test
+are included. No additional root implementation was needed.
 
 ## Blockers And Escalations
 
-No blocker. Residual risk: the launcher enforces a true wall-clock hard stop,
-but Pi monetary cost is not directly observable from the launcher; cost
-enforcement is forwarded to the child for self-limiting and is an
-approximation that a child could overrun before self-limiting. The wall-clock
-budget bounds only the child run (not prompt preparation or `--dry-run`) and
-has a short SIGKILL grace after SIGTERM. Tree-wide task-record validity
-remains pre-existing `INVALID` for unrelated records outside this task's
-scope. If the orchestrator target had been unavailable, a durable blocker
-would have been recorded rather than substituting a role.
+No current blocker. Residual risk: registry writes are intentionally
+best-effort, so an unwritable or concurrently contended registry can omit a
+handle; orphan detection/recovery is not solved, and the registry is an
+observation index rather than task authority. Detached wall-clock use is not
+surfaced to the parent as a first-class observation. Pi monetary cost remains
+unavailable to the launcher and is only self-limited by the child. The
+component record also retains pre-existing unrelated tree-wide task-record
+validator findings.
 
 ## Recovery
 
-Recover this task from the current root record and `change-log.md`. For the
-prior terminal migration, inspect commits `d6b03b7` and `e8fb1da` with Git. Do
-not restore or create `task-archives/`, do not revive the retired systemd flow,
-and do not infer uncommitted repair content from Git. If the orchestrator
-return is interrupted, reread this record and the component `as-is.md` the
-orchestrator created before resuming.
+Recover this completed integration from this record, `change-log.md`, the
+component record at `skills/spawning-pi-subagents/as-is.md`, and commit
+`6e9a7e1`. If verification must be repeated, rerun the listed checks; do not
+create `task-archives/` or revive the retired systemd flow.
 
 ## Next Action
 
-The bounded budget-enforcement task is complete and committed. The scoped
-completed handoff (root record plus change-log entry) is ready for commit via
-`committing-completed-work`. No further implementer launch is required.
+No further action for this bounded task. Future work may address orphan
+reconciliation and parent-visible wall-clock accounting.

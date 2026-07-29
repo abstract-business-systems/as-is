@@ -163,6 +163,16 @@ change log an overview rather than a second task record or runtime ledger.
   neither is provider billing or automatic cumulative enforcement.
 - **Lineage:** Worker commit `2e9d4fd`; parent reconciliation `c4f0181`.
 
+## 2026-07-29 — Spawning-pi-subagents detached handle registry
+
+- **Observation identity:** Component path `skills/spawning-pi-subagents`;
+  task revision `detached-handle-registry`; attempt 1.
+- **Relevant commit:** `6e9a7e1`.
+- **Observed facts:** Worker-subtree wall-clock was approximately `150` seconds;
+  host-reported cost was unavailable.
+- **Residual risk:** Orphan detection/recovery is not solved, and wall-clock use
+  is not surfaced to the parent as a first-class observation.
+
 ## 2026-07-28 — Spawning-pi-subagents budget enforcement
 
 - **Disposition:** Completed bounded implementation. The synchronous launcher

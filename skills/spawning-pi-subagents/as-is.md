@@ -173,7 +173,7 @@ Required checks ran without provider contact: `bun build --no-bundle --target bu
    `python3 schemas/task-record-validator/task_record_validator.py .` reports
    INVALID due to pre-existing, unrelated records (`.agents/agents` and
    `.pi/prompts` are not v2 task records; `skills/verification-discipline`
-   uses a different schema; the root budget overrun is the orchestrator's
+   uses a different schema; the root budget overrun is the retired-role's
    existing delegation state). These errors are identical on HEAD before this
    change and are outside this component's scope. The
    `skills/spawning-pi-subagents/as-is.md` record itself is valid and introduces
@@ -186,15 +186,10 @@ Required checks ran without provider contact: `bun build --no-bundle --target bu
 
 Completed. Detached launches append one handle JSON line to the configured
 registry, tolerate registry failures, and support `--no-registry`. Documentation
-and focused deterministic test are included. No descendants were spawned. The
-synchronous spawning-pi-subagents launcher now enforces a hard wall-clock budget at the process level (SIGTERM then SIGKILL on the child
-process group, with a distinguishable exit `124` and `as-is budget-stopped`
-stderr marker), forwards wall-clock and cost constraints to the executing agent
-through the private system-prompt handoff, and records the forwarded budget in
-`--dry-run` output. The existing launcher contract is preserved and the change
-is dependency-free and Bun/TypeScript-compatible. SKILL.md and the orchestrator
-agent guidance document the new surface. No descendants were spawned
-(maximum-children: 0), so no descendant accounting is required.
+and focused deterministic test are included. The registry implementation is
+dependency-free and Bun/TypeScript-compatible; SKILL.md documents the new
+surface. No descendants were spawned (maximum-children: 0), so no descendant
+accounting is required.
 
 ## Blockers And Escalations
 
@@ -212,16 +207,11 @@ component's scope; resolving those is out of scope for this bounded task.
 ## Recovery
 
 Recover this task from this component record and Git history. The component
-directory is `skills/spawning-pi-subagents`; the durable handoff is the launcher
-change, SKILL.md budget surface, and the minimal orchestrator guidance note in
-`.agents/agents/orchestrator.md`. If the worker return is interrupted, reread
-this record before resuming; do not re-create `task-archives/` or revive the
-retired systemd flow.
+directory is `skills/spawning-pi-subagents`; the durable handoff is the launcher change and SKILL.md budget surface. If the worker return is
+interrupted, reread this record before resuming; do not re-create
+`task-archives/` or revive the retired systemd flow.
 
 ## Next Action
 
-The scoped handoff is ready for commit via
-`committing-completed-work` (this component's files plus the named
-`.agents/agents/orchestrator.md` documentation dependency only). The parent
-should then reread this record, confirm the recorded residual risk is
-acceptable, and perform any nearest-common-ancestor integration.
+The scoped handoff is committed as `6e9a7e1`. The parent should reread this
+record and perform any nearest-common-ancestor integration.
