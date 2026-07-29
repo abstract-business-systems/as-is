@@ -1,9 +1,9 @@
 ---
 as-is-version: 2
 task:
-  status: ready
+  status: completed
   worker: component-builder
-  updated: 2026-07-29T18:15:00Z
+  updated: 2026-07-29T18:32:00Z
 constraints:
   cost:
     currency: USD
@@ -102,7 +102,7 @@ must receive `--provider` and `--model` explicitly so it does not depend on
 
 ## Progress
 
-Not started. Record created with the aligned direction. This task is the
+Implemented in commit `2a40de0`: plain-JSON OpenCode host config lookup, alias resolution, explicit provider/model arguments, durable session-directory default with `--no-session` opt-out, and session/provider observability in dry-run and handles. This task is the
 enabler for the as-is agent's `model: mini` pin (see
 `.agents/agents/as-is/as-is.md`); the pin resolves correctly only after this
 lands.
@@ -120,7 +120,7 @@ lands.
 
 ## Result
 
-Pending.
+Completed. Validation evidence: Bun build succeeded; dry-run resolved `mini` to `openai/gpt-5.4-mini` with provider `openrouter`, and showed explicit provider/model args; unknown literal model values pass through; `opencode agent list` completed successfully; `git diff --check` was clean. Existing focused suite ran 7/8 tests successfully; its one failure was an environment lineage assertion (`component-builder` inherited instead of test's expected `user`), unrelated to launcher resolution changes.
 
 ## Blockers And Escalations
 
@@ -139,5 +139,4 @@ re-create `task-archives/`.
 
 ## Next Action
 
-Implement the plan above; this task should land before the as-is agent's
-`model: mini` pin is exercised end-to-end.
+Handoff complete at commit `2a40de0`. Residual risk: real provider-backed session persistence was not exercised; config parsing intentionally remains dependency-free and missing configs fall back to literal models without a provider. Host-observed validation wall-clock was approximately 4 seconds for the focused suite and under 1 minute including build and discovery.
