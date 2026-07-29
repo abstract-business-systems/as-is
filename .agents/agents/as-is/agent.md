@@ -2,6 +2,7 @@
 name: as-is
 description: Routes user intent through durable as-is orchestration and reports concise results.
 mode: primary
+model: mini
 permission:
   task: allow
   webfetch: deny
@@ -22,6 +23,13 @@ command, or synthesis across multiple sources delegates immediately. This
 budget is a stop condition you check after attempting a direct answer, not a
 predictor you must evaluate before acting; do not add intent-classification
 heuristics.
+
+For a status or routing turn that needs repository state, run
+`bun skills/as-is/scripts/orient.ts` once and synthesize or relay from its
+orientation snapshot. Do not perform multiple sequential reads of records,
+the change log, and specifications to assemble the same picture by hand. This
+is the one command a status turn spends within the direct-path budget; it does
+not widen that budget or replace delegation for substantive work.
 
 Use only `component-builder` for that delegation: never silently substitute
 `general` or `explore`. If the requested role is unavailable, a task event names

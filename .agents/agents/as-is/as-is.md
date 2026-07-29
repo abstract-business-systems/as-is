@@ -1,9 +1,9 @@
 ---
 as-is-version: 2
 task:
-  status: ready
+  status: completed
   worker: component-builder
-  updated: 2026-07-29T18:15:00Z
+  updated: 2026-07-29T18:35:00Z
 constraints:
   cost:
     currency: USD
@@ -88,11 +88,10 @@ shortcut, not a complexity predictor.
 
 ## Progress
 
-Not started. Record created with the aligned direction. This task depends on
-the launcher's model-alias resolution (`skills/spawning-pi-subagents/as-is.md`):
-the `mini` pin resolves to a concrete model id only after that lands. If
-implemented first, the literal `mini` is passed until the launcher resolves
-aliases.
+Activated the task record and updated `.agents/agents/as-is/agent.md` with the
+`mini` model alias and one-command orientation snapshot guidance. No child work
+was delegated because this record permits zero children. The `mini` pin depends
+on the launcher's config-driven alias resolution (`skills/spawning-pi-subagents/as-is.md`).
 
 ## Validation
 
@@ -102,11 +101,25 @@ aliases.
 - The direct-path budget rule and boundary clauses remain; no
   intent-classification heuristics were added.
 - `opencode agent list` discovers `as-is (primary)` with the new front-matter.
-- `git diff --check` is clean.
+- `opencode agent list` passed and discovered `as-is (primary)` with valid
+  front-matter including `model: mini`.
+- Bare `bun build` was attempted but correctly reported that this repository
+  has no default entrypoint. The touched artifact is Markdown, so no script
+  build was applicable; the repository orientation script was independently
+  runnable during orientation.
+- `git diff --check` passed.
+- Host-observed wall-clock use: approximately 45 seconds; host-reported cost
+  unavailable.
+
+Residual risk: the `mini` alias depends on the launcher's config-driven
+resolution at runtime, and orientation synthesis is only as fresh as the
+records and Git facts returned by the snapshot script.
 
 ## Result
 
-Pending.
+Completed the as-is fast path contract update: `model: mini` is pinned in the
+role front-matter, and status/routing turns use one orientation snapshot command
+without widening the direct-path budget or changing existing boundaries.
 
 ## Blockers And Escalations
 
@@ -126,5 +139,5 @@ resuming; do not re-create `task-archives/`.
 
 ## Next Action
 
-Implement after the launcher alias-resolution task lands so the `mini` pin
-resolves end-to-end; the orientation clause may be implemented in parallel.
+Commit the completed scoped handoff. Future runtime behavior continues to
+depend on the launcher's config-driven `mini` alias resolution.
