@@ -1,16 +1,21 @@
 ---
 name: spawning-pi-subagents
-description: Starts an isolated Pi child process from a repository agent Markdown file. In blocking mode it returns the child's process output; with --detach it returns a handle and runs the child independently under a detached budget supervisor. Use when delegating a bounded task to as-is, component-builder, or another named agent.
+description: Starts an isolated Pi child process from a repository agent Markdown file under a detached bounded supervisor that is the child's direct parent and owns the wall-clock budget. The child runs in an isolated git worktree pruned from the caller's HEAD so its destructive git operations cannot reach the caller's uncommitted work. In blocking mode the launcher waits and returns the child's exit; with --detach it returns a handle immediately and the child runs independently. Use --jobs to query the status of all registered jobs. Use when delegating a bounded task to as-is, component-builder, or another named agent.
 compatibility: Requires Bun and a local Pi package or binary. The child process must run in the target repository and receive an explicit agent file and task.
 ---
 
 # Spawning Pi Subagents
 
 Use this skill when a role must run in a separate Pi process with an isolated
-context window. The process boundary is real. By default the caller blocks on
-the child's exit and receives its output; with `--detach` the caller receives a
-handle and the child runs independently, with a detached supervisor enforcing
-any wall-clock budget so the parent is free to move on or observe by polling.
+context window. The process boundary is real. In both blocking and detach
+modes the Pi child runs under a detached bounded supervisor that is the child's
+direct parent: the supervisor owns the wall-clock budget, conveys all
+constraints (cost is forwarded for self-limiting), and survives the launcher
+process so a delegated child's budget stays enforced even if the launcher or
+its parent agent is killed. By default the caller blocks on the child's exit
+and receives its output; with `--detach` the caller receives a handle and may
+move on or observe by polling the child's record and log. Use `--jobs` to query
+the status of all registered jobs on demand.
 
 ## Contract
 
@@ -99,37 +104,84 @@ starting a model process.
 
 ## Detach Mode
 
-With `--detach`, the launcher spawns the child as an independent detached
-process and returns a handle on stdout instead of blocking on completion:
+With `--detach`, the launcher returns a handle on stdout immediately and the
+child runs under a detached supervisor without blocking the caller:
 
 ```json
 {
   "jobId": "j-...",
   "pid": 12345,
+  "identity": "component-builder",
+  "caller": "as-is",
+  "parentJobId": "j-...",
   "logPath": "/tmp/as-is-child-XXX/child.log",
   "recordPath": "./component/as-is.md",
+  "worktreePath": "/tmp/as-is-child-XXX/worktree",
   "budgetWallClockSeconds": 120,
-  "budgetCostUsd": 0.3
+  "budgetCostUsd": 0.3,
+  "launchedAt": "2026-07-29T08:32:11.684Z"
 }
 ```
 
-The child's stdout and stderr go to `logPath`. The child's `as-is.md` record is
-the result and handoff; there is no talk-back channel to the parent. Any agent
-— the parent, `as-is`, a sibling, or a supervisor — observes the child by
-polling its record (structured status) and `logPath` (detail).
+`pid` is the supervisor pid — the budget owner and the cancel target, not the
+Pi child pid. The supervisor is the child's direct parent and outlives the
+launcher. `identity` is this child's role; `caller` is the delegating agent's
+identity (propagated via the `AS_IS_IDENTITY` env var, or `--caller`);
+`parentJobId` is the caller's job id (propagated via `AS_IS_JOB_ID`, or
+`--parent-job-id`). The OS parent pid is intentionally not recorded: the
+supervisor breaks OS parentage, so lineage is logical (caller identity +
+parentJobId), not process-tree based.
 
-When a wall-clock budget is set in detach mode, the launcher spawns a detached
-supervisor (an internal `--supervise` invocation) that outlives the launcher and
-kills the child's process group on expiry, exiting early once the group is gone.
-The parent is not the budget holder and may move on to other work.
+The child's stdout and stderr go to `logPath`; the child's `as-is.md` record is
+the result and handoff. There is no talk-back channel to the parent: any agent
+observes the child by polling its record (structured status) and `logPath`
+(detail), or via `--jobs`.
 
-Pass `--record <path>` to include the component record path in the handle. The
-parent usually knows this path since it created the record.
+On exit the supervisor appends a completion line to the registry
+(`{jobId, event:"finished", exitCode, budgetStopped, wallClockSeconds,
+commitSha, committed, finishedAt}`) so the job table reflects finished jobs
+with their real wall-clock, exit code, and final commit. The parent reads the
+child's record via `git show <commitSha>:<recordPath>` (durable, no filesystem
+race). Pass `--record <path>` to include the component record path. Pass
+`--parent-job-id <id>` and `--caller <identity>` to record the delegation
+lineage (they default from `AS_IS_JOB_ID`/`AS_IS_IDENTITY`, so a child agent
+forwards them automatically).
 
-Each detached handle is appended as one JSON line to `/tmp/as-is-jobs.jsonl`,
-or to the path in `AS_IS_JOBS_REGISTRY` when set. Registry writes are
-best-effort: an unwritable registry emits a stderr note but never fails the
-launch. Pass `--no-registry` to suppress the append for a detached launch.
+Each launch is appended as one JSON line to `/tmp/as-is-jobs.jsonl`, or to the
+path in `AS_IS_JOBS_REGISTRY` when set. Registry writes are best-effort: an
+unwritable registry emits a stderr note but never fails the launch. Pass
+`--no-registry` to suppress the append.
+
+## Worktree Isolation
+
+By default the child runs in an isolated git worktree pruned from the caller's
+`HEAD`, so the child's destructive git operations (`git restore`, `checkout`,
+`clean`, file edits) cannot reach the caller's uncommitted work. The worktree
+is a detached-HEAD checkout of committed state only — the child never sees the
+caller's uncommitted changes. The supervisor removes the worktree on a clean
+exit (exit 0, not budget-stopped) once the final commit is captured; it
+preserves the worktree on a budget stop or non-zero exit so partial work
+remains for recovery. A parent process need not outlive its children: each
+child's budget is owned by its own detached supervisor, which survives the
+parent's death.
+
+Pass `--no-worktree` to run the child in the caller's working directory
+instead (disables isolation; use only when the caller has no uncommitted work
+to protect). Worktree creation is best-effort: if it fails, the supervisor
+falls back to the caller's cwd and records the degradation.
+
+## Job Status
+
+`--jobs` prints a fused status table for every registered job without starting
+a Pi process: `jobId`, `identity`, `caller`, process liveness and budget from
+the registry, joined to the task-record status read via `git show
+<commitSha>:<recordPath>` (or from disk when no commit is recorded). A
+supervisor that is no longer alive with no completion line is reported as
+`crashed (recovery candidate)` — a dead process whose record is still
+non-terminal. The `caller`/`identity` columns reconstruct the logical
+delegation tree (OS parentage is broken by the supervisor). This is the
+on-query observation surface for the fire-and-forget model; it is read-only and
+never contacts a provider.
 
 ## Process Rules
 
@@ -144,22 +196,28 @@ launch. Pass `--no-registry` to suppress the append for a detached launch.
   attempt. Do not place credentials or tokens in task arguments, task files, or
   output.
 - The launcher uses `--mode json`, `--print`, `--no-session`, a shell-free child
-  process, and a private temporary system-prompt file. In blocking mode it
-  forwards child output and removes the temporary prompt after exit. Budget
-  constraints are appended to the private system prompt so the child can
-  self-limit on cost; the wall-clock budget is enforced at the launcher process
-  level in blocking mode, or by a detached supervisor in `--detach` mode.
+  process, and a private temporary system-prompt file. In both blocking and
+  detach modes the child runs under a detached bounded supervisor that is the
+  child's direct parent, in an isolated git worktree pruned from the caller's
+  HEAD. The supervisor owns the wall-clock budget, conveys the cost limit via
+  the prompt for self-limiting, records the outcome (exit code, wall-clock,
+  budget-stopped, final commit SHA) to a result file and a registry completion
+  line, and survives the launcher's death. Budget constraints are appended to
+  the private system prompt so the child can self-limit on cost; the wall-clock
+  budget is enforced by the supervisor as a hard process-level stop (SIGTERM
+  then SIGKILL on the child's process group). A parent agent need not outlive
+  its children: each child's budget is owned by its own supervisor.
 - A zero Pi exit code is only a host observation. Reread the durable component
   record and validate its status, handoff, acceptance evidence, and cleanup
   before treating the task as complete. An exit status of `124` with the
   `as-is budget-stopped` stderr marker means the wall-clock budget stopped the
   child; account for that as a budget-stopped return rather than a normal
   completion.
-- This skill does not provide restart reconciliation, a durable JobId map,
-  cancellation ownership, watchdog enforcement beyond the wall-clock budget
-  timer, cost-budget enforcement at the launcher, or a durable handle registry.
-  Non-blocking launch acceptance is available via `--detach`. Cost enforcement
-  is forwarded to the child for self-limiting
+- This skill does not provide restart reconciliation, cancellation ownership
+  for whole subtrees, watchdog enforcement beyond the wall-clock budget timer,
+  or cost-budget enforcement at the launcher. A best-effort job registry and
+  on-query `--jobs` status are available; non-blocking launch is available via
+  `--detach`. Cost enforcement is forwarded to the child for self-limiting
   because Pi cost is not directly observable from the launcher; record that
   approximation when relying on it. Do not claim stronger properties from this
   launcher.

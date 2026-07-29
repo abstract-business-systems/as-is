@@ -18,8 +18,12 @@ type Options = {
   dryRun: boolean;
   detach?: boolean;
   noRegistry?: boolean;
+  noWorktree?: boolean;
   record?: string;
-  supervise?: { childPid: number; seconds: number };
+  caller?: string;
+  parentJobId?: string;
+  jobs?: boolean;
+  supervise?: { configPath: string };
   budgetWallClockSeconds?: number;
   budgetCostUsd?: number;
 };
@@ -35,17 +39,40 @@ type PiInvocation = {
   args: string[];
 };
 
-type RunResult = {
-  exitCode: number;
-  budgetStopped: boolean;
-  budgetLimit?: "wall-clock";
-  budgetSeconds?: number;
-};
-
+// The handle printed to stdout (detach) and written as the registry launch
+// line. `pid` is the supervisor pid — the budget owner and the cancel target.
+// The supervisor is the direct parent of the Pi child, so this pid outlives the
+// launcher process and keeps the child's wall-clock budget enforced even if the
+// launcher (or its parent agent) is killed. `worktreePath` is the isolated git
+// worktree the child runs in (pruned from the caller's HEAD), so the child's
+// destructive git operations cannot reach the caller's uncommitted work.
 type Handle = {
   jobId: string;
   pid: number | null;
-  logPath: string;
+  identity: string;
+  caller: string;
+  parentJobId: string | null;
+  logPath: string | null;
+  recordPath: string | null;
+  worktreePath: string | null;
+  budgetWallClockSeconds: number | null;
+  budgetCostUsd: number | null;
+  launchedAt: string;
+};
+
+type SuperviseConfig = {
+  command: string;
+  args: string[];
+  callerCwd: string;
+  worktreePath: string | null;
+  mode: "detach" | "blocking";
+  logPath: string | null;
+  resultPath: string;
+  registryPath: string | null;
+  jobId: string;
+  identity: string;
+  caller: string;
+  parentJobId: string | null;
   recordPath: string | null;
   budgetWallClockSeconds: number | null;
   budgetCostUsd: number | null;
@@ -53,14 +80,13 @@ type Handle = {
 
 const BUDGET_STOPPED_EXIT_CODE = 124;
 const BUDGET_KILL_GRACE_SECONDS = 5;
-const SUPERVISOR_POLL_MILLIS = 1000;
 
 const skillDirectory = resolve(import.meta.dir, "..");
 
 const usage = `Usage:
   bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts [options]
 
-Required (unless --supervise):
+Required (unless --supervise or --jobs):
   --agent <path>             Agent Markdown file to load
   --task <text>              Task direction
 
@@ -74,23 +100,28 @@ Optional:
   --no-approve               Ignore project-local files for this run
   --no-tools                 Disable all Pi tools
   --dry-run                  Print the resolved launch without starting Pi
-  --detach                   Launch the child independently and return a handle
-                             (job id, PID, log path, record path) without
-                             blocking on completion. The child's stdout and
-                             stderr go to a log file; its as-is.md record is the
-                             result. A wall-clock budget, if set, is enforced by
-                             a detached supervisor that outlives this launcher
-  --no-registry              Do not append a detached handle to the job registry
+  --detach                   Launch the child under a detached bounded supervisor
+                             that is the child's direct parent, and return a
+                             handle without blocking. The supervisor owns the
+                             wall-clock budget and survives this launcher's exit
+  --no-registry              Do not append a handle to the job registry
+  --no-worktree              Run the child in the caller's working directory
+                             instead of an isolated git worktree (disables
+                             isolation; use only when the caller has no
+                             uncommitted work to protect)
   --record <path>            Component as-is.md record path to include in the
                              detach handle (the parent usually knows this)
+  --caller <identity>        Identity of the delegating caller (default: the
+                             AS_IS_IDENTITY env var, or "user" for a root launch)
+  --parent-job-id <id>       Job id of the delegating parent (default: the
+                             AS_IS_JOB_ID env var, or null for a root launch)
   --budget-wall-clock-seconds <n>
-                             Hard wall-clock budget. When > 0, stop the child
-                             after n seconds and return a budget-stopped result
-                             (or, with --detach, a detached supervisor kills the
-                             child's process group on expiry)
+                             Hard wall-clock budget enforced by the supervisor
   --budget-cost-usd <n>      Monetary cost budget (USD) forwarded to the child
-                             agent for self-limiting; not directly observable
-                             from the launcher
+                             agent for self-limiting; not launcher-observable
+  --jobs                     Print the status of all registered jobs (process
+                             liveness, budget, caller lineage, and task-record
+                             status fused from the registry) without starting Pi
   --help                     Show this help
 `;
 
@@ -103,6 +134,8 @@ const valueOptions = new Set([
   "--tools",
   "--skill",
   "--record",
+  "--caller",
+  "--parent-job-id",
   "--budget-wall-clock-seconds",
   "--budget-cost-usd",
 ]);
@@ -144,14 +177,21 @@ const parseOptions = (args: string[]): Options => {
       options.noRegistry = true;
       continue;
     }
+    if (option === "--no-worktree") {
+      options.noWorktree = true;
+      continue;
+    }
+    if (option === "--jobs") {
+      options.jobs = true;
+      continue;
+    }
     if (option === "--supervise") {
-      const childPid = Number(args[index + 1]);
-      const seconds = Number(args[index + 2]);
-      if (!Number.isFinite(childPid) || !Number.isFinite(seconds) || childPid <= 0 || seconds < 0) {
-        throw new Error("--supervise requires <childPid> <seconds> (positive pid, non-negative seconds)");
+      const configPath = args[index + 1];
+      if (!configPath || configPath.startsWith("--")) {
+        throw new Error("--supervise requires <configPath>");
       }
-      options.supervise = { childPid, seconds };
-      index += 2;
+      options.supervise = { configPath };
+      index += 1;
       continue;
     }
     if (option === "--budget-wall-clock-seconds" || option === "--budget-cost-usd") {
@@ -184,12 +224,14 @@ const parseOptions = (args: string[]): Options => {
     else if (option === "--model") options.model = value;
     else if (option === "--tools") options.tools = value;
     else if (option === "--record") options.record = value;
+    else if (option === "--caller") options.caller = value;
+    else if (option === "--parent-job-id") options.parentJobId = value;
   }
 
   if (options.approve && options.noApprove) {
     throw new Error("Use only one of --approve and --no-approve");
   }
-  if (!options.supervise) {
+  if (!options.supervise && !options.jobs) {
     if (!options.agent) throw new Error("--agent is required");
     if (!options.task) throw new Error("--task is required");
   }
@@ -253,11 +295,13 @@ const uniquePaths = (paths: string[]): string[] => [...new Set(paths.map((path) 
 const newJobId = (): string =>
   `j-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
+const identityFromAgent = (agentPath: string): string => basename(agentPath, ".md");
+
 const registryPath = (): string => process.env.AS_IS_JOBS_REGISTRY ?? "/tmp/as-is-jobs.jsonl";
 
 const appendHandleToRegistry = async (handle: Handle): Promise<void> => {
   try {
-    await appendFile(registryPath(), `${JSON.stringify(handle)}\n`, "utf8");
+    await appendFile(registryPath(), `${JSON.stringify({ ...handle, event: "launched" })}\n`, "utf8");
   } catch (error) {
     process.stderr.write(
       `as-is detached registry note: unable to append ${registryPath()}: ${error instanceof Error ? error.message : String(error)}\n`,
@@ -265,113 +309,174 @@ const appendHandleToRegistry = async (handle: Handle): Promise<void> => {
   }
 };
 
-// A detached budget supervisor. It outlives the launcher process so a parent
-// that has moved on still has its child's wall-clock budget enforced. It polls
-// the child's process-group liveness and exits early once the group is gone; on
-// the deadline it sends SIGTERM then SIGKILL after a short grace.
-const supervise = (childPid: number, seconds: number): Promise<void> =>
-  new Promise((resolveExit) => {
-    if (seconds <= 0) {
-      resolveExit();
-      return;
-    }
-    const groupPid = -childPid;
-    const deadline = Date.now() + seconds * 1000;
+const alive = (pid: number): boolean => {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+};
 
-    const signalGroup = (signal: NodeJS.Signals) => {
-      try {
-        process.kill(groupPid, signal);
-      } catch {
-        /* group already gone */
-      }
-    };
-
-    const poll = setInterval(() => {
-      try {
-        process.kill(groupPid, 0);
-      } catch {
-        clearInterval(poll);
-        resolveExit();
-        return;
-      }
-      if (Date.now() >= deadline) {
-        clearInterval(poll);
-        signalGroup("SIGTERM");
-        setTimeout(() => {
-          signalGroup("SIGKILL");
-          resolveExit();
-        }, BUDGET_KILL_GRACE_SECONDS * 1000);
-      }
-    }, SUPERVISOR_POLL_MILLIS);
-  });
-
-const runChild = (
-  command: string,
-  args: string[],
-  cwd: string,
-  budgetWallClockSeconds?: number,
-): Promise<RunResult> =>
-  new Promise((resolveExit, reject) => {
-    const child = spawn(command, args, {
+// Run a git command in a directory and return its trimmed stdout (or null on
+// failure). Used for worktree lifecycle and commit-SHA capture.
+const gitIn = async (cwd: string, args: string[]): Promise<string | null> => {
+  try {
+    const proc = Bun.spawn(["git", "-C", cwd, ...args], {
       cwd,
-      env: process.env,
-      shell: false,
-      detached: true,
-      stdio: ["ignore", "inherit", "inherit"],
+      stdin: "ignore",
+      stdout: "pipe",
+      stderr: "pipe",
     });
-    const groupPid = -child.pid!;
+    const output = await new Response(proc.stdout).text();
+    const code = await proc.exited;
+    return code === 0 ? output.trim() : null;
+  } catch {
+    return null;
+  }
+};
 
-    const signalGroup = (signal: NodeJS.Signals) => {
-      try {
-        process.kill(groupPid, signal);
-      } catch {
-        if (!child.killed) child.kill(signal);
-      }
-    };
+// Create an isolated git worktree pruned from the caller's HEAD so the child's
+// destructive git operations (restore, checkout, clean) cannot reach the
+// caller's uncommitted work. Returns the worktree path, or null if creation
+// failed (the supervisor then falls back to the caller's cwd and notes it).
+const createWorktree = async (callerCwd: string, worktreePath: string): Promise<string | null> => {
+  const result = await gitIn(callerCwd, ["worktree", "add", "--detach", worktreePath, "HEAD"]);
+  return result !== null ? worktreePath : null;
+};
 
-    let budgetStopped = false;
-    let budgetTimer: NodeJS.Timeout | undefined;
-    let killTimer: NodeJS.Timeout | undefined;
+const removeWorktree = async (callerCwd: string, worktreePath: string): Promise<void> => {
+  await gitIn(callerCwd, ["worktree", "remove", "--force", worktreePath]);
+};
 
-    const clearBudgetTimers = () => {
-      if (budgetTimer) clearTimeout(budgetTimer);
-      if (killTimer) clearTimeout(killTimer);
-      budgetTimer = undefined;
-      killTimer = undefined;
-    };
+// A bounded supervisor that is the direct parent of the Pi child. It owns the
+// wall-clock budget, conveys all constraints, runs the child in an isolated git
+// worktree, and survives the launcher process so a delegated child's budget
+// stays enforced even if the launcher or its parent agent is killed. On the
+// deadline it sends SIGTERM then SIGKILL to the child's process group. On exit
+// it records the outcome (exit code, wall-clock, budget-stopped, final commit
+// SHA) to a result file and a registry completion line.
+const runAsParentSupervisor = async (config: SuperviseConfig): Promise<void> => {
+  const startedMonotonic = Date.now();
 
-    if (budgetWallClockSeconds && budgetWallClockSeconds > 0) {
-      budgetTimer = setTimeout(() => {
-        budgetStopped = true;
-        signalGroup("SIGTERM");
-        killTimer = setTimeout(() => {
-          signalGroup("SIGKILL");
-        }, BUDGET_KILL_GRACE_SECONDS * 1000);
-      }, budgetWallClockSeconds * 1000);
+  // Isolate the child in a worktree pruned from the caller's HEAD. On failure,
+  // fall back to the caller's cwd (no isolation) and record the degradation.
+  let childCwd = config.callerCwd;
+  let baseSha: string | null = null;
+  if (config.worktreePath) {
+    const created = await createWorktree(config.callerCwd, config.worktreePath);
+    if (created) {
+      childCwd = created;
+      baseSha = await gitIn(created, ["rev-parse", "HEAD"]);
+    } else {
+      process.stderr.write(
+        `as-is supervisor note: worktree creation failed; running in caller cwd without isolation\n`,
+      );
     }
+  }
 
-    const forwardSignal = (signal: NodeJS.Signals) => signalGroup(signal);
-    const onInterrupt = () => forwardSignal("SIGINT");
-    const onTerminate = () => forwardSignal("SIGTERM");
-    process.once("SIGINT", onInterrupt);
-    process.once("SIGTERM", onTerminate);
+  const logFile = config.mode === "detach" && config.logPath
+    ? await open(config.logPath, "w")
+    : null;
 
-    child.once("error", (error) => {
-      clearBudgetTimers();
-      reject(error);
-    });
-    child.once("close", (code) => {
-      clearBudgetTimers();
-      process.removeListener("SIGINT", onInterrupt);
-      process.removeListener("SIGTERM", onTerminate);
-      resolveExit({
-        exitCode: code ?? 1,
-        budgetStopped,
-        budgetLimit: budgetStopped ? "wall-clock" : undefined,
-        budgetSeconds: budgetStopped ? budgetWallClockSeconds : undefined,
-      });
-    });
+  const childEnv = {
+    ...process.env,
+    // Propagate identity and job id so the child's own delegations can record
+    // the correct caller and parent-job-id without OS parentage.
+    AS_IS_IDENTITY: config.identity,
+    AS_IS_JOB_ID: config.jobId,
+  };
+
+  const child = spawn(config.command, config.args, {
+    cwd: childCwd,
+    env: childEnv,
+    shell: false,
+    detached: true,
+    stdio: logFile ? ["ignore", logFile.fd, logFile.fd] : ["ignore", "inherit", "inherit"],
   });
+  const childPid = child.pid as number;
+
+  const signalGroup = (signal: NodeJS.Signals) => {
+    try {
+      process.kill(-childPid, signal);
+    } catch {
+      /* group already gone */
+    }
+  };
+
+  let budgetStopped = false;
+  let budgetTimer: NodeJS.Timeout | undefined;
+  let killTimer: NodeJS.Timeout | undefined;
+  const clearTimers = () => {
+    if (budgetTimer) clearTimeout(budgetTimer);
+    if (killTimer) clearTimeout(killTimer);
+    budgetTimer = undefined;
+    killTimer = undefined;
+  };
+
+  if (config.budgetWallClockSeconds && config.budgetWallClockSeconds > 0) {
+    budgetTimer = setTimeout(() => {
+      budgetStopped = true;
+      signalGroup("SIGTERM");
+      killTimer = setTimeout(() => signalGroup("SIGKILL"), BUDGET_KILL_GRACE_SECONDS * 1000);
+    }, config.budgetWallClockSeconds * 1000);
+  }
+
+  const onTerm = () => signalGroup("SIGTERM");
+  const onInt = () => signalGroup("SIGINT");
+  process.once("SIGTERM", onTerm);
+  process.once("SIGINT", onInt);
+
+  const exitCode: number = await new Promise((resolveExit) => {
+    child.once("error", () => resolveExit(1));
+    child.once("close", (code) => resolveExit(code ?? 1));
+  });
+
+  clearTimers();
+  process.removeListener("SIGTERM", onTerm);
+  process.removeListener("SIGINT", onInt);
+  await logFile?.close().catch(() => undefined);
+
+  const wallClockSeconds = (Date.now() - startedMonotonic) / 1000;
+
+  // Capture the child's final commit so the parent can read the record via
+  // `git show <sha>:<path>` without a filesystem race on the worktree.
+  const finalSha = childCwd !== config.callerCwd ? await gitIn(childCwd, ["rev-parse", "HEAD"]) : null;
+  const committed = finalSha !== null && finalSha !== baseSha;
+
+  // Remove the worktree on a clean exit once the commit is captured. Preserve
+  // it on a budget stop or crash so partial work remains for recovery.
+  if (childCwd !== config.callerCwd && !budgetStopped && exitCode === 0) {
+    await removeWorktree(config.callerCwd, childCwd);
+  }
+
+  try {
+    await writeFile(config.resultPath, `${JSON.stringify({ exitCode, budgetStopped, wallClockSeconds, commitSha: finalSha, committed })}\n`, "utf8");
+  } catch {
+    /* best-effort outcome record */
+  }
+
+  if (config.registryPath) {
+    try {
+      await appendFile(config.registryPath, `${JSON.stringify({
+        jobId: config.jobId,
+        event: "finished",
+        exitCode,
+        budgetStopped,
+        wallClockSeconds,
+        childPid,
+        commitSha: finalSha,
+        committed,
+        worktreePreserved: budgetStopped || exitCode !== 0,
+        finishedAt: new Date().toISOString(),
+      })}\n`, "utf8");
+    } catch {
+      /* best-effort registry */
+    }
+  }
+
+  process.exitCode = budgetStopped ? BUDGET_STOPPED_EXIT_CODE : exitCode;
+};
 
 const buildBudgetLines = (options: Options): string[] => {
   if (options.budgetWallClockSeconds === undefined && options.budgetCostUsd === undefined) return [];
@@ -386,11 +491,94 @@ const buildBudgetLines = (options: Options): string[] => {
   ];
 };
 
+// Read the job registry and print a fused status table: each job's process
+// liveness, caller lineage, and budget (from the registry) joined to its
+// task-record status (read via `git show <sha>:<path>` when a commit is
+// recorded, else from the recordPath on disk). A dead supervisor with no
+// completion line is flagged as a recovery candidate. Read-only.
+const printJobs = async (): Promise<void> => {
+  const path = registryPath();
+  if (!existsSync(path)) {
+    process.stdout.write("No jobs registered.\n");
+    return;
+  }
+  const lines = (await readFile(path, "utf8")).split("\n").filter((line) => line.trim());
+  const jobs = new Map<string, { launch: Record<string, unknown> | null; finished: Record<string, unknown> | null }>();
+  for (const line of lines) {
+    let obj: Record<string, unknown>;
+    try {
+      obj = JSON.parse(line);
+    } catch {
+      continue;
+    }
+    const id = obj.jobId as string | undefined;
+    if (!id) continue;
+    if (!jobs.has(id)) jobs.set(id, { launch: null, finished: null });
+    const entry = jobs.get(id)!;
+    if (obj.event === "finished") entry.finished = obj;
+    else if (obj.event === "launched") entry.launch = obj;
+  }
+  if (jobs.size === 0) {
+    process.stdout.write("No jobs registered.\n");
+    return;
+  }
+  const rows: string[] = [];
+  for (const [id, entry] of jobs) {
+    const launch = entry.launch ?? {};
+    const finished = entry.finished;
+    const pid = launch.pid as number | null | undefined;
+    let status: string;
+    if (finished) {
+      status = finished.budgetStopped ? "budget-stopped" : finished.exitCode === 0 ? "completed" : "failed";
+    } else if (typeof pid === "number" && pid > 0 && alive(pid)) {
+      status = "running";
+    } else {
+      status = "crashed (recovery candidate)";
+    }
+    // Read the task-record status: prefer the captured commit (durable, no
+    // filesystem race), else the recordPath on disk.
+    let recordStatus = "-";
+    const recordPath = launch.recordPath as string | null;
+    const commitSha = finished?.commitSha as string | null | undefined;
+    if (recordPath) {
+      try {
+        let raw: string | null = null;
+        if (commitSha) {
+          raw = await gitIn(process.cwd(), ["show", `${commitSha}:${recordPath}`]);
+        }
+        if (raw === null && existsSync(recordPath)) {
+          raw = await readFile(recordPath, "utf8");
+        }
+        if (raw) {
+          const match = raw.match(/^  status: (.+)$/m);
+          if (match) recordStatus = match[1].trim();
+        }
+      } catch {
+        /* leave "-" */
+      }
+    }
+    const detail = finished
+      ? `exit=${finished.exitCode} wall=${finished.wallClockSeconds}s${finished.committed ? ` sha=${(finished.commitSha as string)?.slice(0, 8)}` : ""}`
+      : `budget=${launch.budgetWallClockSeconds ?? "-"}s`;
+    const identity = (launch.identity as string | undefined) ?? "?";
+    const caller = (launch.caller as string | undefined) ?? "?";
+    rows.push([id, identity, caller, status, recordStatus, pid != null ? String(pid) : "-", detail].join("\t"));
+  }
+  process.stdout.write(["jobId", "identity", "caller", "proc-status", "record-status", "pid", "detail"].join("\t") + "\n");
+  process.stdout.write(rows.join("\n") + "\n");
+};
+
 const main = async() => {
   const options = parseOptions(process.argv.slice(2));
 
   if (options.supervise) {
-    await supervise(options.supervise.childPid, options.supervise.seconds);
+    const config = JSON.parse(await readFile(options.supervise.configPath, "utf8")) as SuperviseConfig;
+    await runAsParentSupervisor(config);
+    return;
+  }
+
+  if (options.jobs) {
+    await printJobs();
     return;
   }
 
@@ -399,6 +587,12 @@ const main = async() => {
   const definition = parseFrontMatter(await readFile(agentPath, "utf8"), agentPath);
   const task = options.task;
   if (!task || !task.trim()) throw new Error("Task direction is empty");
+
+  // Caller identity and parent job id propagate through env so a child agent's
+  // own delegations record the correct lineage without OS parentage.
+  const identity = identityFromAgent(agentPath);
+  const caller = options.caller ?? process.env.AS_IS_IDENTITY ?? "user";
+  const parentJobId = options.parentJobId ?? process.env.AS_IS_JOB_ID ?? null;
 
   const model = options.model ?? definition.model;
   const tools = options.tools ?? definition.tools;
@@ -432,10 +626,14 @@ const main = async() => {
       ],
       cwd,
       agent: agentPath,
+      identity,
+      caller,
+      "parent-job-id": parentJobId,
       skills: skillPaths,
       model: model ?? null,
       tools: tools ?? null,
       detach: options.detach ?? false,
+      worktree: !(options.noWorktree ?? false),
       budget,
     }, null, 2)}\n`);
     return;
@@ -457,63 +655,153 @@ const main = async() => {
     `Task:\n${task}`,
   ];
 
+  const bunBin = Bun.which("bun") ?? "bun";
+  const jobId = newJobId();
+  const launchedAt = new Date().toISOString();
+  const useWorktree = !(options.noWorktree ?? false);
+
   if (options.detach) {
     const jobDirectory = await mkdtemp(join(tmpdir(), "as-is-child-"));
     const promptPath = join(jobDirectory, "system-prompt.md");
     const logPath = join(jobDirectory, "child.log");
+    const resultPath = join(jobDirectory, "result.json");
+    const configPath = join(jobDirectory, "supervise.json");
+    const worktreePath = useWorktree ? join(jobDirectory, "worktree") : null;
     await writeFile(promptPath, prompt, { encoding: "utf8", mode: 0o600 });
-    const logFile = await open(logPath, "w");
-    const resolvedChildArgs = childArgs.map((arg) => (arg === "<prompt-path>" ? promptPath : arg));
-    const child = spawn(piInvocation.command, resolvedChildArgs, {
+    // Ensure the advertised log path exists before returning the handle.
+    const logHandle = await open(logPath, "w");
+    await logHandle.close();
+    const config: SuperviseConfig = {
+      command: piInvocation.command,
+      args: childArgs.map((arg) => (arg === "<prompt-path>" ? promptPath : arg)),
+      callerCwd: cwd,
+      worktreePath,
+      mode: "detach",
+      logPath,
+      resultPath,
+      registryPath: options.noRegistry ? null : registryPath(),
+      jobId,
+      identity,
+      caller,
+      parentJobId,
+      recordPath: options.record ?? null,
+      budgetWallClockSeconds: options.budgetWallClockSeconds ?? null,
+      budgetCostUsd: options.budgetCostUsd ?? null,
+    };
+    await writeFile(configPath, `${JSON.stringify(config, null, 2)}\n`, "utf8");
+
+    const supervisor = spawn(bunBin, [import.meta.path, "--supervise", configPath], {
       cwd,
       env: process.env,
       shell: false,
       detached: true,
-      stdio: ["ignore", logFile.fd, logFile.fd],
+      stdio: "ignore",
     });
-    child.unref();
-
-    if (options.budgetWallClockSeconds && options.budgetWallClockSeconds > 0) {
-      spawn(
-        Bun.which("bun") ?? "bun",
-        [import.meta.path, "--supervise", String(child.pid), String(options.budgetWallClockSeconds)],
-        { detached: true, stdio: "ignore" },
-      ).unref();
-    }
+    supervisor.unref();
 
     const handle: Handle = {
-      jobId: newJobId(),
-      pid: child.pid,
+      jobId,
+      pid: supervisor.pid,
+      identity,
+      caller,
+      parentJobId,
       logPath,
       recordPath: options.record ?? null,
+      worktreePath,
       budgetWallClockSeconds: options.budgetWallClockSeconds ?? null,
       budgetCostUsd: options.budgetCostUsd ?? null,
+      launchedAt,
     };
     if (!options.noRegistry) await appendHandleToRegistry(handle);
     process.stdout.write(`${JSON.stringify(handle, null, 2)}\n`);
     return;
   }
 
-  const promptDirectory = await mkdtemp(join(tmpdir(), "as-is-pi-agent-"));
-  const promptPath = join(promptDirectory, `${basename(agentPath, ".md")}-system-prompt.md`);
+  // Blocking mode: the launcher waits and propagates the exit code, but the
+  // child and its budget timer are owned by a detached supervisor that survives
+  // this launcher's death. Child stdio is inherited so the caller observes Pi
+  // output directly.
+  const jobDirectory = await mkdtemp(join(tmpdir(), "as-is-child-"));
+  const promptPath = join(jobDirectory, "system-prompt.md");
+  const resultPath = join(jobDirectory, "result.json");
+  const configPath = join(jobDirectory, "supervise.json");
+  const worktreePath = useWorktree ? join(jobDirectory, "worktree") : null;
   try {
     await writeFile(promptPath, prompt, { encoding: "utf8", mode: 0o600 });
-    const result = await runChild(
-      piInvocation.command,
-      childArgs.map((arg) => (arg === "<prompt-path>" ? promptPath : arg)),
+    const config: SuperviseConfig = {
+      command: piInvocation.command,
+      args: childArgs.map((arg) => (arg === "<prompt-path>" ? promptPath : arg)),
+      callerCwd: cwd,
+      worktreePath,
+      mode: "blocking",
+      logPath: null,
+      resultPath,
+      registryPath: options.noRegistry ? null : registryPath(),
+      jobId,
+      identity,
+      caller,
+      parentJobId,
+      recordPath: options.record ?? null,
+      budgetWallClockSeconds: options.budgetWallClockSeconds ?? null,
+      budgetCostUsd: options.budgetCostUsd ?? null,
+    };
+    await writeFile(configPath, `${JSON.stringify(config, null, 2)}\n`, "utf8");
+
+    const supervisor = spawn(bunBin, [import.meta.path, "--supervise", configPath], {
       cwd,
-      options.budgetWallClockSeconds,
-    );
+      env: process.env,
+      shell: false,
+      detached: true,
+      stdio: "inherit",
+    });
+
+    const handle: Handle = {
+      jobId,
+      pid: supervisor.pid,
+      identity,
+      caller,
+      parentJobId,
+      logPath: null,
+      recordPath: options.record ?? null,
+      worktreePath,
+      budgetWallClockSeconds: options.budgetWallClockSeconds ?? null,
+      budgetCostUsd: options.budgetCostUsd ?? null,
+      launchedAt,
+    };
+    if (!options.noRegistry) await appendHandleToRegistry(handle);
+
+    const forwardSignal = (signal: NodeJS.Signals) => {
+      try {
+        supervisor.kill(signal);
+      } catch {
+        /* supervisor already gone */
+      }
+    };
+    process.once("SIGTERM", forwardSignal);
+    process.once("SIGINT", forwardSignal);
+    const supervisorExit = await new Promise<number>((resolveExit) => {
+      supervisor.once("error", () => resolveExit(1));
+      supervisor.once("close", (code) => resolveExit(code ?? 1));
+    });
+    process.removeListener("SIGTERM", forwardSignal);
+    process.removeListener("SIGINT", forwardSignal);
+
+    let result = { exitCode: supervisorExit, budgetStopped: false, wallClockSeconds: 0, commitSha: null, committed: false };
+    try {
+      result = JSON.parse(await readFile(resultPath, "utf8"));
+    } catch {
+      /* result file unavailable; fall back to supervisor exit code */
+    }
     if (result.budgetStopped) {
       process.stderr.write(
-        `as-is budget-stopped: limit=${result.budgetLimit} seconds=${result.budgetSeconds} exit=${BUDGET_STOPPED_EXIT_CODE}\n`,
+        `as-is budget-stopped: limit=wall-clock seconds=${options.budgetWallClockSeconds} exit=${BUDGET_STOPPED_EXIT_CODE}\n`,
       );
       process.exitCode = BUDGET_STOPPED_EXIT_CODE;
     } else {
       process.exitCode = result.exitCode;
     }
   } finally {
-    await rm(promptDirectory, { recursive: true, force: true });
+    await rm(jobDirectory, { recursive: true, force: true });
   }
 };
 
