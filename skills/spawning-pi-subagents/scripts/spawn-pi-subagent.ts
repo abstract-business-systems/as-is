@@ -360,14 +360,16 @@ const removeWorktree = async (callerCwd: string, worktreePath: string): Promise<
   await gitIn(callerCwd, ["worktree", "remove", "--force", worktreePath]);
 };
 
-// A bounded supervisor that is the direct parent of the Pi child. It owns the
-// wall-clock budget, conveys all constraints, runs the child in an isolated git
-// worktree, and survives the launcher process so a delegated child's budget
-// stays enforced even if the launcher or its parent agent is killed. On the
-// deadline it sends SIGTERM then SIGKILL to the child's process group. On exit
-// it records the outcome (exit code, wall-clock, budget-stopped, final commit
-// SHA) to a result file and a registry completion line.
-const runAsParentSupervisor = async (config: SuperviseConfig): Promise<void> => {
+// A bounded job runner that is the direct parent of the Pi child. Its scope is
+// process management: it owns the wall-clock budget timer, forwards signals,
+// manages the worktree lifecycle (a mechanical safety/isolation boundary,
+// not a semantic work decision), and records the outcome. It does not decide
+// what the work is, whether it is good, or whether the agent should commit —
+// the commit decision is the agent's. The runner survives the launcher process
+// so a delegated child's budget stays enforced even if the launcher or its
+// parent agent is killed. On the deadline it sends SIGTERM then SIGKILL to the
+// child's process group.
+const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
   const startedMonotonic = Date.now();
 
   // Isolate the child in a worktree pruned from the caller's HEAD. On failure,
@@ -455,14 +457,28 @@ const runAsParentSupervisor = async (config: SuperviseConfig): Promise<void> => 
   const finalSha = childCwd !== config.callerCwd ? await gitIn(childCwd, ["rev-parse", "HEAD"]) : null;
   const committed = finalSha !== null && finalSha !== baseSha;
 
-  // Remove the worktree on a clean exit once the commit is captured. Preserve
-  // it on a budget stop or crash so partial work remains for recovery.
-  if (childCwd !== config.callerCwd && !budgetStopped && exitCode === 0) {
-    await removeWorktree(config.callerCwd, childCwd);
+  // Decide worktree removal on git facts, not on the agent's exit code or a
+  // budget-stop flag. The worktree is removed only when there is nothing to
+  // lose: either the child advanced HEAD (committed — work is durable in git,
+  // recoverable via commitSha) or the tree is clean (no uncommitted changes).
+  // If there are uncommitted changes and no commit, the worktree is PRESERVED
+  // so the partial work remains for recovery. This is a mechanical preservation
+  // rule ("is there uncommitted state?"), not a semantic work judgment.
+  let worktreePreserved = false;
+  let preserveReason: string | null = null;
+  if (childCwd !== config.callerCwd) {
+    const porcelain = await gitIn(childCwd, ["status", "--porcelain"]);
+    const clean = porcelain === "";
+    if (committed || clean) {
+      await removeWorktree(config.callerCwd, childCwd);
+    } else {
+      worktreePreserved = true;
+      preserveReason = "uncommitted changes without a commit (recovery candidate)";
+    }
   }
 
   try {
-    await writeFile(config.resultPath, `${JSON.stringify({ exitCode, budgetStopped, wallClockSeconds, commitSha: finalSha, committed })}\n`, "utf8");
+    await writeFile(config.resultPath, `${JSON.stringify({ exitCode, budgetStopped, wallClockSeconds, commitSha: finalSha, committed, worktreePreserved, preserveReason })}\n`, "utf8");
   } catch {
     /* best-effort outcome record */
   }
@@ -478,7 +494,8 @@ const runAsParentSupervisor = async (config: SuperviseConfig): Promise<void> => 
         childPid,
         commitSha: finalSha,
         committed,
-        worktreePreserved: budgetStopped || exitCode !== 0,
+        worktreePreserved,
+        preserveReason,
         finishedAt: new Date().toISOString(),
       })}\n`, "utf8");
     } catch {
@@ -569,7 +586,7 @@ const printJobs = async (): Promise<void> => {
       }
     }
     const detail = finished
-      ? `exit=${finished.exitCode} wall=${finished.wallClockSeconds}s${finished.committed ? ` sha=${(finished.commitSha as string)?.slice(0, 8)}` : ""}`
+      ? `exit=${finished.exitCode} wall=${finished.wallClockSeconds}s${finished.committed ? ` sha=${(finished.commitSha as string)?.slice(0, 8)}` : ""}${finished.worktreePreserved ? ` preserved: ${finished.preserveReason ?? "uncommitted changes"} @ ${launch.worktreePath ?? "?"}` : ""}`
       : `budget=${launch.budgetWallClockSeconds ?? "-"}s`;
     const identity = (launch.identity as string | undefined) ?? "?";
     const caller = (launch.caller as string | undefined) ?? "?";
@@ -584,7 +601,7 @@ const main = async() => {
 
   if (options.supervise) {
     const config = JSON.parse(await readFile(options.supervise.configPath, "utf8")) as SuperviseConfig;
-    await runAsParentSupervisor(config);
+    await runBoundedJob(config);
     return;
   }
 

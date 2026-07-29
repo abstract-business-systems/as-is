@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -288,4 +288,72 @@ test("worktree isolation: a child git restore does not touch the caller's workin
     const after = readFileSync(targetFile, "utf8");
     expect(after).toBe(before);
   } finally { rmSync(dir, { recursive: true, force: true }); }
+}, 15000);
+
+// The preservation property: a child that exits cleanly (exit 0) WITHOUT
+// committing its work must leave the worktree in place for recovery. This
+// directly tests the incident where a subagent obeyed "do not commit", exited 0,
+// and the supervisor destroyed its uncommitted work on clean-exit cleanup.
+test("worktree preservation: uncommitted work on clean exit is preserved", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "as-is-preserve-test-"));
+  let handle: { worktreePath?: string } | undefined;
+  try {
+    // A stub pi that creates an untracked file in the worktree (leaving it
+    // dirty) and exits 0 without committing.
+    const stubPi = join(dir, "pi-dirty-stub.sh");
+    writeFileSync(stubPi, [
+      "#!/usr/bin/env bash",
+      "# Simulate an agent that does work but exits without committing.",
+      "mkdir -p skills/as-is/scripts",
+      "echo 'unfinished work' > skills/as-is/scripts/scratch.ts",
+      "exit 0",
+      "",
+    ].join("\n"), { mode: 0o755 });
+
+    const registry = join(dir, "jobs.jsonl");
+    const result = await runLauncher([
+      "--agent", AGENT,
+      "--task", "Uncommitted-work stub.",
+      "--cwd", process.cwd(),
+      "--pi", stubPi,
+      "--detach",
+    ], { ...process.env, AS_IS_JOBS_REGISTRY: registry });
+    expect(result.exitCode).toBe(0);
+    handle = JSON.parse(result.stdout) as { worktreePath?: string };
+    expect(handle.worktreePath).toBeTruthy();
+
+    const done = await pidGone(handle.pid, 5000);
+    expect(done).toBe(true);
+
+    // The worktree must still exist (preserved for recovery), and contain the
+    // uncommitted file the stub created.
+    expect(existsSync(handle.worktreePath)).toBe(true);
+    const scratch = join(handle.worktreePath, "skills/as-is/scripts/scratch.ts");
+    expect(existsSync(scratch)).toBe(true);
+    expect(readFileSync(scratch, "utf8")).toContain("unfinished work");
+
+    // The completion line must record worktreePreserved with a reason.
+    const finished = readRegistryLines(registry).find(
+      (line) => (line as { jobId?: string }).jobId === handle.jobId
+        && (line as { event?: string }).event === "finished",
+    ) as { exitCode: number; committed: boolean; worktreePreserved: boolean; preserveReason?: string } | undefined;
+    expect(finished).toBeDefined();
+    expect(finished!.exitCode).toBe(0);
+    expect(finished!.committed).toBe(false);
+    expect(finished!.worktreePreserved).toBe(true);
+    expect(finished!.preserveReason).toContain("uncommitted");
+
+    // --jobs must surface the preserved worktree as a recovery candidate.
+    const jobs = await runLauncher(["--jobs"], { ...process.env, AS_IS_JOBS_REGISTRY: registry });
+    expect(jobs.stdout).toContain(handle.jobId);
+    expect(jobs.stdout).toContain("preserved");
+    expect(jobs.stdout).toContain(handle.worktreePath);
+  } finally {
+    // The supervisor intentionally preserves the worktree for this test; clean
+    // it up via git so the suite leaves no dangling worktrees.
+    if (handle?.worktreePath) {
+      try { spawnSync("git", ["worktree", "remove", "--force", handle.worktreePath], { stdio: "ignore" }); } catch { /* best-effort */ }
+    }
+    rmSync(dir, { recursive: true, force: true });
+  }
 }, 15000);

@@ -1,6 +1,6 @@
 ---
 name: spawning-pi-subagents
-description: Starts an isolated Pi child process from a repository agent Markdown file under a detached bounded supervisor that is the child's direct parent and owns the wall-clock budget. The child runs in an isolated git worktree pruned from the caller's HEAD so its destructive git operations cannot reach the caller's uncommitted work. In blocking mode the launcher waits and returns the child's exit; with --detach it returns a handle immediately and the child runs independently. Use --jobs to query the status of all registered jobs. Use when delegating a bounded task to as-is, component-builder, or another named agent.
+description: Starts an isolated Pi child process from a repository agent Markdown file under a detached bounded job runner that is the child's direct parent and owns the wall-clock budget. The child runs in an isolated git worktree pruned from the caller's HEAD so its destructive git operations cannot reach the caller's uncommitted work. In blocking mode the launcher waits and returns the child's exit; with --detach it returns a handle immediately and the child runs independently. Use --jobs to query the status of all registered jobs. Use when delegating a bounded task to as-is, component-builder, or another named agent.
 compatibility: Requires Bun and a local Pi package or binary. The child process must run in the target repository and receive an explicit agent file and task.
 ---
 
@@ -8,8 +8,8 @@ compatibility: Requires Bun and a local Pi package or binary. The child process 
 
 Use this skill when a role must run in a separate Pi process with an isolated
 context window. The process boundary is real. In both blocking and detach
-modes the Pi child runs under a detached bounded supervisor that is the child's
-direct parent: the supervisor owns the wall-clock budget, conveys all
+modes the Pi child runs under a detached bounded job runner that is the child's
+direct parent: the runner owns the wall-clock budget, conveys all
 constraints (cost is forwarded for self-limiting), and survives the launcher
 process so a delegated child's budget stays enforced even if the launcher or
 its parent agent is killed. By default the caller blocks on the child's exit
@@ -105,7 +105,7 @@ starting a model process.
 ## Detach Mode
 
 With `--detach`, the launcher returns a handle on stdout immediately and the
-child runs under a detached supervisor without blocking the caller:
+child runs under a detached bounded job runner without blocking the caller:
 
 ```json
 {
@@ -123,13 +123,13 @@ child runs under a detached supervisor without blocking the caller:
 }
 ```
 
-`pid` is the supervisor pid — the budget owner and the cancel target, not the
-Pi child pid. The supervisor is the child's direct parent and outlives the
+`pid` is the bounded job runner pid — the budget owner and the cancel target, not the
+Pi child pid. The runner is the child's direct parent and outlives the
 launcher. `identity` is this child's role; `caller` is the delegating agent's
 identity (propagated via the `AS_IS_IDENTITY` env var, or `--caller`);
 `parentJobId` is the caller's job id (propagated via `AS_IS_JOB_ID`, or
 `--parent-job-id`). The OS parent pid is intentionally not recorded: the
-supervisor breaks OS parentage, so lineage is logical (caller identity +
+runner breaks OS parentage, so lineage is logical (caller identity +
 parentJobId), not process-tree based.
 
 The child's stdout and stderr go to `logPath`; the child's `as-is.md` record is
@@ -137,7 +137,7 @@ the result and handoff. There is no talk-back channel to the parent: any agent
 observes the child by polling its record (structured status) and `logPath`
 (detail), or via `--jobs`.
 
-On exit the supervisor appends a completion line to the registry
+On exit the bounded job runner appends a completion line to the registry
 (`{jobId, event:"finished", exitCode, budgetStopped, wallClockSeconds,
 commitSha, committed, finishedAt}`) so the job table reflects finished jobs
 with their real wall-clock, exit code, and final commit. The parent reads the
@@ -158,17 +158,29 @@ By default the child runs in an isolated git worktree pruned from the caller's
 `HEAD`, so the child's destructive git operations (`git restore`, `checkout`,
 `clean`, file edits) cannot reach the caller's uncommitted work. The worktree
 is a detached-HEAD checkout of committed state only — the child never sees the
-caller's uncommitted changes. The supervisor removes the worktree on a clean
-exit (exit 0, not budget-stopped) once the final commit is captured; it
-preserves the worktree on a budget stop or non-zero exit so partial work
-remains for recovery. A parent process need not outlive its children: each
-child's budget is owned by its own detached supervisor, which survives the
-parent's death.
+caller's uncommitted changes. The bounded job runner removes the worktree only
+when there is nothing to lose — decided on git facts, not on the child's exit
+code: it removes the worktree when the child advanced `HEAD` (committed — the
+work is durable in git and recoverable via the recorded `commitSha`) or when
+the tree is clean (no uncommitted changes). It preserves the worktree when
+there are uncommitted changes and no commit, so partial work remains for
+recovery regardless of the exit code or budget-stop state. This is a
+mechanical preservation rule ("is there uncommitted state?"), not a semantic
+work judgment; the commit decision is the agent's, not the runner's. A parent
+process need not outlive its children: each child's budget is owned by its own
+detached bounded job runner, which survives the parent's death.
 
 Pass `--no-worktree` to run the child in the caller's working directory
 instead (disables isolation; use only when the caller has no uncommitted work
-to protect). Worktree creation is best-effort: if it fails, the supervisor
+to protect). Worktree creation is best-effort: if it fails, the runner
 falls back to the caller's cwd and records the degradation.
+
+Preserved worktrees are the recovery surface: `--jobs` reports them with the
+worktree path and the preservation reason (`preserved: uncommitted changes
+without a commit (recovery candidate) @ <path>`). Inspect a preserved worktree
+with `git -C <path> diff` or `git -C <path> log`, cherry-pick a WIP commit, or
+copy specific files out, then remove it with `git worktree remove --force
+<path>`.
 
 ## Job Status
 
@@ -176,12 +188,14 @@ falls back to the caller's cwd and records the degradation.
 a Pi process: `jobId`, `identity`, `caller`, process liveness and budget from
 the registry, joined to the task-record status read via `git show
 <commitSha>:<recordPath>` (or from disk when no commit is recorded). A
-supervisor that is no longer alive with no completion line is reported as
+runner that is no longer alive with no completion line is reported as
 `crashed (recovery candidate)` — a dead process whose record is still
-non-terminal. The `caller`/`identity` columns reconstruct the logical
-delegation tree (OS parentage is broken by the supervisor). This is the
-on-query observation surface for the fire-and-forget model; it is read-only and
-never contacts a provider.
+non-terminal. A finished job whose worktree was preserved (uncommitted
+changes without a commit) is reported with `preserved: <reason> @ <path>` so
+the worktree can be inspected and recovered. The `caller`/`identity` columns
+reconstruct the logical delegation tree (OS parentage is broken by the
+runner). This is the on-query observation surface for the fire-and-forget
+model; it is read-only and never contacts a provider.
 
 ## Process Rules
 
@@ -197,16 +211,16 @@ never contacts a provider.
   output.
 - The launcher uses `--mode json`, `--print`, `--no-session`, a shell-free child
   process, and a private temporary system-prompt file. In both blocking and
-  detach modes the child runs under a detached bounded supervisor that is the
+  detach modes the child runs under a detached bounded job runner that is the
   child's direct parent, in an isolated git worktree pruned from the caller's
-  HEAD. The supervisor owns the wall-clock budget, conveys the cost limit via
+  HEAD. The runner owns the wall-clock budget, conveys the cost limit via
   the prompt for self-limiting, records the outcome (exit code, wall-clock,
   budget-stopped, final commit SHA) to a result file and a registry completion
   line, and survives the launcher's death. Budget constraints are appended to
   the private system prompt so the child can self-limit on cost; the wall-clock
-  budget is enforced by the supervisor as a hard process-level stop (SIGTERM
+  budget is enforced by the runner as a hard process-level stop (SIGTERM
   then SIGKILL on the child's process group). A parent agent need not outlive
-  its children: each child's budget is owned by its own supervisor.
+  its children: each child's budget is owned by its own runner.
 - A zero Pi exit code is only a host observation. Reread the durable component
   record and validate its status, handoff, acceptance evidence, and cleanup
   before treating the task as complete. An exit status of `124` with the
