@@ -1,20 +1,20 @@
 ---
 as-is-version: 2
 task:
-  status: completed
+  status: ready
   worker: component-builder
-  updated: 2026-07-29T17:35:00Z
+  updated: 2026-07-29T18:15:00Z
 constraints:
   cost:
     currency: USD
-    allocated: 0.40
+    allocated: 0.35
     spent: 0.00
     reserve: 0.05
     source: unavailable
     fallback-metric: validation elapsed-seconds (not monetary cost)
   delegation:
-    maximum-depth: 2
-    maximum-children: 8
+    maximum-depth: 0
+    maximum-children: 0
   execution:
     wall-clock:
       allocated-seconds: 240
@@ -23,104 +23,108 @@ constraints:
       source: unavailable
   external-effects: require-current-turn-user-approval
 acceptance:
-  - Trim the as-is agent contract so a status or routing turn does not perform
-    multi-source orientation itself; remove the "read and summarize relevant
-    root/component as-is.md status, recover historical committed facts from Git"
-    clauses that induced five-to-seven sequential read turns before delegation.
-  - Replace them with a direct-path budget rule: as-is answers directly only when
-    the work fits within one read, one command, current-session summarization, a
-    relay of a result already in context, or a clarify/acknowledge reply; any
-    need for more than one read, more than one command, or synthesis across
-    multiple sources delegates immediately to component-builder.
-  - Preserve delegate-by-default as the operational posture for multi-hour
-    sessions, so per-turn reasoning tokens do not accumulate in as-is's context;
-    records are durable memory and the conversation is ephemeral routing.
+  - Add `model: mini` to `.agents/agents/as-is/agent.md` front-matter so the
+    as-is role runs on a fast model by default (the alias resolves to the
+    concrete provider/model id via the launcher's config-driven resolution).
+  - Add orientation-script guidance to `.agents/agents/as-is/agent.md`: for any
+    status or routing turn that needs repository state, run
+    `bun skills/as-is/scripts/orient.ts` once and synthesize/relay from that
+    snapshot instead of performing multiple sequential record reads; this
+    collapses the multi-read orientation that caused the 18s "what's next"
+    latency.
+  - Keep the direct-path budget rule intact (at most one read, one command,
+    current-session summarization, in-context relay, or clarify/acknowledge
+    for a direct reply; otherwise delegate). The `orient.ts` call is the one
+    command a status turn spends before synthesizing — it does not widen the
+    budget.
   - Keep the existing boundary clauses (use only component-builder for
     delegation; never substitute general or explore; do not implement
-    component-domain changes; never create task-archives/).
-  - Do not add intent-classification or complexity-prediction logic that itself
-    requires reasoning; the budget is a stop condition, not a predictor.
+    component-domain changes; never create task-archives/; commit completed
+    work; on incomplete work leave it uncommitted and report).
+  - Do not add intent-classification heuristics; the orient.ts call is a
+    mechanical one-command orientation, not a complexity predictor.
+  - Validate with `opencode agent list` (as-is still discovered, front-matter
+    valid with `model:`), `bun build` of any touched script, and
+    `git diff --check`; record residual risk in this record.
 ---
 
-# as-is Agent Contract
+# as-is Agent Fast Path: Orientation Snapshot And Fast Model
 
 ## Purpose
 
-The user-facing entry point that routes intent through durable as-is
-orchestration. In a multi-hour session as-is must stay cheap per turn: it holds
-durable records as memory and treats the conversation as ephemeral routing, so
-per-turn reasoning tokens do not compound and bloat the main session.
+The user-facing as-is router must stay cheap per turn in a multi-hour session.
+A "what's next" status query took ~18s because as-is re-derived repository
+state through five-to-seven sequential record reads on a non-fast model, and its
+contract did not mention the orientation snapshot script that already returns
+that state in ~50ms. This task wires the fast model and the one-call snapshot
+into the as-is contract.
 
 ## Requirement
 
-Trim and refocus `.agents/agents/as-is/agent.md` so a status or routing turn
-does not perform multi-source orientation itself. as-is delegates substantive or
-multi-source work to `component-builder` and answers directly only within a
-strict direct-path budget. This removes the startup latency observed when as-is
-read five-to-seven records before it could answer "what is the next open task".
+Edit `.agents/agents/as-is/agent.md` to (1) pin a fast model via `model: mini`
+in the front-matter, and (2) direct as-is to run `skills/as-is/scripts/orient.ts`
+once for status/orientation turns and synthesize from its snapshot, instead of
+multi-read orientation. The model alias resolves through the launcher's
+config-driven resolution (see `skills/spawning-pi-subagents/as-is.md`).
 
 ## Plan
 
-Edit `.agents/agents/as-is/agent.md`:
+1. Add `model: mini` to the as-is agent front-matter (after `mode: primary`),
+    naming the configured fast alias; the launcher resolves it to the concrete
+    provider/model id from `.opencode/opencode.json`.
+2. Add a short orientation clause to the contract body: for a turn that needs
+    repository state (status, next-open-task, routing context), run
+    `bun skills/as-is/scripts/orient.ts` once and synthesize/relay from its
+    JSON snapshot; do not perform multiple sequential reads of root/component
+    records, the change log, and specs to assemble the same picture by hand.
+3. State that the `orient.ts` call is the single command a status turn spends
+    within the direct-path budget; it does not widen the budget or replace
+    delegation for substantive work.
+4. Preserve the direct-path budget rule and all boundary clauses; do not add
+    intent-classification heuristics.
 
-1. Remove the "read and summarize relevant current root/component as-is.md
-   status concisely, recover historical committed facts from Git and concise
-   change-log.md entries, and synthesize results for the user" sentence and any
-   clauses that instruct multi-record orientation by as-is itself.
-2. Add the direct-path budget rule as a short, concrete list: direct only when
-   the reply needs at most one read, one command, current-session
-   summarization, a relay of an in-context result, or a clarify/acknowledge.
-   State the ceiling: anything needing more than one read, more than one
-   command, or synthesis across multiple sources delegates immediately.
-3. State delegate-by-default as the posture for multi-hour sessions, with
-   records as durable memory and conversation as ephemeral routing.
-4. Preserve the existing boundary clauses (component-builder only; no general
-   or explore substitution; no component-domain self-implementation; no
-   task-archives/).
-
-Keep the contract short. Do not add intent-classification heuristics; the
-budget is a stop condition the agent checks after attempting a direct answer,
-not a predictor it must evaluate before acting.
+Keep the contract short. The orientation clause is a mechanical one-command
+shortcut, not a complexity predictor.
 
 ## Progress
 
-Contract edits applied directly (not delegated): the multi-read orientation
-clauses were replaced with the direct-path budget rule and the
-delegate-by-default posture; the commit-on-complete / preserve-on-incomplete
-line was added for as-is's direct-work slice. The duplicated front-matter
-fragment from the directory-layout migration was fixed.
+Not started. Record created with the aligned direction. This task depends on
+the launcher's model-alias resolution (`skills/spawning-pi-subagents/as-is.md`):
+the `mini` pin resolves to a concrete model id only after that lands. If
+implemented first, the literal `mini` is passed until the launcher resolves
+aliases.
 
 ## Validation
 
-- The contract file contains the direct-path budget list and the
-  delegate-by-default posture.
-- The multi-read orientation clauses are absent.
-- The existing boundary clauses remain.
-- `opencode agent list` discovers `as-is (primary)` after the edit.
-- The agent file front-matter is valid (name, mode, permission) with no
-  duplicated fragment.
+- `.agents/agents/as-is/agent.md` front-matter contains `model: mini`.
+- The contract body contains the orientation-script clause naming
+  `skills/as-is/scripts/orient.ts`.
+- The direct-path budget rule and boundary clauses remain; no
+  intent-classification heuristics were added.
+- `opencode agent list` discovers `as-is (primary)` with the new front-matter.
+- `git diff --check` is clean.
 
 ## Result
 
-The as-is agent contract now biases hard to delegation with a strict
-budget-gated direct path, preventing the multi-read startup latency and
-session bloat. Completed directly.
+Pending.
 
 ## Blockers And Escalations
 
-None. Residual risk: a pure-router as-is (even status queries delegate) was
-considered and rejected in favor of the budget rule, because the budget
-preserves a narrow direct path for trivial one-liners without reintroducing
-intent-detection bloat. The budget is a ceiling, not a predictor, so wrong-way
-cost is bounded to at most one read or one command of tokens.
+Depends on `skills/spawning-pi-subagents/as-is.md` for alias resolution. If the
+launcher task has not landed, the `mini` pin is a no-op (passed literally) until
+it does; implement the orientation clause regardless (it works independently of
+the model). Residual risk: the orientation snapshot is only as current as the
+durable records and git facts it reads; a stale or non-completed record surface
+could mislead synthesis, but this is bounded by the snapshot's own sources.
 
 ## Recovery
 
 Recover from this record, the as-is agent file at
-`.agents/agents/as-is/agent.md`, and the alignment captured in
-`change-log.md`. The contract direction is self-contained in this record; no
-private runtime state is required.
+`.agents/agents/as-is/agent.md`, and the orientation script at
+`skills/as-is/scripts/orient.ts`. If interrupted, reread this record before
+resuming; do not re-create `task-archives/`.
 
 ## Next Action
 
-None within this component; the contract edits are complete.
+Implement after the launcher alias-resolution task lands so the `mini` pin
+resolves end-to-end; the orientation clause may be implemented in parallel.
