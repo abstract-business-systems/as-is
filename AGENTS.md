@@ -3,40 +3,16 @@
 Follow [Design Principles](design-principles.md). Repository-authored files and
 directories use lowercase kebab-case unless a host requires an exact filename.
 
-## Durable Context
-
-- Treat [as-is.md](as-is.md) as the durable source of truth for current project
-  and component task state. Recover historical committed state from Git history
-  and concise entries in [change-log.md](change-log.md); do not rely on chat
-  context or machine-local state for facts another agent must recover.
-- Treat `as-is.md` as replaceable current-task context, not as the permanent home
-  of architecture or implementation contracts. Put enduring protocols and design
-  rationale in subject-named specifications, then link to them from current task
-  context.
-- Treat root `config.technology-preferences` as centrally supplied, read-only
-  project preference during foundation work. It guides a choice only after
-  applicable higher-authority requirements and established local patterns; it
-  is not a mandatory constraint or permission to introduce dependencies.
-- Update durable task context when work produces a decision, blocker, result,
-  or next action that matters beyond the current turn. Do not record secrets,
-  temporary identifiers, or verbose execution logs there.
-- Do not create or depend on `task-archives/` or another archive-folder task
-  tree. Current state stays in the applicable `as-is.md`; historical state is
-  recovered from Git plus the change log, which is a concise index rather than
-  task authority.
-- The host supplies repository instructions, applicable design principles, and
-  permitted skills as read-only common execution context. A worker begins from
-  its assigned component's `as-is.md`; it reads outside that component only for
-  an explicitly identified dependency or user direction.
-- Component-local constraints may narrow repository policy but cannot weaken
-  higher-authority constraints.
+The as-is task-record, delegation, recovery, and completion mechanics are
+governed by [component-task-record-protocol.md](component-task-record-protocol.md)
+and surfaced as reusable procedures under [skills](skills/). This file holds
+only the generic developmental guardrails that apply to any agent working in
+this repository.
 
 ## Guard Clauses
 
 - Do not amend, push, create pull requests, change branches, or alter remotes
-  unless the user explicitly requests it in the current turn. When a component
-  task qualifies for completion, commit its scoped durable handoff using
-  `committing-completed-work`; do not stage unrelated work.
+  unless the user explicitly requests it in the current turn.
 - Do not put credentials, tokens, passwords, or other secrets in tracked files,
   generated artifacts, prompts, or durable agent context.
 - Do not modify files outside the repository or contact external services
@@ -48,18 +24,16 @@ directories use lowercase kebab-case unless a host requires an exact filename.
   recovery or audit value, ownership, and cost to recreate. Preserve or record
   what remains necessary; remove only the identified unnecessary scope.
 - Git history does not preserve uncommitted content. Before removing an
-  uncommitted historical artifact, preserve its necessary concise facts in the
-  change log/task record or obtain an appropriately scoped evidence commit; do
-  not imply byte-for-byte recovery when none exists.
+  uncommitted artifact, preserve its necessary facts or obtain an appropriately
+  scoped evidence commit; do not imply byte-for-byte recovery when none exists.
 - Keep changes scoped and surgical. If evidence requires work beyond the stated
   scope, stop and request direction rather than expanding autonomously.
 - When evidence supports departing from an applicable non-fixed instruction,
   present the proposed deviation, alternatives, reasons, and material effects to
   the user or delegating agent. Do not weaken a higher-authority constraint.
 - Before introducing a material abstraction, configuration surface, artifact, or
-  execution path, inspect the applicable local pattern. Record the acceptance
-  condition or concrete need that requires the addition in durable task context;
-  include it in the completion report for review.
+  execution path, inspect the applicable local pattern and prefer the smallest
+  reuse that satisfies the need.
 - Validate a changed behavior with the smallest relevant existing automation or
   check before reporting completion. State the validation performed and any
   residual risk.
@@ -69,29 +43,11 @@ directories use lowercase kebab-case unless a host requires an exact filename.
 - An agent role combines skills, permissions, tools, and a bounded
   responsibility. Skills remain reusable procedures; roles do not redefine
   their shared policy.
-- Delegate independent, bounded work only when it has a clear input, durable
-  context, expected output, and verification boundary. Preserve the result in
-  repository context before dependent work proceeds.
-- A component directory determines the scope and parent of its task. The worker
-  updates only that component's `as-is.md` and files. When delegating work to a component
-  that has no record, the orchestrator generates it atomically before launching
-  the worker; it reuses rather than overwrites an existing task record. Child
-  records provide durable delegation and handoff evidence without duplicating
-  their progress in a parent record.
-- A worker begins from the current component `as-is.md` and centrally supplied
-  context. Historical recovery uses Git and concise change-log entries; it does
-  not restore an archive folder or treat a historical snapshot as active task
-  authority.
-- A worker validates its implementation before handoff and records the result,
-  residual risk, host-reported actual cost, and host-observed wall-clock use in
-  its component record. It may
-  request bounded child delegation; the responsible orchestrator may run
-  independent siblings concurrently when their directory scopes, external
-  dependencies, and allocations do not overlap.
-- A task record may become `completed` only after every descendant record is in
-  a terminal state and its own acceptance conditions account for each cancelled
-  or failed descendant. Commit the scoped completed handoff before reporting the
-  task complete to its parent or the user.
+- Delegate independent, bounded work only when it has a clear input, expected
+  output, and verification boundary. Preserve the result in repository context
+  before dependent work proceeds. Delegation, scoping, completion gates, and
+  recovery mechanics are specified in
+  [component-task-record-protocol.md](component-task-record-protocol.md).
 - Use an independent reviewer or validator when risk, authority, or change
   breadth warrants it. The implementing agent's report is evidence, not the
   sole completion gate.
