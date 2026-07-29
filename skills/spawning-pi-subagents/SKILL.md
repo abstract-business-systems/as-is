@@ -209,7 +209,7 @@ model; it is read-only and never contacts a provider.
 - Use `--approve` only when project-local files are explicitly trusted for that
   attempt. Do not place credentials or tokens in task arguments, task files, or
   output.
-- The launcher uses `--mode json`, `--print`, `--no-session`, a shell-free child
+- The launcher uses `--mode json` and `--print`; sessions are durable by default under the supervisor job directory, with `--no-session` providing ephemeral runs. It resolves model aliases and providers from `.opencode/opencode.json`, passing explicit `--provider` and `--model`, and uses a shell-free child
   process, and a private temporary system-prompt file. In both blocking and
   detach modes the child runs under a detached bounded job runner that is the
   child's direct parent, in an isolated git worktree pruned from the caller's

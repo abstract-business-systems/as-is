@@ -10,6 +10,7 @@ type Options = {
   cwd: string;
   pi?: string;
   model?: string;
+  noSession?: boolean;
   tools?: string;
   skills: string[];
   approve?: boolean;
@@ -56,6 +57,7 @@ type Handle = {
   logPath: string | null;
   recordPath: string | null;
   worktreePath: string | null;
+  sessionPath: string | null;
   budgetWallClockSeconds: number | null;
   budgetCostUsd: number | null;
   launchedAt: string;
@@ -66,6 +68,7 @@ type SuperviseConfig = {
   args: string[];
   callerCwd: string;
   worktreePath: string | null;
+  sessionPath: string | null;
   mode: "detach" | "blocking";
   logPath: string | null;
   resultPath: string;
@@ -95,6 +98,7 @@ Optional:
   --cwd <path>               Child working directory (default: current directory)
   --pi <path>                Local Pi executable (default: PI_BIN or Bun package runner)
   --model <model>            Override the agent file model
+  --no-session               Do not persist the child session
   --tools <names>            Comma-separated Pi tool allow-list
   --skill <path>             Additional skill file or directory (repeatable)
   --approve                  Trust project-local files for this run
@@ -164,6 +168,10 @@ const parseOptions = (args: string[]): Options => {
     }
     if (option === "--no-approve") {
       options.noApprove = true;
+      continue;
+    }
+    if (option === "--no-session") {
+      options.noSession = true;
       continue;
     }
     if (option === "--no-tools") {
@@ -263,6 +271,27 @@ const parseFrontMatter = (raw: string, filePath: string): AgentDefinition => {
 
 const resolveFromCwd = (value: string, cwd: string): string =>
   isAbsolute(value) ? value : resolve(cwd, value);
+
+type HostConfig = { providers: Array<{ name: string; models: Record<string, { id?: string }> }> };
+const readHostConfig = async (cwd: string): Promise<HostConfig> => {
+  let current = cwd;
+  while (true) {
+    try {
+      const parsed = JSON.parse(await readFile(join(current, ".opencode", "opencode.json"), "utf8")) as { provider?: Record<string, { models?: Record<string, { id?: string }> }> };
+      return { providers: Object.entries(parsed.provider ?? {}).map(([name, value]) => ({ name, models: value.models ?? {} })) };
+    } catch { /* continue upward */ }
+    const parent = dirname(current);
+    if (parent === current) return { providers: [] };
+    current = parent;
+  }
+};
+const resolveModel = (value: string | undefined, config: HostConfig): { model?: string; provider?: string } => {
+  if (!value) return {};
+  for (const provider of config.providers) {
+    if (provider.models[value]?.id) return { model: provider.models[value].id, provider: provider.name };
+  }
+  return { model: value, provider: config.providers.length === 1 ? config.providers[0].name : undefined };
+};
 
 const findLocalPi = (cwd: string): string | undefined => {
   let current = cwd;
@@ -622,14 +651,20 @@ const main = async() => {
   const caller = options.caller ?? process.env.AS_IS_IDENTITY ?? "user";
   const parentJobId = options.parentJobId ?? process.env.AS_IS_JOB_ID ?? null;
 
-  const model = options.model ?? definition.model;
+  const config = await readHostConfig(cwd);
+  const resolved = resolveModel(options.model ?? definition.model, config);
+  const model = resolved.model;
+  const provider = resolved.provider;
   const tools = options.tools ?? definition.tools;
   const skillPaths = uniquePaths([
     skillDirectory,
     ...options.skills.map((skill) => resolveFromCwd(skill, cwd)),
   ]);
   const piInvocation = resolvePi(options.pi, cwd);
-  const baseArgs = ["--mode", "json", "--print", "--no-session"];
+  const baseArgs = ["--mode", "json", "--print"];
+  if (options.noSession) baseArgs.push("--no-session");
+  else baseArgs.push("--session-dir", "<session-dir>");
+  if (provider) baseArgs.push("--provider", provider);
   if (model) baseArgs.push("--model", model);
   if (tools) baseArgs.push("--tools", tools);
   if (options.noTools) baseArgs.push("--no-tools");
@@ -659,6 +694,8 @@ const main = async() => {
       "parent-job-id": parentJobId,
       skills: skillPaths,
       model: model ?? null,
+      provider: provider ?? null,
+      sessionPath: options.noSession ? null : "<session-dir>",
       tools: tools ?? null,
       detach: options.detach ?? false,
       worktree: !(options.noWorktree ?? false),
@@ -691,6 +728,7 @@ const main = async() => {
   if (options.detach) {
     const jobDirectory = await mkdtemp(join(tmpdir(), "as-is-child-"));
     const promptPath = join(jobDirectory, "system-prompt.md");
+    const sessionPath = options.noSession ? null : join(jobDirectory, "sessions");
     const logPath = join(jobDirectory, "child.log");
     const resultPath = join(jobDirectory, "result.json");
     const configPath = join(jobDirectory, "supervise.json");
@@ -701,12 +739,14 @@ const main = async() => {
     await logHandle.close();
     const config: SuperviseConfig = {
       command: piInvocation.command,
-      args: childArgs.map((arg) => (arg === "<prompt-path>" ? promptPath : arg)),
+      args: childArgs.map((arg) => arg === "<prompt-path>" ? promptPath : arg === "<session-dir>" ? sessionPath! : arg),
       callerCwd: cwd,
       worktreePath,
+      sessionPath,
       mode: "detach",
       logPath,
       resultPath,
+      sessionPath,
       registryPath: options.noRegistry ? null : registryPath(),
       jobId,
       identity,
@@ -736,6 +776,7 @@ const main = async() => {
       logPath,
       recordPath: options.record ?? null,
       worktreePath,
+      sessionPath,
       budgetWallClockSeconds: options.budgetWallClockSeconds ?? null,
       budgetCostUsd: options.budgetCostUsd ?? null,
       launchedAt,
@@ -751,6 +792,7 @@ const main = async() => {
   // output directly.
   const jobDirectory = await mkdtemp(join(tmpdir(), "as-is-child-"));
   const promptPath = join(jobDirectory, "system-prompt.md");
+  const sessionPath = options.noSession ? null : join(jobDirectory, "sessions");
   const resultPath = join(jobDirectory, "result.json");
   const configPath = join(jobDirectory, "supervise.json");
   const worktreePath = useWorktree ? join(jobDirectory, "worktree") : null;
@@ -758,12 +800,14 @@ const main = async() => {
     await writeFile(promptPath, prompt, { encoding: "utf8", mode: 0o600 });
     const config: SuperviseConfig = {
       command: piInvocation.command,
-      args: childArgs.map((arg) => (arg === "<prompt-path>" ? promptPath : arg)),
+      args: childArgs.map((arg) => arg === "<prompt-path>" ? promptPath : arg === "<session-dir>" ? sessionPath! : arg),
       callerCwd: cwd,
       worktreePath,
+      sessionPath,
       mode: "blocking",
       logPath: null,
       resultPath,
+      sessionPath,
       registryPath: options.noRegistry ? null : registryPath(),
       jobId,
       identity,
@@ -792,6 +836,7 @@ const main = async() => {
       logPath: null,
       recordPath: options.record ?? null,
       worktreePath,
+      sessionPath,
       budgetWallClockSeconds: options.budgetWallClockSeconds ?? null,
       budgetCostUsd: options.budgetCostUsd ?? null,
       launchedAt,
