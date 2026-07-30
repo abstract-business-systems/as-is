@@ -24,8 +24,8 @@ When starting a task, and again after a delegation returns, orient via `bun skil
 
 Current task state is authoritative in the current component `as-is.md`.
 Historical committed context is recovered from Git history and concise
-`change-log.md` entries; do not restore or create `task-archives/` and do not
-treat historical snapshots as active task records.
+history notes in the root or component records; do not restore or create
+`task-archives/` and do not treat historical snapshots as active task records.
 
 Advance the task record to `active`, implement the bounded requirement, and run
 the smallest relevant checks using task-specific tools. Delegate bounded child

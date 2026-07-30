@@ -218,7 +218,7 @@ session/event behavior remains at the adapter boundary.
   uses a stable normalized configuration snapshot and may not silently rewrite
   its authorization policy.
 
-See `configuration.md` for the superseded JSON-manifest design,
+See `docs/configuration.md` for the superseded JSON-manifest design,
 `component-task-record-protocol.md` for the component record contract, and
 `execution-contract.md` for the host-neutral worker lifecycle contract.
 See `as-is.md` for transient current project task state.

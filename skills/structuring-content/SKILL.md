@@ -21,7 +21,9 @@ files, and Markdown sections are all levels of the same conceptual hierarchy.
    established type-directory convention warrants grouping from the first item;
    retain a unique artifact at the current level when the required evidence is
    absent or an exception applies, and record the decision.
-5. Link related authoritative artifacts instead of duplicating their contents. Prefer one authoritative home for a decision or rule; do not keep the same current decision, rule, or state in two authoritative locations.
+5. Link related authoritative artifacts instead of duplicating their contents.
+   Prefer one authoritative home for a decision or rule; do not keep the same
+   current decision, rule, or state in two authoritative locations.
 6. Separate settled design from proposals, active task state, and private runtime
    state.
 7. Review for discoverability, semantic grouping, replacement paths, accuracy,
@@ -31,14 +33,24 @@ files, and Markdown sections are all levels of the same conceptual hierarchy.
 
 - Put enduring cross-project behavior in `design-principles.md`.
 - Put executable, reusable procedures in `skills/<skill-name>/SKILL.md`.
-- Put current task authority in `as-is.md` and concise historical overview in `change-log.md`; do not use both as parallel sources of truth for the same current task state.
+- Put current task authority in `as-is.md` and concise historical overview in a
+  changelog that stays succinct by default; do not use both as parallel sources
+  of truth for the same current task state.
+- A small changelog belongs in `as-is.md` when that record is the smallest
+  coherent authoritative home for the current task and its concise recovery
+  history.
+- For a document that grows into a directory, prefer the host pattern
+  `<xyz>.md` -> `<xyz>/index.md` as the entry point, then extract focused
+  section files beside it and link them from the index or root entry. Keep the
+  entry point authoritative and explain the relationship in a Links section.
 - Put architecture, protocols, and design rationale in subject-named documents.
 - Put host-specific integration instructions in a host-specific adapter or skill.
 - Keep private runtime state, credentials, caches, verbose logs, and temporary
   tool output outside authoritative project knowledge.
-- This skill owns the reusable procedure and decision criteria; design principles
-  own broad cross-project values; component task records own current-task
-  evidence and decisions; `agent-skills.md` remains only the capability catalog.
+- This skill owns the reusable procedure and decision criteria; design
+  principles own broad cross-project values; component task records own
+  current-task evidence and decisions; `agent-skills.md` remains only the
+  capability catalog.
 
 ## Structure Rules
 
@@ -47,12 +59,18 @@ files, and Markdown sections are all levels of the same conceptual hierarchy.
   with its former sections represented by focused documents. Preserve a clear
   entry point according to the host's linking conventions when making that
   replacement.
+- When a document is replaced by a directory, prefer the host pattern
+  `<xyz>.md` -> `<xyz>/index.md` for the entry point, and place extracted
+  section files beside it under the same directory so links remain stable.
+  The index or root entry should link to the extracted section files and
+  explain their authority relationship.
 - Group sibling components under a type directory when the group communicates a
-  meaningful shared role and improves navigation or establishes a real boundary.
-  For example, place related UI components in `components/` and services in
-  `services/`. A directory adds a path level, a classification decision, and an
-  implied coherence claim; do not incur those costs only to mirror a neighboring
-  directory or because unrelated artifacts happen to be adjacent.
+  meaningful shared role and improves navigation or establishes a real
+  boundary. For example, place related UI components in `components/` and
+  services in `services/`. A directory adds a path level, a classification
+  decision, and an implied coherence claim; do not incur those costs only to
+  mirror a neighboring directory or because unrelated artifacts happen to be
+  adjacent.
 - Keep a unique artifact at its current level until it has a meaningful sibling
   group or another concrete reason for its own boundary. Matching a nearby
   `components/` directory with a one-file `services/` directory does not itself
@@ -60,6 +78,10 @@ files, and Markdown sections are all levels of the same conceptual hierarchy.
 - Keep a component's purpose explicit in its task record. `Purpose` explains why
   the component exists; `Requirement` states the bounded work currently assigned
   to it.
+- Larger files are acceptable when they are the smallest coherent authoritative
+  home. Split only when there is a concrete navigational or authority benefit,
+  such as a clear extracted-section boundary, a new entry point, or a stronger
+  ownership split.
 
 ### Creation-time grouping
 
@@ -69,17 +91,15 @@ files, and Markdown sections are all levels of the same conceptual hierarchy.
   type directory, even if the set is not yet populated locally. Predictable
   locations and stable paths reduce scanning, reclassification, and later
   migration.
-- Before creating that directory, record evidence for the expected sibling set or
-  applicable standard, the parent concept, ownership, authoritative entry point,
-  and migration or replacement path. If that evidence is absent, keep the unique
-  artifact at its current level and document why.
+- Before creating that directory, record evidence for the expected sibling set
+  or applicable standard, the parent concept, ownership, authoritative entry
+  point, and migration or replacement path. If that evidence is absent, keep the
+  unique artifact at its current level and document why.
 - This is a creation-time default, not an always-group rule. Do not introduce a
   type directory when it would obscure ownership or authority, cut across a
   lifecycle or component boundary, encode a speculative or generic-bucket
   boundary, or conflict with the component-task hierarchy. Preserve the
   smallest coherent boundary and the clear entry point in those cases.
-- Larger files are acceptable when they are the smallest coherent authoritative
-  home; split only when there is a concrete navigational or authority benefit.
 
 ### Maintenance-time restructuring
 
@@ -125,7 +145,8 @@ unambiguous rule or create an alternate source of truth.
 
 ## Quality Checks
 
-- Prefer one authoritative home for a decision or rule; do not maintain two sources of truth for the same current decision or task state.
+- Prefer one authoritative home for a decision or rule; do not maintain two
+  sources of truth for the same current decision or task state.
 - Preserve meaningful context, source, and rationale when compressing notes.
 - Use hierarchy to group related knowledge, but do not create a level that has
   no distinct ownership or navigational purpose.

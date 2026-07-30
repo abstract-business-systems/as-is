@@ -68,8 +68,8 @@ extension. This fail-closed behavior prevents a misspelled setting from silently
 altering automation behavior.
 
 The repository's logging level is the project-specific verbosity control used by
-`change-log.md`; it can expand retained historical detail, but it does not
-create another authority or a second current-task record.
+root and component history notes; it can expand retained historical detail, but
+it does not create another authority or a second current-task record.
 
 ## Defaults And Overrides
 
@@ -130,7 +130,7 @@ overridable unless marked fixed below.
 | `agents.defaultRole` | `"component-builder"` | Role used when a task does not name one. |
 | `agents.roles` | `{}` | Role-specific model, skill, tool, and permission settings. |
 | `hitl` | `{"onBlocked": true, "onBudgetExceeded": true, "onExternalEffect": true}` | Events requiring human direction or approval. |
-| `logging` | `{"level": "info", "retainDays": 30}` | Operational record detail, including change-log verbosity, and retention. |
+| `logging` | `{"level": "info", "retainDays": 30}` | Operational record detail, including history verbosity, and retention. |
 
 The following are fixed invariants:
 
@@ -185,7 +185,7 @@ State is divided by authority and retention:
 
 | Class | Examples | Authority | Retention |
 | --- | --- | --- | --- |
-| Repository task control state | Root or component `as-is.md` records, progress, decisions, results, and next actions | Sole current-task authority; changed through the task protocol | Current records remain in place; historical committed state is recovered from Git and concise `change-log.md` entries, not archive folders. |
+| Repository task control state | Root or component `as-is.md` records, progress, decisions, results, and next actions | Sole current-task authority; changed through the task protocol | Current records remain in place; historical committed state is recovered from Git and concise history entries, not archive folders. |
 | Immutable run input | Effective configuration and bundle identity | Explains what a run was authorized to do | Retained with its run when available. |
 | Runtime coordination metadata | Leases, run identity, logs, the private JobId map, indexes, caches, and temporary tool output | Never task, approval, history, accounting, or completion authority | Private, expirable, and regenerable; active map entries support restart reconciliation. |
 | HITL state | Questions, approvals, rejection, or direction recorded in the affected task record | Authoritative only after the durable record transition | Retained with the affected task. |

@@ -48,7 +48,7 @@ unbounded copy of unrelated repository history in the argument.
 The started process must:
 
 - read the current root `as-is.md` and recover historical facts from Git and
-  concise `change-log.md` entries;
+  concise history notes in the root or component records;
 - treat the root record as current task authority and preserve higher-authority
   repository instructions and design principles;
 - route substantive bounded work to `.agents/agents/component-builder/agent.md` using

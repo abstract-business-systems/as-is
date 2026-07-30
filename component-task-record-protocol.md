@@ -14,6 +14,12 @@ parent relationship. Child records are the durable delegation and handoff
 evidence; a parent need not maintain a duplicate child list, status ledger, or
 result copy.
 
+When a bounded document later becomes a directory, use the host pattern
+`<xyz>.md -> <xyz>/index.md` for the authoritative entry point. Place extracted
+section files beside that index and link them from a `Links` section in the
+index or root `as-is.md` entry point so the entry point stays authoritative
+without duplicating the extracted content.
+
 ## Creation And Maintenance
 
 The root `as-is.md` is authored project context. When the orchestrator delegates
@@ -21,9 +27,8 @@ work to a component directory that has no task record, it generates that
 component's `as-is.md` atomically from this protocol before launching the worker.
 It supplies the bounded requirement, effective constraints, cost allocation,
 wall-clock budget, acceptance conditions, configured worker, and initial `ready`
-status. This
-system-generated record is durable project context, not private generated runtime
-state.
+status. This system-generated record is durable project context, not private
+generated runtime state.
 
 If a component record already exists, the orchestrator reuses it for the active
 task or recovery and does not overwrite its durable progress. After launch, the
@@ -126,15 +131,12 @@ acceptance:
   invocation increments `attempt`; a supervisor re-observation of the same
   invocation updates one key. Runtime JobIds may be retained as source-labelled
   diagnostics, but a JobId change never creates an attempt or resets use.
-- `change-log.md` is the concise cumulative history overview. Its summary uses
-  the canonical `worker-subtree` attribution boundary and stable observation
-  keys; a `full-invocation` measurement is retained as a non-additive view.
-  Repeated observations update one key, corrections supersede one key, and
-  parent/child observations are not summed twice. An unavailable individual
-  value remains `unavailable`; an incomplete cumulative total is `unknown`,
-  never zero. The permanent identity and reconciliation design is in
-  `execution-accounting-design.md`; version 2 records do not make the change
-  log or a runtime map task authority.
+- Concise historical notes stay succinct by default, and only the smallest
+  necessary concise history belongs in the current root or component `as-is.md`
+  when that record is the smallest coherent authoritative home. Project-specific
+  verbosity controls how much of a retained historical overview is kept in the
+  dedicated history entry, but it does not create another authority or a second
+  current-task record.
 - The component directory is the default read/write boundary, so front matter
   does not repeat file lists. The `Requirement` names an external dependency
   only when work must read outside that directory; it does not duplicate common
@@ -151,26 +153,28 @@ acceptance:
 ## Historical Recovery And Retirement
 
 Current task authority remains in the root or component `as-is.md`. Historical
-task recovery uses Git history plus the repository's concise `change-log.md`
-entries; it does not use a `task-archives/` directory, a second task tree, or a
-separate host-specific recovery path. The change log is succinct by default.
-Project-specific verbosity configuration, such as the repository logging
-setting in `configuration.md`, controls how much detail the log retains, but
-only within its historical-overview role; it is not task authority and must not
-duplicate verbose records or secrets.
+task recovery uses Git history plus the repository's concise history entries;
+it does not use a `task-archives/` directory, a second task tree, or a separate
+host-specific recovery path. Historical notes are succinct by default. A small,
+retained history note may live in `as-is.md` when that record is the smallest
+coherent authoritative home. Project-specific verbosity configuration, such as
+a repository logging setting in `docs/configuration.md`, controls how much detail
+is retained in the history entry, but only within its historical-overview role;
+it is not task authority and must not duplicate verbose records or secrets.
 
 Before removing historical material, the responsible orchestrator audits
 tracked, untracked, and ignored contents, current consumers, ownership,
 recovery/audit value, and cost to recreate. Git history does not preserve
 uncommitted content. Necessary concise facts from an uncommitted artifact must
-be retained in the change log or current task record, or an appropriately
-scoped evidence commit must be created before removal when authorized. A claim
-of byte-for-byte recovery is prohibited when no such commit exists.
+be retained in the current record or the concise history entry, or an
+appropriately scoped evidence commit must be created before removal when
+authorized. A claim of byte-for-byte recovery is prohibited when no such commit
+exists.
 
 The protocol has no `superseded` status. When a task is genuinely cancelled,
 use the terminal `cancelled` status and account for it in the nearest ancestor's
 result; when a completed implementation replaces an unlaunched or deferred
-task, record the supersession decision in the current record and change log
+task, record the supersession decision in the current record and history summary
 without manufacturing a completion transition. A retired host adapter is not
 recovered by restoring an archive folder; any future need requires a new
 authorized bounded task based on current policy and Git evidence.

@@ -55,7 +55,7 @@ private handle.
 
 ## Change-Log Summary
 
-`change-log.md` is the concise functional and non-functional history overview.
+The current root `as-is.md` carries the concise root history notes because this repository treats that file as the smallest coherent authoritative home for the root task context.
 Its front matter contains the current cumulative summary with these meanings:
 
 - `cost.value` is cumulative canonical cost and carries an explicit currency
