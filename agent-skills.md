@@ -75,6 +75,11 @@ that govern this catalog and its implementation.
 
 ## Understanding and Evidence
 
+- **Context building:** Assemble the smallest authoritative, decision-ready
+  context set with provenance, constraints, assumptions, unknowns, and a safe
+  next action. See [`skills/context-building/SKILL.md`](skills/context-building/SKILL.md)
+  for the operational contract.
+
 - **Evidence gathering:** Collect relevant facts from records, systems,
   documentation, observations, tests, logs, and authoritative sources.
 - **Source evaluation:** Judge authority, freshness, applicability, provenance,

@@ -3,7 +3,7 @@
 Status: advisory handoff, written before session compaction. Not an as-is task
 record and not committed; the investigated work is already terminal and
 committed. Recover the durable authority from `as-is.md`,
-`skills/spawning-pi-subagents/as-is.md`, and `change-log.md`.
+`skills/spawning-pi-subagents/as-is.md`, and the canonical `Changelog` section.
 
 ## What the user asked
 
@@ -46,7 +46,7 @@ was recorded as the root task in pi session `019fa512`
      record + `.agents/agents/orchestrator.md`).
    - `07be8b4` (01:29:26 IST) — `docs(as-is): record completed
      budget-enforcement handoff` (root `as-is.md` → `status: completed`
-     + `change-log.md` entry).
+     + the canonical `Changelog` section entry).
 
 **Irony:** the launcher's SKILL.md explicitly disclaimed hard budgets and
 watchdog enforcement — that gap was the task. The first attempt was killed by
@@ -66,7 +66,7 @@ into completing its own implementation.
 - Launcher `skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts` contains
   the budget surface (16 budget-symbol matches: `budgetWallClockSeconds`,
   `BUDGET_STOPPED`, `--budget-cost-usd`, etc.).
-- `change-log.md` records: worker-subtree wall-clock `150` s; monetary cost
+- the canonical `Changelog` section records: worker-subtree wall-clock `150` s; monetary cost
   `unavailable` from the launcher (cumulative cost summary stays `unknown`).
 
 ## Residual risk (from the committed change-log entry)
@@ -116,8 +116,8 @@ Five compounding causes, each directly visible in the log:
    there is no `tool_execution_end`. The orchestrator→implementer run lived
    entirely inside that one blocking call.
 2. **Recovery duplicated at every tier.** The as-is child ran **18 tool calls
-   before delegating**: reads of `as-is.md` (11 KB), `change-log.md`,
-   `execution-accounting-design.md`, `control-plane.md`, `SKILL.md`,
+   before delegating**: reads of `as-is.md` (11 KB), the canonical `Changelog` section,
+   `designs/execution-accounting-design.md`, `control-plane.md`, `SKILL.md`,
    `orchestrator.md`; `git log` ×3; `ls` of 4 directory trees ×4; the Python
    task-record validator ×4; `bun build` of the launcher ×4; and writing a
    draft `/tmp/new-root-as-is.md`. The task text mandated recovery before
@@ -151,7 +151,7 @@ the component record already existed on disk (created by the first run's
 implementer before it was killed) and the budget-enforcement code was already
 written in the working tree. So the implementer only had to validate + commit,
 not recover or design — matching the 150s worker-subtree wall-clock recorded in
-`change-log.md`.
+the canonical `Changelog` section.
 
 **One-line diagnosis:** a 3-level synchronous nesting where every tier re-ran
 full recovery and burned ~3 minutes on reasoning-token "thinking", with no
@@ -185,7 +185,7 @@ fixes, each independently scoped (none yet authorized):
   thinking budget, would bound this. The new cost flag is only *forwarded*
   for self-limiting; an actual enforced thinking cap would help.
 - **#4 / cost not observable — expose child cost back to the parent.**
-  `change-log.md` records cost as `unavailable` because Pi cost is not
+  the canonical `Changelog` section records cost as `unavailable` because Pi cost is not
   observable from the launcher. Surfacing the child's token-usage summary on
   exit (the launcher already gets the agent_end event) would let the parent
   enforce a *cumulative* cost budget, not just forward one.

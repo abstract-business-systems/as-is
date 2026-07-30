@@ -131,12 +131,13 @@ acceptance:
   invocation increments `attempt`; a supervisor re-observation of the same
   invocation updates one key. Runtime JobIds may be retained as source-labelled
   diagnostics, but a JobId change never creates an attempt or resets use.
-- Concise historical notes stay succinct by default, and only the smallest
-  necessary concise history belongs in the current root or component `as-is.md`
-  when that record is the smallest coherent authoritative home. Project-specific
-  verbosity controls how much of a retained historical overview is kept in the
-  dedicated history entry, but it does not create another authority or a second
-  current-task record.
+- Concise historical notes stay succinct by default. The canonical name for
+  that section is `Changelog`; only the smallest necessary concise history
+  belongs in the current root or component `as-is.md` when that record is the
+  smallest coherent authoritative home. `Changelog` is historical overview,
+  not current-task authority, an archive, or a runtime log. Project-specific
+  verbosity controls how much is retained, but it does not create another
+  authority or a second current-task record.
 - The component directory is the default read/write boundary, so front matter
   does not repeat file lists. The `Requirement` names an external dependency
   only when work must read outside that directory; it does not duplicate common
@@ -155,9 +156,10 @@ acceptance:
 Current task authority remains in the root or component `as-is.md`. Historical
 task recovery uses Git history plus the repository's concise history entries;
 it does not use a `task-archives/` directory, a second task tree, or a separate
-host-specific recovery path. Historical notes are succinct by default. A small,
-retained history note may live in `as-is.md` when that record is the smallest
-coherent authoritative home. Project-specific verbosity configuration, such as
+host-specific recovery path. Historical notes are succinct by default and use the canonical `Changelog`
+heading. A small retained `Changelog` may live in `as-is.md` when that record
+is the smallest coherent authoritative home; it is never a parallel task
+authority. Project-specific verbosity configuration, such as
 a repository logging setting in `docs/configuration.md`, controls how much detail
 is retained in the history entry, but only within its historical-overview role;
 it is not task authority and must not duplicate verbose records or secrets.

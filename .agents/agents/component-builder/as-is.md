@@ -28,7 +28,7 @@ acceptance:
     of five-to-seven sequential read turns.
   - The snapshot includes: root as-is.md task status and next-action; each
     component as-is.md record's status (path and status); the open surface
-    (non-completed records, the last change-log.md entry and its residual-risk
+    (non-completed records, the latest `Changelog` entry and its residual-risk
     bullets, and spec open-decisions grepped from design docs); and the working
     tree state (uncommitted file list or clean).
   - Build the snapshot on the control-plane's TaskSnapshot interface (smallest
@@ -76,7 +76,7 @@ The script replaces the multi-read orientation that made delegated tasks slow.
    - scans every `as-is.md` under the repo (excluding `.git`, `node_modules`,
      `.pi`, `.opencode/node_modules`) and prints path + status;
    - lists non-completed records as the open surface;
-   - prints the last `change-log.md` entry and any residual-risk bullets;
+   - prints the latest canonical `Changelog` section entry and any residual-risk bullets;
    - greps design docs for "open decision" / "open question" lines;
    - prints working-tree state (`git status --porcelain` or `clean`).
 3. Keep output compact (one screenful) so it fits cheaply in a child context.

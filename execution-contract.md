@@ -36,7 +36,7 @@ does not redefine the contract.
   be returned as source-labelled diagnostic data, but it is not a required task
   record field, stable public lookup key, or completion authority.
 - Historical committed task state is recovered from Git history and concise
-  `change-log.md` entries. This contract does not create or depend on a
+  the canonical `Changelog` section entries. This contract does not create or depend on a
   `task-archives/` tree or a separate host-specific historical recovery path.
   Uncommitted evidence is not presumed to be in Git; its necessary facts must
   be preserved in the current record/change log or in an authorized scoped
@@ -451,7 +451,7 @@ attempts but does not redefine these decisions.
 - Repeated checkpoints and runtime JobId aliases for one path/revision/attempt
   are reconciled as one observation. An unavailable value is not zero, and an
   incomplete cumulative summary is `unknown` with its source and unresolved
-  observation preserved in `change-log.md`.
+  observation preserved in the canonical `Changelog` section.
 - The orchestrator treats a changed record revision as authoritative. An
   operation returning against an older revision must be discarded or reconciled
   through a new durable checkpoint rather than overwriting newer work.

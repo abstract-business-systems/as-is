@@ -1,9 +1,13 @@
 ---
 as-is-version: 2
+config:
+  scheduling:
+    checkInSeconds: 300
+    maxConcurrentTasks: 1
 task:
   status: completed
   worker: as-is
-  updated: 2026-07-30T15:55:00Z
+  updated: 2026-07-30T16:45:00Z
 constraints:
   cost:
     currency: USD
@@ -23,7 +27,7 @@ constraints:
       source: unavailable
   external-effects: require-current-turn-user-approval
 acceptance:
-  - Preserve current-task authority in root `as-is.md`; do not keep a separate root `change-log.md`.
+  - Preserve current-task authority in root `as-is.md`; use `Changelog` as the canonical name for concise historical notes and never create a separate root history file.
   - Move the project configuration document to `docs/configuration.md` and update references.
   - Revise the structure and task-record guidance to allow a small historical overview to live in `as-is.md` when that is the smallest coherent authoritative home, and to describe the `<xyz>.md` → `<xyz>/index.md` plus extracted-section-files pattern.
   - Validate links, naming, task-record content, preservation of historical facts, and `git diff --check`.
@@ -33,16 +37,16 @@ acceptance:
 
 ## Purpose
 
-Maintain the repository-root current task context. This record is the authoritative home for current task authority at the root. Concise historical notes are folded into this record instead of keeping a separate root `change-log.md`.
+Maintain the repository-root current task context. This record is the authoritative home for current task authority at the root. A concise `Changelog` is folded into this record instead of keeping a separate root history file.
 
 ## Requirement
 
-Apply the content-structure correction: preserve the root as-is.md configuration and task-context authority; fold the small root change-log history into this record; delete the separate root change-log.md after preserving its necessary concise facts here; move `configuration.md` to `docs/configuration.md`; update references; and revise the structuring and task-record guidance accordingly. Do not implement runtime code or unrelated maintenance.
+Apply the documentation/task-record correction: preserve the full root configuration block and task-context authority; retain necessary concise history in the canonical `Changelog` section; update references and organization guidance; and do not implement runtime code or unrelated maintenance.
 
 ## Decision Boundary
 
 - `as-is.md` is the sole current-task authority for this root record.
-- Historical notes live here when they are small enough that this is the smallest coherent authoritative home.
+- The `Changelog` is the canonical name for concise historical notes; it is not a second task authority, archive, or runtime log.
 - A separate history file is unnecessary for this repository root and must not become a second authority.
 - The moved project configuration lives at `docs/configuration.md` and keeps its authority relationship to this root record.
 - The work is limited to documentation and task-record updates needed to remove ambiguity; no runtime behavior changes are authorized.
@@ -51,7 +55,7 @@ Apply the content-structure correction: preserve the root as-is.md configuration
 
 1. Inspect the current retry-with-pi tree and the prior changelog-authority changes.
 2. Update the root record, structure guidance, task-record protocol, and configuration docs.
-3. Move configuration documentation, remove the redundant change-log file, and update links.
+3. Update documentation, records, skill/agent entry points, design links, and canonical terminology.
 4. Validate links, naming, task-record content, historical-fact preservation, and `git diff --check`.
 5. Commit the scoped documentation-only handoff.
 
@@ -64,15 +68,27 @@ Apply the content-structure correction: preserve the root as-is.md configuration
 
 ## Validation
 
-- Updated links and path references to the moved configuration document.
-- Confirmed this record keeps current-task authority and now carries the concise historical notes that were previously split out.
-- `git diff --check` passed.
+- Updated links and path references to the moved configuration document and
+  grouped design documents; targeted Markdown-link audit passed after correcting
+  moved-document relative paths.
+- Confirmed this record keeps current-task authority, preserves the full root
+  scheduling configuration, and carries the concise historical notes that were
+  previously split out.
+- `bun test skills/as-is/scripts/orient.test.ts` passed; the orientation script
+  now reads the canonical root `Changelog` and no live `change-log.md` reference
+  remains.
+- `git diff --check` passed; branch ancestry remains based on `d09f5ea` and the
+  reviewed child content is integrated in the local handoff commit.
+- The repository-wide task-record validator reports pre-existing fixture and
+  root-budget violations (including `.pi/prompts`, version-1 records, and the
+  root's zero delegation budget); these are outside this bounded documentation
+  correction and are retained as residual risk.
 
 ## Result
 
-Completed the scoped documentation/content restructuring correction. The repository now keeps the root current-task authority in `as-is.md`, stores the project configuration in `docs/configuration.md`, and no longer needs a separate root `change-log.md`.
+Completed the scoped documentation/task-record restructuring correction. The root retains its full configuration block and current-task authority, with concise history under the canonical `Changelog` heading.
 
-## Historical Notes
+## Changelog
 
 - 2026-07-30: the earlier changelog-authority clarification established that current task authority belongs in `as-is.md`, not a parallel history file.
 - 2026-07-30: the prior root documentation pass recorded that the structuring guidance now permits larger files when they are the smallest coherent authoritative home.
@@ -83,17 +99,27 @@ Completed the scoped documentation/content restructuring correction. The reposit
 
 - `docs/configuration.md` — project configuration and verbosity guidance.
 - `skills/structuring-content/SKILL.md` — content-structure placement rules and document-to-directory patterns.
-- `component-task-record-protocol.md` — durable task-record authority, history placement, and recovery protocol.
+- `component-task-record-protocol.md` — durable task-record authority, `Changelog` placement, and recovery protocol.
+- `.agents/as-is.md` — agents-scope organization and backlog.
+- `skills/context-building/SKILL.md` — high-priority context-building procedure.
+- `designs/as-is.md` — grouped design-document entry point.
 - `.agents/agents/component-builder/agent.md` — component-builder child contract.
 
 ## Blockers And Escalations
 
-Residual risk is limited to repository-wide historical references that still mention the old root `change-log.md` concept in older documents until those references are updated or intentionally left as historical prose.
+Residual risk is limited to older historical prose that may still use legacy history terminology; current guidance uses `Changelog` consistently.
 
 ## Recovery
 
 If this task needs recovery, start from the current `as-is.md`, `docs/configuration.md`, the structuring skill, and the task-record protocol. Do not recreate a separate root history file.
 
+## Backlog
+
+- High priority: assess existing agent definitions for unnecessarily narrow or
+  host-specific responsibility and generalize them where evidence supports it;
+  record the bounded maintenance decision in the agent scope record.
+
 ## Next Action
 
-None within this root record.
+None within this root record; the detached orientation helper still expects a
+legacy history file and is outside this documentation-only change boundary.

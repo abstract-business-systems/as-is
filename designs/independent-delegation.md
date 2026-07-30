@@ -6,7 +6,7 @@ This permanent specification defines the host-neutral delegation model for
 `as-is`: work is delegated by launching an independent agent process that does
 not return a result to its parent, and status is observed by polling durable
 records and session logs. It supersedes the synchronous launch/observe/return
-framing in [execution-contract.md](execution-contract.md); the authority,
+framing in [execution-contract.md](../execution-contract.md); the authority,
 context, and recovery rules of that contract remain in force unless this spec
 states otherwise. It also establishes the recursive `component-builder` role
 that merges the prior `orchestrator` and `implementer` roles.
@@ -64,11 +64,11 @@ builder instance; the extra mediation tier is not spawned.
   component record, per the existing record-as-handoff rule.
 - The child receives its component record plus centrally supplied read-only
   context (repository instructions, design principles, permitted skills), as in
-  [execution-contract.md](execution-contract.md). The authority and
+  [execution-contract.md](../execution-contract.md). The authority and
   context-normalization rules are unchanged.
 - A host adapter maps this contract to its process/spawn API; the contract
   itself is host-neutral. The Pi adapter realizes it through the
-  [spawning-pi-subagents](skills/spawning-pi-subagents/SKILL.md) launcher with a
+  [spawning-pi-subagents](../skills/spawning-pi-subagents/SKILL.md) launcher with a
   detached child and process-group kill.
 
 ## Observation Surfaces
@@ -103,7 +103,7 @@ launched; a supervisor does the same for the children it supervises.
   record is the only signal that work was lost.
 - A supervisor reconciles a dead-PID-plus-non-terminal record through the
   recovery mechanics in
-  [component-task-record-protocol.md](component-task-record-protocol.md): it
+  [component-task-record-protocol.md](../component-task-record-protocol.md): it
   records the attempt, reason, and observation, and schedules recovery per the
   configured backoff.
 - A terminal record with a live process is not contradictory; the record wins.
@@ -122,21 +122,21 @@ launched; a supervisor does the same for the children it supervises.
 - Cost is forwarded to the child for self-limiting, as in the committed
   `--budget-cost-usd` forwarding. A hard cost stop remains a residual risk: Pi
   cost is not directly observable from the launcher, so cost is enforced by the
-  child's self-limiting, not by the supervisor. See `change-log.md` for the
+  child's self-limiting, not by the supervisor. See the canonical `Changelog` section for the
   recorded residual risk.
 
 ## Relationship To Existing Specifications
 
 - **Supersedes** the synchronous launch/observe/return framing in
-  [execution-contract.md](execution-contract.md). The launch returns a handle,
+  [execution-contract.md](../execution-contract.md). The launch returns a handle,
   not a result; observe is polling, not blocking. The authority, context,
   permission, and recovery rules of that contract remain in force.
 - **Merges roles**: `orchestrator` + `implementer` become `component-builder`.
   `.agents/agents/orchestrator.md` and `.agents/agents/implementer.md` are
   removed; `.agents/agents/component-builder/agent.md` is added. References in
-  `.agents/agents/as-is/agent.md`, [docs/configuration.md](docs/configuration.md),
+  `.agents/agents/as-is/agent.md`, [docs/configuration.md](../docs/configuration.md),
   `control-plane/control-plane.ts`, and the
-  [spawning-pi-subagents](skills/spawning-pi-subagents/SKILL.md) skill are
+  [spawning-pi-subagents](../skills/spawning-pi-subagents/SKILL.md) skill are
   updated accordingly.
 - **Control-plane identifiers**: `parent-orchestrator` becomes
   `parent-builder` and the default worker `implementer` becomes

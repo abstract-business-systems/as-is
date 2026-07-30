@@ -30,7 +30,7 @@ acceptance:
     cancellation, stale detection, bounded recovery, accounting, and cleanup.
   - Validate the lifecycle, permission, attribution, and cleanup boundaries with
     harmless local evidence and record source-labelled cost, wall-clock, and risk.
-  - Keep historical recovery in Git and concise change-log entries; do not depend
+  - Keep historical recovery in Git and concise `Changelog` entries; do not depend
     on an archive folder or a separate retired-systemd recovery path.
   - Complete only this component's scoped handoff and account for descendants.
 ---
@@ -59,7 +59,7 @@ boundary, atomic durable checkpoints, source-labelled observations, and a
 disposable private runtime. Validate each acceptance boundary with harmless
 local fixtures, then leave the terminal handoff in this record. The previous
 systemd flow is not a dependency, fallback, or recovery task; its historical
-disposition is in `change-log.md` and its committed baseline is Git commit
+disposition is in the canonical `Changelog` section and its committed baseline is Git commit
 `3e54fcd`.
 
 ## Progress
@@ -108,7 +108,7 @@ The detached subprocess execution foundation is complete in the scoped files
 `e8fb1da`. It is the accepted current foundation. The former systemd flow is
 retired/superseded and is not an active fallback or separate recovery path; its
 historical baseline and necessary retirement facts are recorded in
-`change-log.md`.
+the canonical `Changelog` section.
 
 ## Blockers And Escalations
 
@@ -123,7 +123,7 @@ residual risks, not reasons to reopen this terminal component.
 On interruption, recover the current component record and inspect the scoped
 handoff in Git. Historical committed implementation is available at `e8fb1da`;
 the prior systemd baseline is available at `3e54fcd`, with its retirement
-decision summarized in `change-log.md`. Do not restore historical task folders,
+decision summarized in the canonical `Changelog` section. Do not restore historical task folders,
 reopen this terminal record, or infer completion from process exit or private
 runtime absence. A future change requires a new authorized bounded task.
 

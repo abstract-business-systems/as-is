@@ -9,7 +9,7 @@ export type OrientationSnapshot = {
   root: { status: string; nextAction: string };
   components: Array<Pick<TaskSnapshot, "path" | "status">>;
   open: Array<Pick<TaskSnapshot, "path" | "status" | "worker" | "blockers">>;
-  changeLog: { entry: string; residualRisk: string[] };
+  changelog: { entry: string; residualRisk: string[] };
   openDecisions: string[];
   workingTree: string[] | "clean";
 };
@@ -33,11 +33,10 @@ const nextAction = (root: string): string => {
   return match?.[1].trim().replace(/\s+/g, " ") || "not recorded";
 };
 
-const changeLog = (root: string): OrientationSnapshot["changeLog"] => {
-  const text = readFileSync(join(root, "change-log.md"), "utf8");
-  const headings = [...text.matchAll(/^## (?!Summary|Retention)[^\n]+/gm)];
-  const start = headings.length ? headings[headings.length - 1].index! : 0;
-  const entry = text.slice(start).trim();
+const changelog = (root: string): OrientationSnapshot["changelog"] => {
+  const text = readFileSync(join(root, "as-is.md"), "utf8");
+  const match = text.match(/^## Changelog\s*$([\s\S]*?)(?=^## |$)/m);
+  const entry = match?.[1].trim() || "not recorded";
   const residualRisk: string[] = [];
   for (const line of entry.split("\n")) {
     if (/residual[- ]risk/i.test(line)) residualRisk.push(line.replace(/^[-*]\s*/, "").trim());
@@ -73,7 +72,7 @@ export function snapshot(root = process.cwd()): OrientationSnapshot {
     root: { status: rootTask?.status ?? "unknown", nextAction: nextAction(resolved) },
     components: tasks.map(({ path, status }) => ({ path, status })),
     open: tasks.filter((task) => task.status !== "completed").map(({ path, status, worker, blockers }) => ({ path, status, worker, blockers })),
-    changeLog: changeLog(resolved),
+    changelog: changelog(resolved),
     openDecisions: decisions(resolved),
     workingTree: status.length ? status : "clean",
   };

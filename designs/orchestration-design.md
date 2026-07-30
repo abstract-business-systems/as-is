@@ -55,7 +55,7 @@ See `agent-skills.md` for the current taxonomy and definitions.
   task record instead.
 - Current task state is kept in the root or component `as-is.md`. Historical
   committed state is recovered from Git history and concise entries in
-  `change-log.md`; the repository does not create a `task-archives/` tree or a
+  the canonical `Changelog` section; the repository does not create a `task-archives/` tree or a
   host-specific historical recovery path. The change log records the reason for
   deferral, cancellation, supersession, or retirement, relevant commits, and a
   recovery point without becoming task authority or duplicating full records.
@@ -146,7 +146,7 @@ session/event behavior remains at the adapter boundary.
   for delegated work. Repository instructions and project decisions state only
   its applicable behavioral requirement and refer to the protocol for fields.
 - Task records use the component's `as-is.md`. Their protocol is defined in
-  [Component Task-Record Protocol](component-task-record-protocol.md).
+  [Component Task-Record Protocol](../component-task-record-protocol.md).
 - The record identifies the configured worker suitable for recovery, not a mutable
   owner or lease. When recovery is required, the orchestrator rereads the record
   and delegates it to that role; the resumed worker decides whether to continue
@@ -522,7 +522,7 @@ the dependency-free subprocess supervisor recorded by the terminal
 `subprocess-execution-foundation/as-is.md` handoff and commit `e8fb1da`. The
 previous systemd user-job flow is retired/superseded and is not a fallback,
 active sequencing dependency, or separate recovery path. Its historical
-baseline is recoverable only through Git and `change-log.md`.
+baseline is recoverable only through Git and the canonical `Changelog` section.
 
 ## Open Design Questions
 

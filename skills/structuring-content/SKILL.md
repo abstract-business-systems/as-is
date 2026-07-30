@@ -33,11 +33,11 @@ files, and Markdown sections are all levels of the same conceptual hierarchy.
 
 - Put enduring cross-project behavior in `design-principles.md`.
 - Put executable, reusable procedures in `skills/<skill-name>/SKILL.md`.
-- Put current task authority in `as-is.md` and concise historical overview in a
-  changelog that stays succinct by default; do not use both as parallel sources
-  of truth for the same current task state.
-- A small changelog belongs in `as-is.md` when that record is the smallest
-  coherent authoritative home for the current task and its concise recovery
+- Put current task authority in `as-is.md` and concise historical overview in
+  its `Changelog` section; `Changelog` is the canonical name, not a parallel
+  source of truth, archive, or runtime log.
+- A small `Changelog` belongs in `as-is.md` when that record is the smallest
+  coherent authoritative home for the current task and concise recovery
   history.
 - For a document that grows into a directory, prefer the host pattern
   `<xyz>.md` -> `<xyz>/index.md` as the entry point, then extract focused
@@ -49,8 +49,8 @@ files, and Markdown sections are all levels of the same conceptual hierarchy.
   tool output outside authoritative project knowledge.
 - This skill owns the reusable procedure and decision criteria; design
   principles own broad cross-project values; component task records own
-  current-task evidence and decisions; `agent-skills.md` remains only the
-  capability catalog.
+  current-task evidence and decisions; each skill or agent document owns its
+  detailed contract; `agent-skills.md` remains only a concise linked catalog.
 
 ## Structure Rules
 

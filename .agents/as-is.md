@@ -3,7 +3,7 @@ as-is-version: 2
 task:
   status: completed
   worker: implementer
-  updated: 2026-07-26T14:08:14Z
+  updated: 2026-07-30T16:30:00Z
 constraints:
   cost:
     currency: USD
@@ -17,66 +17,61 @@ constraints:
     maximum-children: 0
   execution:
     wall-clock:
-      allocated-seconds: 300
+      allocated-seconds: 180
       spent-seconds: 0
-      reserve-seconds: 60
+      reserve-seconds: 30
       source: unavailable
   external-effects: require-current-turn-user-approval
 acceptance:
-  - Add a discoverable OpenCode primary agent named `as-is` under `agents/`.
-  - The agent routes substantive work through `orchestrator` and does not
-    implement component-domain changes itself.
-  - Keep artifacts within this component and validate local agent conventions.
+  - Maintain durable agents-scope task context and links.
+  - Record the generic-agent specialization backlog rule.
 ---
 
-# Primary Agent
+# Agents
 
 ## Purpose
-
-Provide the user-facing entry point that routes substantive work through the
-durable as-is orchestration model.
+Maintain the durable task context and organization for configured agent roles.
 
 ## Requirement
-
-Add the bounded `as-is` primary-agent definition at `agents/as-is.md`, using the
-local agent-definition convention and least required permissions.
+Keep the agents folder's record authoritative for its bounded documentation
+organization. Agent definitions remain in their role directories; this record
+tracks cross-agent organization decisions without duplicating role contracts.
 
 ## Plan
-
-Inspect local definitions, add the primary agent, and run focused discovery and
-whitespace checks before handoff.
+Add the agents-scope record, link entry points, and preserve a bounded backlog
+for improving overly specific or generic existing agents.
 
 ## Progress
-
-Completed with no child records. The definition delegates substantive work to
-`orchestrator`, keeps web access denied, and leaves host-default integration to
-the root.
+Created the durable agents-scope record. Existing role definitions remain in
+place pending a separately authorized, evidence-based maintenance assessment.
 
 ## Validation
-
-- Local front-matter comparison with `agents/implementer.md` and
-  `agents/orchestrator.md` passed.
-- A fresh `opencode agent list` discovered `as-is (primary)` with task
-  delegation allowed and web access denied.
-- Component whitespace and zero-descendant checks passed.
+Root integration should validate record structure, links, naming, and
+`git diff --check`. No runtime behavior is changed.
 
 ## Result
-
-The discoverable `as-is` primary agent was added and is scoped to intent,
-durable status, delegation, and synthesized results. Scoped handoff commit:
-`ddd9227`.
+Completed the agents-scope documentation record and future maintenance rule.
 
 ## Blockers And Escalations
-
-None. Residual risk: host-default selection requires a fresh process after root
-integration.
+None. Agent role changes require their own bounded component record and should
+not be inferred from this catalog-level backlog.
 
 ## Recovery
+Resume from this record and the relevant role directory. Do not create an
+archive or duplicate role authority.
 
-The completed definition and validation are retained; no cleanup or recovery
-artifact is required. Parent integration may consume this terminal handoff.
+## Backlog
+- **High priority:** assess existing agents and make them less specific or more
+  generic where evidence shows their responsibility is unnecessarily narrow or
+  host-specific. Future agents must use a bounded responsibility, reusable
+  capability contract, and only the specialization justified by ownership,
+  tools, permissions, and acceptance needs; record exceptions and consumers.
+
+## Links
+- `agents/as-is/agent.md` — primary role contract.
+- `agents/component-builder/agent.md` — recursive builder role contract.
+- `agents/as-is/as-is.md` — primary role task record.
+- `agents/component-builder/as-is.md` — builder task record.
 
 ## Next Action
-
-None within this component; a future root integration must validate host-default
-selection in a fresh process.
+Schedule the backlog assessment only as an explicitly bounded maintenance task.

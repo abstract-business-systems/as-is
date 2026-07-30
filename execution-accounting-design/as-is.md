@@ -62,12 +62,12 @@ than runtime JobIds are authoritative, supervisor runtime identity is private
 and restart-reconcilable, public status uses a stable component-path lookup,
 and parent/child/retry/full-invocation observations have one clear accounting
 owner. Add the permanent subject specification
-`execution-accounting-design.md`. Do not modify application or component
+`designs/execution-accounting-design.md`. Do not modify application or component
 implementation code, `control-plane.md`, or the retired systemd lineage.
 
 ## Plan
 
-1. Inspect current change-log conventions, all task records, the protocol,
+1. Inspect current `Changelog` conventions, all task records, the protocol,
    execution/orchestration/configuration specifications, supervisor accounting
    types and tests, validator/schema code, agent guidance, and recent Git history.
 2. Record settled identity, map, status, summary, and reconciliation decisions
@@ -93,7 +93,7 @@ The existing historical values are preserved without remeasurement: the
 retired cost-observability entry records `0.0981479` USD and `81.994` seconds,
 and the OpenCode mediation fixture records `0.0525789` USD and
 `50.502114668` seconds. Their concise historical entries do not retain a
-complete task-revision/attempt key, so the new change-log summary remains
+complete task-revision/attempt key, so the new `Changelog` summary remains
 `unknown` rather than summing possibly overlapping facts. No byte-level
 recovery claim is made for removed uncommitted artifacts.
 
@@ -114,7 +114,7 @@ they are not observations from this design-only task.
 | JobId-map restart/reconciliation | Persisted map reloads one live handle, one dead handle, and one terminal/cleaned entry | Live handle reattaches to the same path/revision/attempt; dead state becomes unknown/unavailable without inferred completion; terminal entry expires only after cleanup/retention; path status works without JobId. |
 
 The permanent decisions and expected fixture outputs are in
-`execution-accounting-design.md`; this table is the acceptance-oriented index,
+`designs/execution-accounting-design.md`; this table is the acceptance-oriented index,
 not a second specification.
 
 ## Validation
@@ -203,8 +203,8 @@ launch an implementer, or stage unrelated work.
 
 ## Recovery
 
-Recover from this completed record, `execution-accounting-design.md`, the
-changed durable specifications, `change-log.md`, and Git history. Preserve
+Recover from this completed record, `designs/execution-accounting-design.md`, the
+changed durable specifications, the canonical `Changelog` section, and Git history. Preserve
 existing historical measurements and the explicit incomplete-summary state. Do
 not add a runtime map, infer a JobId identity, restore an archive folder, claim
 byte-level recovery of uncommitted content, or launch a worker without a new

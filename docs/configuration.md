@@ -5,7 +5,7 @@
 > The superseded manifest and schema were removed; Git history preserves them
 > as migration reference if needed. The XDG state layout below is retained as a
 > conceptual or future runtime-metadata boundary, not as a second authoritative
-> task tree. See `orchestration-design.md` for the active design direction.
+> task tree. See `designs/orchestration-design.md` for the active design direction.
 
 ## Boundaries
 
