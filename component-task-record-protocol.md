@@ -153,11 +153,11 @@ acceptance:
 Current task authority remains in the root or component `as-is.md`. Historical
 task recovery uses Git history plus the repository's concise `change-log.md`
 entries; it does not use a `task-archives/` directory, a second task tree, or a
-separate host-specific recovery path. The change log records why work was
-deferred, cancelled, superseded, or retired, the relevant commit(s), the
-recovery point, and only the necessary facts that are not already recoverable
-from Git. It is an index, not task authority, and must not duplicate verbose
-records or secrets.
+separate host-specific recovery path. The change log is succinct by default.
+Project-specific verbosity configuration, such as the repository logging
+setting in `configuration.md`, controls how much detail the log retains, but
+only within its historical-overview role; it is not task authority and must not
+duplicate verbose records or secrets.
 
 Before removing historical material, the responsible orchestrator audits
 tracked, untracked, and ignored contents, current consumers, ownership,

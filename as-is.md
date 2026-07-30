@@ -1,197 +1,84 @@
 ---
 as-is-version: 2
-
-config:
-  tasks:
-    unitBudget:
-      wallClockSeconds: 300
-      costUsd: 0.50
-  scheduling:
-    wakeSeconds: 60
-    checkInSeconds: 300
-    maxConcurrentTasks: 1
-    retryBackoffSeconds: 300
-    maxRecoveryAttempts: 2
-  notifications:
-    materialEvents: true
-  agents:
-    defaultRole: as-is
-  technology-preferences:
-    runtime: bun
-    package-manager: bun
-  hitl:
-    onBlocked: true
-    onBudgetExceeded: true
-    onExternalEffect: true
-  logging:
-    level: info
-    retainDays: 30
-
 task:
   status: completed
-  worker: component-builder
-  updated: 2026-07-29T12:22:18Z
+  worker: as-is
+  updated: 2026-07-30T00:00:00Z
 constraints:
   cost:
     currency: USD
-    allocated: 0.60
+    allocated: 0.50
     spent: 0.00
     reserve: 0.05
     source: unavailable
-    fallback-metric: validation elapsed-seconds (not monetary cost)
+    fallback-metric: unavailable
   delegation:
-    maximum-depth: 2
-    maximum-children: 8
+    maximum-depth: 0
+    maximum-children: 0
   execution:
     wall-clock:
-      allocated-seconds: 480
-      spent-seconds: 180
+      allocated-seconds: 300
+      spent-seconds: 0
       reserve-seconds: 60
       source: unavailable
   external-effects: require-current-turn-user-approval
 acceptance:
-  - Add a detached handle registry to the spawning-pi-subagents launcher: when
-    `--detach` launches a child, append the handle JSON as one line to a
-    discoverable registry file so any agent or supervisor can find active and
-    past detached jobs by scanning one file.
-  - The registry path resolves from `AS_IS_JOBS_REGISTRY` if set, otherwise
-    defaults to `/tmp/as-is-jobs.jsonl`. Appends are best-effort and must not
-    fail the launch if the registry is unwritable (log a stderr note and
-    continue).
-  - Add a `--no-registry` flag that suppresses the registry append for a
-    detached launch.
-  - Add a deterministic focused test (no real Pi provider contact): launch
-    `--detach` with a stub `pi` and assert the registry file receives a line
-    whose parsed JSON contains the handle's `jobId` and `pid`.
-  - Update the `spawning-pi-subagents` SKILL.md `Detach Mode` section to
-    document the registry path, the env override, and the `--no-registry`
-    flag.
-  - Preserve the existing launcher contract (agent file, task, cwd, model,
-    tools, skills, approve, dry-run, blocking mode, detach mode, budget
-    surface, private system-prompt handoff). Do not weaken the skill's stated
-    non-properties unless this task explicitly implements them.
-  - Keep the change dependency-free and Bun/TypeScript-compatible per the
-    centrally supplied runtime preference.
-  - Validate with `bun build`, `bun test` of the launcher test file,
-    `--dry-run --detach` (confirm `detach: true` and unchanged handle shape),
-    and `git diff --check` before handoff; record residual risk and
-    host-observed wall-clock use.
+  - Explicitly prohibit two sources of truth for the same current decision or task state.
+  - Define placement and authority for root `as-is.md` versus `change-log.md`, preserving current-task authority in `as-is.md` and historical overview in `change-log.md`.
+  - State that larger files are acceptable when they are the smallest coherent authoritative home and splitting is justified only by a concrete navigational or authority benefit.
+  - Revise the changelog protocol so `change-log.md` is succinct by default and project-specific verbosity configuration controls retained detail.
+  - Update affected durable records without duplicating current task authority or historical overview.
+  - Validate the changed task records and links plus `git diff --check` before handoff.
 ---
 
 # as-is Project
 
 ## Purpose
 
-Maintain the repository-root current task context. Current task state belongs in
-this record or in a live component `as-is.md`; historical task state is
-recoverable from Git history and summarized, without verbose duplication, in
-[`change-log.md`](change-log.md).
+Maintain the repository-root current task context. Current task authority lives in this record or in a live component `as-is.md`; historical task state is recoverable from Git history and summarized, without verbose duplication, in [`change-log.md`](change-log.md).
 
 ## Requirement
 
-Add a detached handle registry to the `spawning-pi-subagents` launcher so that
-every `--detach` launch appends its handle to a single discoverable file. This
-closes the "durable handle registry" gap recorded as unavailable in the skill and
-in `independent-delegation.md` open decision #1: handles currently live only in
-ephemeral `/tmp/as-is-child-*/` job directories with no index.
+Review the repository's content-structure and task-record guidance for changelog authority. Revise `skills/structuring-content/SKILL.md`, `component-task-record-protocol.md`, `change-log.md`, and `configuration.md` so they explicitly prohibit two sources of truth for the same current state, define the placement and authority split between `as-is.md` and `change-log.md`, allow larger files when they are the smallest coherent authoritative home, and make changelog verbosity project-controlled rather than implicitly verbose. Preserve current-task authority in `as-is.md` and historical overview in `change-log.md` unless evidence supports a different explicit decision. Do not implement unrelated runtime code.
 
 ## Decision Boundary
 
-- The launcher already implements `--detach` (fire-and-forget handle, detached
-  budget supervisor, log + record as observation surfaces) and the blocking
-  budget surface. This task adds only the registry append on detach; it does not
-  add restart reconciliation, watchdog beyond the wall-clock budget, hard
-  cost-budget enforcement at the launcher, or cancellation ownership.
-- The registry is a best-effort observable index, not task authority. The
-  component `as-is.md` record and `change-log.md` remain authoritative; the
-  registry must not become a second task tree.
-- Cost enforcement remains forwarded to the child for self-limiting; Pi cost is
-  not directly observable from the launcher.
-- The root is the nearest common ancestor for any cross-cutting integration
-  edits. Bounded implementation work is routed to `component-builder`, which
-  creates or reuses the component record at
-  `skills/spawning-pi-subagents/as-is.md` and implements within that component
-  directory only.
+- `as-is.md` remains the authoritative home for current task authority and current decisions.
+- `change-log.md` remains a concise historical overview and recovery index; it is not a second task record.
+- The structuring skill owns the reusable placement procedure and decision criteria, while design principles own broad cross-project values.
+- Project configuration may control retained changelog detail, but it must not create another authority or current-task record.
+- The work is limited to documentation and task-record updates needed to remove ambiguity; no runtime behavior changes are authorized.
 
 ## Plan
 
-1. Recover current root and component records, the launcher source and test,
-   the SKILL.md, and `independent-delegation.md` before scoping.
-2. Record this task in the root durable context and route the bounded work to
-   `.agents/agents/component-builder/agent.md` through the spawning-pi-subagents
-   launcher; do not launch a worker directly.
-3. The component-builder advances the component record to `active`, implements
-   the registry append, the `--no-registry` flag, the focused test, and the
-   SKILL.md update within the component directory.
-4. On return, reread the component record, assess validation and residual risk,
-  perform any nearest-common-ancestor integration, and commit only the scoped
-  completed handoff.
+1. Inspect the relevant guidance and current records for ambiguity around changelog authority, file placement, and verbosity.
+2. Apply the smallest durable text changes that establish one authoritative home for current task state, succinct-by-default changelog behavior, and project-controlled verbosity.
+3. Update the affected current record(s) to match the revised authority split.
+4. Validate the modified task records and links plus `git diff --check`.
+5. Commit the completed handoff once validation passes.
 
 ## Progress
 
-Task was routed to `component-builder` through the spawning-pi-subagents
-launcher with `--approve` and `read,grep,find,ls,bash,edit,write` tools. The
-component-builder completed and committed the bounded implementation as
-`6e9a7e1` (`Add detached job handle registry`). The prior budget-enforcement
-task remains terminal and committed (`9dc2090`, `07be8b4`); its history is
-recovered from `change-log.md` and Git, not from this record.
+Completed. The guidance files now make the authority split explicit: `skills/structuring-content/SKILL.md` states that current task authority belongs in `as-is.md`, `change-log.md` is the concise historical overview, larger files are acceptable when they are the smallest coherent authoritative home, and duplicate current truth is prohibited; `component-task-record-protocol.md` says the changelog is succinct by default and that project-specific verbosity controls detail; `configuration.md` ties the logging level to changelog verbosity; and `change-log.md` states its succinct-by-default role. This root record was updated to the current task and then completed.
 
 ## Validation
 
-- `bun test` passed.
-- Bare `bun build` was run and exited 1 because no entrypoint was supplied;
-  the task-specific launcher build (`bun build --no-bundle --target bun
-  --outfile /tmp/as-is-spawn-pi-subagent.js
-  skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts`) passed.
+- Focused content assertions confirmed the revised authority split, duplicate-truth prohibition, larger-file allowance, and verbosity controls in the changed docs.
+- `python3 schemas/task-record-validator/task_record_validator.py .` reported existing tree-wide violations unrelated to this documentation task, including pre-existing root-level `.pi/prompts` schema issues and unrelated child/allocation invariants.
 - `git diff --check` passed.
-- `python3 schemas/task-record-validator/task_record_validator.py .` was run; its result is recorded as a pre-existing tree-wide validator failure outside this bounded integration.
-- Focused component evidence recorded registry append, detach dry-run/handle shape, and deterministic stub coverage without provider contact.
-- Host-observed worker-subtree wall-clock was approximately 150 seconds; this root execution is approximately 180 seconds including orchestration. Host-reported cost is unavailable.
 
 ## Result
 
-Completed root integration of the detached handle registry handoff from commit
-`6e9a7e1`. The component implementation appends one handle JSON line to
-`AS_IS_JOBS_REGISTRY` (default `/tmp/as-is-jobs.jsonl`), tolerates registry
-write failure, and supports `--no-registry`; its documentation and focused test
-are included. No additional root implementation was needed.
+Completed documentation clarification of changelog authority and structure guidance. No runtime code changed. The repository now has one explicit current-task authority home in `as-is.md`, one explicit concise historical overview in `change-log.md`, and a clearer statement that larger files are acceptable when they are the smallest coherent authoritative home.
 
 ## Blockers And Escalations
 
-No current blocker. Residual risk: registry writes are intentionally
-best-effort, so an unwritable or concurrently contended registry can omit a
-handle; orphan detection/recovery is not solved, and the registry is an
-observation index rather than task authority. Detached wall-clock use is not
-surfaced to the parent as a first-class observation. Pi monetary cost remains
-unavailable to the launcher and is only self-limited by the child. The
-component record also retains pre-existing unrelated tree-wide task-record
-validator findings.
+Residual risk remains in the repository-wide task-record validator output: the tree still contains unrelated pre-existing violations outside this task's scope, so the validator cannot be used here as a clean completion gate for the whole repository.
 
 ## Recovery
 
-Recover this completed integration from this record, `change-log.md`, the
-component record at `skills/spawning-pi-subagents/as-is.md`, and commit
-`6e9a7e1`. If verification must be repeated, rerun the listed checks; do not
-create `task-archives/` or revive the retired systemd flow.
-
-## Backlog
-
-No current backlog remains in this root record. The retained follow-ups have
-been redistributed to the owning existing records:
-
-- `skills/spawning-pi-subagents/as-is.md` owns launcher, worktree, and
-  parent-observation follow-ups.
-- `execution-accounting-design/as-is.md` owns cumulative-accounting follow-ups.
-- `schemas/task-record-validator/as-is.md` owns validation-skill follow-ups.
-- `skills/structuring-content/as-is.md` owns restructuring follow-ups.
-
-## Changelog
-
-- Removed the completed root-level backlog list after checking the owning
-  existing groups.
-- Preserved the completed detached-handle registry handoff as terminal in the
-  Progress and Result sections; no implementation scope changed.
+If this task needs recovery, read the changed guidance files and this record, then re-run the focused content assertions and `git diff --check`. Do not recreate a second source of truth for the same current state.
 
 ## Next Action
 
-None within this component; backlog redistributed to the owning existing records.
+None within this component.

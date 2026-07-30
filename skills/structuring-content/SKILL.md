@@ -21,7 +21,7 @@ files, and Markdown sections are all levels of the same conceptual hierarchy.
    established type-directory convention warrants grouping from the first item;
    retain a unique artifact at the current level when the required evidence is
    absent or an exception applies, and record the decision.
-5. Link related authoritative artifacts instead of duplicating their contents.
+5. Link related authoritative artifacts instead of duplicating their contents. Prefer one authoritative home for a decision or rule; do not keep the same current decision, rule, or state in two authoritative locations.
 6. Separate settled design from proposals, active task state, and private runtime
    state.
 7. Review for discoverability, semantic grouping, replacement paths, accuracy,
@@ -31,7 +31,7 @@ files, and Markdown sections are all levels of the same conceptual hierarchy.
 
 - Put enduring cross-project behavior in `design-principles.md`.
 - Put executable, reusable procedures in `skills/<skill-name>/SKILL.md`.
-- Put replaceable current project policy and task context in `as-is.md`.
+- Put current task authority in `as-is.md` and concise historical overview in `change-log.md`; do not use both as parallel sources of truth for the same current task state.
 - Put architecture, protocols, and design rationale in subject-named documents.
 - Put host-specific integration instructions in a host-specific adapter or skill.
 - Keep private runtime state, credentials, caches, verbose logs, and temporary
@@ -78,6 +78,8 @@ files, and Markdown sections are all levels of the same conceptual hierarchy.
   lifecycle or component boundary, encode a speculative or generic-bucket
   boundary, or conflict with the component-task hierarchy. Preserve the
   smallest coherent boundary and the clear entry point in those cases.
+- Larger files are acceptable when they are the smallest coherent authoritative
+  home; split only when there is a concrete navigational or authority benefit.
 
 ### Maintenance-time restructuring
 
@@ -123,7 +125,7 @@ unambiguous rule or create an alternate source of truth.
 
 ## Quality Checks
 
-- Prefer one authoritative home for a decision or rule.
+- Prefer one authoritative home for a decision or rule; do not maintain two sources of truth for the same current decision or task state.
 - Preserve meaningful context, source, and rationale when compressing notes.
 - Use hierarchy to group related knowledge, but do not create a level that has
   no distinct ownership or navigational purpose.

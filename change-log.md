@@ -27,9 +27,11 @@ summary:
 This concise log records why historical task work was deferred, cancelled, or
 retired, the relevant Git lineage, and the recovery point. It is not task
 authority, a backlog, a runtime index, or a substitute for a current root or
-component `as-is.md`. Historical detail remains recoverable through Git history;
-entries below intentionally do not duplicate full task records or preserve
-secrets.
+component `as-is.md`. By default it stays succinct; project-specific verbosity
+settings control how much detail each historical entry retains, but the log
+remains an overview rather than a current-task record. Historical detail
+remains recoverable through Git history; entries below intentionally do not
+duplicate full task records or preserve secrets.
 
 ## Summary And Accounting Convention
 

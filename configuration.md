@@ -67,6 +67,10 @@ core fields are errors. Extension `config` fields are validated by the declared
 extension. This fail-closed behavior prevents a misspelled setting from silently
 altering automation behavior.
 
+The repository's logging level is the project-specific verbosity control used by
+`change-log.md`; it can expand retained historical detail, but it does not
+create another authority or a second current-task record.
+
 ## Defaults And Overrides
 
 The runtime calculates effective policy in this order:
@@ -126,7 +130,7 @@ overridable unless marked fixed below.
 | `agents.defaultRole` | `"component-builder"` | Role used when a task does not name one. |
 | `agents.roles` | `{}` | Role-specific model, skill, tool, and permission settings. |
 | `hitl` | `{"onBlocked": true, "onBudgetExceeded": true, "onExternalEffect": true}` | Events requiring human direction or approval. |
-| `logging` | `{"level": "info", "retainDays": 30}` | Operational record detail and retention. |
+| `logging` | `{"level": "info", "retainDays": 30}` | Operational record detail, including change-log verbosity, and retention. |
 
 The following are fixed invariants:
 
