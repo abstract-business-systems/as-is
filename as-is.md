@@ -16,6 +16,13 @@ config:
     materialEvents: true
   agents:
     defaultRole: as-is
+    defaultModel: small
+    provider: openrouter
+    models:
+      small: "@preset/abs-small"
+      medium: "@preset/abs-medium"
+      large: "@preset/abs-large"
+      xlarge: "@preset/abs-xlarge"
   technology-preferences:
     runtime: bun
     package-manager: bun

@@ -52,7 +52,12 @@ status `124`. A zero or unset budget disables enforcement.
 
 The launcher extracts the agent file body and passes it to Pi as an appended
 system prompt. It reads simple `model:` and `tools:` front-matter values when
-present. OpenCode-specific front matter such as `permission:` is not a Pi
+present. Model policy is resolved from the root `as-is.md` `config.agents`
+section: `defaultModel`, `provider`, and the named `models` map. Supported
+project presets are `small`, `medium`, `large`, and `xlarge`; the resulting
+model value and provider are passed explicitly to Pi. The launcher does not
+read model or provider policy from OpenCode configuration or environment
+variables; those are not system configuration sources. OpenCode-specific front matter such as `permission:` is not a Pi
 permission mechanism; the explicit Pi tool and approval options are the host
 controls.
 
@@ -209,7 +214,7 @@ model; it is read-only and never contacts a provider.
 - Use `--approve` only when project-local files are explicitly trusted for that
   attempt. Do not place credentials or tokens in task arguments, task files, or
   output.
-- The launcher uses `--mode json` and `--print`; sessions are durable by default under the supervisor job directory, with `--no-session` providing ephemeral runs. It resolves model aliases and providers from `.opencode/opencode.json`, passing explicit `--provider` and `--model`, and uses a shell-free child
+- The launcher uses `--mode json` and `--print`; sessions are durable by default under the supervisor job directory, with `--no-session` providing ephemeral runs. It resolves model presets and providers from root `as-is.md`, passing explicit `--provider` and `--model`, and uses a shell-free child
   process, and a private temporary system-prompt file. In both blocking and
   detach modes the child runs under a detached bounded job runner that is the
   child's direct parent, in an isolated git worktree pruned from the caller's

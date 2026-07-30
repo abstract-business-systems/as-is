@@ -14,7 +14,7 @@ as-is has three separate boundaries:
 | Boundary | Location | Ownership | Contents |
 | --- | --- | --- | --- |
 | Bundle | Machine or user installation directory | as-is distribution | Agents, skills, references, examples, schemas, extensions, and runtime adapters. |
-| Project | Target repository root | Project | One optional `as-is.config.json` manifest. |
+| Project | Target repository root | Project | Root `as-is.md` configuration and durable task context. |
 | Runtime metadata | User-level state directory | as-is runtime | Resolved configuration, run/session metadata, leases, the restart-reconcilable JobId map, and transient artifacts; never the authoritative task state. |
 
 The bundle is self-contained and selected by the installed `as-is` CLI or a
@@ -31,8 +31,10 @@ creates a project artifact.
 
 ## Project Manifest
 
-`as-is.config.json` is the one public project configuration and extension entry
-point. It has a versioned, locally resolved schema:
+Historically, `as-is.config.json` was the public project configuration and
+extension entry point. The active system configuration is authored in root
+`as-is.md`; this JSON manifest model is retained below only as superseded design
+context.
 
 ```json
 {
@@ -73,7 +75,11 @@ it does not create another authority or a second current-task record.
 
 ## Defaults And Overrides
 
-The runtime calculates effective policy in this order:
+For the active system, the runtime reads the root `as-is.md` configuration
+before task-record-specific narrowing. Model presets and provider selection are
+owned by `config.agents`; host development configuration is not consulted for
+system policy. The superseded manifest model below calculates effective policy
+in this order:
 
 1. Versioned defaults from the selected bundle.
 2. Defaults from enabled bundle extensions, in manifest order.
@@ -128,7 +134,7 @@ overridable unless marked fixed below.
 | `tasks.unitBudget` | `{"wallClockSeconds": 300, "costUsd": 0.20}` | Bound for one progress unit. |
 | `scheduling` | `{"wakeSeconds": 60, "maxConcurrentTasks": 1, "retryBackoffSeconds": 300}` | Wake, concurrency, and retry policy. |
 | `agents.defaultRole` | `"component-builder"` | Role used when a task does not name one. |
-| `agents.roles` | `{}` | Role-specific model, skill, tool, and permission settings. |
+| `agents.roles` | `{}` | Role-specific skill, tool, and permission settings. Model selection uses the root `as-is.md` `config.agents` model presets. |
 | `hitl` | `{"onBlocked": true, "onBudgetExceeded": true, "onExternalEffect": true}` | Events requiring human direction or approval. |
 | `logging` | `{"level": "info", "retainDays": 30}` | Operational record detail, including history verbosity, and retention. |
 

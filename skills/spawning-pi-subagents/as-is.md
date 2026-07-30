@@ -24,10 +24,9 @@ constraints:
   external-effects: require-current-turn-user-approval
 acceptance:
   - Resolve the agent `model:` (or `--model`) value against the repository's
-    global OpenCode config (`.opencode/opencode.json`, located from `cwd`):
-    when the value is an alias key under `provider.<p>.models`, substitute the
-    configured `id`; this lets an agent file say `model: mini` and resolve to the
-    concrete provider/model id.
+    root `as-is.md` `config.agents.models` map (located from `cwd`):
+    when the value is a named preset such as `small`, substitute its configured
+    model value; this lets an agent file select a system-owned preset.
   - When the value is not a configured alias, pass it through literally as the
     model with no error and no environment fallback (a full id like
     `openai/gpt-5.4-mini` or an unknown name is used verbatim).
@@ -44,7 +43,7 @@ acceptance:
     JSON/print mode, worktree isolation, budget, registry, and job status);
     do not weaken stated non-properties beyond this task's surfaces.
   - Keep the change dependency-free and Bun/TypeScript-compatible; read the
-    OpenCode config as a plain JSON file (no OpenCode runtime dependency).
+    root `as-is.md` as the sole project model-policy source (no host-config dependency).
   - Do not modify control-plane, the supervisor, agent role contracts,
     permissions, or delegation authority; this task touches only the launcher
     script, its test, and its SKILL.md.
@@ -63,26 +62,24 @@ file and a Pi child process. It currently passes the agent's `model:` value
 literally to pi and relies on inherited `PI_PROVIDER`/`PI_MODEL` environment
 variables for the provider, so an agent cannot name a fast model by alias and
 the launch path is not portable to a host without those env vars set. This task
-makes the launcher resolve model aliases and the provider from the repository's
-global OpenCode config and makes child runs observable by default.
+makes the launcher resolve model presets and the provider from the repository's
+root `as-is.md` and makes child runs observable by default.
 
 ## Requirement
 
 Implement model-alias resolution and config-driven provider selection in
 `skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts`, plus durable-session
 observability. An agent file's `model:` (or a `--model` override) that names a
-configured alias must resolve to the concrete provider/model id from
-`.opencode/opencode.json`; a non-alias value passes through literally. The child
+configured preset must resolve to its model value from root `as-is.md`; a non-preset value passes through literally. The child
 must receive `--provider` and `--model` explicitly so it does not depend on
 `PI_PROVIDER`/`PI_MODEL` env vars.
 
 ## Plan
 
-1. Add a small config reader that reads the repository's global OpenCode config
-   (`.opencode/opencode.json` located from `cwd`, searching up if not at the
-   root) and returns the provider(s) and the alias-to-id maps
-   (`provider.<p>.models.<alias>.id`). Tolerate a missing/unreadable config
-   (fall back to passing the model value literally with no provider).
+1. Add a small config reader that reads the root `as-is.md` from `cwd` (searching
+   upward) and returns `config.agents.defaultModel`, `provider`, and the named
+   `models` map. Tolerate a missing/unreadable record (fall back to passing the
+   model value literally with no provider).
 2. Resolve the model value (`options.model ?? definition.model`): if it matches
    an alias key in any provider's `models` map, substitute that `id` and
    remember the provider; otherwise keep the value literal. Never error on an
@@ -102,15 +99,14 @@ must receive `--provider` and `--model` explicitly so it does not depend on
 
 ## Progress
 
-Implemented in commit `2a40de0`: plain-JSON OpenCode host config lookup, alias resolution, explicit provider/model arguments, durable session-directory default with `--no-session` opt-out, and session/provider observability in dry-run and handles. This task is the
-enabler for the as-is agent's `model: mini` pin (see
-`.agents/agents/as-is/as-is.md`); the pin resolves correctly only after this
-lands.
+Implemented in commit `2a40de0`: model preset resolution, explicit provider/model arguments, durable session-directory default with `--no-session` opt-out, and session/provider observability in dry-run and handles. This task is the
+enabler for the as-is agent's `model: small` pin (see
+`.agents/agents/as-is/as-is.md`).
 
 ## Validation
 
-- `--dry-run` shows `model` resolved from a `mini` alias to the concrete id and
-  a `provider` field read from config (not env).
+- `--dry-run` shows `model` resolved from the root `small` preset and an
+  explicit provider field.
 - A non-alias model value passes through literally without error.
 - A child launch runs with `PI_PROVIDER` and `PI_MODEL` unset in the inherited
   environment (provider+model come from config/agent file).
@@ -120,15 +116,15 @@ lands.
 
 ## Result
 
-Completed. Validation evidence: Bun build succeeded; dry-run resolved `mini` to `openai/gpt-5.4-mini` with provider `openrouter`, and showed explicit provider/model args; unknown literal model values pass through; `opencode agent list` completed successfully; `git diff --check` was clean. Existing focused suite ran 7/8 tests successfully; its one failure was an environment lineage assertion (`component-builder` inherited instead of test's expected `user`), unrelated to launcher resolution changes.
+Completed. Validation evidence: Bun build succeeded; dry-run resolved the root `small` preset with explicit provider/model args; unknown literal model values pass through; and `git diff --check` was clean.
 
 ## Blockers And Escalations
 
-None. Residual risk to record at completion: alias resolution reads the
-OpenCode config as a plain file and must not become a coupling to the OpenCode
-runtime; if the config is absent, the launcher must still launch (literal model,
-no provider) rather than fail. If pi rejects an explicit `--provider` on some
-host, record the host fallback and keep model resolution working.
+None. The launcher reads root `as-is.md` as plain authored configuration and
+must not couple to OpenCode runtime configuration. If the record is absent, the
+launcher still launches with a literal model and no provider. If Pi rejects an
+explicit `--provider` on some host, record the host fallback while retaining
+model resolution.
 
 ## Recovery
 

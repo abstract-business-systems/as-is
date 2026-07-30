@@ -2,7 +2,7 @@
 name: as-is
 description: Routes user intent through durable as-is orchestration and reports concise results.
 mode: primary
-model: mini
+model: small
 permission:
   task: allow
   webfetch: deny

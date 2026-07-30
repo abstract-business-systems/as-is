@@ -272,25 +272,47 @@ const parseFrontMatter = (raw: string, filePath: string): AgentDefinition => {
 const resolveFromCwd = (value: string, cwd: string): string =>
   isAbsolute(value) ? value : resolve(cwd, value);
 
-type HostConfig = { providers: Array<{ name: string; models: Record<string, { id?: string }> }> };
-const readHostConfig = async (cwd: string): Promise<HostConfig> => {
+type ProjectModelConfig = { defaultModel?: string; models: Record<string, string>; provider?: string };
+
+// Model policy belongs to the as-is system, not to a development host such as
+// OpenCode. Read only the root record, walking upward from the requested cwd.
+// The deliberately small parser covers the authored YAML configuration without
+// adding a YAML dependency to the launcher.
+const readProjectModelConfig = async (cwd: string): Promise<ProjectModelConfig> => {
   let current = cwd;
   while (true) {
     try {
-      const parsed = JSON.parse(await readFile(join(current, ".opencode", "opencode.json"), "utf8")) as { provider?: Record<string, { models?: Record<string, { id?: string }> }> };
-      return { providers: Object.entries(parsed.provider ?? {}).map(([name, value]) => ({ name, models: value.models ?? {} })) };
+      const text = await readFile(join(current, "as-is.md"), "utf8");
+      const config = text.match(/^config:\r?\n([\s\S]*?)(?=^task:|^---$)/m)?.[1] ?? "";
+      const configLines = config.split(/\r?\n/);
+      const agentStart = configLines.findIndex((line) => line === "  agents:");
+      const agentLines: string[] = [];
+      if (agentStart >= 0) {
+        for (const line of configLines.slice(agentStart + 1)) {
+          if (/^  [a-zA-Z][a-zA-Z-]*:/.test(line)) break;
+          agentLines.push(line);
+        }
+      }
+      const agents = agentLines.join("\n");
+      const defaultModel = agents.match(/^    defaultModel:\s*["']?([^"'\s#]+)["']?\s*$/m)?.[1];
+      const provider = agents.match(/^    provider:\s*["']?([^"'\s#]+)["']?\s*$/m)?.[1];
+      const modelsBlock = agents.match(/^    models:\r?\n((?:^      [^\r\n]+\r?\n?)+)/m)?.[1] ?? "";
+      const models: Record<string, string> = {};
+      for (const line of modelsBlock.split(/\r?\n/)) {
+        const match = line.match(/^      ([a-zA-Z0-9_-]+):\s*["']?(.+?)["']?\s*(?:#.*)?$/);
+        if (match) models[match[1]] = match[2].trim();
+      }
+      return { defaultModel, models, provider };
     } catch { /* continue upward */ }
     const parent = dirname(current);
-    if (parent === current) return { providers: [] };
+    if (parent === current) return { models: {} };
     current = parent;
   }
 };
-const resolveModel = (value: string | undefined, config: HostConfig): { model?: string; provider?: string } => {
-  if (!value) return {};
-  for (const provider of config.providers) {
-    if (provider.models[value]?.id) return { model: provider.models[value].id, provider: provider.name };
-  }
-  return { model: value, provider: config.providers.length === 1 ? config.providers[0].name : undefined };
+const resolveModel = (value: string | undefined, config: ProjectModelConfig): { model?: string; provider?: string } => {
+  const selected = value ?? config.defaultModel;
+  if (!selected) return {};
+  return { model: config.models[selected] ?? selected, provider: config.provider };
 };
 
 const findLocalPi = (cwd: string): string | undefined => {
@@ -651,7 +673,7 @@ const main = async() => {
   const caller = options.caller ?? process.env.AS_IS_IDENTITY ?? "user";
   const parentJobId = options.parentJobId ?? process.env.AS_IS_JOB_ID ?? null;
 
-  const config = await readHostConfig(cwd);
+  const config = await readProjectModelConfig(cwd);
   const resolved = resolveModel(options.model ?? definition.model, config);
   const model = resolved.model;
   const provider = resolved.provider;

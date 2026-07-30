@@ -23,9 +23,8 @@ constraints:
       source: unavailable
   external-effects: require-current-turn-user-approval
 acceptance:
-  - Add `model: mini` to `.agents/agents/as-is/agent.md` front-matter so the
-    as-is role runs on a fast model by default (the alias resolves to the
-    concrete provider/model id via the launcher's config-driven resolution).
+  - Keep `model: small` in `.agents/agents/as-is/agent.md` front-matter so the
+    as-is role runs on the root-configured small preset by default.
   - Add orientation-script guidance to `.agents/agents/as-is/agent.md`: for any
     status or routing turn that needs repository state, run
     `bun skills/as-is/scripts/orient.ts` once and synthesize/relay from that
@@ -54,24 +53,23 @@ acceptance:
 
 The user-facing as-is router must stay cheap per turn in a multi-hour session.
 A "what's next" status query took ~18s because as-is re-derived repository
-state through five-to-seven sequential record reads on a non-fast model, and its
-contract did not mention the orientation snapshot script that already returns
-that state in ~50ms. This task wires the fast model and the one-call snapshot
-into the as-is contract.
+state through five-to-seven sequential record reads, and its contract did not
+mention the orientation snapshot script that already returns that state in
+~50ms. This task wires the small model preset and one-call snapshot into the
+as-is contract.
 
 ## Requirement
 
-Edit `.agents/agents/as-is/agent.md` to (1) pin a fast model via `model: mini`
-in the front-matter, and (2) direct as-is to run `skills/as-is/scripts/orient.ts`
+Edit `.agents/agents/as-is/agent.md` to (1) pin the root-configured `small`
+preset in the front-matter, and (2) direct as-is to run `skills/as-is/scripts/orient.ts`
 once for status/orientation turns and synthesize from its snapshot, instead of
 multi-read orientation. The model alias resolves through the launcher's
 config-driven resolution (see `skills/spawning-pi-subagents/as-is.md`).
 
 ## Plan
 
-1. Add `model: mini` to the as-is agent front-matter (after `mode: primary`),
-    naming the configured fast alias; the launcher resolves it to the concrete
-    provider/model id from `.opencode/opencode.json`.
+1. Keep `model: small` in the as-is agent front-matter (after `mode: primary`);
+    the launcher resolves it using the root `as-is.md` model map.
 2. Add a short orientation clause to the contract body: for a turn that needs
     repository state (status, next-open-task, routing context), run
     `bun skills/as-is/scripts/orient.ts` once and synthesize/relay from its
@@ -89,20 +87,19 @@ shortcut, not a complexity predictor.
 ## Progress
 
 Activated the task record and updated `.agents/agents/as-is/agent.md` with the
-`mini` model alias and one-command orientation snapshot guidance. No child work
-was delegated because this record permits zero children. The `mini` pin depends
-on the launcher's config-driven alias resolution (`skills/spawning-pi-subagents/as-is.md`).
+`small` model preset and one-command orientation snapshot guidance. No child
+work was delegated because this record permits zero children.
 
 ## Validation
 
-- `.agents/agents/as-is/agent.md` front-matter contains `model: mini`.
+- `.agents/agents/as-is/agent.md` front-matter contains `model: small`.
 - The contract body contains the orientation-script clause naming
   `skills/as-is/scripts/orient.ts`.
 - The direct-path budget rule and boundary clauses remain; no
   intent-classification heuristics were added.
 - `opencode agent list` discovers `as-is (primary)` with the new front-matter.
 - `opencode agent list` passed and discovered `as-is (primary)` with valid
-  front-matter including `model: mini`.
+  front-matter including `model: small`.
 - Bare `bun build` was attempted but correctly reported that this repository
   has no default entrypoint. The touched artifact is Markdown, so no script
   build was applicable; the repository orientation script was independently
@@ -117,7 +114,7 @@ records and Git facts returned by the snapshot script.
 
 ## Result
 
-Completed the as-is fast path contract update: `model: mini` is pinned in the
+Completed the as-is fast path contract update: `model: small` is pinned in the
 role front-matter, and status/routing turns use one orientation snapshot command
 without widening the direct-path budget or changing existing boundaries.
 

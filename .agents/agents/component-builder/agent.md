@@ -2,6 +2,7 @@
 name: component-builder
 description: Builds one bounded component, manages its as-is.md record, and delegates child components to specialized agents or new instances of itself.
 mode: subagent
+model: medium
 permission:
   task: allow
   webfetch: deny
