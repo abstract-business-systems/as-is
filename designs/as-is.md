@@ -2,8 +2,8 @@
 as-is-version: 2
 task:
   status: completed
-  worker: implementer
-  updated: 2026-07-30T16:30:00Z
+  worker: component-builder
+  updated: 2026-07-30T17:10:00Z
 constraints:
   cost:
     currency: USD
@@ -35,29 +35,36 @@ Provide a discoverable component for enduring architecture, protocol, and
 execution design documents.
 
 ## Requirement
-Group the existing subject-named design documents under `designs/` because
-there is a meaningful sibling set with shared design-document purpose. The
-folder is not a generic bucket: each design retains its subject and authority.
-Relevant designs should move into built components when they become an
-implemented component, with a link from that component's `as-is.md`.
+Resolve the independent-delegation design's remaining budget-holder decision.
+The per-child detached supervisor is authoritative for wall-clock enforcement
+and budget-stop ownership; update the subject design and any directly stale
+design cross-references without implementing runtime behavior. Preserve the
+design component's grouping and authority rules.
 
 ## Plan
-Move the independent design documents, update links, and validate the
-replacement paths and task records.
+1. Inspect the independent-delegation open decision and related execution
+   design language.
+2. Resolve budget ownership in the subject design and remove contradictory
+   open-decision wording.
+3. Validate references and whitespace, then commit the bounded design handoff.
 
 ## Progress
-Moved `execution-accounting-design.md`, `orchestration-design.md`, and
-`independent-delegation.md` into this directory; links from the moved documents
-use same-directory relative paths. Existing component designs
-already under component directories were not moved across ownership boundaries.
+The independent-delegation specification already describes a per-child
+supervisor as the recommended budget holder and the execution-foundation
+component records detached supervisor budget observations. The remaining work
+is to promote that recommendation to the authoritative design decision and
+ensure the grouped design entry point records the resolution.
 
 ## Validation
-Root integration must check all references, task-record paths, naming, and
-`git diff --check`. No runtime files were changed.
+Focused design-reference searches found no active `as-is -> orchestrator ->
+implementer` chain in the grouped designs after updating the remaining
+orchestration reference. `git diff --check` passed. No runtime files or sibling
+component records are changed.
 
 ## Result
-Completed the justified design grouping while preserving subject-named files
-and the designs component entry point.
+The per-child detached supervisor is the authoritative budget holder for
+independent delegation. The prior open decision is closed, with cost
+self-limiting explicitly retained as a host-observability limitation.
 
 ## Blockers And Escalations
 None. Residual risk is limited to historical prose that may require canonical
@@ -73,5 +80,10 @@ built component should be relocated only through a bounded maintenance record.
 - `independent-delegation.md` — independent delegation design.
 
 ## Next Action
-Root integration should update all references and link relevant component
-records.
+None within this component; the resolved design is ready for root integration.
+
+## Changelog
+
+- 2026-07-30: resolved independent delegation's budget holder as the per-child
+  detached supervisor; retained child self-limiting for unobservable provider
+  cost.

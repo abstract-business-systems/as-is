@@ -173,13 +173,17 @@ implementation directives.
    together before later spec updates. It is no longer a live decision for the
    current repository state.
 
-## Open Decisions
+## Resolved Budget-Holder Decision
 
-The following mechanical choice remains open; it carries a recommendation but
-is not pre-empted by this spec.
+The per-child detached supervisor is authoritative for wall-clock budget
+ownership. The launcher/supervisor starts the timer, owns process-group
+termination at expiry, records the budget-stop observation, and leaves the
+parent free to observe and reconcile the child's durable record. Neither
+`as-is` nor a scheduler polling from the parent owns enforcement, because the
+parent may have moved on or exited. Cost limits remain forwarded to the child
+for self-limiting because provider cost is not directly observable by the
+launcher; an unavailable cost observation remains explicitly unavailable.
 
-2. **Budget holder.** A per-child detached supervisor (the launcher forks a
-timer and killer) versus `as-is` or a scheduler polling and killing.
-   *Recommendation: a per-child detached supervisor* — the parent may have
-   moved on, so the budget must not depend on a parent process remaining
-   active.
+This decision closes the prior budget-holder open question. Any future change
+requires a new bounded design decision and must preserve non-blocking
+independent delegation.

@@ -496,7 +496,7 @@ acceptance conditions.
    supervisor-owned detached job or a supported server job. A foreground child
    process awaited by the submitting host turn is not an asynchronous mapping.
    Validate a harmless child-component task using the selected adapter, including
-   `as-is -> orchestrator -> implementer` mediation, component-only initial
+   `as-is -> component-builder -> …` mediation, component-only initial
    context, a launch checkpoint returned before worker completion, supervisor/job
    ownership of the process group, log/event capture, later durable and health
    polling, cancellation, stale handling, bounded recovery, budget handling,
