@@ -173,8 +173,16 @@ validated, with no fixture move and no descendants. If handoff is interrupted
 before commit, preserve this record and stage only the two permitted files after
 rechecking validation. Do not infer host cost or wall-clock use when unavailable.
 
+## Backlog
+
+- Future maintenance-time restructuring assessments remain owned here; no open
+  candidate is currently recorded.
+
+## Changelog
+
+- This record already carries the reusable maintenance-time restructuring rule;
+  no additional move was required.
+
 ## Next Action
 
- Invoke `committing-completed-work` for only `SKILL.md` and this record. Do not
- physically move fixtures, amend, push, change branches, alter remotes, or
- modify files outside this component.
+None within this component; any future restructuring assessment requires a new authorized maintenance record.

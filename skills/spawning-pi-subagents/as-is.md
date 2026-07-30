@@ -137,6 +137,22 @@ Recover from this record, the launcher at
 the worker return is interrupted, reread this record before resuming; do not
 re-create `task-archives/`.
 
+## Backlog
+
+- Make delegation non-blocking and observable.
+- Forward a recovery digest rather than re-deriving the same recovery context.
+- Reduce blind waiting by replacing blocking `| tail -200`-style observation
+  with streaming or incremental log inspection.
+- Add a detached watchdog supervisor for child wall-clock enforcement.
+- Add restart reconciliation for dead-PID/non-terminal records.
+
+## Changelog
+
+- Kept the launcher/worktree/observation follow-ups here after ownership
+  review.
+- Moved cumulative-accounting follow-up ownership to
+  `execution-accounting-design/as-is.md`.
+
 ## Next Action
 
-Handoff complete at commit `2a40de0`. Residual risk: real provider-backed session persistence was not exercised; config parsing intentionally remains dependency-free and missing configs fall back to literal models without a provider. Host-observed validation wall-clock was approximately 4 seconds for the focused suite and under 1 minute including build and discovery.
+None within this component; the retained launcher follow-ups remain backlog only.

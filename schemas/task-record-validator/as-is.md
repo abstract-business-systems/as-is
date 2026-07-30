@@ -78,6 +78,16 @@ Implementation and validation are retained in the component. No cleanup or
 private runtime artifact is required; the completed handoff is recoverable from
 this record and its local artifacts.
 
+## Backlog
+
+- Capture any future validator-agent follow-up here if a validation-specific
+  backlog item is approved.
+
+## Changelog
+
+- Validation ownership remains with this component; no new implementation was
+  added.
+
 ## Next Action
 
 None within this component; parent may consume the completed handoff.

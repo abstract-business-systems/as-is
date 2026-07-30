@@ -210,11 +210,15 @@ not add a runtime map, infer a JobId identity, restore an archive folder, claim
 byte-level recovery of uncommitted content, or launch a worker without a new
 bounded implementation authorization.
 
+## Backlog
+
+- Expose child cost back to the parent for cumulative accounting.
+
+## Changelog
+
+- Accepted cumulative-accounting ownership from the launcher follow-up review.
+- Kept the design record terminal; no implementation was added.
+
 ## Next Action
 
-The design handoff is terminal after its scoped commit. The next authorized
-implementation task may add durable task-revision/attempt accounting, the
-restart-reconcilable runtime map, and the component-path status surface; it must
-not modify the generic supervisor/OpenCode boundary or revive systemd. The
-repository root/integration task remains blocked and needs a separate current-
-turn authorization before any worker launch.
+None within this component; cumulative-accounting follow-up ownership is retained here.

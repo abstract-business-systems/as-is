@@ -174,7 +174,24 @@ component record at `skills/spawning-pi-subagents/as-is.md`, and commit
 `6e9a7e1`. If verification must be repeated, rerun the listed checks; do not
 create `task-archives/` or revive the retired systemd flow.
 
+## Backlog
+
+No current backlog remains in this root record. The retained follow-ups have
+been redistributed to the owning existing records:
+
+- `skills/spawning-pi-subagents/as-is.md` owns launcher, worktree, and
+  parent-observation follow-ups.
+- `execution-accounting-design/as-is.md` owns cumulative-accounting follow-ups.
+- `schemas/task-record-validator/as-is.md` owns validation-skill follow-ups.
+- `skills/structuring-content/as-is.md` owns restructuring follow-ups.
+
+## Changelog
+
+- Removed the completed root-level backlog list after checking the owning
+  existing groups.
+- Preserved the completed detached-handle registry handoff as terminal in the
+  Progress and Result sections; no implementation scope changed.
+
 ## Next Action
 
-No further action for this bounded task. Future work may address orphan
-reconciliation and parent-visible wall-clock accounting.
+None within this component; backlog redistributed to the owning existing records.
