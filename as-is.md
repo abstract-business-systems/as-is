@@ -1,9 +1,31 @@
 ---
 as-is-version: 2
+
 config:
+  tasks:
+    unitBudget:
+      wallClockSeconds: 300
+      costUsd: 0.50
   scheduling:
+    wakeSeconds: 60
     checkInSeconds: 300
     maxConcurrentTasks: 1
+    retryBackoffSeconds: 300
+    maxRecoveryAttempts: 2
+  notifications:
+    materialEvents: true
+  agents:
+    defaultRole: as-is
+  technology-preferences:
+    runtime: bun
+    package-manager: bun
+  hitl:
+    onBlocked: true
+    onBudgetExceeded: true
+    onExternalEffect: true
+  logging:
+    level: info
+    retainDays: 30
 task:
   status: completed
   worker: as-is
@@ -75,8 +97,8 @@ Apply the documentation/task-record correction: preserve the full root configura
   scheduling configuration, and carries the concise historical notes that were
   previously split out.
 - `bun test skills/as-is/scripts/orient.test.ts` passed; the orientation script
-  now reads the canonical root `Changelog` and no live `change-log.md` reference
-  remains.
+  now reads the canonical root `Changelog` and no live separate history-file
+  reference remains.
 - `git diff --check` passed; branch ancestry remains based on `d09f5ea` and the
   reviewed child content is integrated in the local handoff commit.
 - The repository-wide task-record validator reports pre-existing fixture and
