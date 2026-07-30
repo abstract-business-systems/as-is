@@ -173,6 +173,14 @@ change log an overview rather than a second task record or runtime ledger.
 - **Residual risk:** Orphan detection/recovery is not solved, and wall-clock use
   is not surfaced to the parent as a first-class observation.
 
+## 2026-07-30 — Delegation-spec status correction and validation ownership clarification
+
+- **Disposition:** Documentation correction only. No implementation code or task authority changed.
+- **Corrected status:** In `independent-delegation.md`, backlog items 1, 3, and 4 were moved from the open-decision list to a resolved/effectively-answered status because the repository now has durable answers for the file-backed detached registry, record-plus-session-log observation, and the historical sequencing question. Backlog item 2 remains the genuinely open decision.
+- **Validation ownership:** The generic validation-agent follow-up was recorded under `schemas/task-record-validator/as-is.md` as a minimal different-model review/report contract that checks a child's completion claim against the task requirement, changed artifacts, and evidence.
+- **Recovery point:** Read the updated durable records directly; no archive folder or additional runtime artifact was created.
+- **Residual risk:** The resolved/effectively-answered decisions remain descriptive of the current repository state, not a claim that future implementations are forbidden from revisiting the underlying design space.
+
 ## 2026-07-28 — Spawning-pi-subagents budget enforcement
 
 - **Disposition:** Completed bounded implementation. The synchronous launcher

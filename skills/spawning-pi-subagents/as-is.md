@@ -140,11 +140,23 @@ re-create `task-archives/`.
 ## Backlog
 
 - Make delegation non-blocking and observable.
-- Forward a recovery digest rather than re-deriving the same recovery context.
+- Forward a recovery digest rather than re-deriving the same recovery context:
+  define a compact, durable child handoff that carries only the recovery facts
+  a resumed descendant needs after restart or nesting. The digest should be
+  produced once by the parent/supervisor, then treated as read-only input for
+  descendants instead of being re-derived from task records and logs at every
+  tier.
 - Reduce blind waiting by replacing blocking `| tail -200`-style observation
-  with streaming or incremental log inspection.
+  with streaming or incremental log inspection: track a byte or line cursor for
+  each observed session log, read only new content since the last cursor, and
+  preserve that cursor in the durable observation surface. This scopes the work
+  to observation only; it does not add new task authority or launch semantics.
 - Add a detached watchdog supervisor for child wall-clock enforcement.
-- Add restart reconciliation for dead-PID/non-terminal records.
+- Add restart reconciliation for dead-PID/non-terminal records: after restart,
+  scan the registry and component records for children whose process is gone but
+  whose record is still non-terminal, mark them as recovery candidates, record
+  the observation and reason, and schedule the existing recovery path/backoff.
+  This scope excludes subtree cancellation ownership and any new watchdog code.
 
 ## Changelog
 

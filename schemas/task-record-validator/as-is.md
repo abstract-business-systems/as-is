@@ -80,8 +80,13 @@ this record and its local artifacts.
 
 ## Backlog
 
-- Capture any future validator-agent follow-up here if a validation-specific
-  backlog item is approved.
+- Capture a validation-agent follow-up here if a validation-specific backlog
+  item is approved. The follow-up should define a minimal review/report
+  contract for a different-model validator that checks a child's completion
+  claim against the task requirement, changed artifacts, and evidence, then
+  records only the supported or unsupported completion claim and residual risk.
+  It should not add implementation mechanics beyond what the review/report
+  contract needs.
 
 ## Changelog
 

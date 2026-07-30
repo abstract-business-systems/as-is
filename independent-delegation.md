@@ -150,29 +150,36 @@ launched; a supervisor does the same for the children it supervises.
 - This spec is the design authority. Implementation is staged: launcher and
   `component-builder` first, then terminological updates to the affected specs.
 
+## Resolved Or Effectively Answered
+
+The model above is decided. The following questions are no longer open in the
+current repository state; they are retained here as status, not as live
+implementation directives.
+
+1. **Handle registry location.** Effectively answered by the committed
+   `spawning-pi-subagents` detached-handle registry, which records handles in a
+   file-backed registry via `AS_IS_JOBS_REGISTRY` (default
+   `/tmp/as-is-jobs.jsonl`). The earlier question was where active handles would
+   live at all; the current implementation answers that operationally. If the
+   repository later adopts the control-plane job table as the authoritative
+   registry, that would be a new design decision.
+3. **Status stream.** Effectively answered for the current launcher by
+   `record + session log` observation only. The launcher and skill document
+   those two surfaces; no slim status stream is currently implemented. The
+   recommendation to defer a slim stream remains valid as a future optimization,
+   not as an open requirement.
+4. **Implementation sequencing.** Historically answered by the work that first
+   captured this spec and then implemented the launcher and `component-builder`
+   together before later spec updates. It is no longer a live decision for the
+   current repository state.
+
 ## Open Decisions
 
-The model above is decided. The following mechanical choices are open; each
-carries a recommendation but is not pre-empted by this spec.
+The following mechanical choice remains open; it carries a recommendation but
+is not pre-empted by this spec.
 
-1. **Handle registry location.** Where active child handles live so any agent
-   can discover children it did not launch: the control-plane job table (which
-   already has a job concept), a `.as-is/jobs/` directory, or the parent record
-   only. *Recommendation: the control-plane job table* — it is already a
-   registry concept and is discoverable independently of any parent.
 2. **Budget holder.** A per-child detached supervisor (the launcher forks a
-   timer and killer) versus `as-is` or a scheduler polling and killing.
+timer and killer) versus `as-is` or a scheduler polling and killing.
    *Recommendation: a per-child detached supervisor* — the parent may have
    moved on, so the budget must not depend on a parent process remaining
    active.
-3. **Status stream.** Rely on the record plus the session log, or additionally
-   emit a slim launcher status stream to reduce polling cost.
-   *Recommendation: record plus session log first*; add a slim stream only if
-   polling cost is shown to be too high in practice.
-4. **Implementation sequencing.** (a) merge `orchestrator` + `implementer` into
-   `component-builder`, (b) independent launch plus log/record polling,
-   (c) terminological updates to the affected specs.
-   *Recommendation: capture this spec, then implement the launcher and
-   `component-builder` together, then update specs last* — the code and agent
-   surface is what changes runtime behavior; the specs are descriptive and can
-   follow without risk.
