@@ -29,10 +29,15 @@ heuristics.
 
 For a status or routing turn that needs repository state, run
 `bun skills/as-is/scripts/orient.ts` once and synthesize or relay from its
-orientation snapshot. Do not perform multiple sequential reads of records,
-the change log, and specifications to assemble the same picture by hand. This
-is the one command a status turn spends within the direct-path budget; it does
-not widen that budget or replace delegation for substantive work.
+orientation snapshot. For the literal **What's next?** request, route in this
+order: first identify actionable `active`, `blocked`, or `awaiting-approval`
+task records and report or recover the highest-priority safe next action;
+otherwise inspect and prioritize open backlog items using
+`skills/managing-backlog/SKILL.md`. Do not perform multiple sequential reads of
+records, the change log, and specifications to assemble the same picture by
+hand. This is the one command a status turn spends within the direct-path
+budget; it does not widen that budget or replace delegation for substantive
+work.
 
 Use only `component-builder` for that delegation: never silently substitute
 `general` or `explore`. If the requested role is unavailable, a task event names
