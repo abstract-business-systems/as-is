@@ -210,6 +210,8 @@ test("child commit handoff is explicitly pending parent integration", async () =
     expect(finished?.committed).toBe(true);
     expect(finished?.commitSha).toBeTruthy();
     expect(finished?.integrationStatus).toBe("pending-parent-integration");
+    const jobs = await runLauncher(["--jobs"], { ...process.env, AS_IS_JOBS_REGISTRY: registry });
+    expect(jobs.stdout).toContain("pending-parent-integration");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 

@@ -751,8 +751,13 @@ const printJobs = async (): Promise<void> => {
         /* leave "-" */
       }
     }
+    let integrationStatus = finished?.integrationStatus as string | undefined;
+    if (commitSha && finished?.committed) {
+      const integrated = await gitIn(process.cwd(), ["merge-base", "--is-ancestor", commitSha, "HEAD"]);
+      integrationStatus = integrated !== null ? "integrated" : "pending-parent-integration";
+    }
     const detail = finished
-      ? `exit=${finished.exitCode} wall=${finished.wallClockSeconds}s${finished.committed ? ` sha=${(finished.commitSha as string)?.slice(0, 8)}` : ""}${finished.worktreePreserved ? ` preserved: ${finished.preserveReason ?? "uncommitted changes"} @ ${launch.worktreePath ?? "?"}` : ""}`
+      ? `exit=${finished.exitCode} wall=${finished.wallClockSeconds}s${finished.committed ? ` sha=${(finished.commitSha as string)?.slice(0, 8)}` : ""}${integrationStatus ? ` integration=${integrationStatus}` : ""}${finished.worktreePreserved ? ` preserved: ${finished.preserveReason ?? "uncommitted changes"} @ ${launch.worktreePath ?? "?"}` : ""}`
       : `budget=${launch.budgetWallClockSeconds ?? "-"}s`;
     const identity = (launch.identity as string | undefined) ?? "?";
     const caller = (launch.caller as string | undefined) ?? "?";
