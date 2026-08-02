@@ -33,6 +33,11 @@ config:
   logging:
     level: info
     retainDays: 30
+  observability:
+    tracing:
+      backend: file
+      enabled: true
+      local-directory: .as-is/tracing.jsonl
 task:
   status: completed
   worker: as-is

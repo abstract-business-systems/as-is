@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import { appendFile, mkdtemp, open, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, dirname, isAbsolute, join, resolve } from "node:path";
+import { emitTrace } from "../../../observability/tracer.ts";
 
 type Options = {
   agent?: string;
@@ -84,6 +85,17 @@ type SuperviseConfig = {
 
 const BUDGET_STOPPED_EXIT_CODE = 124;
 const BUDGET_KILL_GRACE_SECONDS = 5;
+
+const recordComponentTrace = async (cwd: string, event: Record<string, unknown>): Promise<void> => {
+  const traceId = String(event.traceId ?? process.env.AS_IS_TRACE_ID ?? "component-build");
+  const spanId = String(event.spanId ?? Math.random().toString(16).slice(2));
+  await emitTrace({
+    name: String(event.name ?? "component-build"),
+    traceId,
+    spanId,
+    attributes: Object.fromEntries(Object.entries(event).filter(([key]) => !["name", "traceId", "spanId"].includes(key))) as Record<string, string | number | boolean | undefined>,
+  }, cwd);
+};
 
 const skillDirectory = resolve(import.meta.dir, "..");
 
@@ -272,7 +284,17 @@ const parseFrontMatter = (raw: string, filePath: string): AgentDefinition => {
 const resolveFromCwd = (value: string, cwd: string): string =>
   isAbsolute(value) ? value : resolve(cwd, value);
 
-type ProjectModelConfig = { defaultModel?: string; models: Record<string, string>; provider?: string };
+type ProjectModelConfig = {
+  defaultModel?: string;
+  models: Record<string, string>;
+  provider?: string;
+  componentBuildTracer?: {
+    backend?: string;
+    enabled?: boolean;
+    endpoint?: string;
+    directory?: string;
+  };
+};
 
 // Model policy belongs to the as-is system, not to a development host such as
 // OpenCode. Read only the root record, walking upward from the requested cwd.
@@ -302,7 +324,22 @@ const readProjectModelConfig = async (cwd: string): Promise<ProjectModelConfig> 
         const match = line.match(/^      ([a-zA-Z0-9_-]+):\s*["']?(.+?)["']?\s*(?:#.*)?$/);
         if (match) models[match[1]] = match[2].trim();
       }
-      return { defaultModel, models, provider };
+      const tracer = config.match(/tracing:\r?\n((?:      [^\r\n]+\r?\n?)+)/m)?.[1] ?? "";
+      const backend = tracer.match(/^      backend:\s*["']?([^"'\s#]+)["']?\s*$/m)?.[1];
+      const enabledValue = tracer.match(/^      enabled:\s*(true|false)\s*$/m)?.[1];
+      const endpoint = tracer.match(/^      endpoint:\s*["']?([^"'\n]+?)["']?\s*$/m)?.[1];
+      const directory = tracer.match(/^      local-directory:\s*["']?([^"'\n]+?)["']?\s*$/m)?.[1];
+      return {
+        defaultModel,
+        models,
+        provider,
+        componentBuildTracer: {
+          backend,
+          enabled: enabledValue === undefined ? undefined : enabledValue === "true",
+          endpoint,
+          directory,
+        },
+      };
     } catch { /* continue upward */ }
     const parent = dirname(current);
     if (parent === current) return { models: {} };
@@ -449,7 +486,23 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     // the correct caller and parent-job-id without OS parentage.
     AS_IS_IDENTITY: config.identity,
     AS_IS_JOB_ID: config.jobId,
+    AS_IS_COMPONENT_BUILD_TRACER: process.env.AS_IS_COMPONENT_BUILD_TRACER ?? "file",
+    AS_IS_COMPONENT_BUILD_TRACER_ENDPOINT: process.env.AS_IS_COMPONENT_BUILD_TRACER_ENDPOINT ?? "",
+    AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY: process.env.AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY ?? ".as-is/tracing.jsonl",
+    AS_IS_TRACE_ID: process.env.AS_IS_TRACE_ID ?? "",
   };
+
+  await recordComponentTrace(config.callerCwd, {
+    name: "subprocess.launch",
+    backend: process.env.AS_IS_COMPONENT_BUILD_TRACER ?? "file",
+    endpoint: process.env.AS_IS_COMPONENT_BUILD_TRACER_ENDPOINT || undefined,
+    jobId: config.jobId,
+    identity: config.identity,
+    caller: config.caller,
+    parentJobId: config.parentJobId,
+    componentPath: config.recordPath ? dirname(config.recordPath) : undefined,
+    taskRecord: config.recordPath,
+  });
 
   const child = spawn(config.command, config.args, {
     cwd: childCwd,
@@ -501,12 +554,35 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
   process.removeListener("SIGINT", onInt);
   await logFile?.close().catch(() => undefined);
 
+  await recordComponentTrace(config.callerCwd, {
+    name: "subprocess.exit",
+    backend: process.env.AS_IS_COMPONENT_BUILD_TRACER ?? "file",
+    jobId: config.jobId,
+    identity: config.identity,
+    caller: config.caller,
+    parentJobId: config.parentJobId,
+    componentPath: config.recordPath ? dirname(config.recordPath) : undefined,
+    exitCode,
+    outcome: budgetStopped ? "budget-stopped" : exitCode === 0 ? "success" : "failure",
+  });
+
   const wallClockSeconds = (Date.now() - startedMonotonic) / 1000;
 
   // Capture the child's final commit so the parent can read the record via
   // `git show <sha>:<path>` without a filesystem race on the worktree.
   const finalSha = childCwd !== config.callerCwd ? await gitIn(childCwd, ["rev-parse", "HEAD"]) : null;
   const committed = finalSha !== null && finalSha !== baseSha;
+
+  await recordComponentTrace(config.callerCwd, {
+    name: "subprocess.handoff",
+    backend: process.env.AS_IS_COMPONENT_BUILD_TRACER ?? "file",
+    jobId: config.jobId,
+    identity: config.identity,
+    componentPath: config.recordPath ? dirname(config.recordPath) : undefined,
+    committed,
+    commitSha: finalSha ?? undefined,
+    wallClockSeconds,
+  });
 
   // Decide worktree removal on git facts, not on the agent's exit code or a
   // budget-stop flag. The worktree is removed only when there is nothing to
@@ -674,6 +750,13 @@ const main = async() => {
   const parentJobId = options.parentJobId ?? process.env.AS_IS_JOB_ID ?? null;
 
   const config = await readProjectModelConfig(cwd);
+  const tracer = config.componentBuildTracer;
+  process.env.AS_IS_COMPONENT_BUILD_TRACER = tracer?.enabled === false
+    ? "disabled"
+    : tracer?.backend ?? process.env.AS_IS_COMPONENT_BUILD_TRACER ?? "file";
+  if (tracer?.endpoint) process.env.AS_IS_COMPONENT_BUILD_TRACER_ENDPOINT = tracer.endpoint;
+  if (tracer?.directory) process.env.AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY = tracer.directory;
+
   const resolved = resolveModel(options.model ?? definition.model, config);
   const model = resolved.model;
   const provider = resolved.provider;
@@ -722,6 +805,11 @@ const main = async() => {
       detach: options.detach ?? false,
       worktree: !(options.noWorktree ?? false),
       budget,
+      tracer: {
+        backend: process.env.AS_IS_COMPONENT_BUILD_TRACER,
+        endpoint: process.env.AS_IS_COMPONENT_BUILD_TRACER_ENDPOINT ?? "",
+        directory: process.env.AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY ?? "",
+      },
     }, null, 2)}\n`);
     return;
   }

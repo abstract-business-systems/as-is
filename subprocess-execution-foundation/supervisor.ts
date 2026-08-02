@@ -3,6 +3,7 @@ import { appendFile, chmod, mkdir, open, readFile, rename, rm, stat, unlink, wri
 import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { emitTrace, type TracerConfig } from "../observability/tracer.ts";
 
 /**
  * A small, host-neutral execution boundary.
@@ -132,6 +133,8 @@ export interface LaunchRequest {
   projectRoot?: string;
   projectKey?: string;
   runId?: string;
+  traceId?: string;
+  tracer?: TracerConfig;
   recordRevision?: string;
   expectedRecordStatus?: "ready" | "active";
   roleChain: RoleChain;
@@ -504,6 +507,27 @@ function makeCheckpoint(jobId: string, operation: string, event: string, details
 
 function privateEvent(jobId: string, operation: string, event: string, details: Record<string, unknown>): PrivateEvent {
   return { operation, event, jobId, source: "supervisor", observedAt: isoNow(), details };
+}
+
+async function traceSupervisorEvent(
+  request: LaunchRequest,
+  name: string,
+  attributes: Record<string, string | number | boolean | undefined>,
+  parentSpanId?: string,
+): Promise<void> {
+  await emitTrace({
+    name,
+    traceId: request.traceId ?? request.runId ?? request.component,
+    spanId: randomUUID().replaceAll("-", "").slice(0, 16),
+    parentSpanId,
+    attributes: {
+      "as_is.run_id": request.runId,
+      "as_is.component_path": request.component,
+      "as_is.task_revision": request.recordRevision,
+      "as_is.role": request.worker.role,
+      ...attributes,
+    },
+  }, request.projectRoot ?? process.cwd(), request.tracer);
 }
 
 function roleChainDetails(chain: RoleChain): Record<string, unknown> {
@@ -915,6 +939,11 @@ async function runSupervisor(configPath: string): Promise<void> {
       launchAcceptedAt: isoNow(),
     },
   );
+  await traceSupervisorEvent(request, "control-plane.delegate", {
+    "as_is.job_id": handle.jobId,
+    "as_is.attempt": state.attempt,
+    "as_is.outcome": "accepted",
+  });
   await writeRecordCheckpoint(
     request.recordPath,
     makeCheckpoint(handle.jobId, "launch", "launch-accepted", {
@@ -932,6 +961,11 @@ async function runSupervisor(configPath: string): Promise<void> {
     "active",
   );
 
+  await traceSupervisorEvent(request, "task-record.checkpoint", {
+    "as_is.job_id": handle.jobId,
+    "as_is.checkpoint": "launch-accepted",
+  });
+
   const watchdog = watchdogDuration(request);
   const watchdogDeadlineAt = new Date(Date.now() + watchdog.seconds * 1000).toISOString();
   let watchdogTriggered = false;
@@ -943,6 +977,10 @@ async function runSupervisor(configPath: string): Promise<void> {
     heartbeatTimer = null;
     watchdogTimer = null;
   };
+  await traceSupervisorEvent(request, "supervisor.watchdog", {
+    "as_is.job_id": handle.jobId,
+    "as_is.deadline_seconds": watchdog.seconds,
+  });
   current = await appendPrivateEvent(handle.statePath, privateEvent(handle.jobId, "observe", "watchdog-configured", {
     source: "supervisor-watchdog",
     deadlineAt: watchdogDeadlineAt,
@@ -1099,6 +1137,12 @@ async function runSupervisor(configPath: string): Promise<void> {
       workerStartedAt: isoNow(),
     },
   );
+  await traceSupervisorEvent(request, "component-build.worker", {
+    "as_is.job_id": handle.jobId,
+    "as_is.attempt": state.attempt,
+    "as_is.worker_pid": workerPid,
+    "as_is.outcome": "started",
+  });
   await writeRecordCheckpoint(
     request.recordPath,
     makeCheckpoint(handle.jobId, "observe", "worker-started", {
@@ -1170,6 +1214,13 @@ async function runSupervisor(configPath: string): Promise<void> {
       },
     },
   );
+  await traceSupervisorEvent(request, "component-build.completed", {
+    "as_is.job_id": handle.jobId,
+    "as_is.attempt": state.attempt,
+    "as_is.exit_code": exitCode,
+    "as_is.outcome": status,
+    "as_is.wall_clock_seconds": wallClockSeconds,
+  });
   await writeRecordCheckpoint(
     request.recordPath,
     makeCheckpoint(handle.jobId, "observe", status === "failed" ? "failure" : status === "cancelled" ? "cancellation-confirmed" : "host-completed", {
@@ -1837,6 +1888,19 @@ export async function recover(
   options: { now?: Date; maxRecoveryAttempts?: number; retryBackoffSeconds?: number; blocker?: PermissionScope } = {},
 ): Promise<RecoveryResult> {
   const scheduled = await scheduleRecovery(handle, reason, options);
+  await emitTrace({
+    name: scheduled.outcome === "waiting" ? "recovery.scheduled" : "recovery.escalated",
+    traceId: request.traceId ?? request.runId ?? request.component,
+    spanId: randomUUID().replaceAll("-", "").slice(0, 16),
+    attributes: {
+      "as_is.run_id": request.runId,
+      "as_is.component_path": request.component,
+      "as_is.job_id": handle.jobId,
+      "as_is.attempt": scheduled.attempt,
+      "as_is.reason_digest": createHash("sha256").update(reason).digest("hex").slice(0, 16),
+      "as_is.outcome": scheduled.outcome,
+    },
+  }, request.projectRoot ?? process.cwd(), request.tracer);
   if (scheduled.outcome !== "waiting" || !scheduled.dueAt) return scheduled;
   if (new Date(scheduled.dueAt).getTime() > Date.now()) return scheduled;
   const authorizedRequest: LaunchRequest = {
@@ -1871,6 +1935,22 @@ export async function recordHandoff(
   if (state.status !== "completed") {
     throw new Error("rejected: host completion is not observed; process exit alone cannot create a handoff");
   }
+  await traceSupervisorEvent({
+    component: handle.component,
+    recordPath: handle.recordPath,
+    projectRoot: dirname(handle.recordPath),
+    runId: undefined,
+    traceId: undefined,
+    roleChain: state.roleChain,
+    worker: { role: state.roleChain.implementer.role, command: [] },
+    budget: state.budget,
+    checkInSeconds: state.checkInSeconds,
+  }, "validation.handoff", {
+    "as_is.job_id": handle.jobId,
+    "as_is.outcome": "accepted",
+    "as_is.validation_count": evidence.validation.length,
+    "as_is.failed_descendant_count": evidence.failedOrCancelledDescendants.length,
+  });
   await writeRecordCheckpoint(handle.recordPath, makeCheckpoint(handle.jobId, "handoff", "handoff-evidence", {
     source: "implementer-durable-record",
     validation: evidence.validation,
