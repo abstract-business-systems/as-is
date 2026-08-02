@@ -1,9 +1,9 @@
 ---
 as-is-version: 2
 task:
-  status: active
+  status: completed
   worker: implementer
-  updated: 2026-08-06T00:00:00Z
+  updated: 2026-08-06T01:00:00Z
 constraints:
   cost:
     currency: USD
@@ -36,7 +36,8 @@ Inspect the launcher, orchestration skill, execution contract, and existing hand
 
 ## Progress
 
-Record initialized active before implementation.
+Implementation and caller-worktree integration are complete. The source handoff
+was integrated into `master`; this record is now closed.
 
 ## Validation and handoff
 
@@ -66,14 +67,10 @@ silently treated as approval.
 Actual host-reported cost is unavailable. Host-observed focused validation was
 7.35 seconds. Residual risk: the regression exercises ancestry mechanics and
 launcher status computation but does not execute a real parent orchestrator
-integration workflow. Recovery checkpoint is this record and the scoped diff;
-rerun the focused command with the identity environment unset. Result is
-implemented but handoff remains **pending-parent-integration**: the parent must
-integrate this commit from the caller repository and verify ancestry; this task
-does not claim integrated completion.
+integration workflow. The caller branch contains the integrated handoff and
+ancestry verification is recorded in `changelog.md` and Git history.
 
 ## Next action
 
-Parent orchestrator integrates the scoped commit in the caller repository and
-records the resulting ancestry evidence. Do not report this child as integrated
-before that check.
+No further action for this task. Future orchestration work must create a new
+bounded task record.
