@@ -479,6 +479,10 @@ const removeWorktree = async (callerCwd: string, worktreePath: string): Promise<
 // child's process group.
 const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
   const startedMonotonic = Date.now();
+  const phaseTimings: Record<string, number> = {};
+  const phaseStarted = (name: string): number => Date.now();
+  const phaseEnded = (name: string, started: number): void => { phaseTimings[name] = Date.now() - started; };
+  const worktreePhase = phaseStarted("worktree");
 
   // Isolate the child in a worktree pruned from the caller's HEAD. On failure,
   // fall back to the caller's cwd (no isolation) and record the degradation.
@@ -496,9 +500,12 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     }
   }
 
+  phaseEnded("worktree", worktreePhase);
+  const logFilePhase = phaseStarted("log-setup");
   const logFile = config.mode === "detach" && config.logPath
     ? await open(config.logPath, "w")
     : null;
+  phaseEnded("log-setup", logFilePhase);
 
   const childEnv = {
     ...process.env,
@@ -524,6 +531,7 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     taskRecord: config.recordPath,
   });
 
+  const spawnPhase = phaseStarted("child-spawn");
   const child = spawn(config.command, config.args, {
     cwd: childCwd,
     env: childEnv,
@@ -532,6 +540,7 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     stdio: logFile ? ["ignore", logFile.fd, logFile.fd] : ["ignore", "inherit", "inherit"],
   });
   const childPid = child.pid as number;
+  phaseEnded("child-spawn", spawnPhase);
 
   const signalGroup = (signal: NodeJS.Signals) => {
     try {
@@ -564,11 +573,13 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
   process.once("SIGTERM", onTerm);
   process.once("SIGINT", onInt);
 
+  const waitPhase = phaseStarted("child-wait");
   const exitCode: number = await new Promise((resolveExit) => {
     child.once("error", () => resolveExit(1));
     child.once("close", (code) => resolveExit(code ?? 1));
   });
 
+  phaseEnded("child-wait", waitPhase);
   clearTimers();
   process.removeListener("SIGTERM", onTerm);
   process.removeListener("SIGINT", onInt);
@@ -597,6 +608,7 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
   // record that integration separately; never report a child commit as an
   // integrated handoff.
   const integrationStatus = committed ? "pending-parent-integration" : "not-committed";
+  phaseTimings["total"] = Date.now() - startedMonotonic;
 
   await recordComponentTrace(config.callerCwd, {
     name: "subprocess.handoff",
@@ -630,7 +642,7 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
   }
 
   try {
-    await writeFile(config.resultPath, `${JSON.stringify({ exitCode, budgetStopped, wallClockSeconds, commitSha: finalSha, committed, integrationStatus, worktreePreserved, preserveReason })}\n`, "utf8");
+    await writeFile(config.resultPath, `${JSON.stringify({ exitCode, budgetStopped, wallClockSeconds, phaseTimings, commitSha: finalSha, committed, integrationStatus, worktreePreserved, preserveReason })}\n`, "utf8");
   } catch {
     /* best-effort outcome record */
   }
@@ -647,6 +659,7 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
         commitSha: finalSha,
         committed,
         integrationStatus,
+        phaseTimings,
         worktreePreserved,
         preserveReason,
         finishedAt: new Date().toISOString(),

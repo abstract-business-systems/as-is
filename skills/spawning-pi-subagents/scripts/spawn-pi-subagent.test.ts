@@ -230,8 +230,11 @@ test("detach supervisor records a completion line with exit code and wall-clock"
     const finished = readRegistryLines(registry).find(
       (line) => (line as { jobId: string; event?: string }).jobId === handle.jobId
         && (line as { event?: string }).event === "finished",
-    ) as { exitCode: number; budgetStopped: boolean; wallClockSeconds: number; childPid: number } | undefined;
+    ) as { exitCode: number; budgetStopped: boolean; wallClockSeconds: number; childPid: number; phaseTimings: Record<string, number> } | undefined;
     expect(finished).toBeDefined();
+    expect(finished!.phaseTimings["child-spawn"]).toBeGreaterThanOrEqual(0);
+    expect(finished!.phaseTimings["child-wait"]).toBeGreaterThanOrEqual(0);
+    expect(finished!.phaseTimings.total).toBeGreaterThanOrEqual(finished!.phaseTimings["child-wait"]);
     expect(finished!.exitCode).toBe(0);
     expect(finished!.budgetStopped).toBe(false);
     expect(typeof finished!.wallClockSeconds).toBe("number");

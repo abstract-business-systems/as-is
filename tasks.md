@@ -42,12 +42,13 @@ Align the task and backlog model: retain a transient `tasks.md` record for curre
 6. Keep trace-related work under `components/observability/backlog.md`; do not implement the remaining backlog items in this task.
 
 ## Progress
-Root task is active. Backlog ownership is aligned and the configured `tasks.md` record is retained. The as-is agent owns delegation decisions; the launcher now rejects unauthorized component-builder launches. Parent integration, delay measurement, all-in observability, and privacy work remain planned, not implemented.
+Root task is active. Backlog ownership is aligned and the configured `tasks.md` record is retained. The as-is agent owns delegation decisions; the launcher now rejects unauthorized component-builder launches. Parent integration status is explicit, and delay measurement now records bounded supervisor phases. Full parent-side integration validation, all-in observability, and privacy work remain planned, not implemented.
 
 ## Validation
 - Pre-change protocol and task records inspected.
 - Added an authorization guard to the launcher: only `as-is` may launch component-builder, and only component-builder may launch worker/expert.
 - Added explicit `pending-parent-integration` handoff status when a child commits in an isolated worktree, preventing child commit creation from being mistaken for parent integration.
+- Added bounded supervisor phase timing for worktree setup, log setup, child spawn, child wait, and total runtime to diagnose delegation delay without capturing model content.
 - Added focused launcher dry-run tests for unauthorized and authorized component-builder callers.
 - `bun test components/control-plane/control-plane.test.ts skills/as-is/scripts/orient.test.ts components/observability/tracer.test.ts` passed: 6 tests.
 - `bun build --no-bundle --target bun` passed for orient.ts and control-plane.ts.
@@ -67,4 +68,4 @@ None. Expert validation passed. Child commits were integrated as scoped commits;
 Resume from the current task record and the scoped diff if commit preparation is interrupted. Child durable summaries are already committed.
 
 ## Next Action
-Complete the parent integration/handoff contract and add delay instrumentation directly. Do not delegate remaining backlog work until these fixes are complete.
+Validate the phase timing and handoff evidence, then define parent-side integration validation directly. Do not delegate remaining backlog work until the delay issue and integration contract are complete.
