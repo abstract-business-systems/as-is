@@ -42,7 +42,7 @@ Align the task and backlog model: retain a transient `tasks.md` record for curre
 6. Keep trace-related work under `components/observability/backlog.md`; do not implement the remaining backlog items in this task.
 
 ## Progress
-Root task is active. Backlog ownership is aligned and the configured `tasks.md` record is retained. The as-is agent owns delegation decisions; the launcher now rejects unauthorized component-builder launches. Parent integration status is explicit, and delay measurement now records bounded supervisor phases. Parent-side integration classification and delay measurement are implemented and tested. Full durable parent integration recording, all-in observability, and privacy work remain planned, not implemented.
+Root task is active. Backlog ownership is aligned and the configured `tasks.md` record is retained. The as-is agent owns delegation decisions; the launcher now rejects unauthorized component-builder launches. Parent integration status is explicit, and delay measurement now records bounded supervisor phases. Parent-side integration classification and delay measurement are implemented and tested. A local stub measured 207ms total with 204ms in child wait, so launcher overhead is not the main delay source. Full durable parent integration recording, all-in observability, and privacy work remain planned, not implemented.
 
 ## Validation
 - Pre-change protocol and task records inspected.
@@ -50,6 +50,7 @@ Root task is active. Backlog ownership is aligned and the configured `tasks.md` 
 - Added explicit `pending-parent-integration` handoff status when a child commits in an isolated worktree, preventing child commit creation from being mistaken for parent integration.
 - Added bounded supervisor phase timing for worktree setup, log setup, child spawn, child wait, and total runtime to diagnose delegation delay without capturing model content.
 - Added parent-side `--jobs` integration classification by checking whether the child commit is an ancestor of the current `HEAD`; jobs now report `integrated` or `pending-parent-integration`.
+- Ran a no-provider diagnostic stub: worktree 0ms, log setup 0ms, child spawn 1ms, child wait 204ms, total 207ms. This confirms the launcher overhead is bounded; real delay remains model/session/delegation work and requires future detailed capture.
 - Added focused launcher dry-run tests for unauthorized and authorized component-builder callers.
 - `bun test components/control-plane/control-plane.test.ts skills/as-is/scripts/orient.test.ts components/observability/tracer.test.ts` passed: 6 tests.
 - `bun build --no-bundle --target bun` passed for orient.ts and control-plane.ts.
@@ -69,4 +70,4 @@ None. Expert validation passed. Child commits were integrated as scoped commits;
 Resume from the current task record and the scoped diff if commit preparation is interrupted. Child durable summaries are already committed.
 
 ## Next Action
-Validate the phase timing and `--jobs` integration classification, then close this prerequisite task. Delegate observability only through the as-is agent after the delay and handoff evidence are reviewed.
+Use the measured evidence to authorize the first bounded observability task through the as-is agent; preserve the 207ms stub baseline and require model/session/tool timing in the observability task.
