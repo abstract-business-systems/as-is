@@ -2,6 +2,11 @@
 as-is-version: 2
 
 config:
+  records:
+    filenames:
+      backlog: backlog.md
+      changelog: changelog.md
+      task: task.md
   tasks:
     unitBudget:
       wallClockSeconds: 300
@@ -51,7 +56,10 @@ write their concise completed summary to `changelog.md`.
 
 ## Design
 
-The repository is composed of filesystem components. A directory with
+The repository is composed of filesystem components. Record filenames are
+configured centrally under `config.records.filenames`; the defaults are
+`backlog.md`, `changelog.md`, and `task.md` and components may not silently
+invent alternate names. A directory with
 `as-is.md`, including descendants without their own `as-is.md`, forms one
 component boundary. Components link to relevant files and folders from their
 `as-is.md`; a change crossing a child component boundary is delegated to a new

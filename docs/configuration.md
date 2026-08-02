@@ -26,6 +26,11 @@ The root front matter contains repository configuration under `config`:
 ---
 as-is-version: 2
 config:
+  records:
+    filenames:
+      backlog: backlog.md
+      changelog: changelog.md
+      task: task.md
   tasks: {}
   scheduling: {}
   notifications: {}
@@ -43,6 +48,7 @@ source for the values; this document describes their meaning only.
 
 ## Configuration Areas
 
+- `config.records.filenames` — configurable component record filenames; defaults are `backlog.md`, `changelog.md`, and `task.md`.
 - `config.tasks` — default task-unit budgets and task execution limits.
 - `config.scheduling` — wake, check-in, concurrency, retry, and recovery policy.
 - `config.notifications` — material event notification behavior.

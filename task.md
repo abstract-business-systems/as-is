@@ -1,9 +1,9 @@
 ---
 as-is-version: 2
 task:
-  status: completed
+  status: active
   worker: component-builder
-  updated: 2026-08-04T00:15:00Z
+  updated: 2026-08-04T01:00:00Z
 constraints:
   cost:
     currency: USD
@@ -31,25 +31,22 @@ acceptance:
 # Task
 
 ## Requirement
-Update backlog policy so completed items are removed, correct the managing-backlog skill's prior naming-related guidance, remove completed entries from every existing backlog while preserving open/deferred items, and inspect/explain `skills/as-is/scripts/orient.ts` responsibility and placement.
+Implement the approved backlog/context alignment: make `backlog.md`, `changelog.md`, and `task.md` filenames configurable; classify root backlog items under owning component backlogs; correct deterministic-skills semantics and classify it under skills; move validator and tracing items to their component backlogs; preserve open/deferred items and completed-item removal policy; and provide an approach for remaining root backlog items without implementing them.
 
 ## Plan
-Delegate bounded edits at the `skills/managing-backlog/` and `components/as-is-setup/` component boundaries. Update root backlog policy and root skills guidance, inspect orient implementation/tests, validate all backlog files and focused checks, obtain read-only expert validation, then commit the scoped root handoff.
+Update root configuration/protocol-facing documentation and root backlog classification, delegate bounded child backlog updates to the owning component builders, validate backlog ownership and filename configuration, obtain read-only expert validation, then commit the scoped root handoff and integrate child commits.
 
 ## Progress
-Child component handoffs completed: `skills/managing-backlog` corrected its schema and removed the misplaced naming guidance; `components/as-is-setup` removed its completed backlog row and retained open items. Root backlog policy and completed rows were integrated. `skills/as-is/scripts/orient.ts` was inspected with its focused test.
-
-`orient.ts` produces a compact, read-only orientation snapshot: it obtains task status from `ControlPlane`, reads the root task's next action and changelog, scans design/spec Markdown for open decisions, and reports Git working-tree state. It belongs under `skills/as-is` because it is the deterministic script implementing the `as-is` skill's entrypoint/orientation procedure, while control-plane remains the source of task-state semantics.
+Root task is active. Child backlog reclassification is integrated; root edits preserve remaining items as open/deferred and do not implement them.
 
 ## Validation
-- `bun test skills/as-is/scripts/orient.test.ts`: passed (1 test, 0 failures).
-- `git diff --check`: passed.
-- `find . -name backlog.md -print -exec grep -n 'completed' {} \\;`: only policy/prose mentions; no completed-status backlog rows.
-- Final read-only expert validation: PASS. Confirmed both backlog files retain only open planning rows, managing-backlog schema/removal policy is corrected with no Naming Guidance section, and the orient explanation matches implementation and test.
-- Host-reported delegation cost and wall-clock: unavailable; child records retain source-unavailable accounting.
+- Pre-change protocol and task records inspected.
+- Read-only expert validation initially failed on deterministic-skills wording and contradictory stale task handoff; both corrected. A final expert pass is required.
+- Focused structural checks and `git diff --check` are pending.
+- Host-reported delegation cost and wall-clock: child launcher reported unavailable cost; wall-clock will be recorded from job output.
 
 ## Result
-Completed the backlog policy and cleanup task. Durable summaries are recorded in `skills/managing-backlog/changelog.md` and `components/as-is-setup/changelog.md`; completed planning rows were removed while open items remain. The orient responsibility and placement are documented in this handoff.
+In progress: durable component backlogs and root planning index are aligned without implementing remaining backlog items.
 
 ## Blockers And Escalations
 None. Expert validation passed. Child commits were integrated as scoped commits; the root policy change remains in this task's handoff.
@@ -58,4 +55,4 @@ None. Expert validation passed. Child commits were integrated as scoped commits;
 Resume from the current task record and the scoped diff if commit preparation is interrupted. Child durable summaries are already committed.
 
 ## Next Action
-Mark this record completed and commit only the root backlog policy, task record, and no unrelated files.
+Run final structural validation and expert review, record evidence and integration SHAs, then commit the scoped handoff while retaining this transient task record as active per the user request.
