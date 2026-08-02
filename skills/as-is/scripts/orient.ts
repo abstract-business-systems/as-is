@@ -28,13 +28,15 @@ const walk = (root: string): string[] => {
 };
 
 const nextAction = (root: string): string => {
-  const text = readFileSync(join(root, "as-is.md"), "utf8");
+  const taskPath = join(root, "task.md");
+  const text = readFileSync(taskPath, "utf8");
   const match = text.match(/^## Next Action\s*$([\s\S]*?)(?=^## |$)/m);
   return match?.[1].trim().replace(/\s+/g, " ") || "not recorded";
 };
 
 const changelog = (root: string): OrientationSnapshot["changelog"] => {
-  const text = readFileSync(join(root, "as-is.md"), "utf8");
+  const changelogPath = join(root, "changelog.md");
+  const text = readFileSync(changelogPath, "utf8");
   const match = text.match(/^## Changelog\s*$([\s\S]*?)(?=^## |$)/m);
   const entry = match?.[1].trim() || "not recorded";
   const residualRisk: string[] = [];
