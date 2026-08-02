@@ -67,6 +67,8 @@ procedures in the catalog.
 - `verification-discipline/SKILL.md` — validation selection procedure.
 - `managing-backlog/SKILL.md` — backlog capture and prioritization.
 - `implementing-component-tasks/SKILL.md` — transient task implementation and lifecycle.
+- `backlog.md` — skills-component planning index for reusable skill work.
+- `changelog.md` — concise completed handoff history for this component.
 
 ## Next Action
 Keep catalog entries concise and link detailed procedures from their owning
