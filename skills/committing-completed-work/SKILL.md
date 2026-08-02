@@ -32,7 +32,11 @@ unrelated, or unvalidated work.
    with `git diff --cached --check`.
 5. Set the task to `completed`, write its concise summary to `changelog.md`,
    remove `tasks.md`, stage only the identified durable handoff, and create one
-   concise commit matching established repository style.
+   concise commit matching established repository style. When consolidating
+   related local handoff commits, preserve their full source SHAs in the task
+   evidence or commit message and record the resulting integration SHA in the
+   durable parent task/changelog evidence after the commit exists; never attempt
+   self-referential inclusion of the new commit's own SHA.
 6. Reinspect `git status` and report the commit identifier, staged scope,
    validation evidence, and any unrelated work left untouched.
 
@@ -45,6 +49,9 @@ unrelated, or unvalidated work.
   record the failure, without discarding work.
 - Do not add a commit hash to the task record after the commit solely to record
   it; the Git history is authoritative and avoids a follow-up dirty record.
+  For parent integration, the parent records the resulting SHA after creation
+  using its established integration evidence convention, rather than requiring
+  the child commit to contain its own SHA.
 
 ## Quality Checks
 

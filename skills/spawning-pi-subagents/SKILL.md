@@ -262,23 +262,11 @@ repository's existing agent definitions as the source of role prompts.
 
 ## Checks
 
-Run the launcher syntax check and dry-run before any authorized model call:
-
-```bash
-bun build --no-bundle --target bun \
-  --outfile /tmp/as-is-spawn-pi-subagent.js \
-  skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts
-bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
-  --agent .agents/agents/as-is/agent.md \
-  --task "Inspect the current root task record." \
-  --cwd "$PWD" \
-  --dry-run
-```
-
-Confirm that the dry-run names the expected agent file, repository directory,
-Pi executable, system-prompt handoff, and task without contacting a provider.
-When budgets are supplied, confirm the dry-run `budget` object records the
-forwarded `wall-clock-seconds` and `cost-usd` values.
+The launcher supports a syntax/build check and an optional dry-run inspection
+that does not contact a provider. When using `--dry-run`, confirm that it names
+the expected agent file, repository directory, Pi executable, system-prompt
+handoff, and task. When budgets are supplied, confirm the dry-run `budget`
+object records the forwarded `wall-clock-seconds` and `cost-usd` values.
 
 A smallest deterministic enforcement check that does not contact a provider:
 point `--pi` at a stub that sleeps longer than the budget and assert the

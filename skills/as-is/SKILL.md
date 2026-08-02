@@ -36,8 +36,8 @@ Use `--approve` only when the user has authorized this project-local run. The
 generic launcher prefers a local `node_modules/.bin/pi` and otherwise uses the
 pinned Pi package through Bun; it does not use an arbitrary shared `pi` from
 `PATH`. Set `PI_BIN` or `PI_PACKAGE` when an explicitly approved local source is
-required. Run the generic launcher with `--dry-run` before a new host setup or
-model call.
+required. The generic launcher also supports `--dry-run` for inspecting a
+resolved command without starting a model call.
 
 Pass the user's request and any concise direction needed for this turn as the
 task text. Do not place credentials, tokens, private session data, or an
@@ -107,21 +107,7 @@ host state and must not become a second task tree or completion source.
 
 ## Checks
 
-Before starting a real root process:
-
-```bash
-bun build --no-bundle --target bun \
-  --outfile /tmp/as-is-spawn-pi-subagent.js \
-  skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts
-bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
-  --agent .agents/agents/as-is/agent.md \
-  --task "Inspect the current root tasks record without changing files." \
-  --cwd "$PWD" \
-  --skill skills/as-is \
-  --tools read,grep,find,ls,bash \
-  --dry-run
-```
-
-Confirm the resolved agent is `.agents/agents/as-is/agent.md`, the child working
-directory is the repository root, the agent file's skill policy is forwarded,
-and no provider was contacted by the dry-run.
+The generic launcher provides syntax/build checks and an optional `--dry-run`
+inspection; use those when a host or caller needs to inspect a launch without
+starting Pi. The separate dummy/fixture rehearsal in the generic spawning skill
+remains the safety check for bounded process behavior.

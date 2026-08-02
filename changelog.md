@@ -1,4 +1,8 @@
+- 2026-07-29: Removed mandatory dry-run/preflight checks from `skills/as-is/SKILL.md` and `skills/spawning-pi-subagents/SKILL.md`; retained optional `--dry-run` guidance and the separate provider-free stub/dummy budget-enforcement rehearsal. Build, reference, and formatting checks passed; focused launcher tests had documented host/worktree-sensitive failures. Read-only expert validation passed and judged the scoped change safe to commit.
+
 # Changelog
+
+- 2026-08-06: Recovered the parent-integration handoff by consolidating source commits `91facda`, `7690a25`, and `3284ab0` atop preserved `e5beb75`; clarified that source SHAs belong in handoff evidence and the resulting integration SHA is recorded only after commit creation, avoiding self-reference. Focused launcher tests passed (15); ancestry and clean-worktree evidence recorded in the `as-is` Git note for the resulting handoff commit.
 
 - 2026-08-06: Closed `parent-integration-handoff` after validating the delegated handoff flow end to end: child task records and validation evidence are required; child commit and base SHA ancestry are checked; integration status distinguishes integrated, pending-parent-integration, and not-committed; related work is consolidated into a scoped parent commit; unrelated changes remain unstaged; and failed or incomplete work remains recoverable. Trace output remains supplementary and does not replace task records, logs, or durable Git evidence.
 
