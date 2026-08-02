@@ -41,12 +41,13 @@ Root task is active. Child backlog reclassification is integrated; root edits pr
 
 ## Validation
 - Pre-change protocol and task records inspected.
-- Read-only expert validation initially failed on deterministic-skills wording and contradictory stale task handoff; both corrected. A final expert pass is required.
-- Focused structural checks and `git diff --check` are pending.
-- Host-reported delegation cost and wall-clock: child launcher reported unavailable cost; wall-clock will be recorded from job output.
+- Read-only expert validation initially failed on deterministic-skills wording and contradictory stale task handoff; both corrected.
+- Final read-only expert validation passed against committed HEAD `f513a5939cc3af002b1e3a0194bff180da8e7b76`.
+- `git diff --check` passed; focused orient and observability tests passed (1 and 2 tests respectively).
+- Host-reported child cost unavailable; child wall-clock was observed by launcher but no cost estimate is claimed.
 
 ## Result
-In progress: durable component backlogs and root planning index are aligned without implementing remaining backlog items.
+Completed implementation and scoped commit: durable component backlogs and root planning index are aligned without implementing remaining backlog items. The transient record is intentionally retained active per the user request.
 
 ## Blockers And Escalations
 None. Expert validation passed. Child commits were integrated as scoped commits; the root policy change remains in this task's handoff.
@@ -55,4 +56,4 @@ None. Expert validation passed. Child commits were integrated as scoped commits;
 Resume from the current task record and the scoped diff if commit preparation is interrupted. Child durable summaries are already committed.
 
 ## Next Action
-Run final structural validation and expert review, record evidence and integration SHAs, then commit the scoped handoff while retaining this transient task record as active per the user request.
+Handoff is committed at `f513a5939cc3af002b1e3a0194bff180da8e7b76`; retain this active transient task record as requested. No remaining backlog item is implemented by this task.
