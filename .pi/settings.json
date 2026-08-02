@@ -1,3 +1,14 @@
 {
-  "skills": ["../skills"]
+  "skills": [
+    "../skills/as-is",
+    "../skills/committing-completed-work",
+    "../skills/context-building",
+    "../skills/implementing-component-tasks",
+    "../skills/maintaining-components",
+    "../skills/managing-backlog",
+    "../skills/naming-software-concepts",
+    "../skills/spawning-pi-subagents",
+    "../skills/structuring-content",
+    "../skills/verification-discipline"
+  ]
 }

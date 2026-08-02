@@ -43,6 +43,23 @@ Pass the user's request and any concise direction needed for this turn as the
 task text. Do not place credentials, tokens, private session data, or an
 unbounded copy of unrelated repository history in the argument.
 
+## Agent Skill Forwarding
+
+The agent file is the authority for the child agent's explicit skill set. Its
+front matter may define `skills` as a list of paths; those paths are passed to
+Pi with `--skill`, together with any paths supplied directly to the launcher.
+When the agent file does not define `skills`, the launcher does not construct an
+implicit allowlist. Pi therefore receives its normal CLI/project/global skill
+discovery, plus any explicitly supplied `--skill` paths. This preserves the
+host's available skills by default while allowing an agent contract to narrow
+its own capability surface deliberately.
+
+The project settings use explicit repository skill directories rather than
+`../skills` so the normal project discovery is limited to actual `SKILL.md`
+components; the top-level catalog files under `skills/` are not skills. This is
+independent of agent-file forwarding: an agent with no `skills` field still
+inherits the effective CLI/project/global discovery set.
+
 ## Root-Agent Contract
 
 The started process must:
@@ -106,5 +123,5 @@ bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
 ```
 
 Confirm the resolved agent is `.agents/agents/as-is/agent.md`, the child working
-directory is the repository root, the two repository skills are loaded, and no
-provider was contacted by the dry-run.
+directory is the repository root, the agent file's skill policy is forwarded,
+and no provider was contacted by the dry-run.

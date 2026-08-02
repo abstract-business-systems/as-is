@@ -35,6 +35,7 @@ type AgentDefinition = {
   model?: string;
   tools?: string;
   name?: string;
+  skills?: string[];
 };
 
 type PiInvocation = {
@@ -96,8 +97,6 @@ const recordComponentTrace = async (cwd: string, event: Record<string, unknown>)
     attributes: Object.fromEntries(Object.entries(event).filter(([key]) => !["name", "traceId", "spanId"].includes(key))) as Record<string, string | number | boolean | undefined>,
   }, cwd);
 };
-
-const skillDirectory = resolve(import.meta.dir, "..");
 
 const usage = `Usage:
   bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts [options]
@@ -264,10 +263,30 @@ const parseFrontMatter = (raw: string, filePath: string): AgentDefinition => {
   const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
   if (!match) throw new Error(`Agent file has no front matter: ${filePath}`);
 
+  const frontMatterLines = match[1].split(/\r?\n/);
   const values = new Map<string, string>();
-  for (const line of match[1].split(/\r?\n/)) {
+  const skills: string[] = [];
+  for (let index = 0; index < frontMatterLines.length; index += 1) {
+    const line = frontMatterLines[index];
     const field = line.match(/^([a-zA-Z][a-zA-Z-]*):\s*(.*)$/);
-    if (field) values.set(field[1], field[2].trim());
+    if (!field) continue;
+    values.set(field[1], field[2].trim());
+    if (field[1] !== "skills") continue;
+    const inline = field[2].trim();
+    if (inline.startsWith("[") && inline.endsWith("]")) {
+      for (const value of inline.slice(1, -1).split(",")) {
+        const skill = value.trim().replace(/^['\"]|['\"]$/g, "");
+        if (skill) skills.push(skill);
+      }
+      continue;
+    }
+    for (let child = index + 1; child < frontMatterLines.length; child += 1) {
+      const item = frontMatterLines[child].match(/^\s+-\s+(.+)$/);
+      if (!item) break;
+      const skill = item[1].trim().replace(/^['\"]|['\"]$/g, "");
+      if (skill) skills.push(skill);
+      index = child;
+    }
   }
 
   const body = match[2].trim();
@@ -278,6 +297,7 @@ const parseFrontMatter = (raw: string, filePath: string): AgentDefinition => {
     model: values.get("model"),
     tools: values.get("tools"),
     name: values.get("name"),
+    skills: skills.length > 0 ? skills : undefined,
   };
 };
 
@@ -761,10 +781,17 @@ const main = async() => {
   const model = resolved.model;
   const provider = resolved.provider;
   const tools = options.tools ?? definition.tools;
-  const skillPaths = uniquePaths([
-    skillDirectory,
-    ...options.skills.map((skill) => resolveFromCwd(skill, cwd)),
-  ]);
+  // An agent file may narrow the skill set explicitly. With no `skills` field,
+  // preserve the CLI's normal discovery and pass it through by not adding an
+  // explicit skill allowlist. Explicit launcher skills remain additive.
+  const skillPaths = definition.skills
+    ? uniquePaths([
+      ...definition.skills.map((skill) => resolveFromCwd(skill, cwd)),
+      ...options.skills.map((skill) => resolveFromCwd(skill, cwd)),
+    ])
+    : options.skills.length > 0
+      ? uniquePaths(options.skills.map((skill) => resolveFromCwd(skill, cwd)))
+      : [];
   const piInvocation = resolvePi(options.pi, cwd);
   const baseArgs = ["--mode", "json", "--print"];
   if (options.noSession) baseArgs.push("--no-session");
@@ -773,6 +800,7 @@ const main = async() => {
   if (model) baseArgs.push("--model", model);
   if (tools) baseArgs.push("--tools", tools);
   if (options.noTools) baseArgs.push("--no-tools");
+  if (definition.skills) baseArgs.push("--no-skills");
   if (options.approve) baseArgs.push("--approve");
   if (options.noApprove) baseArgs.push("--no-approve");
   for (const skillPath of skillPaths) baseArgs.push("--skill", skillPath);
