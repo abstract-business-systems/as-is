@@ -115,7 +115,7 @@ bun build --no-bundle --target bun \
   skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts
 bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
   --agent .agents/agents/as-is/agent.md \
-  --task "Inspect the current root task record without changing files." \
+  --task "Inspect the current root tasks record without changing files." \
   --cwd "$PWD" \
   --skill skills/as-is \
   --tools read,grep,find,ls,bash \

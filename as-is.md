@@ -6,7 +6,7 @@ config:
     filenames:
       backlog: backlog.md
       changelog: changelog.md
-      task: task.md
+      task: tasks.md
   tasks:
     unitBudget:
       wallClockSeconds: 300
@@ -51,14 +51,14 @@ config:
 
 Describe the repository-root component: its purpose, design, boundaries, and
 links to relevant project artifacts. The root `as-is.md` is durable component
-context, not a transient task record. Root changes use a transient `task.md` and
+context, not a transient task record. Root changes use a transient `tasks.md` and
 write their concise completed summary to `changelog.md`.
 
 ## Design
 
 The repository is composed of filesystem components. Record filenames are
 configured centrally under `config.records.filenames`; the defaults are
-`backlog.md`, `changelog.md`, and `task.md` and components may not silently
+`backlog.md`, `changelog.md`, and `tasks.md` and components may not silently
 invent alternate names. A directory with
 `as-is.md`, including descendants without their own `as-is.md`, forms one
 component boundary. Components link to relevant files and folders from their

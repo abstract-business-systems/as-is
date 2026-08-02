@@ -11,7 +11,7 @@ project configuration values. The active values belong in the root `as-is.md`.
 | Bundle | Installed as-is distribution | Agents, skills, references, schemas, extensions, and host adapters. |
 | Project | Repository root `as-is.md` | Project configuration and durable root component context. |
 | Component | Component `as-is.md` | Durable component purpose, design, links, and changelog. |
-| Task | Component `task.md` | Transient active task state. |
+| Task | Component configured task-record filename (default `tasks.md`) | Transient active task state. |
 | Runtime | Private user or temporary state | Resolved runtime metadata, handles, logs, and disposable artifacts. |
 
 Runtime metadata is subordinate to repository records. It must not become a
@@ -30,7 +30,7 @@ config:
     filenames:
       backlog: backlog.md
       changelog: changelog.md
-      task: task.md
+      task: tasks.md
   tasks: {}
   scheduling: {}
   notifications: {}
@@ -48,7 +48,7 @@ source for the values; this document describes their meaning only.
 
 ## Configuration Areas
 
-- `config.records.filenames` — configurable component record filenames; defaults are `backlog.md`, `changelog.md`, and `task.md`.
+- `config.records.filenames` — configurable component record filenames; defaults are `backlog.md`, `changelog.md`, and `tasks.md`.
 - `config.tasks` — default task-unit budgets and task execution limits.
 - `config.scheduling` — wake, check-in, concurrency, retry, and recovery policy.
 - `config.notifications` — material event notification behavior.

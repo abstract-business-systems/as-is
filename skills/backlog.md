@@ -1,7 +1,8 @@
 # Skills Backlog
 
 This is the planning index for the `skills/` component, not task authority.
-Active work belongs to the owning component `task.md`; completed items are
+Active work belongs to the owning component's configured task record (default
+`tasks.md`); completed items are
 removed after their concise summary is recorded in the owning `changelog.md`.
 
 ## Items

@@ -2,7 +2,7 @@
 
 This is a planning index for bounded work owned by the `as-is-setup`
 component. It is not active task authority; selected work gets a transient
-`task.md` beside `as-is.md` and follows the component-task record protocol.
+the configured task record (default `tasks.md`) beside `as-is.md` and follows the component-task record protocol.
 Completed work is removed from this index after its concise summary is recorded
 in the component `changelog.md`; only open or deferred planning items remain.
 
@@ -15,7 +15,7 @@ in the component `changelog.md`; only open or deferred planning items remain.
    If no item fits, add a bounded item here rather than expanding an existing one.
    Remove completed items after recording their durable summary in `changelog.md`.
 4. Record the selected item, exact artifact boundary, acceptance conditions,
-   and any external dependency in `task.md` before editing.
+   and any external dependency in the configured task record before editing.
 5. Keep the canonical setup skill and implementation in this component. Do
    not recreate the removed `skills/setting-up-as-is` path or maintain a second
    skill implementation.

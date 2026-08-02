@@ -28,7 +28,7 @@ const walk = (root: string): string[] => {
 };
 
 const nextAction = (root: string): string => {
-  const taskPath = join(root, "task.md");
+  const taskPath = join(root, "tasks.md");
   const text = readFileSync(taskPath, "utf8");
   const match = text.match(/^## Next Action\s*$([\s\S]*?)(?=^## |$)/m);
   return match?.[1].trim().replace(/\s+/g, " ") || "not recorded";

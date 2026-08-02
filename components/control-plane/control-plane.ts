@@ -427,7 +427,7 @@ function walkRecords(root: string): string[] {
     for (const entry of entries) {
       const path = join(directory, entry.name);
       if (entry.isDirectory()) visit(path);
-      else if (entry.name === "task.md" || entry.name === "as-is.md") found.push(path);
+      else if (entry.name === "tasks.md" || entry.name === "task.md" || entry.name === "as-is.md") found.push(path);
     }
   }
   visit(root);
@@ -453,7 +453,11 @@ export class ControlPlane {
   constructor(root: string, options: { clock?: Clock } = {}) {
     this.root = resolve(root);
     const durableRoot = join(this.root, "as-is.md");
-    this.rootRecordPath = existsSync(join(this.root, "task.md")) ? join(this.root, "task.md") : durableRoot;
+    this.rootRecordPath = existsSync(join(this.root, "tasks.md"))
+      ? join(this.root, "tasks.md")
+      : existsSync(join(this.root, "task.md"))
+        ? join(this.root, "task.md")
+        : durableRoot;
     this.clock = options.clock ?? (() => new Date());
     if (!existsSync(durableRoot)) throw new ControlPlaneError(`root durable record does not exist: ${durableRoot}`);
     const rootRecord = loadRecord(durableRoot);
@@ -470,7 +474,7 @@ export class ControlPlane {
     for (const path of walkRecords(this.root)) {
       try {
         const record = loadRecord(path);
-        if (isTaskRecord(record) && (path === this.rootRecordPath || path.endsWith("/task.md") || path.endsWith("\\task.md") || path.endsWith("/as-is.md") || path.endsWith("\\as-is.md"))) records.push(record);
+        if (isTaskRecord(record) && (path === this.rootRecordPath || path.endsWith("/tasks.md") || path.endsWith("\\tasks.md") || path.endsWith("/task.md") || path.endsWith("\\task.md") || path.endsWith("/as-is.md") || path.endsWith("\\as-is.md"))) records.push(record);
       } catch (error) {
         if (path === this.rootRecordPath) throw error;
         let raw = "";

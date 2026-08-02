@@ -5,8 +5,10 @@
 This permanent specification defines the durable `as-is.md` component record
 and the transient task record used to change a component. An `as-is.md` describes
 the component's purpose, design, boundary, and related artifacts. A component-level
-`task.md` records one active bounded change and is removed by task management
-after completion; its concise summary is retained in `changelog.md`.
+`tasks.md` records one active bounded change and is removed by task management
+after completion; its concise summary is retained in `changelog.md`. The filename
+is configurable through `config.records.filenames.task`; `tasks.md` is the
+repository default.
 
 ## Placement And Hierarchy
 
@@ -16,7 +18,8 @@ files and folders. The directory containing `as-is.md`, together with descendant
 that do not contain their own `as-is.md`, is one component boundary. The directory
 path is authoritative for the component's scope and parent relationship.
 
-A component change is recorded in a transient `task.md` beside `as-is.md`. If
+A component change is recorded in a transient `tasks.md` beside `as-is.md` by
+default. If
 work must cross into a subcomponent with its own `as-is.md`, the component builder
 delegates a new component-builder task for that subcomponent rather than editing
 across the boundary.
@@ -32,7 +35,8 @@ without duplicating the extracted content.
 The root and component `as-is.md` files are durable component context. They
 describe purpose, design, boundaries, and links; they do not contain the current
 task's transient status, budget, plan, or recovery state. When work starts, task
-management creates `task.md` atomically in the target component directory. When the orchestrator delegates
+management creates the configured task-record filename atomically in the target
+component directory. When the orchestrator delegates
 work to a component directory that has no task record, it generates that
 component's `as-is.md` atomically from this protocol before launching the worker.
 It supplies the bounded requirement, effective constraints, cost allocation,
@@ -47,7 +51,8 @@ updates only the delegation information it is responsible for.
 
 ## Task Front Matter
 
-The transient `task.md` front matter is strict and machine-validatable:
+The transient configured task-record file (default `tasks.md`) front matter is
+strict and machine-validatable:
 
 ```yaml
 ---
@@ -163,7 +168,8 @@ acceptance:
 
 ## Historical Recovery And Retirement
 
-Current task authority remains in the root or component `task.md`. Historical
+Current task authority remains in the root or component configured task-record
+file (default `tasks.md`). Historical
 task recovery uses Git history plus the repository's concise history entries;
 it does not use a `task-archives/` directory, a second task tree, or a separate
 host-specific recovery path. Historical notes are succinct by default and use the canonical `Changelog`
@@ -198,7 +204,7 @@ concise `Changelog`; it does not contain transient task state.
 
 ## Transient Task Body
 
-The transient `task.md` body is human-readable current task context and contains these sections:
+The transient configured task-record body is human-readable current task context and contains these sections:
 
 ```md
 # Task
@@ -240,7 +246,9 @@ this closure before changing a record to `completed`.
 
 After a task qualifies for completion, invoke task management, then
 `committing-completed-work`. The procedure stages only the completed task's
-declared scoped changes and its task record, commits the durable handoff, and
+declared scoped changes and its task record, cleans up and removes the configured
+transient task file after all tasks in the record qualify for completion, then
+commits the durable handoff, and
 leaves unrelated work untouched. A failed commit leaves the task non-completed
 and records the failure for recovery.
 

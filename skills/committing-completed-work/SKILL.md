@@ -11,7 +11,7 @@ unrelated, or unvalidated work.
 
 ## Preconditions
 
-- The transient `task.md` is eligible for `completed` under the component
+- The transient `tasks.md` is eligible for `completed` under the component
   task-record protocol: its acceptance conditions have evidence and every
   descendant task is terminal.
 - The result accounts for each failed or cancelled descendant.
@@ -23,7 +23,7 @@ unrelated, or unvalidated work.
 1. Inspect `git status`, the relevant unstaged diff, the staged diff, and recent
    commit-message style.
 2. Identify only the completed component's declared changed artifacts, its
-   durable `as-is.md`, and `changelog.md`. Do not stage transient `task.md`. For
+   durable `as-is.md`, and `changelog.md`. Do not stage transient `tasks.md`. For
    a parent integration task, include only parent-scoped integration artifacts.
 3. Leave pre-existing, unrelated, and out-of-boundary changes unstaged. If task
    changes cannot be separated safely, leave the record non-completed, record
@@ -31,7 +31,7 @@ unrelated, or unvalidated work.
 4. Run the smallest relevant validation, then verify the proposed staged patch
    with `git diff --cached --check`.
 5. Set the task to `completed`, write its concise summary to `changelog.md`,
-   remove `task.md`, stage only the identified durable handoff, and create one
+   remove `tasks.md`, stage only the identified durable handoff, and create one
    concise commit matching established repository style.
 6. Reinspect `git status` and report the commit identifier, staged scope,
    validation evidence, and any unrelated work left untouched.

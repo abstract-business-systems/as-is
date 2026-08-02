@@ -33,7 +33,8 @@ Maintain the repository backlog as a planning index, not as task authority.
 
 The backlog does not contain active status, worker checkpoints, approvals,
 validation evidence, or runtime state. Those belong to the component's transient
-`task.md` while work is active and its `changelog.md` after completion. When a
+the configured task record (default `tasks.md`) while work is active and its
+`changelog.md` after completion. When a
 backlog item is completed, remove it from the planning index; retain its concise
 summary only in the owning component's `changelog.md`.
 
