@@ -23,7 +23,7 @@ Remaining root-owned planning items:
 
 | ID | Priority | Component | Status | Outcome | Approach |
 | --- | --- | --- | --- | --- | --- |
-| parent-integration-handoff | High | root/as-is flow | open | Define and validate an explicit parent integration/handoff step for delegated component commits, including scoped commit attribution and durable child-record evidence before parent completion. | Map launcher/task protocol; require child record and validation evidence; consolidate related child worktree commits into one scoped integration commit where appropriate; verify source SHAs, resulting parent SHA, unrelated-work preservation, and recovery on failure. |
+
 
 ## Prioritization
 

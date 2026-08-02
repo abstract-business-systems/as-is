@@ -34,23 +34,11 @@ Historical committed context is recovered from Git history and concise
 history notes in the root or component records; do not restore or create
 `task-archives/` and do not treat historical snapshots as active task records.
 
-Advance the task record to `active`, implement the bounded requirement, and run
-the smallest relevant checks using task-specific tools. Before any child launch,
-verify that the child record revision has no active attempt, subtract local
-spent/reserve from the available cost and wall-clock allocation, and record any
-excess requirement as a durable blocker or approval request. Delegate bounded
-child work through the spawning-pi-subagents launcher; forward time and money
-constraints with `--budget-wall-clock-seconds` and `--budget-cost-usd`. The
+Advance the task record to `active`, formulate the implementation plan, and obtain a read-only expert plan review before making implementation edits. The plan review must assess scope, dependencies, acceptance checks, and recovery; revise the plan or record a blocker when it fails. During implementation, consult the read-only expert whenever a material design, scope, dependency, or recovery uncertainty arises; these are serial validation/advice calls, not parallel implementation children, and may be repeated when task budgets and host authority permit. After implementation and checks pass, obtain a fresh read-only expert validation of the actual diff and executable evidence before committing; the final report must explicitly state whether the implementation is safe to commit. Before any child launch, verify that the child record revision has no active attempt, subtract local spent/reserve from the available cost and wall-clock allocation, and record any excess requirement as a durable blocker or approval request. Delegate bounded work through the spawning-pi-subagents launcher; forward time and money constraints with `--budget-wall-clock-seconds` and `--budget-cost-usd`. The
 launcher enforces the wall-clock hard stop and forwards the cost limit to the
 child for self-limiting; a `124` exit with the `as-is budget-stopped` stderr
 marker means the budget stopped the child and must be accounted for in the
-record. Use only the configured worker target named by each child record; never
-silently substitute `general` or `explore`, and never launch a subagent as a
-top-level CLI agent. If a target is unavailable, a task event names another
-role, or the return cannot be attributed to the configured worker, record a
-durable blocker and stop without retrying or substituting. Schedule siblings
-concurrently only after their component directories, explicit dependencies, and
-allocations are independent.
+record. Use only the configured worker target named by each implementation child record; never silently substitute `general` or `explore`, and never launch a subagent as a top-level CLI agent. Read-only expert plan reviews, consultations, and final validations are the required validation path for this role: run them serially, attribute each return to `expert`, and preserve concise evidence in the task record. They do not consume an implementation-child slot merely because they are repeated sequential calls, but each call consumes its own forwarded wall-clock/cost budget and must obey launcher authority. If host admission treats a requested validation as unavailable, record that blocker rather than skipping required validation. If a target is unavailable, a task event names another role, or the return cannot be attributed to the configured worker or expert, record a durable blocker and stop without retrying or substituting. Schedule implementation siblings concurrently only after their component directories, explicit dependencies, and allocations are independent.
 
 Before handoff, update your component record with validation evidence, actual
 host-reported cost when available, host-observed wall-clock use when available,

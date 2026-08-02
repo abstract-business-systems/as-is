@@ -373,6 +373,66 @@ test("--jobs reports a finished job as completed and joins its task-record statu
 // (here `git restore` of a tracked file) must NOT affect the caller's working
 // tree, because the child runs in its own pruned worktree. This directly tests
 // the incident where a subagent's `git restore` destroyed uncommitted work.
+test("detached delegation emits bounded lifecycle spans for success and budget-stop", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "as-is-delegation-trace-test-"));
+  try {
+    const traceFile = join(dir, "trace.jsonl");
+    const registry = join(dir, "jobs.jsonl");
+    const successStub = writeSleepStub(dir, 0);
+    const env = { ...process.env, AS_IS_JOBS_REGISTRY: registry, AS_IS_COMPONENT_BUILD_TRACER: "file", AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY: traceFile };
+    const success = await runLauncher([
+      "--agent", AGENT, "--task", "Lifecycle success.", "--cwd", process.cwd(), "--pi", successStub,
+      "--detach", "--no-worktree", "--caller", "as-is", "--parent-job-id", "parent-opaque",
+    ], env);
+    expect(success.exitCode).toBe(0);
+    const successHandle = JSON.parse(success.stdout);
+    expect(await pidGone(successHandle.pid, 5000)).toBe(true);
+    const failureStub = join(dir, "pi-failure-stub.sh");
+    writeFileSync(failureStub, "#!/usr/bin/env bash\nexit 7\n", { mode: 0o755 });
+    const failure = await runLauncher([
+      "--agent", AGENT, "--task", "Lifecycle failure.", "--cwd", process.cwd(), "--pi", failureStub,
+      "--detach", "--no-worktree", "--caller", "as-is",
+    ], env);
+    const failureHandle = JSON.parse(failure.stdout);
+    expect(await pidGone(failureHandle.pid, 5000)).toBe(true);
+    const budgetStub = writeSleepStub(dir, 30);
+    const budget = await runLauncher([
+      "--agent", AGENT, "--task", "Lifecycle budget stop.", "--cwd", process.cwd(), "--pi", budgetStub,
+      "--detach", "--no-worktree", "--caller", "as-is", "--budget-wall-clock-seconds", "1",
+    ], env);
+    const budgetHandle = JSON.parse(budget.stdout);
+    expect(await pidGone(budgetHandle.pid, 9000)).toBe(true);
+    await new Promise((resolveDone) => setTimeout(resolveDone, 150));
+    const events = readFileSync(traceFile, "utf8").trim().split("\n").map((line) => JSON.parse(line));
+    const delegations = events.filter((event) => event.name === "delegation.lifecycle");
+    const workers = events.filter((event) => event.name === "worker.lifecycle");
+    expect(delegations).toHaveLength(3);
+    expect(workers).toHaveLength(3);
+    for (const worker of workers) {
+      const delegation = delegations.find((event) => event.spanId === worker.parentSpanId);
+      expect(delegation).toBeDefined();
+      expect(worker.traceId).toBe(delegation?.traceId);
+      expect(worker.attributes.workerRole).toBe("as-is");
+      expect(Object.keys(worker.attributes).sort()).toEqual(["outcome", "outcomeClass", "workerRole"]);
+    }
+    const successSpan = delegations.find((event) => event.attributes.outcomeClass === "success");
+    const failureSpan = delegations.find((event) => event.attributes.outcomeClass === "failure");
+    const stoppedSpan = delegations.find((event) => event.attributes.outcomeClass === "budget-stopped");
+    expect(successSpan?.attributes.parentJobId).toBe("parent-opaque");
+    expect(successSpan?.attributes.handoffClass).toBe("not-committed");
+    expect(failureSpan?.attributes.outcomeClass).toBe("failure");
+    expect(stoppedSpan?.attributes.outcomeClass).toBe("budget-stopped");
+    expect(workers.find((event) => event.attributes.outcomeClass === "success")?.attributes.outcome).toBe("success");
+    expect(workers.find((event) => event.attributes.outcomeClass === "failure")?.attributes.outcome).toBe("failure");
+    expect(workers.find((event) => event.attributes.outcomeClass === "budget-stopped")?.attributes.outcome).toBe("failure");
+    expect(successSpan?.traceId).toBeTruthy();
+    expect(successSpan?.parentSpanId).toBeTruthy();
+    expect(events.some((event) => event.name === "session.lifecycle")).toBe(true);
+    expect(events.some((event) => event.name === "session.lifecycle" && event.attributes.launcherMode === "detach")).toBe(true);
+    expect(events.every((event) => !JSON.stringify(event).includes("Lifecycle success") && !JSON.stringify(event).includes("Lifecycle failure") && !JSON.stringify(event).includes("Lifecycle budget"))).toBe(true);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+}, 15000);
+
 test("worktree isolation: a child git restore does not touch the caller's working tree", async () => {
   const dir = mkdtempSync(join(tmpdir(), "as-is-isolation-test-"));
   try {

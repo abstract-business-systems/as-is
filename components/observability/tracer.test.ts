@@ -5,6 +5,31 @@ import { join } from "node:path";
 import { emitTrace, otlpPayload, startSpan, type TraceEvent } from "./tracer";
 
 describe("universal local tracer", () => {
+  test("retains every declared payload class exactly in local-full mode", async () => {
+    const cwd = await mkdtemp(join(tmpdir(), "as-is-trace-raw-"));
+    const payloads = (["prompt", "response", "tool-argument", "tool-result", "stdout", "stderr", "exception", "secret", "personal"] as const).map(className => ({ class: className, content: `${className}-raw Bearer token alice@example.com` }));
+    await emitTrace({ name: "payloads", traceId: "t", spanId: "s", attributes: {}, rawPayloads: payloads }, cwd, { backend: "file", captureMode: "local-full" });
+    const text = await readFile(join(cwd, ".as-is", "tracing.jsonl"), "utf8");
+    for (const payload of payloads) expect(text).toContain(payload.content);
+  });
+
+  test("filters, redacts, and bounds only explicitly enabled export payloads", () => {
+    const event = { name: "export", traceId: "t", spanId: "s", attributes: {}, rawPayloads: (["prompt", "response", "tool-argument", "tool-result", "stdout", "stderr", "exception", "secret", "personal"] as const).map(className => ({ class: className, content: `${className}-raw Bearer token alice@example.com` })) };
+    const suppressed = JSON.stringify(otlpPayload(event));
+    expect(suppressed).not.toContain("prompt-raw");
+    const exported = JSON.stringify(otlpPayload(event, { captureMode: "export-bounded", exportRawPayloads: true, maxPayloadBytes: 12 }));
+    const exportedSpan = otlpPayload(event, { captureMode: "export-bounded", exportRawPayloads: true, maxPayloadBytes: 12 }).resourceSpans[0].scopeSpans[0].spans[0];
+    for (const className of ["prompt", "response", "tool-argument", "tool-result", "stdout", "stderr", "exception"]) {
+      expect(exported).toContain(`payload.${className}`);
+      const attribute = exportedSpan.attributes.find(({ key }) => key === `payload.${className}`);
+      expect(attribute && "stringValue" in attribute.value ? new TextEncoder().encode(attribute.value.stringValue).byteLength : 0).toBeLessThanOrEqual(12);
+    }
+    expect(exported).not.toContain("payload.secret");
+    expect(exported).not.toContain("alice@example.com");
+    expect(exported).not.toContain("Bearer token");
+    const unicode = otlpPayload({ ...event, rawPayloads: [{ class: "prompt", content: "€payload" }] }, { captureMode: "export-bounded", exportRawPayloads: true, maxPayloadBytes: 1 }).resourceSpans[0].scopeSpans[0].spans[0].attributes.find(({ key }) => key === "payload.prompt");
+    expect(unicode && "stringValue" in unicode.value ? new TextEncoder().encode(unicode.value.stringValue).byteLength : 0).toBeLessThanOrEqual(1);
+  });
   test("writes to the base as-is configured file for any runtime event", async () => {
     const cwd = await mkdtemp(join(tmpdir(), "as-is-trace-"));
     await writeFile(join(cwd, "as-is.md"), `config:\n  observability:\n    tracing:\n      backend: file\n      enabled: true\n      local-directory: .as-is/tracing.jsonl\n`);

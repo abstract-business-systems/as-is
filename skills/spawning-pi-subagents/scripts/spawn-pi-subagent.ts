@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { appendFile, mkdtemp, open, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, dirname, isAbsolute, join, resolve } from "node:path";
-import { emitTrace } from "../../../components/observability/tracer.ts";
+import { emitTrace, startSpan } from "../../../components/observability/tracer.ts";
 
 type Options = {
   agent?: string;
@@ -479,6 +479,11 @@ const removeWorktree = async (callerCwd: string, worktreePath: string): Promise<
 // child's process group.
 const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
   const startedMonotonic = Date.now();
+  const delegationSpan = startSpan("delegation.lifecycle", {
+    cwd: config.callerCwd,
+    traceId: process.env.AS_IS_TRACE_ID || undefined,
+    parentSpanId: process.env.AS_IS_TRACE_PARENT_SPAN_ID || undefined,
+  });
   const phaseTimings: Record<string, number> = {};
   const phaseStarted = (name: string): number => Date.now();
   const phaseEnded = (name: string, started: number): void => { phaseTimings[name] = Date.now() - started; };
@@ -532,6 +537,11 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
   });
 
   const spawnPhase = phaseStarted("child-spawn");
+  const workerSpan = startSpan("worker.lifecycle", {
+    cwd: config.callerCwd,
+    traceId: delegationSpan.traceId,
+    parentSpanId: delegationSpan.spanId,
+  });
   const child = spawn(config.command, config.args, {
     cwd: childCwd,
     env: childEnv,
@@ -583,6 +593,10 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
   });
 
   phaseEnded("child-wait", waitPhase);
+  await workerSpan.finish(budgetStopped || exitCode !== 0 ? "failure" : "success", {
+    workerRole: config.identity,
+    outcomeClass: budgetStopped ? "budget-stopped" : exitCode === 0 ? "success" : "failure",
+  });
   clearTimers();
   process.removeListener("SIGTERM", onTerm);
   process.removeListener("SIGINT", onInt);
@@ -622,6 +636,16 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     committed,
     commitSha: finalSha ?? undefined,
     wallClockSeconds,
+  });
+
+  await delegationSpan.finish(budgetStopped || exitCode !== 0 ? "failure" : "success", {
+    jobId: config.jobId,
+    parentJobId: config.parentJobId ?? undefined,
+    childJobId: config.jobId,
+    attemptClass: config.parentJobId ? "nested" : "initial",
+    depthClass: config.parentJobId ? "child" : "root",
+    handoffClass: integrationStatus,
+    outcomeClass: budgetStopped ? "budget-stopped" : exitCode === 0 ? "success" : "failure",
   });
 
   // Decide worktree removal on git facts, not on the agent's exit code or a
@@ -818,13 +842,24 @@ const main = async() => {
   process.env.AS_IS_COMPONENT_BUILD_TRACER = tracer?.enabled === false
     ? "disabled"
     : tracer?.backend ?? process.env.AS_IS_COMPONENT_BUILD_TRACER ?? "file";
-  if (tracer?.endpoint) process.env.AS_IS_COMPONENT_BUILD_TRACER_ENDPOINT = tracer.endpoint;
-  if (tracer?.directory) process.env.AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY = tracer.directory;
+  if (tracer?.endpoint && !process.env.AS_IS_COMPONENT_BUILD_TRACER_ENDPOINT) process.env.AS_IS_COMPONENT_BUILD_TRACER_ENDPOINT = tracer.endpoint;
+  if (tracer?.directory && !process.env.AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY) process.env.AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY = tracer.directory;
 
   const resolved = resolveModel(options.model ?? definition.model, config);
   const model = resolved.model;
   const provider = resolved.provider;
   const tools = options.tools ?? definition.tools;
+  // One launcher-boundary session span: lifecycle metadata only. In
+  // particular, never pass prompts, responses, tools, or exception text to it.
+  const sessionSpan = startSpan("session.lifecycle", {
+    cwd,
+    config: {
+      backend: process.env.AS_IS_COMPONENT_BUILD_TRACER,
+      directory: process.env.AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY,
+    },
+    traceId: process.env.AS_IS_TRACE_ID || undefined,
+  });
+  process.env.AS_IS_TRACE_PARENT_SPAN_ID = sessionSpan.spanId;
   // An agent file may narrow the skill set explicitly. With no `skills` field,
   // preserve the CLI's normal discovery and pass it through by not adding an
   // explicit skill allowlist. Explicit launcher skills remain additive.
@@ -883,6 +918,10 @@ const main = async() => {
         directory: process.env.AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY ?? "",
       },
     }, null, 2)}\n`);
+    await sessionSpan.finish("success", {
+      sessionClass: options.noSession ? "ephemeral" : "durable",
+      launcherMode: options.detach ? "detach" : "blocking",
+    });
     return;
   }
 
@@ -965,6 +1004,10 @@ const main = async() => {
     };
     if (!options.noRegistry) await appendHandleToRegistry(handle);
     process.stdout.write(`${JSON.stringify(handle, null, 2)}\n`);
+    await sessionSpan.finish("success", {
+      sessionClass: options.noSession ? "ephemeral" : "durable",
+      launcherMode: "detach",
+    });
     return;
   }
 
@@ -1047,6 +1090,11 @@ const main = async() => {
     } catch {
       /* result file unavailable; fall back to supervisor exit code */
     }
+    await sessionSpan.finish(result.budgetStopped || result.exitCode !== 0 ? "failure" : "success", {
+      sessionClass: options.noSession ? "ephemeral" : "durable",
+      launcherMode: "blocking",
+      outcomeClass: result.budgetStopped ? "budget-stopped" : result.exitCode === 0 ? "success" : "failure",
+    });
     if (result.budgetStopped) {
       process.stderr.write(
         `as-is budget-stopped: limit=wall-clock seconds=${options.budgetWallClockSeconds} exit=${BUDGET_STOPPED_EXIT_CODE}\n`,

@@ -1,5 +1,9 @@
 # Changelog
 
+- 2026-08-06: Closed `parent-integration-handoff` after validating the delegated handoff flow end to end: child task records and validation evidence are required; child commit and base SHA ancestry are checked; integration status distinguishes integrated, pending-parent-integration, and not-committed; related work is consolidated into a scoped parent commit; unrelated changes remain unstaged; and failed or incomplete work remains recoverable. Trace output remains supplementary and does not replace task records, logs, or durable Git evidence.
+
+- 2026-08-02: Added supervisor-owned `delegation.lifecycle` tracing for detached execution while preserving `session.lifecycle`; recorded bounded relationship, attempt/depth, handoff, and outcome metadata. Added deterministic success, failure, budget-stop, relationship, handoff, privacy, and session-tracing coverage. Focused validation passed (18 tests); read-only expert validation passed.
+
 - 2026-08-04: Aligned root planning with component ownership: configured record
   filenames under `config.records.filenames`, moved skills, validator, and
   observability items to owning backlogs, corrected deterministic-skills

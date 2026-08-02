@@ -123,6 +123,17 @@ acceptance:
   never represents an estimate as actual cost. The worker updates `spent` at
   material checkpoints and before every handoff, block, escalation, or child
   delegation.
+- `constraints.delegation.maximum-depth` and `maximum-children` bound the
+  descendant task tree for delegated implementation or component tasks. A
+  parent may not create an implementation child when remaining depth is zero
+  or when its direct-child count reaches the limit. Required read-only expert
+  plan reviews, consultations, and final validations are serial validation
+  calls rather than implementation-child fan-out: they do not consume an
+  implementation-child slot, but each call requires explicit authority,
+  terminal evidence, and its own recorded wall-clock/cost accounting. A
+  validation call may not edit, delegate, or create a task descendant. If the
+  host represents validation as a runtime child job, that diagnostic job must
+  still be attributed and budgeted without changing task-tree limits.
 - `constraints.execution.wall-clock.allocated-seconds` is the maximum cumulative
   wall-clock time authorized for the component. `spent-seconds` is the cumulative
   host-observed elapsed time across attempts, `reserve-seconds` is retained for
