@@ -7,13 +7,6 @@ description: Maintains and prioritizes bounded component work in the repository 
 
 Maintain the repository backlog as a planning index, not as task authority.
 
-## Naming Guidance
-
-Name skills with capability phrases that read as real skills (for example,
-`as-is-setup`), not role names or function-like names. Agent identities use
-role names such as `component-builder` and `reviewer`; that agent convention
-does not apply to skill names.
-
 ## Backlog Item Schema
 
 | Field | Meaning | Required |
