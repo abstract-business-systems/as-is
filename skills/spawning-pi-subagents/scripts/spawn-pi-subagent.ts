@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { appendFile, mkdtemp, open, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -726,6 +726,16 @@ const buildBudgetLines = (options: Options): string[] => {
 // task-record status (read via `git show <sha>:<path>` when a commit is
 // recorded, else from the recordPath on disk). A dead supervisor with no
 // completion line is flagged as a recovery candidate. Read-only.
+/** Derive handoff integration only from ancestry in the caller repository. */
+export const integrationStatusFor = (commitSha: string | null, callerCwd: string): string => {
+  if (!commitSha) return "not-committed";
+  const integrated = spawnSync("git", ["merge-base", "--is-ancestor", commitSha, "HEAD"], {
+    cwd: callerCwd,
+    stdio: "ignore",
+  });
+  return integrated.status === 0 ? "integrated" : "pending-parent-integration";
+};
+
 const printJobs = async (): Promise<void> => {
   const path = registryPath();
   if (!existsSync(path)) {
@@ -787,11 +797,9 @@ const printJobs = async (): Promise<void> => {
         /* leave "-" */
       }
     }
-    let integrationStatus = finished?.integrationStatus as string | undefined;
-    if (commitSha && finished?.committed) {
-      const integrated = await gitIn(process.cwd(), ["merge-base", "--is-ancestor", commitSha, "HEAD"]);
-      integrationStatus = integrated !== null ? "integrated" : "pending-parent-integration";
-    }
+    const integrationStatus = finished?.committed
+      ? integrationStatusFor(commitSha ?? null, process.cwd())
+      : "not-committed";
     const detail = finished
       ? `exit=${finished.exitCode} wall=${finished.wallClockSeconds}s${finished.committed ? ` sha=${(finished.commitSha as string)?.slice(0, 8)}` : ""}${integrationStatus ? ` integration=${integrationStatus}` : ""}${finished.worktreePreserved ? ` preserved: ${finished.preserveReason ?? "uncommitted changes"} @ ${launch.worktreePath ?? "?"}` : ""}`
       : `budget=${launch.budgetWallClockSeconds ?? "-"}s`;

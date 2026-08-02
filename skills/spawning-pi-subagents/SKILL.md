@@ -228,8 +228,11 @@ model; it is read-only and never contacts a provider.
   its children: each child's budget is owned by its own runner.
 - A zero Pi exit code is only a host observation. A child commit is only a
   durable child handoff: its `integrationStatus` is
-  `pending-parent-integration` until the parent explicitly integrates and
-  validates the scoped commit. Reread the durable component record and validate
+  `pending-parent-integration` until the parent explicitly integrates the scoped
+  commit from the caller repository and ancestry verification proves it is an
+  ancestor of the caller branch. This state is a hard completion blocker: a
+  child must not be reported complete while it remains pending. Reread the
+  durable component record and validate
   its status, handoff, acceptance evidence, parent integration, and cleanup
   before treating the task as complete. An exit status of `124` with the
   `as-is budget-stopped` stderr marker means the wall-clock budget stopped the

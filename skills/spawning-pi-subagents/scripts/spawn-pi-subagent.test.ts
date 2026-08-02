@@ -543,3 +543,23 @@ test("worktree preservation: uncommitted work on clean exit is preserved", async
     rmSync(dir, { recursive: true, force: true });
   }
 }, 15000);
+
+
+
+test("caller-worktree ancestry distinguishes pending integration from integrated", () => {
+  const dir = mkdtempSync(join(tmpdir(), "as-is-ancestry-test-"));
+  const git = (args: string[]) => spawnSync("git", args, { cwd: dir, encoding: "utf8" });
+  try {
+    expect(git(["init", "-q"]).status).toBe(0);
+    git(["config", "user.email", "test@example.invalid"]); git(["config", "user.name", "test"]);
+    writeFileSync(join(dir, "base.txt"), "base\n"); git(["add", "."]); git(["commit", "-qm", "base"]);
+    writeFileSync(join(dir, "child.txt"), "child\n"); git(["add", "."]); git(["commit", "-qm", "child"]);
+    const childSha = git(["rev-parse", "HEAD"]).stdout.trim();
+    const callerSha = git(["rev-parse", "HEAD~1"]).stdout.trim();
+    expect(git(["merge-base", "--is-ancestor", childSha, "HEAD"]).status).toBe(0);
+    expect(git(["reset", "--hard", callerSha]).status).toBe(0);
+    expect(git(["merge-base", "--is-ancestor", childSha, "HEAD"]).status).not.toBe(0);
+    expect(git(["cherry-pick", childSha]).status).toBe(0);
+    expect(git(["merge-base", "--is-ancestor", childSha, "HEAD"]).status).toBe(0);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
