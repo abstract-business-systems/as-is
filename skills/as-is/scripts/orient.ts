@@ -29,7 +29,12 @@ const walk = (root: string): string[] => {
 
 const nextAction = (root: string): string => {
   const taskPath = join(root, "tasks.md");
-  const text = readFileSync(taskPath, "utf8");
+  let text: string;
+  try {
+    text = readFileSync(taskPath, "utf8");
+  } catch {
+    return "not recorded";
+  }
   const match = text.match(/^## Next Action\s*$([\s\S]*?)(?=^## |$)/m);
   return match?.[1].trim().replace(/\s+/g, " ") || "not recorded";
 };
@@ -61,7 +66,9 @@ const decisions = (root: string): string[] => {
 export function snapshot(root = process.cwd()): OrientationSnapshot {
   const resolved = resolve(root);
   const report = new ControlPlane(resolved).status() as { tasks: TaskSnapshot[] };
-  const tasks = report.tasks;
+  const tasks = report.tasks.some((task) => task.path === ".")
+    ? report.tasks
+    : [{ path: ".", status: "ready", worker: "as-is", blockers: [] } as TaskSnapshot, ...report.tasks];
   const rootTask = tasks.find((task) => task.path === ".") ?? tasks[0];
   let status: string[];
   try {
@@ -71,7 +78,7 @@ export function snapshot(root = process.cwd()): OrientationSnapshot {
     status = ["git status unavailable"];
   }
   return {
-    root: { status: rootTask?.status ?? "unknown", nextAction: nextAction(resolved) },
+    root: { status: rootTask?.status ?? "ready", nextAction: nextAction(resolved) },
     components: tasks.map(({ path, status }) => ({ path, status })),
     open: tasks.filter((task) => task.status !== "completed").map(({ path, status, worker, blockers }) => ({ path, status, worker, blockers })),
     changelog: changelog(resolved),

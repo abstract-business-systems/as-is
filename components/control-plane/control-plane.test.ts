@@ -80,6 +80,19 @@ function fixture(): { root: string; cleanup: () => void } {
   return { root, cleanup: () => rmSync(root, { recursive: true, force: true }) };
 }
 
+test("root orientation accepts an absent transient root task record", () => {
+  const fixtureRoot = fixture();
+  try {
+    const taskPath = join(fixtureRoot.root, "tasks.md");
+    rmSync(taskPath, { force: true });
+    const control = new ControlPlane(fixtureRoot.root);
+    expect((control.status() as any).tasks[0].path).toBe(".");
+    expect((control.status() as any).tasks[0].status).toBe("active");
+  } finally {
+    fixtureRoot.cleanup();
+  }
+});
+
 test("status and general questions are record-only and source labelled", () => {
   const fixtureRoot = fixture();
   try {

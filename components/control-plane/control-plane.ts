@@ -447,7 +447,7 @@ export interface TaskSnapshot {
 
 export class ControlPlane {
   readonly root: string;
-  readonly rootRecordPath: string;
+  readonly rootRecordPath: string | null;
   readonly clock: Clock;
 
   constructor(root: string, options: { clock?: Clock } = {}) {
@@ -457,7 +457,7 @@ export class ControlPlane {
       ? join(this.root, "tasks.md")
       : existsSync(join(this.root, "task.md"))
         ? join(this.root, "task.md")
-        : durableRoot;
+        : null;
     this.clock = options.clock ?? (() => new Date());
     if (!existsSync(durableRoot)) throw new ControlPlaneError(`root durable record does not exist: ${durableRoot}`);
     const rootRecord = loadRecord(durableRoot);
@@ -497,7 +497,7 @@ export class ControlPlane {
     if (outside === ".." || outside.startsWith(`..${sep}`) || outside.startsWith(sep)) {
       throw new ControlPlaneError("component is outside the root task scope");
     }
-    if (candidate !== this.rootRecordPath && !existsSync(candidate)) {
+    if (candidate !== (this.rootRecordPath ?? join(this.root, "as-is.md")) && !existsSync(candidate)) {
       throw new ControlPlaneError(`component task record does not exist: ${candidate}`);
     }
     const record = loadRecord(candidate);
@@ -506,7 +506,7 @@ export class ControlPlane {
   }
 
   private rootRecord(): DurableRecord {
-    return loadRecord(existsSync(this.rootRecordPath) ? this.rootRecordPath : join(this.root, "as-is.md"));
+    return loadRecord(this.rootRecordPath ?? join(this.root, "as-is.md"));
   }
 
   private now(): string {
@@ -627,7 +627,7 @@ export class ControlPlane {
           nextCheckIn = null;
         }
       }
-      const relativePath = record.path === this.rootRecordPath ? "." : relative(this.root, record.directory).split(sep).join("/");
+      const relativePath = record.path === (this.rootRecordPath ?? join(this.root, "as-is.md")) ? "." : relative(this.root, record.directory).split(sep).join("/");
       const recordEvents = events(record.body);
       const decisions = recordEvents.filter((event) => ["question", "answer", "direction", "approval", "cancellation", "constraint-rejection"].includes(event.event));
       const recordBlockers = blockers(record.body);
