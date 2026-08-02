@@ -29,6 +29,42 @@ files, and Markdown sections are all levels of the same conceptual hierarchy.
 7. Review for discoverability, semantic grouping, replacement paths, accuracy,
    and stale or superseded content.
 
+## Representation Rules
+
+Choose the representation that matches the information shape and the reader's
+task. Apply the same rule to durable Markdown artifacts and live responses.
+
+| Information shape | Preferred representation |
+| --- | --- |
+| Stable repeated fields, comparisons, ownership, status, or prioritization | Markdown table |
+| Short homogeneous collection | Bulleted list |
+| Ordered procedure or state sequence | Numbered list or state table |
+| Rationale, explanation, or relationship | Prose |
+| Large or deeply structured data | Linked artifact or focused subsection, not an oversized table |
+
+Tables are a preference, not an obligation. Use prose when a table would obscure
+meaning, and use lists when a table would add ceremony without improving
+scanning. Do not duplicate the same authoritative fact in multiple formats.
+
+## Live Response Presentation
+
+Live responses are presentation, not a second task record. They should expose the
+smallest useful summary first and progressively disclose detail when it changes
+the user's decision.
+
+| Response need | Preferred presentation |
+| --- | --- |
+| Several comparable facts | Compact table |
+| Short set of actions or findings | Bulleted list |
+| Ordered implementation or recovery sequence | Numbered list |
+| Explanation, trade-off, or qualification | Short prose |
+| Detailed evidence | Summary with linked or named repository artifact |
+| Completion report | Result, validation, residual risk, and next action |
+
+A live response must preserve source and uncertainty where relevant. It must not
+promote chat text, process output, or a private runtime observation into durable
+task authority.
+
 ## Placement Rules
 
 - Put enduring cross-project behavior in `docs/design-principles.md`.

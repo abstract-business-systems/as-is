@@ -35,7 +35,9 @@ Maintain the durable organization and authority context for reusable skills.
 ## Requirement
 Skill procedures live in `skills/<name>/SKILL.md`; their component records
 live beside them. This scope record links the catalog and notable entry points
-without duplicating skill contracts.
+without duplicating skill contracts. Backlog prioritization is defined by
+`managing-backlog`; task implementation and lifecycle are defined by
+`implementing-component-tasks`.
 
 ## Plan
 Add the skills-scope record and make the canonical context-building skill
@@ -63,6 +65,8 @@ procedures in the catalog.
 - `context-building/SKILL.md` — high-priority context-building contract.
 - `structuring-content/SKILL.md` — reusable organization procedure.
 - `verification-discipline/SKILL.md` — validation selection procedure.
+- `managing-backlog/SKILL.md` — backlog capture and prioritization.
+- `implementing-component-tasks/SKILL.md` — transient task implementation and lifecycle.
 
 ## Next Action
 Keep catalog entries concise and link detailed procedures from their owning

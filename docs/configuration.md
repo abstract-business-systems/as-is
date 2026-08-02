@@ -1,244 +1,82 @@
-# Superseded Bundle Configuration And State Contract
+# Root `as-is.md` Configuration
 
-> This document records the earlier JSON-manifest design. `as-is.md` is now the
-> authoritative project-facing configuration and durable task-context artifact.
-> The superseded manifest and schema were removed; Git history preserves them
-> as migration reference if needed. The XDG state layout below is retained as a
-> conceptual or future runtime-metadata boundary, not as a second authoritative
-> task tree. See `designs/orchestration-design.md` for the active design direction.
+The root `as-is.md` front matter is the project configuration entry point. This
+document explains its structure and semantics; it does not hold a second copy of
+project configuration values. The active values belong in the root `as-is.md`.
 
 ## Boundaries
 
-as-is has three separate boundaries:
-
-| Boundary | Location | Ownership | Contents |
-| --- | --- | --- | --- |
-| Bundle | Machine or user installation directory | as-is distribution | Agents, skills, references, examples, schemas, extensions, and runtime adapters. |
-| Project | Target repository root | Project | Root `as-is.md` configuration and durable task context. |
-| Runtime metadata | User-level state directory | as-is runtime | Resolved configuration, run/session metadata, leases, the restart-reconcilable JobId map, and transient artifacts; never the authoritative task state. |
-
-The bundle is self-contained and selected by the installed `as-is` CLI or a
-chat slash-command adapter. It is not copied into each project. By default,
-as-is discovers the active machine/user-installed bundle; a project manifest can
-pin a different bundle directory, including a version vendored by that project.
-
-In the superseded manifest model, the only normal project incision was
-`as-is.config.json`; that historical rule does not relocate current task
-authority. In the active repository-backed model, the authored root and
-component `as-is.md` records are durable project context, while runtime
-metadata remains outside the repository unless a bounded task deliberately
-creates a project artifact.
-
-## Project Manifest
-
-Historically, `as-is.config.json` was the public project configuration and
-extension entry point. The active system configuration is authored in root
-`as-is.md`; this JSON manifest model is retained below only as superseded design
-context.
-
-```json
-{
-  "$schema": "as-is://schemas/config/v1",
-  "apiVersion": "as-is.dev/v1",
-  "bundle": {},
-  "project": {},
-  "core": {},
-  "extensions": [],
-  "overrides": []
-}
-```
-
-`as-is://` is resolved by the invoked local bundle, not fetched over the
-network. An editor integration may resolve it to the matching schema in that
-bundle.
-
-- `bundle.directory` optionally selects a bundle-relative or absolute directory
-  to use instead of the active installed bundle. It is resolved from the project
-  root and is intentionally a project-versioning mechanism, not an extension
-  search path.
-- `project.id` optionally supplies a stable project identifier. It is useful for
-  a non-Git project that moves between directories or for an intentional shared
-  state identity.
-- `core` overrides core policy defaults.
-- `extensions` enables and configures extension capabilities supplied by the
-  selected bundle.
-- `overrides` applies a limited policy patch to a component subtree.
-
-The core supplies defaults for all supported settings. Unknown top-level and
-core fields are errors. Extension `config` fields are validated by the declared
-extension. This fail-closed behavior prevents a misspelled setting from silently
-altering automation behavior.
-
-The repository's logging level is the project-specific verbosity control used by
-root and component history notes; it can expand retained historical detail, but
-it does not create another authority or a second current-task record.
-
-## Defaults And Overrides
-
-For the active system, the runtime reads the root `as-is.md` configuration
-before task-record-specific narrowing. Model presets and provider selection are
-owned by `config.agents`; host development configuration is not consulted for
-system policy. The superseded manifest model below calculates effective policy
-in this order:
-
-1. Versioned defaults from the selected bundle.
-2. Defaults from enabled bundle extensions, in manifest order.
-3. Root `core` and extension configuration in the project manifest.
-4. Matching `overrides`, from least-specific to most-specific component path.
-
-An override applies to the repository-relative directory in `path` and its
-descendants. Components never discover another configuration file. An override
-can patch core policy and configuration for an extension already enabled at the
-root. It cannot select a bundle, enable, disable, reorder, or replace an
-extension.
-
-Objects merge recursively. Scalars replace defaults. Arrays replace defaults;
-`extensions` is the exception because it is an ordered, unique-ID declaration.
-`null` is not a deletion mechanism. Settings with an unconfigured state use an
-explicit value such as `"disabled"`.
-
-Example:
-
-```json
-{
-  "bundle": { "directory": "tools/as-is" },
-  "core": {
-    "tasks": { "unitBudget": { "wallClockSeconds": 600 } }
-  },
-  "extensions": [
-    {
-      "id": "example.review-gate",
-      "config": { "requiredChecks": ["diff", "tests"] }
-    }
-  ],
-  "overrides": [
-    {
-      "path": "components/search",
-      "extensions": {
-        "example.review-gate": {
-          "requiredChecks": ["diff", "tests", "integration"]
-        }
-      }
-    }
-  ]
-}
-```
-
-## Core Policy
-
-The v1 core exposes these policy areas. Each has a bundle default and is
-overridable unless marked fixed below.
-
-| Area | Default | Purpose |
+| Boundary | Location | Contents |
 | --- | --- | --- |
-| `tasks.unitBudget` | `{"wallClockSeconds": 300, "costUsd": 0.20}` | Bound for one progress unit. |
-| `scheduling` | `{"wakeSeconds": 60, "maxConcurrentTasks": 1, "retryBackoffSeconds": 300}` | Wake, concurrency, and retry policy. |
-| `agents.defaultRole` | `"component-builder"` | Role used when a task does not name one. |
-| `agents.roles` | `{}` | Role-specific skill, tool, and permission settings. Model selection uses the root `as-is.md` `config.agents` model presets. |
-| `hitl` | `{"onBlocked": true, "onBudgetExceeded": true, "onExternalEffect": true}` | Events requiring human direction or approval. |
-| `logging` | `{"level": "info", "retainDays": 30}` | Operational record detail, including history verbosity, and retention. |
+| Bundle | Installed as-is distribution | Agents, skills, references, schemas, extensions, and host adapters. |
+| Project | Repository root `as-is.md` | Project configuration and durable root component context. |
+| Component | Component `as-is.md` | Durable component purpose, design, links, and changelog. |
+| Task | Component `task.md` | Transient active task state. |
+| Runtime | Private user or temporary state | Resolved runtime metadata, handles, logs, and disposable artifacts. |
 
-The following are fixed invariants:
+Runtime metadata is subordinate to repository records. It must not become a
+second configuration source, backlog, task tree, history, approval store, or
+completion authority.
 
-- A project has one authored root `as-is.md` configuration entry point.
-  Component `as-is.md` task records may carry resolved policy and permitted
-  scoped narrowing, but do not introduce additional configuration entry points.
-- Runtime-owned state is never treated as project policy.
-- The active configuration validates against its declared `apiVersion`.
-- Extensions cannot relax approval requirements for irreversible external
-  effects.
-- An extension cannot write outside its durable-state area or the target project
-  through the ordinary project-editing tools granted to its task.
+## Front Matter Structure
 
-Changing an invariant requires a new configuration API version, not an override.
+The root front matter contains repository configuration under `config`:
 
-## Durable State
-
-The repository-backed root and component `as-is.md` records are the sole
-authoritative current task state. They contain the durable status, progress,
-decisions, approvals, results, validation, blockers, recovery, and next actions
-used for delegation and completion. No runtime directory may become a second
-backlog, task tree, history, approval store, or completion authority.
-
-An optional future or private runtime may use the user-level XDG state root
-`${XDG_STATE_HOME:-~/.local/state}/as-is/projects/<project-key>/` for resolved
-configuration, run metadata, leases, logs, indexes, or disposable artifacts.
-Its `tasks/` area, if present, is only a discardable index or reference to the
-repository records; it is not an active task backlog and must never mirror,
-supersede, or relocate authority. Runtime metadata must remain subordinate to
-the repository records and safe to rebuild.
-
-While an attempt is active, a supervisor must persist its private runtime map at
-`${XDG_STATE_HOME:-~/.local/state}/as-is/projects/<project-key>/runtime/job-map.json`.
-Each generated JobId maps to component path, task revision, attempt, adapter,
-private process/session handles, runtime state, and reconciliation timestamps.
-The map is atomically updated for restart diagnostics and expires only after a
-terminal record, confirmed cleanup, and the configured retention boundary. A
-restart reconciles live handles against the durable path/revision/attempt and
-marks missing observations unknown or unavailable; it never infers task
-completion from a missing map entry. If the map cannot be persisted, stable
-component-path status remains available while runtime fields are unavailable.
-
-Private per-run host state may instead use
-`${TMPDIR:-/tmp}/as-is/<project-key>/<run-id>/<component-key>/`, or an equivalent
-secure temporary root. This path is disposable runtime guidance only: it is
-private, collision-resistant, cleaned after durable evidence, and never task
-authority or recovery evidence. A fresh component-builder recovers from the
-repository record and immutable run input when available, not from a cache,
-index, chat transcript, or live process.
-
-State is divided by authority and retention:
-
-| Class | Examples | Authority | Retention |
-| --- | --- | --- | --- |
-| Repository task control state | Root or component `as-is.md` records, progress, decisions, results, and next actions | Sole current-task authority; changed through the task protocol | Current records remain in place; historical committed state is recovered from Git and concise history entries, not archive folders. |
-| Immutable run input | Effective configuration and bundle identity | Explains what a run was authorized to do | Retained with its run when available. |
-| Runtime coordination metadata | Leases, run identity, logs, the private JobId map, indexes, caches, and temporary tool output | Never task, approval, history, accounting, or completion authority | Private, expirable, and regenerable; active map entries support restart reconciliation. |
-| HITL state | Questions, approvals, rejection, or direction recorded in the affected task record | Authoritative only after the durable record transition | Retained with the affected task. |
-| Project artifacts | Source, documentation, tests, and requested output | Owned by the target repository | Created only by an explicit task action. |
-
-Project-level collaboration and state synchronization remain deferred; they
-require explicit sharing, locking, access control, and secret-redaction rules.
-
-## Extensions
-
-Extensions add capabilities without forking the core. They are supplied by the
-selected bundle and enabled by project configuration:
-
-```json
-{
-  "id": "example.review-gate",
-  "enabled": true,
-  "config": {
-    "requiredChecks": ["diff", "tests"]
-  }
-}
+```yaml
+---
+as-is-version: 2
+config:
+  tasks: {}
+  scheduling: {}
+  notifications: {}
+  agents: {}
+  technology-preferences: {}
+  hitl: {}
+  logging: {}
+  observability: {}
+---
 ```
 
-An extension package declares its supported configuration API versions, typed
-configuration schema, contributed agents or skills, and runtime entry point.
-The core validates that declaration before starting it. Project configuration
-may enable or configure an extension; it does not point to arbitrary extension
-source directories. Selecting another bundle is the controlled way to change
-the extension set for a project.
+`as-is-version` selects the task-record and front-matter schema. `config` holds
+the effective project settings. The current root record is the authoritative
+source for the values; this document describes their meaning only.
 
-## Secrets And Self-Building
+## Configuration Areas
 
-Secrets never appear in the manifest, durable task records, logs, generated
-state, or extension manifests. Configuration can name a reference such as
-`"env:OPENROUTER_API_KEY"`; the runtime resolves it only at execution time.
-Environment variables provide secrets and process facts, not policy overrides.
+- `config.tasks` — default task-unit budgets and task execution limits.
+- `config.scheduling` — wake, check-in, concurrency, retry, and recovery policy.
+- `config.notifications` — material event notification behavior.
+- `config.agents` — default role, model presets, provider, and agent selection.
+- `config.technology-preferences` — preferred runtime and package manager.
+- `config.hitl` — conditions requiring human direction or approval.
+- `config.logging` — concise history verbosity and retention policy.
+- `config.observability` — tracing backend, enablement, and local fallback.
 
-The bundle can use its own agents, skills, examples, and task system to improve
-itself. A task may propose changes to the bundle or a project's manifest, but
-an active run continues with its immutable effective-configuration snapshot.
-Changes to bundle selection, extension enablement, fixed invariants, or
-external-effect policy require explicit human approval.
+Task records may carry task-specific constraints and permitted scoped narrowing,
+but they do not introduce another project configuration entry point. Component
+`as-is.md` files describe components and do not duplicate root configuration.
 
-## Deferred Implementation Details
+## Authority And Validation
 
-The task/progress-record schema, state-file encoding, state locking, project-key
-hashing, retention implementation, extension manifest filename, the concrete
-adapter/job-spec serialization, and public status/watch integration remain to
-be designed or validated within this boundary. The OpenCode adapter document
-records its current limitations; it is not a completion claim.
+Configuration authority follows the repository's design-principle hierarchy:
+fixed safety invariants and repository constraints take precedence over project
+configuration, and project configuration takes precedence over installed-bundle
+defaults where the schema permits an override. A lower-authority setting cannot
+weaken a higher-authority constraint.
+
+Unknown or malformed core configuration fields must fail validation rather than
+silently changing behavior. Configuration changes must preserve the declared
+front-matter schema, remain in the root `as-is.md`, and be validated before an
+attempt uses them.
+
+## Runtime Resolution
+
+A host may derive an immutable resolved configuration for one bounded attempt and
+pass it to a detached worker. That copy is execution input, not policy authority.
+Environment variables may provide secrets or process facts, but do not override
+project policy. Secrets must not appear in front matter, task records, logs, or
+other tracked artifacts.
+
+The root configuration can enable or shape reusable skills and agent bundles.
+Changing a skill can therefore change system functionality, subject to the
+higher-authority constraints and validation gates.

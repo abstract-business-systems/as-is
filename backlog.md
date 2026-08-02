@@ -1,48 +1,40 @@
 # Backlog
 
-This is a planning index, not task authority. Active work remains owned by
-the relevant root or component `as-is.md` record.
+This is a planning index, not task authority. Active work is owned by the
+relevant component `task.md`; durable component context remains in `as-is.md`.
 
-## Open Items
+## Items
 
-- Translate `components/task-record-validator/` from Python to dependency-free
-  Bun/TypeScript in a separate bounded task. Preserve the accepted YAML subset,
-  version-1/version-2 handling, authority inheritance, allocation checks,
-  descendant closure, and focused test parity before removing the Python
-  implementation.
+| ID | Priority | Component | Status | Outcome |
+| --- | --- | --- | --- | --- |
+| deterministic-skills | High | `skills/` and `.agents/` | open | Build deterministic skills and scripts for existing agents and skills. |
+| split-backlog-tasks | High | `skills/` | completed | Separate backlog prioritization from component-task implementation. |
+| root-frontmatter-config | Medium | `docs/` and root | completed | Keep project configuration values in root `as-is.md`; document structure only in `docs/configuration.md`. |
+| task-record-validator-bun | Medium | `components/task-record-validator/` | open | Translate the validator to dependency-free Bun/TypeScript with focused parity validation. |
+| jaeger-support | Medium | tracing components | open | Configure and verify local Jaeger support and bounded trace queries. |
+| trace-retention | Low | tracing components | open | Add local JSONL rotation, retention, and size limits. |
+| trace-e2e | Low | tracing components | open | Add end-to-end tracing coverage across sessions, workers, and detached subprocesses. |
+| jaeger-collector | Deferred | tracing components | open | Add a Collector only if direct export demonstrates a concrete need. |
+| presentation-guidance | Medium | `skills/structuring-content/` and agent roles | open | Apply information-shaped Markdown and live-response presentation guidance to existing skills and agents. |
+| building-components | High | `skills/`, `.agents/agents/component-builder/` | open | Evaluate and, if accepted, consolidate component-task implementation, completed-work committing, and reusable component-builder flow into a `building-components` skill without merging role identity into procedure logic. |
 
-- **Configure and verify Jaeger support for universal tracing.**
-  - Resolve the tracer configuration from the base project `as-is.md` for both
-    in-process `call_subagent` workers and detached component-building
-    subprocesses.
-  - Provide a local Jaeger deployment/setup path under ignored
-    `.as-is/` without committing generated state or credentials.
-  - Verify OTLP HTTP export, Jaeger UI visibility, retention expectations, and
-    graceful behavior when Jaeger is unavailable.
-  - Ensure `search_traces`, `get_trace`, `summarize_trace`, and
-    `compare_traces` can use the configured backend or the shared local file
-    fallback with bounded, redacted results.
-  - Record the configuration and validation evidence in a bounded component
-    task record before marking this item complete.
+## Prioritization
 
-- Add trace rotation/retention and size limits for the local JSONL fallback.
-- Add an end-to-end test covering user session → `call_subagent` → worker trace
-  query and user session → detached subprocess → supervisor trace query.
-- Add a Collector only if direct Jaeger export demonstrates a need for
-  buffering, retry, redaction routing, or multi-user local observation.
+| Priority | Selection rule |
+| --- | --- |
+| High | Required by authority, blocks work, or addresses material correctness/recovery risk. |
+| Medium | Explicit user intent or meaningful value with bounded dependencies. |
+| Low | Useful improvement that does not block higher-priority work. |
+| Deferred | Not selected until stated evidence exists. |
 
 ## Decisions And Boundaries
 
-- Tracing is universal: it covers control-plane, model/agent, tool,
-  subprocess, validation, recovery, and other runtime operations. Subagent
-  calls are one important traced flow, not the scope boundary.
-- The base project `as-is.md` is the authoritative authored configuration for
-  tracer selection. Runtime environment variables may carry a resolved copy to
-  detached processes but do not replace that authority.
-- The supervisor may pass the resolved tracer configuration and trace identity
-  to detached subagent processes. It should not own or reinterpret project
-  policy; it is a propagation boundary.
-- In-process workers should resolve the same base configuration directly when
-  the host does not provide an explicit resolved configuration.
-- Telemetry remains supplementary and must never replace task records,
-  validation, recovery state, or completion authority.
+| Decision | Rule |
+| --- | --- |
+| Authority | This file is a planning index; active state belongs to component `task.md`. |
+| Context | Component purpose and design belong to component `as-is.md`. |
+| History | Completed summaries belong to component `changelog.md`. |
+| Tracing | Telemetry is supplementary and never replaces task records, validation, recovery, or completion authority. |
+| Configuration | Root `as-is.md` is the sole project configuration source; `docs/configuration.md` documents its structure. |
+| Presentation | `skills/structuring-content/SKILL.md` owns representation and live-response guidance; design principles state the broad preference. |
+| Component building | `building-components` may own reusable build, completion, and handoff flow; `component-builder` remains the role boundary. |

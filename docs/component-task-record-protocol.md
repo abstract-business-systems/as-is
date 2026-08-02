@@ -2,17 +2,24 @@
 
 ## Purpose
 
-This permanent specification defines the durable `as-is.md` record for a
-component with delegated work. The record preserves the component's bounded task
-state and handoff evidence; it is not a log, lock, or copy of parent state.
+This permanent specification defines the durable `as-is.md` component record
+and the transient task record used to change a component. An `as-is.md` describes
+the component's purpose, design, boundary, and related artifacts. A component-level
+`task.md` records one active bounded change and is removed by task management
+after completion; its concise summary is retained in `changelog.md`.
 
 ## Placement And Hierarchy
 
-Every component with delegated work has an `as-is.md` in that component's
-directory. The directory path is authoritative for the component's scope and
-parent relationship. Child records are the durable delegation and handoff
-evidence; a parent need not maintain a duplicate child list, status ledger, or
-result copy.
+Every component has an `as-is.md` in its directory. It describes the
+component's purpose and design and links to, and briefly describes, relevant
+files and folders. The directory containing `as-is.md`, together with descendants
+that do not contain their own `as-is.md`, is one component boundary. The directory
+path is authoritative for the component's scope and parent relationship.
+
+A component change is recorded in a transient `task.md` beside `as-is.md`. If
+work must cross into a subcomponent with its own `as-is.md`, the component builder
+delegates a new component-builder task for that subcomponent rather than editing
+across the boundary.
 
 When a bounded document later becomes a directory, use the host pattern
 `<xyz>.md -> <xyz>/index.md` for the authoritative entry point. Place extracted
@@ -22,7 +29,10 @@ without duplicating the extracted content.
 
 ## Creation And Maintenance
 
-The root `as-is.md` is authored project context. When the orchestrator delegates
+The root and component `as-is.md` files are durable component context. They
+describe purpose, design, boundaries, and links; they do not contain the current
+task's transient status, budget, plan, or recovery state. When work starts, task
+management creates `task.md` atomically in the target component directory. When the orchestrator delegates
 work to a component directory that has no task record, it generates that
 component's `as-is.md` atomically from this protocol before launching the worker.
 It supplies the bounded requirement, effective constraints, cost allocation,
@@ -35,9 +45,9 @@ task or recovery and does not overwrite its durable progress. After launch, the
 assigned worker maintains its component record; the orchestrator creates or
 updates only the delegation information it is responsible for.
 
-## Front Matter
+## Task Front Matter
 
-The front matter is strict and machine-validatable:
+The transient `task.md` front matter is strict and machine-validatable:
 
 ```yaml
 ---
@@ -138,8 +148,8 @@ acceptance:
   not current-task authority, an archive, or a runtime log. Project-specific
   verbosity controls how much is retained, but it does not create another
   authority or a second current-task record.
-- The component directory is the default read/write boundary, so front matter
-  does not repeat file lists. The `Requirement` names an external dependency
+- The component directory is the default read/write boundary. `as-is.md` links
+  relevant artifacts instead of duplicating their contents. The `Requirement` names an external dependency
   only when work must read outside that directory; it does not duplicate common
   execution context.
 - Version 1 records retain the historical `constraints.boundaries` block and are
@@ -153,7 +163,7 @@ acceptance:
 
 ## Historical Recovery And Retirement
 
-Current task authority remains in the root or component `as-is.md`. Historical
+Current task authority remains in the root or component `task.md`. Historical
 task recovery uses Git history plus the repository's concise history entries;
 it does not use a `task-archives/` directory, a second task tree, or a separate
 host-specific recovery path. Historical notes are succinct by default and use the canonical `Changelog`
@@ -181,14 +191,18 @@ without manufacturing a completion transition. A retired host adapter is not
 recovered by restoring an archive folder; any future need requires a new
 authorized bounded task based on current policy and Git evidence.
 
-## Markdown Body
+## Component Record Body
 
-The body is human-readable durable task context and contains these sections:
+The durable `as-is.md` body describes the component's purpose, design, links, and
+concise `Changelog`; it does not contain transient task state.
+
+## Transient Task Body
+
+The transient `task.md` body is human-readable current task context and contains these sections:
 
 ```md
-# Component Name
+# Task
 
-## Purpose
 ## Requirement
 ## Plan
 ## Progress
@@ -199,13 +213,14 @@ The body is human-readable durable task context and contains these sections:
 ## Next Action
 ```
 
-`Purpose` explains why the component exists and establishes its intended place
-in the system; `Requirement` states its bounded current work. `Validation`
-records the smallest relevant check, its outcome, and residual risk. A worker
-validates before handing a component back as completed. `Recovery` records the
-last durable checkpoint, incomplete work, cleanup required, and next safe action.
-A material change additionally records the local pattern considered, concrete
-need, acceptance condition, and changed-artifact set.
+`Purpose` and `Design` belong to durable `as-is.md`; `Requirement` states the
+transient task's bounded work. `Validation` records the smallest relevant check,
+its outcome, and residual risk. A worker validates before handoff. `Recovery`
+records the last durable checkpoint, incomplete work, cleanup required, and next
+safe action. A material change additionally records the local pattern
+considered, concrete need, acceptance condition, and changed-artifact set.
+Repeated task fields, ownership, status, and acceptance mappings should use
+Markdown tables; prose is reserved for rationale and relationships.
 
 ## Delegation And Parallelism
 
@@ -223,7 +238,7 @@ cancelled descendant. An active, blocked, or awaiting-approval descendant keeps
 every ancestor non-completed. The responsible worker or orchestrator validates
 this closure before changing a record to `completed`.
 
-After a record qualifies for completion, invoke
+After a task qualifies for completion, invoke task management, then
 `committing-completed-work`. The procedure stages only the completed task's
 declared scoped changes and its task record, commits the durable handoff, and
 leaves unrelated work untouched. A failed commit leaves the task non-completed

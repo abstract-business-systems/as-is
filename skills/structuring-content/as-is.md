@@ -73,8 +73,9 @@ cognitive benefit. Existing creation-time evidence checks and examples should
 remain intact, and this task must not move the repository's existing fixtures.
 
 Keep rule placement clear without creating another policy authority: this skill
-owns the reusable procedure and decision criteria; `docs/design-principles.md` owns
-broad cross-project values; component task records own current-task evidence and
+owns the reusable procedure and decision criteria, including information-shaped
+Markdown and live-response presentation; `docs/design-principles.md` owns broad
+cross-project values; component task records own current-task evidence and
 decisions; `agent-skills.md` remains only the capability catalog.
 
 Local pattern considered: the existing skill already treats files, folders, and

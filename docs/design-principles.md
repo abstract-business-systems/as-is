@@ -71,6 +71,12 @@ choices. A lower-authority setting cannot weaken a higher-authority constraint.
   cache.
 - **Progressive disclosure:** Start with the simplest successful path; expose
   advanced controls only when they become relevant.
+- **Information-shaped representation:** Represent information in the form that
+  minimizes interpretation cost while preserving authority and relationships.
+  Tables are preferred for stable repeated fields and comparisons, lists for
+  short homogeneous collections, and prose for rationale and relationships.
+  This preference applies to durable Markdown and live responses, but tables are
+  not mandatory when they obscure meaning.
 - **Evidence over assertion:** Ground actions, completion claims, and exceptions
   in observable evidence.
 - **Execution-model fit:** Identify whether a flow is deterministic or
@@ -90,4 +96,6 @@ choices. A lower-authority setting cannot weaken a higher-authority constraint.
   when the requirement, evidence, and acceptance conditions justify doing so.
 - **Self-hosting consistency:** `as-is` uses its own skills and principles to
   establish and improve itself, and periodically checks that implementation and
-  stated principles remain aligned.
+  stated principles remain aligned. The system's functionality can be modified
+  by changing the applicable reusable skills; skills are therefore part of the
+  behavior surface, not merely documentation.
