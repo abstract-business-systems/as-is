@@ -1,9 +1,9 @@
 ---
 as-is-version: 2
 task:
-  status: completed
+  status: active
   worker: component-builder
-  updated: 2026-08-03T00:10:00Z
+  updated: 2026-08-04T00:00:00Z
 constraints:
   cost:
     currency: USD
@@ -31,28 +31,31 @@ acceptance:
 # Task
 
 ## Requirement
-Implement the approved orient/control-plane prerequisite and worker/expert architecture. Do not implement global as-is routing.
+Update backlog policy so completed items are removed, correct the managing-backlog skill's prior naming-related guidance, remove completed entries from every existing backlog while preserving open/deferred items, and inspect/explain `skills/as-is/scripts/orient.ts` responsibility and placement.
 
 ## Plan
-Fix record discovery and orientation, add focused tests, update role contracts and call_subagent allowlist, then validate and commit.
+Delegate bounded edits at the `skills/managing-backlog/` and `components/as-is-setup/` component boundaries. Update root backlog policy and root skills guidance, inspect orient implementation/tests, validate all backlog files and focused checks, obtain read-only expert validation, then commit the scoped root handoff.
 
 ## Progress
-Control-plane now treats task.md as active task authority while retaining durable as-is.md for root configuration and context.
+Child component handoffs completed: `skills/managing-backlog` corrected its schema and removed the misplaced naming guidance; `components/as-is-setup` removed its completed backlog row and retained open items. Root backlog policy and completed rows were integrated. `skills/as-is/scripts/orient.ts` was inspected with its focused test.
+
+`orient.ts` produces a compact, read-only orientation snapshot: it obtains task status from `ControlPlane`, reads the root task's next action and changelog, scans design/spec Markdown for open decisions, and reports Git working-tree state. It belongs under `skills/as-is` because it is the deterministic script implementing the `as-is` skill's entrypoint/orientation procedure, while control-plane remains the source of task-state semantics.
 
 ## Validation
-- `bun test components/control-plane/control-plane.test.ts skills/as-is/scripts/orient.test.ts`: 4 passed, 0 failed.
-- `bun build --no-bundle --target bun --outfile /tmp/worker-tools.js .pi/extensions/worker-tools.ts`: passed.
+- `bun test skills/as-is/scripts/orient.test.ts`: passed (1 test, 0 failures).
 - `git diff --check`: passed.
-- Final expert validation (read-only inspection of this same controlled worktree/context): PASS; scoped changes are safe to commit. Confirmed durable `as-is.md` plus transient `task.md` discovery, worker writable/no-commit contract, large read-only expert contract, role allowlist, and builder validation gate.
+- `find . -name backlog.md -print -exec grep -n 'completed' {} \\;`: only policy/prose mentions; no completed-status backlog rows.
+- Final read-only expert validation: PASS. Confirmed both backlog files retain only open planning rows, managing-backlog schema/removal policy is corrected with no Naming Guidance section, and the orient explanation matches implementation and test.
+- Host-reported delegation cost and wall-clock: unavailable; child records retain source-unavailable accounting.
 
 ## Result
-Implemented the bounded orient/control-plane prerequisite and approved worker/expert architecture. Global as-is routing was not changed.
+Completed the backlog policy and cleanup task. Durable summaries are recorded in `skills/managing-backlog/changelog.md` and `components/as-is-setup/changelog.md`; completed planning rows were removed while open items remain. The orient responsibility and placement are documented in this handoff.
 
 ## Blockers And Escalations
-None.
+None. Expert validation passed. Child commits were integrated as scoped commits; the root policy change remains in this task's handoff.
 
 ## Recovery
-Resume from this record; inspect uncommitted changes and rerun focused tests before further edits.
+Resume from the current task record and the scoped diff if commit preparation is interrupted. Child durable summaries are already committed.
 
 ## Next Action
-Durable handoff is complete; no further action for this bounded task.
+Mark this record completed and commit only the root backlog policy, task record, and no unrelated files.

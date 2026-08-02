@@ -2,14 +2,15 @@
 
 This is a planning index, not task authority. Active work is owned by the
 relevant component `task.md`; durable component context remains in `as-is.md`.
+Completed items are removed after their concise summary is recorded in the
+owning component's `changelog.md`; this index retains only open or selected
+planning items.
 
 ## Items
 
 | ID | Priority | Component | Status | Outcome |
 | --- | --- | --- | --- | --- |
 | deterministic-skills | High | `skills/` and `.agents/` | open | Build deterministic skills and scripts for existing agents and skills. |
-| split-backlog-tasks | High | `skills/` | completed | Separate backlog prioritization from component-task implementation. |
-| root-frontmatter-config | Medium | `docs/` and root | completed | Keep project configuration values in root `as-is.md`; document structure only in `docs/configuration.md`. |
 | task-record-validator-bun | Medium | `components/task-record-validator/` | open | Translate the validator to dependency-free Bun/TypeScript with focused parity validation. |
 | jaeger-support | Medium | tracing components | open | Configure and verify local Jaeger support and bounded trace queries. |
 | trace-retention | Low | tracing components | open | Add local JSONL rotation, retention, and size limits. |
@@ -38,3 +39,4 @@ relevant component `task.md`; durable component context remains in `as-is.md`.
 | Configuration | Root `as-is.md` is the sole project configuration source; `docs/configuration.md` documents its structure. |
 | Presentation | `skills/structuring-content/SKILL.md` owns representation and live-response guidance; design principles state the broad preference. |
 | Component building | `building-components` may own reusable build, completion, and handoff flow; `component-builder` remains the role boundary. |
+| Completion | Remove completed items from this index after recording their concise summary in the owning component's `changelog.md`. |
