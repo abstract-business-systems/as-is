@@ -27,6 +27,7 @@ without their own `as-is.md` are within this component boundary.
 - [`agent.md`](agent.md) — user-facing routing and delegation contract.
 - [`tasks.md`](tasks.md) — transient current-task record while this component is active.
 - [`changelog.md`](changelog.md) — concise historical recovery and completion notes.
+- [`backlog.md`](backlog.md) — planning index for this component's open work.
 - [`orient.ts`](../../../skills/as-is/scripts/orient.ts) — repository orientation snapshot used by status/routing turns.
 
 ## Changelog

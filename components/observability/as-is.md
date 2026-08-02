@@ -1,9 +1,5 @@
 ---
 as-is-version: 2
-task:
-  status: active
-  worker: component-builder
-  updated: 2026-08-06T00:00:00Z
 constraints:
   cost:
     currency: USD

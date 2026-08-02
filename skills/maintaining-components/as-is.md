@@ -1,9 +1,5 @@
 ---
 as-is-version: 2
-task:
-  status: completed
-  worker: implementer
-  updated: 2026-07-30T12:29:04Z
 constraints:
   cost:
     currency: USD
@@ -95,8 +91,8 @@ user clarification.
 
 Completed. The `maintaining-components` skill now has a durable `as-is.md`
 record with the requested backlog work captured and no audit/fix implementation
-performed. The record preserves separate Backlog and Changelog sections and
-keeps ownership with the existing skill.
+performed. The record preserves separate Changelog evidence and keeps ownership with the
+existing skill; its planning index is `backlog.md`.
 
 ## Blockers And Escalations
 
@@ -105,15 +101,14 @@ because the user did not specify it; clarification is needed before adding one.
 
 ## Recovery
 
-Recover from this file, the existing `skills/maintaining-components/SKILL.md`,
-and Git history. If the task is resumed, reread this record first and then add
-only the clarified backlog item or proceed with the approved audit scope.
+Recover from this file, the existing `skills/maintaining-components/SKILL.md`, `backlog.md`, and Git history. If the
+task is resumed, reread this record first and then select only the clarified
+backlog item or proceed with the approved audit scope.
 
-## Backlog
+## Links
 
-- Audit a user-specified component, or the full component set if later
-directed, for misalignments against repository-prescribed structure and
-conventions, and fix the confirmed misalignments.
+- `SKILL.md` — authoritative procedure and contract.
+- `backlog.md` — planning index for this component's open work.
 
 ## Changelog
 

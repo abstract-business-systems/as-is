@@ -1,9 +1,5 @@
 ---
 as-is-version: 2
-task:
-  status: completed
-  worker: implementer
-  updated: 2026-07-30T16:30:00Z
 constraints:
   cost:
     currency: USD
@@ -60,12 +56,9 @@ integration validation.
 Resume from this record and `SKILL.md`; do not create an archive or duplicate
 source of truth.
 
-## Backlog
-- High priority: retain context-building as the canonical skill name and link
-  it from the concise capability catalog.
-
 ## Links
 - `SKILL.md` — authoritative procedure and contract.
+- `backlog.md` — planning index for this skill's open work.
 - `../../agent-skills.md` — concise capability catalog entry.
 
 ## Next Action

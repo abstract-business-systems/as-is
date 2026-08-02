@@ -1,9 +1,5 @@
 ---
 as-is-version: 2
-task:
-  status: completed
-  worker: implementer
-  updated: 2026-07-26T17:45:00Z
 constraints:
   cost:
     currency: USD
@@ -174,10 +170,10 @@ validated, with no fixture move and no descendants. If handoff is interrupted
 before commit, preserve this record and stage only the two permitted files after
 rechecking validation. Do not infer host cost or wall-clock use when unavailable.
 
-## Backlog
+## Links
 
-- Future maintenance-time restructuring assessments remain owned here; no open
-  candidate is currently recorded.
+- `SKILL.md` — authoritative procedure and contract.
+- `backlog.md` — planning index for this component's open work.
 
 ## Changelog
 

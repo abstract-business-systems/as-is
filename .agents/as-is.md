@@ -1,9 +1,5 @@
 ---
 as-is-version: 2
-task:
-  status: completed
-  worker: implementer
-  updated: 2026-07-30T16:30:00Z
 constraints:
   cost:
     currency: USD
@@ -60,12 +56,9 @@ not be inferred from this catalog-level backlog.
 Resume from this record and the relevant role directory. Do not create an
 archive or duplicate role authority.
 
-## Backlog
-- **High priority:** assess existing agents and make them less specific or more
-  generic where evidence shows their responsibility is unnecessarily narrow or
-  host-specific. Future agents must use a bounded responsibility, reusable
-  capability contract, and only the specialization justified by ownership,
-  tools, permissions, and acceptance needs; record exceptions and consumers.
+The organization-level planning index is [`backlog.md`](backlog.md). It owns
+cross-agent maintenance proposals; role-specific work belongs in the backlog
+of the corresponding agent component.
 
 ## Links
 - `agents/as-is/agent.md` — primary role contract.

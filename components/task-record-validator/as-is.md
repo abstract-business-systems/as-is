@@ -1,9 +1,5 @@
 ---
 as-is-version: 2
-task:
-  status: completed
-  worker: implementer
-  updated: 2026-07-26T13:59:13Z
 constraints:
   cost:
     currency: USD
@@ -78,15 +74,9 @@ Implementation and validation are retained in the component. No cleanup or
 private runtime artifact is required; the completed handoff is recoverable from
 this record and its local artifacts.
 
-## Backlog
+## Links
 
-- Capture a validation-agent follow-up here if a validation-specific backlog
-  item is approved. The follow-up should define a minimal review/report
-  contract for a different-model validator that checks a child's completion
-  claim against the task requirement, changed artifacts, and evidence, then
-  records only the supported or unsupported completion claim and residual risk.
-  It should not add implementation mechanics beyond what the review/report
-  contract needs.
+- `backlog.md` — planning index for this component's open work.
 
 ## Changelog
 

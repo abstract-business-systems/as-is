@@ -1,9 +1,5 @@
 ---
 as-is-version: 2
-task:
-  status: completed
-  worker: as-is
-  updated: 2026-08-02T00:00:00Z
 constraints:
   cost:
     currency: USD
