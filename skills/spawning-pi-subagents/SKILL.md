@@ -144,7 +144,7 @@ observes the child by polling its record (structured status) and `logPath`
 
 On exit the bounded job runner appends a completion line to the registry
 (`{jobId, event:"finished", exitCode, budgetStopped, wallClockSeconds,
-commitSha, committed, finishedAt}`) so the job table reflects finished jobs
+commitSha, committed, integrationStatus, finishedAt}`) so the job table reflects finished jobs
 with their real wall-clock, exit code, and final commit. The parent reads the
 child's record via `git show <commitSha>:<recordPath>` (durable, no filesystem
 race). Pass `--record <path>` to include the component record path. Pass
@@ -226,8 +226,11 @@ model; it is read-only and never contacts a provider.
   budget is enforced by the runner as a hard process-level stop (SIGTERM
   then SIGKILL on the child's process group). A parent agent need not outlive
   its children: each child's budget is owned by its own runner.
-- A zero Pi exit code is only a host observation. Reread the durable component
-  record and validate its status, handoff, acceptance evidence, and cleanup
+- A zero Pi exit code is only a host observation. A child commit is only a
+  durable child handoff: its `integrationStatus` is
+  `pending-parent-integration` until the parent explicitly integrates and
+  validates the scoped commit. Reread the durable component record and validate
+  its status, handoff, acceptance evidence, parent integration, and cleanup
   before treating the task as complete. An exit status of `124` with the
   `as-is budget-stopped` stderr marker means the wall-clock budget stopped the
   child; account for that as a budget-stopped return rather than a normal

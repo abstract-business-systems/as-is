@@ -592,6 +592,11 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
   // `git show <sha>:<path>` without a filesystem race on the worktree.
   const finalSha = childCwd !== config.callerCwd ? await gitIn(childCwd, ["rev-parse", "HEAD"]) : null;
   const committed = finalSha !== null && finalSha !== baseSha;
+  // A child commit is durable in the child worktree but is not integrated into
+  // the caller branch. The parent must explicitly cherry-pick/merge it and
+  // record that integration separately; never report a child commit as an
+  // integrated handoff.
+  const integrationStatus = committed ? "pending-parent-integration" : "not-committed";
 
   await recordComponentTrace(config.callerCwd, {
     name: "subprocess.handoff",
@@ -625,7 +630,7 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
   }
 
   try {
-    await writeFile(config.resultPath, `${JSON.stringify({ exitCode, budgetStopped, wallClockSeconds, commitSha: finalSha, committed, worktreePreserved, preserveReason })}\n`, "utf8");
+    await writeFile(config.resultPath, `${JSON.stringify({ exitCode, budgetStopped, wallClockSeconds, commitSha: finalSha, committed, integrationStatus, worktreePreserved, preserveReason })}\n`, "utf8");
   } catch {
     /* best-effort outcome record */
   }
@@ -641,6 +646,7 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
         childPid,
         commitSha: finalSha,
         committed,
+        integrationStatus,
         worktreePreserved,
         preserveReason,
         finishedAt: new Date().toISOString(),
@@ -1005,7 +1011,7 @@ const main = async() => {
     process.removeListener("SIGTERM", forwardSignal);
     process.removeListener("SIGINT", forwardSignal);
 
-    let result = { exitCode: supervisorExit, budgetStopped: false, wallClockSeconds: 0, commitSha: null, committed: false };
+    let result = { exitCode: supervisorExit, budgetStopped: false, wallClockSeconds: 0, commitSha: null, committed: false, integrationStatus: "unknown" };
     try {
       result = JSON.parse(await readFile(resultPath, "utf8"));
     } catch {

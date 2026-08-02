@@ -47,6 +47,7 @@ Root task is active. Backlog ownership is aligned and the configured `tasks.md` 
 ## Validation
 - Pre-change protocol and task records inspected.
 - Added an authorization guard to the launcher: only `as-is` may launch component-builder, and only component-builder may launch worker/expert.
+- Added explicit `pending-parent-integration` handoff status when a child commits in an isolated worktree, preventing child commit creation from being mistaken for parent integration.
 - Added focused launcher dry-run tests for unauthorized and authorized component-builder callers.
 - `bun test components/control-plane/control-plane.test.ts skills/as-is/scripts/orient.test.ts components/observability/tracer.test.ts` passed: 6 tests.
 - `bun build --no-bundle --target bun` passed for orient.ts and control-plane.ts.
@@ -66,4 +67,4 @@ None. Expert validation passed. Child commits were integrated as scoped commits;
 Resume from the current task record and the scoped diff if commit preparation is interrupted. Child durable summaries are already committed.
 
 ## Next Action
-Run the focused launcher authorization tests, then define and implement the parent integration/handoff contract and delay instrumentation directly. Do not delegate remaining backlog work until these fixes are complete.
+Complete the parent integration/handoff contract and add delay instrumentation directly. Do not delegate remaining backlog work until these fixes are complete.

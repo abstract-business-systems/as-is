@@ -181,6 +181,38 @@ test("detach returns a handle immediately and the supervisor kills the child on 
   }
 }, 15000);
 
+test("child commit handoff is explicitly pending parent integration", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "as-is-handoff-test-"));
+  try {
+    const stubPi = join(dir, "pi-commit-stub.sh");
+    writeFileSync(stubPi, [
+      "#!/usr/bin/env bash",
+      "git config user.email test@example.invalid",
+      "git config user.name test",
+      "printf '\\n# handoff fixture\\n' >> skills/as-is/SKILL.md",
+      "git add skills/as-is/SKILL.md",
+      "git commit --allow-empty -m 'test: child handoff' >/dev/null",
+      "exit 0",
+      "",
+    ].join("\n"), { mode: 0o755 });
+    const registry = join(dir, "jobs.jsonl");
+    const result = await runLauncher(
+      ["--agent", AGENT, "--task", "Child handoff task.", "--cwd", process.cwd(), "--pi", stubPi, "--detach"],
+      { ...process.env, AS_IS_JOBS_REGISTRY: registry },
+    );
+    expect(result.exitCode).toBe(0);
+    const handle = JSON.parse(result.stdout);
+    expect(await pidGone(handle.pid, 5000)).toBe(true);
+    await new Promise((resolveDone) => setTimeout(resolveDone, 100));
+    const finished = readRegistryLines(registry).find(
+      (line) => (line as { jobId?: string }).jobId === handle.jobId && (line as { event?: string }).event === "finished",
+    ) as { committed: boolean; integrationStatus: string; commitSha: string | null } | undefined;
+    expect(finished?.committed).toBe(true);
+    expect(finished?.commitSha).toBeTruthy();
+    expect(finished?.integrationStatus).toBe("pending-parent-integration");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
 test("detach supervisor records a completion line with exit code and wall-clock", async () => {
   const dir = mkdtempSync(join(tmpdir(), "as-is-completion-test-"));
   try {
