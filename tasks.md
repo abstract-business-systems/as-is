@@ -3,7 +3,7 @@ as-is-version: 2
 task:
   status: active
   worker: component-builder
-  updated: 2026-08-04T01:00:00Z
+  updated: 2026-08-04T02:00:00Z
 constraints:
   cost:
     currency: USD
@@ -42,10 +42,15 @@ Align the task and backlog model: retain a transient `tasks.md` record for curre
 6. Keep trace-related work under `components/observability/backlog.md`; do not implement the remaining backlog items in this task.
 
 ## Progress
-Root task is active. Backlog ownership is aligned. The task record is being renamed to the configured `tasks.md`; `as-is.md` remains durable context only. Remaining delegation, handoff, observability, and privacy work remains planned, not implemented.
+Root task is active. Backlog ownership is aligned and the configured `tasks.md` record is retained. The as-is agent owns delegation decisions; the launcher now rejects unauthorized component-builder launches. Parent integration, delay measurement, all-in observability, and privacy work remain planned, not implemented.
 
 ## Validation
 - Pre-change protocol and task records inspected.
+- Added an authorization guard to the launcher: only `as-is` may launch component-builder, and only component-builder may launch worker/expert.
+- Added focused launcher dry-run tests for unauthorized and authorized component-builder callers.
+- `bun test components/control-plane/control-plane.test.ts skills/as-is/scripts/orient.test.ts components/observability/tracer.test.ts` passed: 6 tests.
+- `bun build --no-bundle --target bun` passed for orient.ts and control-plane.ts.
+- `git diff --check` passed.
 - Read-only expert validation initially failed on deterministic-skills wording and contradictory stale task handoff; both corrected.
 - Final read-only expert validation passed against committed HEAD `f513a5939cc3af002b1e3a0194bff180da8e7b76`.
 - `git diff --check` passed; focused orient and observability tests passed (1 and 2 tests respectively).
@@ -61,4 +66,4 @@ None. Expert validation passed. Child commits were integrated as scoped commits;
 Resume from the current task record and the scoped diff if commit preparation is interrupted. Child durable summaries are already committed.
 
 ## Next Action
-Validate the configured `tasks.md` record name and documentation references, then commit this record-model alignment. Do not delegate remaining backlog work until the as-is-owned delegation and delay/handoff fixes are complete.
+Run the focused launcher authorization tests, then define and implement the parent integration/handoff contract and delay instrumentation directly. Do not delegate remaining backlog work until these fixes are complete.

@@ -67,6 +67,30 @@ const readRegistryLines = (registry: string): unknown[] =>
   readFileSync(registry, "utf8").split("\n").filter((line) => line.trim())
     .map((line) => JSON.parse(line));
 
+test("rejects component-builder launches from an unauthorized caller", async () => {
+  const result = await runLauncher([
+    "--agent", ".agents/agents/component-builder/agent.md",
+    "--task", "Unauthorized implementation launch.",
+    "--cwd", process.cwd(),
+    "--caller", "user",
+    "--dry-run",
+  ]);
+  expect(result.exitCode).toBe(1);
+  expect(result.stderr).toContain("unauthorized delegation");
+  expect(result.stderr).toContain("delegation decisions belong to as-is");
+});
+
+test("allows component-builder launches from as-is", async () => {
+  const result = await runLauncher([
+    "--agent", ".agents/agents/component-builder/agent.md",
+    "--task", "Authorized implementation launch.",
+    "--cwd", process.cwd(),
+    "--caller", "as-is",
+    "--dry-run",
+  ]);
+  expect(result.exitCode).toBe(0);
+});
+
 test("detach dry-run reports the detach flag and forwarded budget", async () => {
   const result = await runLauncher([
     "--agent", AGENT,

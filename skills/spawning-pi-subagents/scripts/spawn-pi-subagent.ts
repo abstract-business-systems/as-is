@@ -768,6 +768,14 @@ const main = async() => {
   const identity = identityFromAgent(agentPath, definition);
   const caller = options.caller ?? process.env.AS_IS_IDENTITY ?? "user";
   const parentJobId = options.parentJobId ?? process.env.AS_IS_JOB_ID ?? null;
+  const authorized = identity === "as-is"
+    ? caller === "user" || caller === "as-is"
+    : identity === "component-builder"
+      ? caller === "as-is" || caller === "component-builder"
+      : (identity === "worker" || identity === "expert") && caller === "component-builder";
+  if (!authorized) {
+    throw new Error(`unauthorized delegation: ${caller} cannot launch ${identity}; delegation decisions belong to as-is`);
+  }
 
   const config = await readProjectModelConfig(cwd);
   const tracer = config.componentBuildTracer;
