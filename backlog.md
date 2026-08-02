@@ -23,6 +23,7 @@ Remaining root-owned planning items:
 
 | ID | Priority | Component | Status | Outcome | Approach |
 | --- | --- | --- | --- | --- | --- |
+| canonical-agent-source-layout | Medium | Repository architecture / `components/as-is-setup/` follow-up | open | Decide whether the repository should retain its current asymmetric source layout (`skills/` and `.agents/agents/`) or adopt a different authoritative layout, without creating a second source of truth or breaking host projections and launcher discovery. | First audit tracked, untracked, and ignored resource paths and all consumers. Compare the smallest compatibility-preserving option with any top-level `agents/` migration; record the architectural decision here or in an explicitly scoped design record. Only then create bounded component follow-ups for setup, launcher/extensions, tests, documentation, and generated-link repair. Acceptance: one authoritative source layout is documented; affected consumers are enumerated and updated under their owning components; stale links such as `.agents/skills/setting-up-as-is` are removed or repaired through an approved migration; clean-checkout discovery, idempotent setup, collision preservation, and launcher/host discovery are validated; no component independently introduces a top-level directory or cross-component authority. |
 
 
 ## Prioritization
@@ -39,6 +40,7 @@ Remaining root-owned planning items:
 | Decision | Rule |
 | --- | --- |
 | Authority | This file is a planning index; active state belongs to component `task.md`. |
+| Hierarchy | A descendant backlog does not authorize changes to this backlog's scope, an ancestor, a sibling, or a shared boundary. Broader structural or authority decisions must be recorded in the nearest affected ancestor backlog; descendant backlogs may hold linked bounded follow-ups only after that decision. |
 | Context | Component purpose and design belong to component `as-is.md`. |
 | History | Completed summaries belong to component `changelog.md`. |
 | Tracing | Telemetry is supplementary and never replaces task records, validation, recovery, or completion authority. |

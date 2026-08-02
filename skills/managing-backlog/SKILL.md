@@ -25,7 +25,8 @@ Maintain the repository backlog as a planning index, not as task authority.
 | --- | --- |
 | Component context | Owning `as-is.md` exists and is understood |
 | Priority | Rationale reflects authority, blockers, risk, intent, value, and budget |
-| Scope | Outcome and acceptance are bounded |
+| Scope | Outcome and acceptance are bounded to the owning component |
+| Hierarchy | A backlog may propose work within its own component boundary, but a descendant backlog cannot authorize changes to an ancestor, sibling, or shared boundary. Work that changes a directory structure, source-tree convention, or authority beyond the owning component must be proposed and accepted in the nearest affected ancestor backlog; descendant backlogs may be referenced as bounded follow-ups only after that ancestor decision |
 | Dependencies | Required inputs are named and available or remain open |
 | Selection | Invoke `implementing-component-tasks` with the selected item |
 
@@ -37,6 +38,18 @@ the configured task record (default `tasks.md`) while work is active and its
 `changelog.md` after completion. When a
 backlog item is completed, remove it from the planning index; retain its concise
 summary only in the owning component's `changelog.md`.
+
+A backlog may not make a structural or authority decision outside its own
+component boundary. The same rule applies at every hierarchy level, not only at
+the repository root: a descendant backlog cannot affect an ancestor, sibling, or
+shared boundary merely by containing a proposal. Introducing, removing, or
+relocating a directory outside the component; changing an authoritative
+source-tree convention; or creating cross-component authority belongs in the
+nearest affected ancestor backlog or an explicitly scoped design/architecture
+task. An ancestor backlog may link to or reference descendant backlog items,
+but the descendant item alone is not sufficient authorization for the broader
+change. After the ancestor decision is recorded, each affected descendant may
+carry only its bounded implementation or compatibility follow-up.
 
 ## Quality Checks
 
