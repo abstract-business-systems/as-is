@@ -12,7 +12,10 @@ import {
 import { Type } from "typebox";
 import { emitTrace } from "../../components/observability/tracer.ts";
 
-const workerRolePath = ".agents/agents/worker/agent.md";
+const rolePaths = {
+  worker: ".agents/agents/worker/agent.md",
+  expert: ".agents/agents/expert/agent.md",
+} as const;
 const maxResultCharacters = 12_000;
 const defaultTimeoutMs = 60_000;
 
@@ -165,7 +168,7 @@ const callSubagent: ToolDefinition = {
   label: "Call read-only worker",
   description: "Ask a bounded read-only worker agent a question without spawning a subprocess.",
   parameters: Type.Object({
-    role: Type.Optional(Type.Literal("worker")),
+    role: Type.Optional(Type.Union([Type.Literal("worker"), Type.Literal("expert")])),
     task: Type.String({ description: "One bounded read-only question or investigation." }),
     timeoutMs: Type.Optional(Type.Integer({ minimum: 1_000, maximum: 120_000 })),
     traceId: Type.Optional(Type.String()),
@@ -178,7 +181,8 @@ const callSubagent: ToolDefinition = {
     const started = Date.now();
     const cwd = ctx.cwd;
     const timeoutMs = params.timeoutMs ?? defaultTimeoutMs;
-    const rolePath = join(cwd, workerRolePath);
+    const roleName = params.role ?? "worker";
+    const rolePath = join(cwd, rolePaths[roleName]);
 
     await recordTrace({
       name: "call_subagent",
@@ -188,15 +192,11 @@ const callSubagent: ToolDefinition = {
       attributes: {
         "as_is.session_id": ctx.sessionManager.getSessionId?.() as string | undefined,
         "as_is.run_id": params.runId,
-        "as_is.role": "worker",
+        "as_is.role": roleName,
         "as_is.call_id": callId,
         "as_is.task_digest": hash(params.task),
       },
     }, cwd);
-
-    if (params.role && params.role !== "worker") {
-      throw new Error(`Unsupported worker role: ${params.role}`);
-    }
 
     const role = await readFile(rolePath, "utf8");
     const controller = new AbortController();
@@ -239,7 +239,7 @@ const callSubagent: ToolDefinition = {
         spanId: newId(),
         parentSpanId: spanId,
         attributes: {
-          "as_is.role": "worker",
+          "as_is.role": roleName,
           "as_is.call_id": callId,
           "as_is.outcome": "success",
           "as_is.duration_ms": Date.now() - started,
@@ -256,14 +256,14 @@ const callSubagent: ToolDefinition = {
         spanId: newId(),
         parentSpanId: spanId,
         attributes: {
-          "as_is.role": "worker",
+          "as_is.role": roleName,
           "as_is.call_id": callId,
           "as_is.outcome": "failure",
           "as_is.duration_ms": Date.now() - started,
           "as_is.error_type": error instanceof Error ? error.name : "unknown",
         },
       }, cwd);
-      throw new Error(`Read-only worker failed: ${message}`);
+      throw new Error(`${roleName} subagent failed: ${message}`);
     } finally {
       signal?.removeEventListener("abort", abortFromParent);
       worker?.dispose();

@@ -50,7 +50,9 @@ allocations are independent.
 
 Before handoff, update your component record with validation evidence, actual
 host-reported cost when available, host-observed wall-clock use when available,
-residual risk, result, recovery checkpoint, and next action. Do not change
+residual risk, result, recovery checkpoint, and next action. Before committing,
+require a passing read-only expert validation in the same controlled
+worktree/context and preserve its evidence in the task record. Do not change
 parent or sibling records, create runtime state, or contact external services.
 Use `verification-discipline` to select the completion checks. Mark the record
 completed only after all descendants are terminal and the record accounts for

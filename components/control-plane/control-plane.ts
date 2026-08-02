@@ -419,19 +419,15 @@ function pathExistsAsDirectory(path: string): boolean {
   }
 }
 
-function walkAsIs(root: string): string[] {
+function walkRecords(root: string): string[] {
   const found: string[] = [];
   function visit(directory: string): void {
     let entries;
-    try {
-      entries = readdirSync(directory, { withFileTypes: true });
-    } catch {
-      return;
-    }
+    try { entries = readdirSync(directory, { withFileTypes: true }); } catch { return; }
     for (const entry of entries) {
       const path = join(directory, entry.name);
       if (entry.isDirectory()) visit(path);
-      else if (entry.name === "as-is.md") found.push(path);
+      else if (entry.name === "task.md" || entry.name === "as-is.md") found.push(path);
     }
   }
   visit(root);
@@ -456,21 +452,25 @@ export class ControlPlane {
 
   constructor(root: string, options: { clock?: Clock } = {}) {
     this.root = resolve(root);
-    this.rootRecordPath = join(this.root, "as-is.md");
+    const durableRoot = join(this.root, "as-is.md");
+    this.rootRecordPath = existsSync(join(this.root, "task.md")) ? join(this.root, "task.md") : durableRoot;
     this.clock = options.clock ?? (() => new Date());
-    if (!existsSync(this.rootRecordPath)) {
-      throw new ControlPlaneError(`root task record does not exist: ${this.rootRecordPath}`);
+    if (!existsSync(durableRoot)) throw new ControlPlaneError(`root durable record does not exist: ${durableRoot}`);
+    const rootRecord = loadRecord(durableRoot);
+    if (rootRecord.data["as-is-version"] !== 1 && rootRecord.data["as-is-version"] !== 2) {
+      throw new ControlPlaneError(`root durable record has unsupported as-is-version: ${durableRoot}`);
     }
-    const rootRecord = loadRecord(this.rootRecordPath);
-    if (!isTaskRecord(rootRecord)) throw new ControlPlaneError(`root is not a task record: ${this.rootRecordPath}`);
+    if (existsSync(this.rootRecordPath) && !isTaskRecord(loadRecord(this.rootRecordPath))) {
+      throw new ControlPlaneError(`root task record is invalid: ${this.rootRecordPath}`);
+    }
   }
 
   private records(): DurableRecord[] {
     const records: DurableRecord[] = [];
-    for (const path of walkAsIs(this.root)) {
+    for (const path of walkRecords(this.root)) {
       try {
         const record = loadRecord(path);
-        if (isTaskRecord(record)) records.push(record);
+        if (isTaskRecord(record) && (path === this.rootRecordPath || path.endsWith("/task.md") || path.endsWith("\\task.md") || path.endsWith("/as-is.md") || path.endsWith("\\as-is.md"))) records.push(record);
       } catch (error) {
         if (path === this.rootRecordPath) throw error;
         let raw = "";
@@ -482,9 +482,6 @@ export class ControlPlane {
         if (/^as-is-version:\s*/m.test(raw)) throw error;
         // Agent definitions and other Markdown files may use the same filename.
       }
-    }
-    if (!records.some((record) => record.path === this.rootRecordPath)) {
-      throw new ControlPlaneError("root task record was not discovered");
     }
     return records;
   }
@@ -505,7 +502,7 @@ export class ControlPlane {
   }
 
   private rootRecord(): DurableRecord {
-    return this.recordFor(this.rootRecordPath);
+    return loadRecord(existsSync(this.rootRecordPath) ? this.rootRecordPath : join(this.root, "as-is.md"));
   }
 
   private now(): string {
@@ -556,8 +553,11 @@ export class ControlPlane {
 
   private rootMaxConcurrent(): number {
     const config = this.rootRecord().data.config;
-    const scheduling = isMapping(config) && isMapping(config.scheduling) ? config.scheduling : {};
+    const configMap = isMapping(config) ? config : {};
+    const scheduling = isMapping(configMap.scheduling) ? configMap.scheduling :
+      (isMapping(configMap.tasks) && isMapping(configMap.tasks.scheduling) ? configMap.tasks.scheduling : {});
     const value = scheduling.maxConcurrentTasks;
+    if (value === undefined) return 1;
     if (!Number.isInteger(value) || value < 1) {
       throw new ControlPlaneError("config.scheduling.maxConcurrentTasks must be a positive integer");
     }
@@ -604,10 +604,12 @@ export class ControlPlane {
 
   status(): UnknownRecord {
     const records = this.records();
-    const root = records.find((record) => record.path === this.rootRecordPath)!;
+    const root = loadRecord(join(this.root, "as-is.md"));
     const config = root.data.config;
-    const scheduling = isMapping(config) && isMapping(config.scheduling) ? config.scheduling : {};
-    const configuredInterval = scheduling.checkInSeconds;
+    const configMap = isMapping(config) ? config : {};
+    const scheduling = isMapping(configMap.scheduling) ? configMap.scheduling :
+      (isMapping(configMap.tasks) && isMapping(configMap.tasks.scheduling) ? configMap.tasks.scheduling : {});
+    const configuredInterval = scheduling.checkInSeconds ?? (isMapping(configMap.tasks) && isMapping(configMap.tasks.scheduling) ? configMap.tasks.scheduling.checkInSeconds : undefined);
     const interval = Number.isInteger(configuredInterval) && configuredInterval > 0 ? configuredInterval : null;
     const snapshots: TaskSnapshot[] = [];
 
