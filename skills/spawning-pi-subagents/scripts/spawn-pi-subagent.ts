@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { appendFile, mkdtemp, open, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, dirname, isAbsolute, join, resolve } from "node:path";
@@ -551,6 +551,7 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
   };
 
   let budgetStopped = false;
+  let budgetStopElapsedMs: number | null = null;
   let budgetTimer: NodeJS.Timeout | undefined;
   let killTimer: NodeJS.Timeout | undefined;
   const clearTimers = () => {
@@ -563,6 +564,8 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
   if (config.budgetWallClockSeconds && config.budgetWallClockSeconds > 0) {
     budgetTimer = setTimeout(() => {
       budgetStopped = true;
+      budgetStopElapsedMs = Date.now() - startedMonotonic;
+      phaseTimings["budget-stop"] = budgetStopElapsedMs;
       signalGroup("SIGTERM");
       killTimer = setTimeout(() => signalGroup("SIGKILL"), BUDGET_KILL_GRACE_SECONDS * 1000);
     }, config.budgetWallClockSeconds * 1000);
@@ -641,8 +644,26 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     }
   }
 
+  const outcome = {
+    jobId: config.jobId,
+    recordPath: config.recordPath,
+    callerCwd: config.callerCwd,
+    worktreePath: config.worktreePath,
+    baseSha,
+    exitCode,
+    budgetStopped,
+    budgetStopElapsedMs,
+    wallClockSeconds,
+    phaseTimings,
+    commitSha: finalSha,
+    committed,
+    integrationStatus,
+    worktreePreserved,
+    preserveReason,
+  };
+
   try {
-    await writeFile(config.resultPath, `${JSON.stringify({ exitCode, budgetStopped, wallClockSeconds, phaseTimings, commitSha: finalSha, committed, integrationStatus, worktreePreserved, preserveReason })}\n`, "utf8");
+    await writeFile(config.resultPath, `${JSON.stringify(outcome)}\n`, "utf8");
   } catch {
     /* best-effort outcome record */
   }
@@ -650,18 +671,9 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
   if (config.registryPath) {
     try {
       await appendFile(config.registryPath, `${JSON.stringify({
-        jobId: config.jobId,
+        ...outcome,
         event: "finished",
-        exitCode,
-        budgetStopped,
-        wallClockSeconds,
         childPid,
-        commitSha: finalSha,
-        committed,
-        integrationStatus,
-        phaseTimings,
-        worktreePreserved,
-        preserveReason,
         finishedAt: new Date().toISOString(),
       })}\n`, "utf8");
     } catch {
@@ -1029,7 +1041,7 @@ const main = async() => {
     process.removeListener("SIGTERM", forwardSignal);
     process.removeListener("SIGINT", forwardSignal);
 
-    let result = { exitCode: supervisorExit, budgetStopped: false, wallClockSeconds: 0, commitSha: null, committed: false, integrationStatus: "unknown" };
+    let result = { exitCode: supervisorExit, budgetStopped: false, wallClockSeconds: 0, commitSha: null, committed: false, integrationStatus: "unknown", worktreePreserved: false };
     try {
       result = JSON.parse(await readFile(resultPath, "utf8"));
     } catch {
@@ -1044,7 +1056,17 @@ const main = async() => {
       process.exitCode = result.exitCode;
     }
   } finally {
-    await rm(jobDirectory, { recursive: true, force: true });
+    // A preserved worktree is the recovery artifact. Keep the job directory
+    // when the supervisor recorded uncommitted changes; removing it here would
+    // contradict `worktreePreserved` and destroy the only recovery surface.
+    const preserve = (() => {
+      try {
+        return JSON.parse(readFileSync(resultPath, "utf8")).worktreePreserved === true;
+      } catch {
+        return false;
+      }
+    })();
+    if (!preserve) await rm(jobDirectory, { recursive: true, force: true });
   }
 };
 

@@ -35,8 +35,11 @@ history notes in the root or component records; do not restore or create
 `task-archives/` and do not treat historical snapshots as active task records.
 
 Advance the task record to `active`, implement the bounded requirement, and run
-the smallest relevant checks using task-specific tools. Delegate bounded child
-work through the spawning-pi-subagents launcher; forward time and money
+the smallest relevant checks using task-specific tools. Before any child launch,
+verify that the child record revision has no active attempt, subtract local
+spent/reserve from the available cost and wall-clock allocation, and record any
+excess requirement as a durable blocker or approval request. Delegate bounded
+child work through the spawning-pi-subagents launcher; forward time and money
 constraints with `--budget-wall-clock-seconds` and `--budget-cost-usd`. The
 launcher enforces the wall-clock hard stop and forwards the cost limit to the
 child for self-limiting; a `124` exit with the `as-is budget-stopped` stderr
@@ -72,6 +75,10 @@ owns worktree lifecycle.
 
 On return from a child, read its record, assess its validation and residual
 risk, and perform any required integration work at the nearest common ancestor.
+Keep child commits as recoverable source evidence; consolidate related child
+worktree commits into one scoped integration commit before merging into the
+original branch, and record source SHAs, resulting SHA, scope, and preserved
+unrelated work.
 Do not mark a record completed while any descendant is non-terminal.
 
 Before removing historical material, audit tracked, untracked, and ignored

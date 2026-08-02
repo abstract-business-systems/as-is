@@ -206,7 +206,11 @@ test("child commit handoff is explicitly pending parent integration", async () =
     await new Promise((resolveDone) => setTimeout(resolveDone, 100));
     const finished = readRegistryLines(registry).find(
       (line) => (line as { jobId?: string }).jobId === handle.jobId && (line as { event?: string }).event === "finished",
-    ) as { committed: boolean; integrationStatus: string; commitSha: string | null } | undefined;
+    ) as { jobId: string; recordPath: string | null; callerCwd: string; worktreePath: string | null; baseSha: string | null; committed: boolean; integrationStatus: string; commitSha: string | null } | undefined;
+    expect(finished?.jobId).toBe(handle.jobId);
+    expect(finished?.callerCwd).toBe(process.cwd());
+    expect(finished?.worktreePath).toContain("worktree");
+    expect(finished?.baseSha).toBeTruthy();
     expect(finished?.committed).toBe(true);
     expect(finished?.commitSha).toBeTruthy();
     expect(finished?.integrationStatus).toBe("pending-parent-integration");
@@ -232,17 +236,78 @@ test("detach supervisor records a completion line with exit code and wall-clock"
     const finished = readRegistryLines(registry).find(
       (line) => (line as { jobId: string; event?: string }).jobId === handle.jobId
         && (line as { event?: string }).event === "finished",
-    ) as { exitCode: number; budgetStopped: boolean; wallClockSeconds: number; childPid: number; phaseTimings: Record<string, number> } | undefined;
+    ) as { jobId: string; recordPath: string | null; callerCwd: string; worktreePath: string | null; baseSha: string | null; exitCode: number; budgetStopped: boolean; budgetStopElapsedMs: number | null; wallClockSeconds: number; childPid: number; phaseTimings: Record<string, number> } | undefined;
     expect(finished).toBeDefined();
+    expect(finished!.jobId).toBe(handle.jobId);
+    expect(finished!.callerCwd).toBe(process.cwd());
+    expect(finished!.worktreePath).toContain("worktree");
+    expect(finished!.baseSha).toBeTruthy();
     expect(finished!.phaseTimings["child-spawn"]).toBeGreaterThanOrEqual(0);
     expect(finished!.phaseTimings["child-wait"]).toBeGreaterThanOrEqual(0);
     expect(finished!.phaseTimings.total).toBeGreaterThanOrEqual(finished!.phaseTimings["child-wait"]);
     expect(finished!.exitCode).toBe(0);
     expect(finished!.budgetStopped).toBe(false);
+    expect(finished!.budgetStopElapsedMs).toBeNull();
     expect(typeof finished!.wallClockSeconds).toBe("number");
     expect(finished!.childPid).toBeGreaterThan(0);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test("budget stop records the stop boundary and phase timing", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "as-is-budget-stop-test-"));
+  try {
+    const stubPi = writeSleepStub(dir, 30);
+    const registry = join(dir, "jobs.jsonl");
+    const result = await runLauncher([
+      "--agent", AGENT, "--task", "Budget diagnostic task.", "--cwd", process.cwd(),
+      "--pi", stubPi, "--budget-wall-clock-seconds", "1", "--detach",
+    ], { ...process.env, AS_IS_JOBS_REGISTRY: registry });
+    expect(result.exitCode).toBe(0);
+    const handle = JSON.parse(result.stdout);
+    expect(await pidGone(handle.pid, 9000)).toBe(true);
+    const finished = readRegistryLines(registry).find(
+      (line) => (line as { jobId?: string }).jobId === handle.jobId && (line as { event?: string }).event === "finished",
+    ) as { budgetStopped: boolean; budgetStopElapsedMs: number | null; phaseTimings: Record<string, number> } | undefined;
+    expect(finished?.budgetStopped).toBe(true);
+    expect(finished?.budgetStopElapsedMs).toBeGreaterThanOrEqual(900);
+    expect(finished?.budgetStopElapsedMs).toBeLessThan(4000);
+    expect(finished?.phaseTimings["budget-stop"]).toBe(finished?.budgetStopElapsedMs);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+}, 15000);
+
+test("budget stop remains authoritative when a child outlives the deadline", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "as-is-late-success-test-"));
+  try {
+    const stubPi = join(dir, "pi-late-success-stub.sh");
+    writeFileSync(stubPi, [
+      "#!/usr/bin/env bash",
+      "trap '' TERM",
+      "end=$((SECONDS + 2))",
+      "while [ $SECONDS -lt $end ]; do :; done",
+      "printf 'late child marker\\n' >> budget-marker.txt",
+      "git add budget-marker.txt",
+      "git config user.email test@example.invalid",
+      "git config user.name test",
+      "git commit --quiet -m 'test: late child result'",
+      "exit 0",
+      "",
+    ].join("\\n"), { mode: 0o755 });
+    const registry = join(dir, "jobs.jsonl");
+    const result = await runLauncher([
+      "--agent", AGENT, "--task", "Late success budget diagnostic.", "--cwd", process.cwd(),
+      "--pi", stubPi, "--budget-wall-clock-seconds", "1", "--detach",
+    ], { ...process.env, AS_IS_JOBS_REGISTRY: registry });
+    expect(result.exitCode).toBe(0);
+    const handle = JSON.parse(result.stdout);
+    expect(await pidGone(handle.pid, 9000)).toBe(true);
+    const finished = readRegistryLines(registry).find(
+      (line) => (line as { jobId?: string }).jobId === handle.jobId && (line as { event?: string }).event === "finished",
+    ) as { exitCode: number; budgetStopped: boolean; budgetStopElapsedMs: number | null; committed: boolean; integrationStatus: string; phaseTimings: Record<string, number> } | undefined;
+    expect(finished?.budgetStopped).toBe(true);
+    expect(finished?.budgetStopElapsedMs).toBeGreaterThanOrEqual(900);
+    expect(finished?.exitCode).not.toBe(0);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+}, 15000);
 
 test("blocking mode enforces the wall-clock budget and returns a budget-stopped result", async () => {
   const dir = mkdtempSync(join(tmpdir(), "as-is-blocking-test-"));

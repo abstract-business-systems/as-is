@@ -3,7 +3,7 @@ import { appendFile, chmod, mkdir, open, readFile, rename, rm, stat, unlink, wri
 import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { emitTrace, type TracerConfig } from "../observability/tracer.ts";
+import { emitTrace, startSpan, type TracerConfig, type SpanLifecycle } from "../observability/tracer.ts";
 
 /**
  * A small, host-neutral execution boundary.
@@ -1406,9 +1406,24 @@ export async function launch(request: LaunchRequest, timeoutMilliseconds = 3000)
     supervisorProcessGroupId: supervisorPid,
     roleChain: roleChainDetails(request.roleChain),
   }), { supervisorPid, supervisorProcessGroupId: supervisorPid });
-  const launchRecord = await waitForLaunchCheckpoint(handle, timeoutMilliseconds);
+  const childWaitSpan: SpanLifecycle = startSpan("child-wait", {
+    cwd: effectiveRequest.projectRoot ?? process.cwd(),
+    traceId: effectiveRequest.traceId ?? runId,
+    config: effectiveRequest.tracer,
+    emit: async (event, cwd, config) => {
+      await emitTrace(event, cwd, config);
+    },
+  });
+  let launchRecord: DurableRecordObservation;
+  try {
+    launchRecord = await waitForLaunchCheckpoint(handle, timeoutMilliseconds);
+  } catch (error) {
+    await childWaitSpan.finish("failure", { phase: "child-wait" });
+    throw error;
+  }
   const accepted = launchRecord.events.some((event) => event.jobId === jobId && event.event === "launch-accepted");
   const unavailable = launchRecord.events.some((event) => event.jobId === jobId && event.event === "unavailable");
+  await childWaitSpan.finish(accepted ? "success" : "failure", { phase: "child-wait" });
   if (!accepted && !unavailable) {
     await writeRecordCheckpoint(request.recordPath, makeCheckpoint(jobId, operation, "unavailable", {
       source: "host-process",

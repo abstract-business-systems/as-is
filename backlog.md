@@ -23,7 +23,7 @@ Remaining root-owned planning items:
 
 | ID | Priority | Component | Status | Outcome | Approach |
 | --- | --- | --- | --- | --- | --- |
-| parent-integration-handoff | High | root/as-is flow | open | Define and validate an explicit parent integration/handoff step for delegated component commits, including scoped commit attribution and durable child-record evidence before parent completion. | First map current launcher, task protocol, and commit procedure; specify the handoff evidence contract; add focused fixture/checks; then validate a delegated child integration without changing unrelated components. |
+| parent-integration-handoff | High | root/as-is flow | open | Define and validate an explicit parent integration/handoff step for delegated component commits, including scoped commit attribution and durable child-record evidence before parent completion. | Map launcher/task protocol; require child record and validation evidence; consolidate related child worktree commits into one scoped integration commit where appropriate; verify source SHAs, resulting parent SHA, unrelated-work preservation, and recovery on failure. |
 
 ## Prioritization
 
@@ -44,3 +44,5 @@ Remaining root-owned planning items:
 | Tracing | Telemetry is supplementary and never replaces task records, validation, recovery, or completion authority. |
 | Configuration | Root `as-is.md` is the sole project configuration source; `docs/configuration.md` documents its structure. Record filenames are configured at `config.records.filenames`. |
 | Completion | Remove completed items from the owning component backlog after recording their concise summary in the owning component's `changelog.md`. |
+| Budget and recovery | Child allocations subtract parent spent use and reserve; excess cost or wall-clock requirements bubble to a durable approval/blocker. Failed, cancelled, or budget-stopped descendants remain accounted for and do not silently trigger duplicate attempts. |
+| Integration | Child commits remain recoverable source evidence; the parent consolidates related worktree commits into one scoped integration commit before merging into the original branch and records source/result SHAs. |

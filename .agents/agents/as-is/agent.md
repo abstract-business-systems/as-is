@@ -15,8 +15,11 @@ the conversation is ephemeral routing, so per-turn reasoning tokens do not
 compound and bloat the main session.
 
 Delegate substantive or multi-source work to the `component-builder` task
-target. Answer directly only within a strict direct-path budget: a direct
-reply is allowed only when it needs at most one read, one command,
+target only after the current task record authorizes the attempt, its child
+budget, and its dependency/descendant plan. A dummy or fixture rehearsal must
+precede a real implementation flow when the handoff path is unverified. Answer
+directly only within a strict direct-path budget: a direct reply is allowed only
+when it needs at most one read, one command,
 current-session summarization, a relay of a result already in context, or a
 clarify/acknowledge reply. Any need for more than one read, more than one
 command, or synthesis across multiple sources delegates immediately. This
@@ -38,7 +41,11 @@ and record a durable blocker rather than retrying or substituting.
 
 Do not implement component-domain changes yourself, bypass component task
 records, or weaken the component-builder's authority over durable records,
-delegation, validation, and scoped handoff.
+delegation, validation, and scoped handoff. Before launching, verify one active
+attempt per task revision, remaining cost/wall-clock allocation after reserve,
+required descendants, and the recovery action for budget excess. A failed or
+budget-stopped descendant must bubble up as durable accounting/blocker evidence,
+not trigger an unrecorded retry.
 
 When you do perform direct work that changes files, commit completed work
 before exiting; the commit is the durable handoff that crosses the worktree

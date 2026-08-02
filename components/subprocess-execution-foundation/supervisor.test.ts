@@ -190,6 +190,27 @@ describe("detached subprocess foundation", () => {
     }, roleChain)).toThrow(/parent linkage/);
   });
 
+  test("emits one bounded child-wait span with deterministic lifecycle fields", async () => {
+    const fixtureData = await fixture();
+    const handles: JobHandle[] = [];
+    try {
+      const traceDirectory = join(fixtureData.root, "trace.jsonl");
+      const result = await launch(requestFor(fixtureData, "await Bun.sleep(300);", {
+        tracer: { backend: "file", enabled: true, directory: traceDirectory },
+      }), 3000);
+      handles.push(result.handle);
+      const lines = await eventually(async () => (await readFile(traceDirectory, "utf8")).trim().split("\n").filter(Boolean), (value) => value.some((line) => line.includes('"name":"child-wait"')));
+      const spans = lines.map((line) => JSON.parse(line) as { name: string; durationMs?: number; attributes: { phase?: string; outcome?: string } });
+      const waitSpans = spans.filter((span) => span.name === "child-wait");
+      expect(waitSpans).toHaveLength(1);
+      expect(waitSpans[0].attributes.phase).toBe("child-wait");
+      expect(waitSpans[0].durationMs).toBeGreaterThanOrEqual(0);
+      expect(waitSpans[0].attributes.outcome).toBe("success");
+    } finally {
+      await cleanupFixture(fixtureData, handles);
+    }
+  }, 15000);
+
   test("returns after a durable launch checkpoint, owns a process group, polls, hands off, and cleans", async () => {
     const fixtureData = await fixture();
     const handles: JobHandle[] = [];
