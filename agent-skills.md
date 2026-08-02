@@ -43,7 +43,7 @@ exhaustive list of every technique, domain practice, or tool integration.
 - Keep the catalog extensible. Domain playbooks and tool adapters will expand;
   foundational capability domains should remain relatively stable.
 
-See [Design Principles](design-principles.md) for the project-wide principles
+See [Design Principles](docs/design-principles.md) for the project-wide principles
 that govern this catalog and its implementation.
 
 ## Layers of Reuse

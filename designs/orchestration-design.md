@@ -146,7 +146,7 @@ session/event behavior remains at the adapter boundary.
   for delegated work. Repository instructions and project decisions state only
   its applicable behavioral requirement and refer to the protocol for fields.
 - Task records use the component's `as-is.md`. Their protocol is defined in
-  [Component Task-Record Protocol](../component-task-record-protocol.md).
+  [Component Task-Record Protocol](../docs/component-task-record-protocol.md).
 - The record identifies the configured worker suitable for recovery, not a mutable
   owner or lease. When recovery is required, the orchestrator rereads the record
   and delegates it to that role; the resumed worker decides whether to continue
@@ -219,8 +219,8 @@ session/event behavior remains at the adapter boundary.
   its authorization policy.
 
 See `docs/configuration.md` for the superseded JSON-manifest design,
-`component-task-record-protocol.md` for the component record contract, and
-`execution-contract.md` for the host-neutral worker lifecycle contract.
+`docs/component-task-record-protocol.md` for the component record contract, and
+`docs/execution-contract.md` for the host-neutral worker lifecycle contract.
 See `as-is.md` for transient current project task state.
 
 ### Orchestration and Control
@@ -256,7 +256,7 @@ See `as-is.md` for transient current project task state.
   the orchestrator delegates recovery to the configured worker identified in the
   record, rather than relying on an independent generic recovery process.
 - Recovery uses the conservative host-neutral policy in
-  `execution-contract.md`: stale detection is source-labelled from durable
+  `docs/execution-contract.md`: stale detection is source-labelled from durable
   checkpoints, retries are finite with cumulative backoff and budget
   observations, and unavailable-worker replacement requires explicit recorded
   direction or approval. A host adapter may report runtime facts but cannot
@@ -338,7 +338,7 @@ See `as-is.md` for transient current project task state.
 ### Host-Neutral Execution Contract
 
 The lifecycle boundary for worker execution is defined in
-`execution-contract.md`. It normalizes `launch`, `resume`, `observe`,
+`docs/execution-contract.md`. It normalizes `launch`, `resume`, `observe`,
 `question`, `cancel`, and `recover` operations around the component task
 record. The orchestrator supplies the worker its component record plus central
 read-only execution context; it does not copy repository-wide context into the
@@ -419,7 +419,7 @@ worker, and cost and wall-clock allocations.
 
 The envelope does not implement scheduling, check-ins, runtime session
 recovery, or a host adapter. The host-neutral lifecycle contract is defined in
-`execution-contract.md`; host-specific enforcement and recovery behavior
+`docs/execution-contract.md`; host-specific enforcement and recovery behavior
 remain later increments. When a host cannot report per-component cost, the
 record names its fallback metric and leaves `spent` as non-actual rather than
 presenting an estimate as a cost.
@@ -519,7 +519,7 @@ acceptance conditions.
 
 The accepted current implementation for the execution-foundation boundary is
 the dependency-free subprocess supervisor recorded by the terminal
-`subprocess-execution-foundation/as-is.md` handoff and commit `e8fb1da`. The
+`components/subprocess-execution-foundation/as-is.md` handoff and commit `e8fb1da`. The
 previous systemd user-job flow is retired/superseded and is not a fallback,
 active sequencing dependency, or separate recovery path. Its historical
 baseline is recoverable only through Git and the canonical `Changelog` section.

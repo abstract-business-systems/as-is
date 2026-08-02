@@ -1,10 +1,10 @@
 # as-is Repository Instructions
 
-Follow [Design Principles](design-principles.md). Repository-authored files and
+Follow [Design Principles](docs/design-principles.md). Repository-authored files and
 directories use lowercase kebab-case unless a host requires an exact filename.
 
 The as-is task-record, delegation, recovery, and completion mechanics are
-governed by [component-task-record-protocol.md](component-task-record-protocol.md)
+governed by [component-task-record-protocol.md](docs/component-task-record-protocol.md)
 and surfaced as reusable procedures under [skills](skills/). This file holds
 only the generic developmental guardrails that apply to any agent working in
 this repository.
@@ -47,7 +47,7 @@ this repository.
   output, and verification boundary. Preserve the result in repository context
   before dependent work proceeds. Delegation, scoping, completion gates, and
   recovery mechanics are specified in
-  [component-task-record-protocol.md](component-task-record-protocol.md).
+  [component-task-record-protocol.md](docs/component-task-record-protocol.md).
 - Use an independent reviewer or validator when risk, authority, or change
   breadth warrants it. The implementing agent's report is evidence, not the
   sole completion gate.

@@ -169,7 +169,7 @@ fields as unavailable; it never treats missing private state as completion.
 The supervisor and OpenCode adapter may continue to use `JobId` internally for
 control and correlation. A JobId-only public lookup is diagnostic compatibility
 at most, not the stable status contract. OpenCode session/event behavior remains
-inside `opencode-adapter.md`; the generic supervisor only consumes normalized,
+inside `docs/opencode-adapter.md`; the generic supervisor only consumes normalized,
 source-labelled adapter observations.
 
 ## Accounting Ownership And Reconciliation
@@ -246,7 +246,7 @@ attribution boundary, keep OpenCode-specific behavior at the adapter boundary,
 and must not revive systemd.
 
 The design is independently verifiable through the fixture matrix in the
-current task record at `execution-accounting-design/as-is.md` and through
+the merged design-component record at `designs/as-is.md` and through
 focused reference, record/schema, accounting, and whitespace checks. The
 fixtures are expected observations and acceptance cases, not measurements from
 the current design-only task.

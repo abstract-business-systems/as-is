@@ -5,6 +5,12 @@ the relevant root or component `as-is.md` record.
 
 ## Open Items
 
+- Translate `components/task-record-validator/` from Python to dependency-free
+  Bun/TypeScript in a separate bounded task. Preserve the accepted YAML subset,
+  version-1/version-2 handling, authority inheritance, allocation checks,
+  descendant closure, and focused test parity before removing the Python
+  implementation.
+
 - **Configure and verify Jaeger support for universal tracing.**
   - Resolve the tracer configuration from the base project `as-is.md` for both
     in-process `call_subagent` workers and detached component-building

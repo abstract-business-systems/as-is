@@ -26,7 +26,7 @@ concept, role, scope, and responsibility of an artifact.
   `setting-up-as-is`, not function-like names such as `setup-as-is`.
 - Agents use role names, such as `component-builder` and `reviewer`.
 - Adapters identify their host, such as `opencode-adapter`.
-- Documents name their subject, such as `design-principles.md`.
+- Documents name their subject, such as `docs/design-principles.md`.
 
 ## Quality Checks
 

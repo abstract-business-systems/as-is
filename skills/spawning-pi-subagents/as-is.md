@@ -159,7 +159,11 @@ re-create `task-archives/`.
 - Kept the launcher/worktree/observation follow-ups here after ownership
   review.
 - Moved cumulative-accounting follow-up ownership to
-  `execution-accounting-design/as-is.md`.
+  `designs/as-is.md` and `designs/execution-accounting-design.md`.
+- Historical investigation found that synchronous nested delegation, repeated
+  recovery, blind waiting, and missing supervisor-owned enforcement caused
+  excessive elapsed time; retain this as rationale only, not as a current
+  handoff or runtime log.
 
 ## Next Action
 

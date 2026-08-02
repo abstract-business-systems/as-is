@@ -31,7 +31,7 @@ files, and Markdown sections are all levels of the same conceptual hierarchy.
 
 ## Placement Rules
 
-- Put enduring cross-project behavior in `design-principles.md`.
+- Put enduring cross-project behavior in `docs/design-principles.md`.
 - Put executable, reusable procedures in `skills/<skill-name>/SKILL.md`.
 - Put current task authority in `as-is.md` and concise historical overview in
   its `Changelog` section; `Changelog` is the canonical name, not a parallel

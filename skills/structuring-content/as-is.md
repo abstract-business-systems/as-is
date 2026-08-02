@@ -73,7 +73,7 @@ cognitive benefit. Existing creation-time evidence checks and examples should
 remain intact, and this task must not move the repository's existing fixtures.
 
 Keep rule placement clear without creating another policy authority: this skill
-owns the reusable procedure and decision criteria; `design-principles.md` owns
+owns the reusable procedure and decision criteria; `docs/design-principles.md` owns
 broad cross-project values; component task records own current-task evidence and
 decisions; `agent-skills.md` remains only the capability catalog.
 
@@ -129,7 +129,7 @@ placement, and both existing creation-time examples. The same assertion script
 read this record and observed the no-fixture boundary; all assertions reported
 `True` and the script exited 0.
 
-`python3 schemas/task-record-validator/task_record_validator.py
+`python3 components/task-record-validator/task_record_validator.py
 skills/structuring-content` reported `VALID` after this record's Validation
 section was present. `git diff --check -- skills/structuring-content/SKILL.md
 skills/structuring-content/as-is.md` completed with no output and exit 0.

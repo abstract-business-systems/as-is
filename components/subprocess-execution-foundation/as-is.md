@@ -86,10 +86,10 @@ repository runtime state was created.
 - Role checks accepted only machine-observable
   `as-is -> orchestrator -> implementer` attribution and rejected direct,
   wrong-role, missing-parent, and unattributed events.
-- `python3 schemas/task-record-validator/task_record_validator.py
+- `python3 components/task-record-validator/task_record_validator.py
   subprocess-execution-foundation` reported `VALID` before the terminal
   handoff.
-- `bun control-plane/control-plane.ts status .` read repository records and
+- `bun components/control-plane/control-plane.ts status .` read repository records and
   reported this component `completed` with no active task.
 - An independent process check reported no foundation supervisors, and the
   owned temporary `/tmp/as-is/` runtime was absent after validation.
@@ -126,6 +126,17 @@ the prior systemd baseline is available at `3e54fcd`, with its retirement
 decision summarized in the canonical `Changelog` section. Do not restore historical task folders,
 reopen this terminal record, or infer completion from process exit or private
 runtime absence. A future change requires a new authorized bounded task.
+
+## Changelog
+
+- The historical Pi delegation investigation found that synchronous nested
+  delegation, repeated recovery, blind waiting, and missing supervisor-owned
+  enforcement materially increased elapsed time. The detached process-group
+  foundation addressed the launch/lifecycle boundary; host capability and
+  attribution limitations remain source-labelled residual risk.
+- The shared task-record protocol and host-neutral execution contract remain
+  external governing documents; this component implements only the supervisor
+  portion of those boundaries.
 
 ## Next Action
 

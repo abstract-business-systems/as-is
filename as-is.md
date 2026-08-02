@@ -41,7 +41,7 @@ config:
 task:
   status: completed
   worker: as-is
-  updated: 2026-07-30T16:45:00Z
+  updated: 2026-08-02T08:03:00Z
 constraints:
   cost:
     currency: USD
@@ -65,6 +65,9 @@ acceptance:
   - Move the project configuration document to `docs/configuration.md` and update references.
   - Revise the structure and task-record guidance to allow a small historical overview to live in `as-is.md` when that is the smallest coherent authoritative home, and to describe the `<xyz>.md` → `<xyz>/index.md` plus extracted-section-files pattern.
   - Validate links, naming, task-record content, preservation of historical facts, and `git diff --check`.
+  - Group implemented project components under `components/`; place settled project contracts under `docs/`; retain not-yet-implemented designs under `designs/`; omit host-specific directories from project structure documentation.
+  - Move the task-record validator into `components/task-record-validator/`, retain its Python implementation, and record Bun translation as bounded backlog work.
+  - Merge the accounting-design task record into `designs/as-is.md` without moving the still-unimplemented accounting design into the supervisor component.
 ---
 
 # as-is Project
@@ -75,11 +78,15 @@ Maintain the repository-root current task context. This record is the authoritat
 
 ## Requirement
 
-Apply the documentation/task-record correction: preserve the full root configuration block and task-context authority; retain necessary concise history in the canonical `Changelog` section; update references and organization guidance; and do not implement runtime code or unrelated maintenance.
+Apply the bounded repository-structure correction: preserve root task-context authority; group implemented project components under `components/`; place settled project contracts under `docs/`; retain not-yet-implemented designs under `designs/`; omit host-specific directories from project structure documentation; preserve task-record lineage and update all references. Do not implement runtime behavior or translate the validator during this restructuring.
 
 ## Decision Boundary
 
 - `as-is.md` is the sole current-task authority for this root record.
+- `components/` owns implemented project components, including the current Python task-record validator; its future Bun translation is backlog work, not part of this migration.
+- `docs/` owns settled implemented project contracts and host-adapter documentation, including design principles, the task-record protocol, configuration, and OpenCode adapter guidance.
+- `designs/` owns designs awaiting implementation; `execution-accounting-design.md` remains there, while its separate task record is merged into `designs/as-is.md`.
+- `.agents/`, `.pi/`, and `.opencode/` are host-specific machinery and are not project-structure siblings documented by this record.
 - The `Changelog` is the canonical name for concise historical notes; it is not a second task authority, archive, or runtime log.
 - A separate history file is unnecessary for this repository root and must not become a second authority.
 - The moved project configuration lives at `docs/configuration.md` and keeps its authority relationship to this root record.
@@ -87,57 +94,83 @@ Apply the documentation/task-record correction: preserve the full root configura
 
 ## Plan
 
-1. Inspect the current retry-with-pi tree and the prior changelog-authority changes.
-2. Update the root record, structure guidance, task-record protocol, and configuration docs.
-3. Update documentation, records, skill/agent entry points, design links, and canonical terminology.
-4. Validate links, naming, task-record content, historical-fact preservation, and `git diff --check`.
-5. Commit the scoped documentation-only handoff.
+1. Record the bounded structure decision and inspect consumers, task records, and host-specific boundaries.
+2. Move implemented components into `components/`, settled contracts into `docs/`, and the validator into the component group without changing its implementation language.
+3. Merge the accounting-design task record into `designs/as-is.md`; retain the unimplemented accounting design in `designs/`.
+4. Update project references and relevant `as-is.md` structure descriptions while excluding host-specific directories from the project map.
+5. Validate links, naming, task-record content, historical-fact preservation, focused tests, and `git diff --check`.
 
 ## Progress
 
-- Inspected the retry-with-pi tree and the recent changelog-authority commits before editing.
-- Moved the configuration document into `docs/configuration.md`.
-- Folded the concise root historical notes into this record instead of retaining a separate root change log.
-- Revised the structure and task-record guidance to make authority, placement, and expansion rules explicit.
+- Inspected the current tree, tracked consumers, task records, design/document classification, and host-specific boundaries before editing.
+- Recorded the migration boundary: implemented project components go under `components/`; settled project contracts go under `docs/`; designs awaiting implementation remain under `designs/`; host-specific directories are omitted from the project map.
+- Moved implemented project components and the active task-record validator under `components/`.
+- Moved settled contracts and host-adapter documentation under `docs/`.
+- Merged the accounting-design task history into `designs/as-is.md`; the unimplemented accounting design remains in `designs/`.
+- Validator implementation language remains unchanged and Bun translation is backlog work.
 
 ## Validation
 
-- Updated links and path references to the moved configuration document and
-  grouped design documents; targeted Markdown-link audit passed after correcting
-  moved-document relative paths.
-- Confirmed this record keeps current-task authority, preserves the full root
-  scheduling configuration, and carries the concise historical notes that were
-  previously split out.
-- `bun test skills/as-is/scripts/orient.test.ts` passed; the orientation script
-  now reads the canonical root `Changelog` and no live separate history-file
-  reference remains.
-- `git diff --check` passed; branch ancestry remains based on `d09f5ea` and the
-  reviewed child content is integrated in the local handoff commit.
-- The repository-wide task-record validator reports pre-existing fixture and
-  root-budget violations (including `.pi/prompts`, version-1 records, and the
-  root's zero delegation budget); these are outside this bounded documentation
-  correction and are retained as residual risk.
+- Markdown-link audit passed with zero broken relative links after the moves.
+- `python3 -m unittest -v components/task-record-validator/test_task_record_validator.py` passed all 6 tests.
+- Focused Bun tests passed: observability, control-plane, and subprocess
+  foundation suites reported 15 passing tests and 139 expectations.
+- Bun transpile/build checks passed for the orientation script, worker-tools
+  extension, and subprocess launcher.
+- `git diff --check` passed.
+- The repository-wide task-record validator still reports pre-existing fixture,
+  host-record, and root-budget violations; the moved component validator itself
+  passes its focused suite. These remain residual risk outside this
+  restructuring task.
 
 ## Result
 
-Completed the scoped documentation/task-record restructuring correction. The root retains its full configuration block and current-task authority, with concise history under the canonical `Changelog` heading.
+Completed the bounded project-structure restructuring. Implemented components
+are grouped under `components/`; settled contracts and host-adapter guidance are
+under `docs/`; unimplemented designs remain under `designs/`; the accounting
+history is merged into `designs/as-is.md`; and host-specific directories remain
+outside the project structure summary. The root retains its full configuration
+block and current-task authority, with concise history under the canonical
+`Changelog` heading.
 
 ## Changelog
 
+- 2026-08-02: grouped implemented components under `components/`, moved settled contracts to `docs/`, merged accounting-design task history into `designs/as-is.md`, and recorded validator Bun translation as backlog work.
+- 2026-08-02: compressed the transient Pi subagent investigation into durable
+  rationale: synchronous nested delegation, repeated recovery, blind waiting,
+  and absent supervisor-owned enforcement caused excessive elapsed time; the
+  detached subprocess foundation addresses the structural boundary. Historical
+  cost and timing remain source-labelled observations, not provider billing.
 - 2026-07-30: the earlier changelog-authority clarification established that current task authority belongs in `as-is.md`, not a parallel history file.
 - 2026-07-30: the prior root documentation pass recorded that the structuring guidance now permits larger files when they are the smallest coherent authoritative home.
 - 2026-07-29: spawning-pi-subagents gained detached handle registry facts and residual risk notes.
 - 2026-07-28: spawning-pi-subagents gained hard wall-clock budgeting and forwarded cost-limit notes.
 
+## Relevant Structure
+
+- `components/` contains implemented project components: control-plane,
+  observability, detached subprocess execution, and task-record validation.
+- `docs/` contains settled project contracts and host-adapter documentation.
+- `designs/` contains designs awaiting implementation; its `as-is.md` owns the
+  design-task record and merged accounting-design history.
+- `skills/` contains reusable repository procedures.
+- `validation-fixtures/` contains retained validation and recovery evidence.
+- Host-specific directories and private runtime state are governed by the
+  as-is agent and host instructions and are intentionally omitted here.
+
 ## Links
 
 - `docs/configuration.md` — project configuration and verbosity guidance.
-- `skills/structuring-content/SKILL.md` — content-structure placement rules and document-to-directory patterns.
-- `component-task-record-protocol.md` — durable task-record authority, `Changelog` placement, and recovery protocol.
-- `.agents/as-is.md` — agents-scope organization and backlog.
+- `docs/design-principles.md` — repository-wide governing principles.
+- `docs/component-task-record-protocol.md` — durable task-record authority,
+  `Changelog` placement, and recovery protocol.
+- `components/task-record-validator/` — active Python validator; Bun translation
+  is recorded in the backlog rather than implied by this migration.
 - `skills/context-building/SKILL.md` — high-priority context-building procedure.
-- `designs/as-is.md` — grouped design-document entry point.
-- `.agents/agents/component-builder/agent.md` — component-builder child contract.
+- `designs/as-is.md` — grouped design-document entry point and merged accounting
+  design task history.
+- `docs/opencode-adapter.md` — host-specific OpenCode mapping and limitations.
+- `docs/execution-contract.md` — host-neutral worker lifecycle contract.
 
 ## Blockers And Escalations
 
@@ -145,7 +178,11 @@ Residual risk is limited to older historical prose that may still use legacy his
 
 ## Recovery
 
-If this task needs recovery, start from the current `as-is.md`, `docs/configuration.md`, the structuring skill, and the task-record protocol. Do not recreate a separate root history file.
+If this task needs recovery, start from the current `as-is.md`, `docs/`,
+`designs/as-is.md`, the structuring skill, and the task-record protocol. Review
+Git's rename lineage before any cleanup. Do not recreate a separate root history
+file, restore the removed accounting task-record directory, or begin the Bun
+validator translation under this completed restructuring task.
 
 ## Backlog
 
@@ -155,5 +192,8 @@ If this task needs recovery, start from the current `as-is.md`, `docs/configurat
 
 ## Next Action
 
-None within this root record; the detached orientation helper still expects a
-legacy history file and is outside this documentation-only change boundary.
+Complete the remaining reference and link audit for the moved paths, then
+record the restructuring handoff. The validator's existing repository-wide
+check still reports pre-existing fixture, host-record, and root-budget issues;
+these are residual validation risks, not reasons to translate the validator in
+this restructuring task.

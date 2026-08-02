@@ -14,6 +14,10 @@ task backlog or second authority.
 - Increment 5 cost observability — historical blocked/no-retry evidence is
   summarized in the root `as-is.md` history notes; no retry is authorized.
 
+The former transient Pi subagent investigation was compressed into the root and
+subprocess-foundation `Changelog` sections; it is not retained as a standalone
+fixture or handoff.
+
 The grouping is non-runtime and preserves each current child's status and
 lineage. Refer to the child records for authoritative results and next actions;
 refer to Git and the root `as-is.md` history notes for retired historical work.

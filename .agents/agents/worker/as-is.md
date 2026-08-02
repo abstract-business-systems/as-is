@@ -71,9 +71,9 @@ and best-effort local trace events.
 - `bun build --no-bundle --target bun --outfile /tmp/spawn.js skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts` passed.
 - `bun test skills/as-is/scripts/orient.test.ts` passed.
 - `bun test skills/spawning-pi-subagents/scripts/spawn-pi-subagent.test.ts` passed: 8 tests.
-- `bun test subprocess-execution-foundation/supervisor.test.ts` passed: 10 tests.
+- `bun test components/subprocess-execution-foundation/supervisor.test.ts` passed: 10 tests.
 - The extension builds successfully with Bun.
-- Added `observability/tracer.ts` with file and OTLP-compatible export paths.
+- Added `components/observability/tracer.ts` with file and OTLP-compatible export paths.
 - Added deterministic tracer tests for file output and OTLP payload shape.
 - Added subprocess launch, exit, and handoff events while preserving worktree,
   budget, cleanup, and commit handling.

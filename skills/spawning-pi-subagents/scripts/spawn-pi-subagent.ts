@@ -3,7 +3,7 @@ import { existsSync } from "node:fs";
 import { appendFile, mkdtemp, open, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, dirname, isAbsolute, join, resolve } from "node:path";
-import { emitTrace } from "../../../observability/tracer.ts";
+import { emitTrace } from "../../../components/observability/tracer.ts";
 
 type Options = {
   agent?: string;

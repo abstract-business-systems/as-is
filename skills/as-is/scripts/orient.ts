@@ -3,7 +3,7 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync, readdirSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
-import { ControlPlane, type TaskSnapshot } from "../../../control-plane/control-plane";
+import { ControlPlane, type TaskSnapshot } from "../../../components/control-plane/control-plane";
 
 export type OrientationSnapshot = {
   root: { status: string; nextAction: string };

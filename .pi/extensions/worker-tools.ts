@@ -10,7 +10,7 @@ import {
   type ExtensionAPI,
 } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
-import { emitTrace } from "../../observability/tracer.ts";
+import { emitTrace } from "../../components/observability/tracer.ts";
 
 const workerRolePath = ".agents/agents/worker/agent.md";
 const maxResultCharacters = 12_000;

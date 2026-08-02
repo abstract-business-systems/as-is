@@ -70,7 +70,7 @@ child handoff. Worker commit: `2e9d4fd`; parent reconciliation: `c4f0181`.
 ## Blockers And Escalations
 
 None for this completed validation. The adapter's measurement and enforcement
-limitations remain documented in `opencode-adapter.md`.
+limitations remain documented in `docs/opencode-adapter.md`.
 
 ## Recovery
 

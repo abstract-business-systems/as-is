@@ -22,8 +22,8 @@ constraints:
     inputs:
       - ../../AGENTS.md
       - ../../agent-skills.md
-      - ../../component-task-record-protocol.md
-      - ../../design-principles.md
+      - ../../docs/component-task-record-protocol.md
+      - ../../docs/design-principles.md
   external-effects: require-current-turn-user-approval
 acceptance:
   - Add a discoverable verification-discipline skill with matching directory,

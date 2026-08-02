@@ -61,7 +61,7 @@ repository's local runtime and test patterns. Use the centrally supplied
 `config.technology-preferences.runtime: bun` and `package-manager: bun` as
 read-only preference context after higher-authority requirements and local
 patterns. Define the exact target files in this record before editing, then
-make the complete bounded conversion inside `control-plane/` only. The named
+make the complete bounded conversion inside `components/control-plane/` only. The named
 root artifacts are read-only external dependencies for this child; the parent
 orchestrator owns any later nearest-common-ancestor integration.
 
@@ -83,17 +83,17 @@ test artifacts were then created inside this component.
 
 ### Target artifact set and acceptance mapping (recorded before code edits)
 
-- `control-plane/control-plane.ts` — the Bun-runnable, dependency-free
+- `components/control-plane/control-plane.ts` — the Bun-runnable, dependency-free
   TypeScript implementation ported from the named root `control_plane.py`.
   It covers record-only status/general questions, durable question/answer/
   approval/cancellation ordering, parent-orchestrator delegation, the one-leaf
   limit, descendant closure, unavailable observations, and the unimplemented
   OpenCode live-control boundary (acceptance items 2–4).
-- `control-plane/control-plane.test.ts` — focused deterministic Bun tests
+- `components/control-plane/control-plane.test.ts` — focused deterministic Bun tests
   ported from the named root `test_control_plane.py`, covering the same
   record-only and durable-transition paths plus protected constraint behavior
   (acceptance items 2–4).
-- `control-plane/as-is.md` — this durable task record only, for lifecycle,
+- `components/control-plane/as-is.md` — this durable task record only, for lifecycle,
   validation, recovery, and handoff evidence (acceptance items 1 and 5).
 
 No package manifest or dependency is required: the supplied `runtime: bun` and
@@ -115,7 +115,7 @@ terminal for this handoff.
 Verification-discipline selected a focused standard-risk check because this is
 a bounded implementation conversion with durable-record semantics:
 
-- `/usr/bin/time -f 'wall-clock-seconds=%e' sh -c 'bun test control-plane/control-plane.test.ts && bun build control-plane/control-plane.ts --target bun --outfile /dev/null'`
+- `/usr/bin/time -f 'wall-clock-seconds=%e' sh -c 'bun test components/control-plane/control-plane.test.ts && bun build components/control-plane/control-plane.ts --target bun --outfile /dev/null'`
   exited `0`. Bun reported `3 pass`, `0 fail`, and `28 expect() calls` for the
   focused tests. The Bun build reported `Bundled 1 module` and completed with
   no diagnostics. The tests directly exercised record-only status/general
@@ -142,9 +142,9 @@ covered by the passing tests; and no OpenCode live-control path was added.
 ## Result
 
 The configured `implementer` completed the bounded control-plane conversion.
-`control-plane/control-plane.ts` provides the dependency-free Bun/TypeScript
+`components/control-plane/control-plane.ts` provides the dependency-free Bun/TypeScript
 host-neutral record operations and CLI boundary, and
-`control-plane/control-plane.test.ts` provides the focused deterministic Bun
+`components/control-plane/control-plane.test.ts` provides the focused deterministic Bun
 coverage. The protected historical fixture and all artifacts outside this
 component were left untouched by this handoff. The child has no non-terminal
 descendants and is eligible for a scoped completed-work commit.
@@ -166,8 +166,8 @@ and arbitrary-YAML compatibility remain outside the evidence collected here.
 ## Recovery
 
 The recovery checkpoint is this completed record at
-`2026-07-26T18:12:08Z`, plus `control-plane/control-plane.ts` and
-`control-plane/control-plane.test.ts`. On interruption before parent review,
+`2026-07-26T18:12:08Z`, plus `components/control-plane/control-plane.ts` and
+`components/control-plane/control-plane.test.ts`. On interruption before parent review,
 reread this record and rerun the final focused Bun command; preserve the
 cumulative observations and do not infer root integration from process exit,
 missing runtime state, or the previous Python validation. Do not edit the

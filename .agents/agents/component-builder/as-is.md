@@ -68,7 +68,7 @@ The script replaces the multi-read orientation that made delegated tasks slow.
 
 ## Plan
 
-1. Inspect `control-plane/control-plane.ts` for the `TaskSnapshot` interface
+1. Inspect `components/control-plane/control-plane.ts` for the `TaskSnapshot` interface
    and any reusable record-scanning logic; reuse it for record status and
    next-action fields.
 2. Create `skills/as-is/scripts/<responsibility-name>.ts`. The script:
@@ -124,7 +124,7 @@ first or pass the intent in the task.
 
 Recover from this record, the component-builder agent file at
 `.agents/agents/component-builder/agent.md`, and the control-plane interface
-at `control-plane/control-plane.ts`. The script is self-contained and
+at `components/control-plane/control-plane.ts`. The script is self-contained and
 re-runnable; no private runtime state is required.
 
 ## Next Action

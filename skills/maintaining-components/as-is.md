@@ -79,7 +79,7 @@ a repository rule later requires a clearly marked placeholder.
 
 ## Validation
 
-- `python3 schemas/task-record-validator/task_record_validator.py
+- `python3 components/task-record-validator/task_record_validator.py
   skills/maintaining-components` passes for this record.
 - `git diff --check -- skills/maintaining-components/as-is.md` passes with no
   whitespace or patch-application errors.
