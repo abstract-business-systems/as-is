@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-08-06: Added the proposed `adaptive-session-budgeting` design, linked from the corresponding backlog item. It defines soft execution leases within hard safety ceilings, checkpoint-and-exit pause, authorized resume/fork, session-analysis boundaries, and cumulative budget evidence. No launcher behavior changed.
+
 - 2026-08-06: Recovered the authorized phase-3 canonical launcher-source updates in `SKILL.md`, `as-is.md`, and the focused test fixture, using top-level `agents/{as-is,component-builder,expert,worker}` while retaining `.agents/agents` only as client projection terminology. Focused launcher tests (16 passed), Bun build, and `git diff --check` passed; final expert validation was required before commit. Residual risk: no live provider execution.
 
 - 2026-08-03: Repaired builder-owned expert attribution by requiring a propagated parent job id for worker/expert launches, while preserving rejection of direct expert launches. Added focused authorization regression coverage; 16 launcher tests passed, Bun build passed, and `git diff --check` passed. Fresh read-only expert plan and implementation validations were launched through the launcher; residual risk is limited to no live provider execution.
