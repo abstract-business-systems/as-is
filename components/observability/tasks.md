@@ -1,11 +1,11 @@
 ---
 as-is-version: 2
 task:
-  status: failed
+  status: ready
   worker: component-builder
-  updated: 2026-08-06T03:10:00Z
-  task-revision: session-reference-observability-1
-  attempt: 1
+  updated: 2026-08-06T03:20:00Z
+  task-revision: session-reference-observability-recovery-2
+  attempt: 0
 constraints:
   cost:
     currency: USD
@@ -45,16 +45,16 @@ Only `components/observability/`. Update `tracing-design.md`, `backlog.md`, `as-
 Review the current all-in tracing model and tracer capture policy. Add a normative session-reference section and refine successor backlog items so correlation metadata is distinguished from raw session content. Validate required fields, privacy boundaries, and prohibition of default raw capture with a repeatable local check. No implementation source change is required unless needed to represent the policy without adding runtime capture.
 
 ## Validation
-The component-builder launch did not produce a usable result or implementation worktree. No observability files were changed. The required expert plan review, implementation validation, and final expert validation did not occur.
+Not started for recovery revision 2.
 
 ## Result
-Failed attempt 1 before implementation. No scoped commit was produced and no policy claims are complete.
+Not available.
 
 ## Blockers And Escalations
-The delegated process terminated during launcher recovery/inspection without returning an attributable component-builder result. Do not retry this revision or infer completion from the launcher exit. A new authorized task revision is required before another attempt.
+This is a fresh explicitly authorized recovery revision after attempt 1 terminated before implementation. Stop if the child cannot establish attributable expert plan/final validation or if scope expands beyond `components/observability/`.
 
 ## Recovery
-No child worktree or uncommitted component changes were found after the failed launch. The authorization commit `f6e4e13` and this record preserve the intended bounded policy scope.
+Prior failed attempt produced no worktree or component changes. Preserve the authorization and failure evidence in Git history; do not retry revision 1.
 
 ## Next Action
-Create a fresh explicitly authorized recovery revision before launching component-builder again.
+Launch one bounded component-builder recovery attempt.
