@@ -1,11 +1,11 @@
 ---
 as-is-version: 2
 task:
-  status: blocked
+  status: ready
   worker: component-builder
-  updated: 2026-08-06T04:15:00Z
-  task-revision: session-reference-trace-schema-recovery-2
-  attempt: 1
+  updated: 2026-08-06T04:30:00Z
+  task-revision: session-reference-trace-schema-recovery-3
+  attempt: 0
 constraints:
   cost:
     currency: USD
@@ -44,16 +44,16 @@ Only components/observability/. The preserved child changes are limited to `trac
 The builder implemented the typed serializer and tests in the preserved worktree `/tmp/as-is-child-3tukAc/worktree`. Plan review required and received one revision to reject URL-like scheme prefixes in opaque `sessionId`/`revision` values in addition to slash, backslash, and NUL. Implementation remained inside the component.
 
 ## Validation
-Implementation checks passed in the preserved worktree: `bun test components/observability/tracer.test.ts` — 8 passed, 55 expectations; Bun tracer build passed; `git diff --check` passed; scoped status showed only `tasks.md`, `tracer.ts`, and `tracer.test.ts`. Final expert validation failed twice: the first direct-file review found a U+0000 defect, which the builder fixed and rechecked; the next review was not attributable to the correct component context and inspected an unrelated root task, so it could not assess the actual files or state commit safety.
+Not started for recovery revision 3.
 
 ## Result
-Blocked attempt 1. Typed `SessionReference` implementation remains uncommitted in `/tmp/as-is-child-3tukAc/worktree`; no parent integration occurred.
+Not available.
 
 ## Blockers And Escalations
-Required final expert validation did not return an attributable pass. Do not remove this task record, commit, cherry-pick, or claim completion. Do not retry this revision or bypass the expert gate. A new recovery authorization must establish a reliable direct-file expert context before another attempt.
+Fresh recovery authorization after attempt 1 failed its attributable expert gate. The builder must preserve or reproduce the implementation, then perform exactly one final expert validation with the exact absolute changed-file list and direct reads only. The expert response must explicitly name those files and state whether the implementation is safe to commit. Stop if attribution or scope is ambiguous.
 
 ## Recovery
-Preserve `/tmp/as-is-child-3tukAc/worktree` and the child registry/session evidence. Child-reported elapsed time is approximately 192.6 seconds; monetary spent remains `0.00` because host cost is unavailable. No setup, launcher, extension, role, session-store, product, or external files changed.
+Recover implementation from `/tmp/as-is-child-3tukAc/worktree`; do not retry revision 2. Preserve prior evidence in Git history. No changes outside `components/observability/` are authorized.
 
 ## Next Action
-Authorize a new recovery revision only after resolving attributable direct-file expert validation in the controlled worktree.
+Launch one bounded component-builder recovery attempt with strict exact-file expert validation.
