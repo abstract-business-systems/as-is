@@ -24,6 +24,40 @@ describe("universal local tracer", () => {
     const invalid = otlpPayload({ name: "reference", traceId: "t", spanId: "s", attributes: {}, sessionReference: { ...valid, sessionId: "prompt/raw" } });
     expect(JSON.stringify(invalid)).not.toContain("prompt/raw");
   });
+  test("covers producer-boundary success and failure relationships without content or references leaking", async () => {
+    const cwd = await mkdtemp(join(tmpdir(), "as-is-trace-session-"));
+    const reference = { sessionId: "parent-session", store: "project-local" as const, availability: "available" as const };
+    const forbidden = "raw prompt response tool argument tool result /absolute/path https://example.test Bearer secret";
+    const events = [
+      { name: "call_subagent", traceId: "trace", spanId: "delegate", parentSpanId: "parent", attributes: { outcome: "success" as const }, sessionReference: reference, rawPayloads: [{ class: "prompt" as const, content: forbidden }] },
+      { name: "worker.result", traceId: "trace", spanId: "worker-success", parentSpanId: "delegate", attributes: { outcome: "success" as const }, sessionReference: reference, rawPayloads: [{ class: "response" as const, content: forbidden }] },
+      { name: "worker.result", traceId: "trace", spanId: "worker-failure", parentSpanId: "delegate", attributes: { outcome: "failure" as const }, sessionReference: reference, rawPayloads: [{ class: "tool-result" as const, content: forbidden }] },
+    ];
+    for (const event of events) {
+      await emitTrace(event, cwd, { backend: "file", captureMode: "metadata" });
+      const otlp = JSON.stringify(otlpPayload(event));
+      expect(otlp).toContain('"session.reference"');
+      expect(otlp).toContain(event.parentSpanId!);
+      expect(otlp).not.toContain(forbidden);
+    }
+    const local = await readFile(join(cwd, ".as-is", "tracing.jsonl"), "utf8");
+    expect(local).toContain('"name":"call_subagent"');
+    expect(local).toContain('"name":"worker.result"');
+    expect(local).toContain('"sessionId":"parent-session"');
+    expect(local).not.toContain(forbidden);
+    const missing = { ...events[1], sessionReference: undefined };
+    const invalid = { ...events[2], sessionReference: { ...reference, sessionId: "/invalid/path" } };
+    for (const event of [missing, invalid]) {
+      const text = JSON.stringify(otlpPayload(event));
+      expect(text).not.toContain("session.reference");
+      await expect(emitTrace(event, cwd, { backend: "file", captureMode: "metadata" })).resolves.toBeUndefined();
+    }
+    const after = await readFile(join(cwd, ".as-is", "tracing.jsonl"), "utf8");
+    expect(after).toContain('"spanId":"worker-success"');
+    expect(after).toContain('"spanId":"worker-failure"');
+    const finalLines = after.trim().split("\n").slice(-2).join("\n");
+    expect(finalLines).not.toContain('"sessionReference"');
+  });
   test("retains every declared payload class exactly in local-full mode", async () => {
     const cwd = await mkdtemp(join(tmpdir(), "as-is-trace-raw-"));
     const payloads = (["prompt", "response", "tool-argument", "tool-result", "stdout", "stderr", "exception", "secret", "personal"] as const).map(className => ({ class: className, content: `${className}-raw Bearer token alice@example.com` }));
