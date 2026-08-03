@@ -1,11 +1,11 @@
 ---
 as-is-version: 2
 task:
-  status: ready
+  status: blocked
   worker: component-builder
-  updated: 2026-08-06T03:35:00Z
+  updated: 2026-08-06T04:00:00Z
   task-revision: session-reference-trace-schema-1
-  attempt: 0
+  attempt: 1
 constraints:
   cost:
     currency: USD
@@ -44,16 +44,16 @@ Only components/observability/. Expected files are tracer.ts, tracer.test.ts, an
 Define the typed metadata shape and deterministic validation/serialization at the tracer boundary. Keep it optional so existing lifecycle callers remain unchanged. Ensure exports include only allowlisted bounded reference fields and preserve existing local-full/export-bounded semantics for any legacy raw payload policy.
 
 ## Validation
-Not started.
+Blocked during required read-only expert plan review before implementation edits. The expert review could not approve the plan because it did not define exact metadata field names and serialized keys, store and missing-status allowlists, opaque-ID and numeric bounds, or deterministic invalid-value omission/rejection behavior. No implementation or tests were run.
 
 ## Result
-Not available.
+No implementation edits were made and no scoped commit was produced.
 
 ## Blockers And Escalations
-Stop if implementation requires inspecting session files, changing runtime producers, or broadening raw payload capture. Preserve a durable blocker rather than expanding scope.
+Durable blocker: required expert plan review failed before edits. Recovery requires revising this task plan with exact allowlists, field/key contract, numeric bounds, opaque-ID rule, and invalid-value behavior, then obtaining a fresh attributable expert plan review. Do not implement, remove tasks.md, or commit until that review passes. No scope expansion, runtime access, or raw-content capture was performed.
 
 ## Recovery
-Recover from this task record, components/observability/tracer.ts, tracer.test.ts, and the session-reference design. No external runtime state is authoritative.
+The component-builder attempt produced no usable worktree or caller-visible changes. This record and commit `f1b8f69` preserve the authorized revision; do not retry it. A new recovery revision must explicitly authorize the revised schema contract.
 
 ## Next Action
-Launch one bounded component-builder attempt.
+Obtain authorization for a new recovery revision with an exact schema contract, then launch component-builder again.
