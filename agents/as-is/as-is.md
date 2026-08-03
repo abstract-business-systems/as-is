@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The `.agents/agents/as-is` component owns the user-facing `as-is` router
+The `agents/as-is` component owns the user-facing `as-is` router
 contract. It directs user intent through durable component orchestration and
 reports concise results while keeping routing cheap per turn.
 

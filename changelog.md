@@ -2,6 +2,8 @@
 
 # Changelog
 
+- 2026-08-03: Completed canonical role-source phase 2: moved `as-is`, `component-builder`, `expert`, and `worker` role trees to top-level `agents/` as the sole tracked source; documented `.agents/agents/` as host projection only and updated canonical links. Focused path/reference checks and `git diff --check` passed; expert plan and final validation passed. Rollback is reverting the scoped migration commit.
+
 - 2026-08-06: Recovered the parent-integration handoff by consolidating source commits `91facda`, `7690a25`, and `3284ab0` atop preserved `e5beb75`; clarified that source SHAs belong in handoff evidence and the resulting integration SHA is recorded only after commit creation, avoiding self-reference. Focused launcher tests passed (15); ancestry and clean-worktree evidence recorded in the `as-is` Git note for the resulting handoff commit.
 
 - 2026-08-06: Closed `parent-integration-handoff` after validating the delegated handoff flow end to end: child task records and validation evidence are required; child commit and base SHA ancestry are checked; integration status distinguishes integrated, pending-parent-integration, and not-committed; related work is consolidated into a scoped parent commit; unrelated changes remain unstaged; and failed or incomplete work remains recoverable. Trace output remains supplementary and does not replace task records, logs, or durable Git evidence.

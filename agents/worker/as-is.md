@@ -52,7 +52,7 @@ and best-effort local trace events.
 
 ## Progress
 
-- Added `.agents/agents/worker/agent.md` and this task record.
+- Added `agents/worker/agent.md` and this task record.
 - Added `.pi/extensions/worker-tools.ts`.
 - Added `.as-is-infra/` as the ignored local infrastructure boundary.
 - Added project tracer configuration and forwarded tracer environment for

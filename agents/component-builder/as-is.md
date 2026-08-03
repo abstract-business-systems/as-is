@@ -33,7 +33,7 @@ acceptance:
   - Place the script under skills/as-is/scripts/ following the
     spawning-pi-subagents/scripts/ pattern; name it for its responsibility, not
     a generic filler like utils.
-  - Add a contract line to .agents/agents/component-builder/agent.md directing
+  - Add a contract line to agents/component-builder/agent.md directing
     the agent to orient via this script as the recommended first action when
     starting a task ("if needed" stays the agent's judgment), and to handle
     report-only delegated tasks by orienting and returning without building.
@@ -77,7 +77,7 @@ The script replaces the multi-read orientation that made delegated tasks slow.
    - prints working-tree state (`git status --porcelain` or `clean`).
 3. Keep output compact (one screenful) so it fits cheaply in a child context.
 4. Run the naming skill over the script name before committing it.
-5. Add to `.agents/agents/component-builder/agent.md` a line: orient via the
+5. Add to `agents/component-builder/agent.md` a line: orient via the
    script as the recommended first action when starting a task (judgment
    retained per "if needed"); re-call after a delegation returns; for a
    report-only delegated task, orient and return without building.
@@ -119,7 +119,7 @@ first or pass the intent in the task.
 ## Recovery
 
 Recover from this record, the component-builder agent file at
-`.agents/agents/component-builder/agent.md`, and the control-plane interface
+`agents/component-builder/agent.md`, and the control-plane interface
 at `components/control-plane/control-plane.ts`. The script is self-contained and
 re-runnable; no private runtime state is required.
 
