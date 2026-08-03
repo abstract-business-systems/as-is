@@ -1,11 +1,11 @@
 ---
 as-is-version: 2
 task:
-  status: ready
+  status: completed
   worker: component-builder
   updated: 2026-08-06T04:45:00Z
   task-revision: session-reference-runtime-producer-1
-  attempt: 0
+  attempt: 1
 constraints:
   cost:
     currency: USD
@@ -42,13 +42,13 @@ Wire the already-approved session-reference schema into the `.pi` worker-tools r
 Root-owned runtime integration limited to `.pi/extensions/worker-tools.ts` and this root task/handoff. The observability schema in `components/observability/` is already integrated and must not be modified. No external services.
 
 ## Plan
-Inspect the existing `ctx.sessionManager.getSessionId()` producer and tracer contract. Import or use the typed session-reference contract without duplicating its validation authority. Construct only a `project-local` reference with `availability: available` and the opaque session ID; omit the reference when no valid ID is exposed. Attach it to start and result/failure events without changing attributes or raw payload behavior. Validate syntax/type/build in the native host environment if possible and perform direct-file expert review.
+Revised after expert plan review: import the observability `SessionReference` type and `serializeSessionReference` validator. Derive one optional parent reference only from a safely callable `ctx.sessionManager.getSessionId()`, accepting only the validator-approved opaque string and constructing `store: project-local`, `availability: available`; omit it when absent/invalid. Attach that same optional `sessionReference` to call start and worker.result success/failure events, remove the raw session-id attribute, and leave all other attributes and behavior unchanged. Do not inspect stores or content, and do not add child correlation unless a supported API exposes it safely (none is assumed). Validate direct-file syntax/type/native host if available, then obtain final expert review of the exact diff.
 
 ## Validation
-Not started.
+Plan review by expert failed initially and was revised with explicit validator use, raw-attribute removal, and success/failure checks. `bun --check .pi/extensions/worker-tools.ts` passed with no output. Native TypeScript build was attempted with `bunx tsc ...` but standalone `bunx` is unavailable (`command not found`); this is residual host dependency risk, with no scope expansion. Final expert direct-file review identified the implementation as aligned and requested only this record evidence; exact changed files are `.pi/extensions/worker-tools.ts` and root handoff records.
 
 ## Result
-Not available.
+Implemented parent session-reference production for `call_subagent` start and `worker.result` success/failure using only `ctx.sessionManager.getSessionId()` and `serializeSessionReference`; invalid or missing IDs are omitted. No child reference is emitted because no safely supported child API was exposed. Worker, query, authorization, and telemetry isolation behavior remain unchanged. Safe to commit after recording this evidence.
 
 ## Blockers And Escalations
 Stop if the extension API cannot safely expose the session ID, if integration requires session-store access or raw content, or if host-only dependencies prevent all meaningful validation. Record residual risk rather than changing unrelated components.
@@ -57,4 +57,4 @@ Stop if the extension API cannot safely expose the session ID, if integration re
 Recover from this task, `.pi/extensions/worker-tools.ts`, and the integrated observability schema in `components/observability/tracer.ts`. No session store or runtime artifact is authoritative.
 
 ## Next Action
-Launch one bounded root component-builder attempt.
+Completed; durable handoff is recorded in changelog.md and ready for scoped commit.

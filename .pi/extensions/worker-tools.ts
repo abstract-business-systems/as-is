@@ -10,7 +10,11 @@ import {
   type ExtensionAPI,
 } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
-import { emitTrace } from "../../components/observability/tracer.ts";
+import {
+  emitTrace,
+  serializeSessionReference,
+  type SessionReference,
+} from "../../components/observability/tracer.ts";
 
 const rolePaths = {
   worker: "agents/worker/agent.md",
@@ -32,6 +36,7 @@ type TraceEvent = {
   spanId: string;
   parentSpanId?: string;
   attributes: Record<string, string | number | boolean | undefined>;
+  sessionReference?: SessionReference;
 };
 
 function newId(): string {
@@ -130,6 +135,20 @@ async function recordTrace(event: TraceEvent, cwd: string): Promise<void> {
   await emitTrace(event, cwd);
 }
 
+function currentSessionReference(ctx: { sessionManager?: { getSessionId?: () => unknown } }): SessionReference | undefined {
+  try {
+    const sessionId = ctx.sessionManager?.getSessionId?.();
+    if (typeof sessionId !== "string") return undefined;
+    return serializeSessionReference({
+      sessionId,
+      store: "project-local",
+      availability: "available",
+    });
+  } catch {
+    return undefined;
+  }
+}
+
 function createWorkerLoader(role: string): ResourceLoader {
   return {
     getExtensions: () => ({ extensions: [], errors: [], runtime: createExtensionRuntime() }),
@@ -183,14 +202,15 @@ const callSubagent: ToolDefinition = {
     const timeoutMs = params.timeoutMs ?? defaultTimeoutMs;
     const roleName = params.role ?? "worker";
     const rolePath = join(cwd, rolePaths[roleName]);
+    const sessionReference = currentSessionReference(ctx);
 
     await recordTrace({
       name: "call_subagent",
       timestamp: new Date().toISOString(),
       traceId,
       spanId,
+      sessionReference,
       attributes: {
-        "as_is.session_id": ctx.sessionManager.getSessionId?.() as string | undefined,
         "as_is.run_id": params.runId,
         "as_is.role": roleName,
         "as_is.call_id": callId,
@@ -238,6 +258,7 @@ const callSubagent: ToolDefinition = {
         traceId,
         spanId: newId(),
         parentSpanId: spanId,
+        sessionReference,
         attributes: {
           "as_is.role": roleName,
           "as_is.call_id": callId,
@@ -255,6 +276,7 @@ const callSubagent: ToolDefinition = {
         traceId,
         spanId: newId(),
         parentSpanId: spanId,
+        sessionReference,
         attributes: {
           "as_is.role": roleName,
           "as_is.call_id": callId,

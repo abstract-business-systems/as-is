@@ -2,6 +2,8 @@
 
 # Changelog
 
+- 2026-08-06: Wired validated project-local session references into `.pi/extensions/worker-tools.ts` for `call_subagent` and `worker.result` start/success/failure events. Invalid or missing IDs are omitted; no child/session-store or raw content access was added. `bun --check` and diff checks passed; standalone `bunx tsc` was unavailable, leaving host dependency validation as residual risk. Expert plan and final direct-file reviews recorded safe-to-commit evidence.
+
 - 2026-08-06: Closed `canonical-agent-source-layout`: top-level `agents/` is the sole tracked role-source tree; `.agents/agents/` is client projection-only. Setup projection, launcher, extension role paths, dummy rehearsal, and supported host checks were validated. OpenCode discovery is available; native Pi extension bundling remains host-environment dependent because standalone dependencies are unavailable.
 
 - 2026-08-03: Completed canonical role-source phase 2: moved `as-is`, `component-builder`, `expert`, and `worker` role trees to top-level `agents/` as the sole tracked source; documented `.agents/agents/` as host projection only and updated canonical links. Focused path/reference checks and `git diff --check` passed; expert plan and final validation passed. Rollback is reverting the scoped migration commit.
