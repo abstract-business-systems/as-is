@@ -30,14 +30,40 @@ Maintain the repository backlog as a planning index, not as task authority.
 | Dependencies | Required inputs are named and available or remain open |
 | Selection | Invoke `implementing-component-tasks` with the selected item |
 
+## Completion Reconciliation
+
+The backlog remains planning-only: it may select and prioritize work, but it
+is not authoritative for task status, validation, approvals, or runtime state.
+Task management owns reconciliation and removal of a selected item. After the
+configured task-management procedure verifies the handoff, it may remove the
+item from the planning index only when all of these inputs agree:
+
+| Reconciliation input | Required evidence |
+| --- | --- |
+| Selected item identity and ownership | The exact backlog `id`, owning component path, and selected acceptance match the task record and its component boundary |
+| Acceptance | The completed task record contains observable validation evidence for every selected acceptance condition; evidence is not inferred from process exit or assertion |
+| Terminal task | The owning configured task record is terminal `completed`, with its result and required validation recorded |
+| Descendant closure | Every descendant is terminal and the completion result accounts for each failed or cancelled descendant; active, blocked, or approval-waiting descendants prevent removal |
+| Changelog handoff | The owning component `changelog.md` contains a concise summary of the completed result, written before task-record cleanup |
+| Durable scoped handoff | The declared changes are within the selected owning component and the scoped durable handoff has completed successfully |
+
+Task management performs this reconciliation, then removes the selected item;
+the implementation worker does not remove it. Reconciliation must use the
+current task record and owning changelog as evidence and must not invent status,
+validation, ownership, or completion. If any input is missing, mismatched,
+non-terminal, failed, blocked, deferred, or otherwise incomplete, leave the
+backlog item in place for recovery or later selection. Open and deferred items
+remain in the planning index. Removal occurs only after reconciliation succeeds,
+not merely because an invocation exited successfully.
+
 ## Boundaries
 
 The backlog does not contain active status, worker checkpoints, approvals,
 validation evidence, or runtime state. Those belong to the component's transient
-the configured task record (default `tasks.md`) while work is active and its
-`changelog.md` after completion. When a
-backlog item is completed, remove it from the planning index; retain its concise
-summary only in the owning component's `changelog.md`.
+configured task record (default `tasks.md`) while work is active and its
+`changelog.md` after completion. A completed item is removed only by the
+completion reconciliation above; retain its concise summary in the owning
+component's `changelog.md`.
 
 A backlog may not make a structural or authority decision outside its own
 component boundary. The same rule applies at every hierarchy level, not only at
