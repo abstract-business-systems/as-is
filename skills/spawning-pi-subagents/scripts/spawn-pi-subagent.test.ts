@@ -103,6 +103,7 @@ test("allows builder-owned expert validation and rejects direct expert launch", 
     "--task", "Read-only validation.",
     "--cwd", process.cwd(),
     "--caller", "component-builder",
+    "--parent-job-id", "builder-job-test",
     "--dry-run",
   ]);
   expect(authorized.exitCode).toBe(0);
