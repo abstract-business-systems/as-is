@@ -49,7 +49,7 @@ export function setupClient(clientRoot: string, bundleRoot: string, detected = d
   const root = resolve(clientRoot), bundle = resolve(bundleRoot);
   const result: SetupResult = { root, kinds: detected, linked: [], preserved: [] };
   const skills = join(bundle, "skills");
-  const agents = join(bundle, ".agents", "agents");
+  const agents = join(bundle, "agents");
   for (const kind of detected) {
     if (kind === "opencode") configureOpenCode(root, bundle);
     if (kind === "pi" || kind === "opencode" || kind === "agents") {

@@ -8,8 +8,8 @@ function fixture() {
   const root = mkdtempSync(join(tmpdir(), "as-is-setup-"));
   mkdirSync(join(root, "bundle", "skills", "alpha"), { recursive: true });
   writeFileSync(join(root, "bundle", "skills", "alpha", "SKILL.md"), "alpha");
-  mkdirSync(join(root, "bundle", ".agents", "agents", "worker"), { recursive: true });
-  writeFileSync(join(root, "bundle", ".agents", "agents", "worker", "agent.md"), "worker");
+  mkdirSync(join(root, "bundle", "agents", "worker"), { recursive: true });
+  writeFileSync(join(root, "bundle", "agents", "worker", "agent.md"), "worker");
   mkdirSync(join(root, "bundle", ".pi", "prompts"), { recursive: true });
   writeFileSync(join(root, "bundle", ".pi", "prompts", "as-is.md"), "prompt");
   mkdirSync(join(root, "client", ".pi"), { recursive: true });

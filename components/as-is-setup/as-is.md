@@ -10,7 +10,7 @@ locations.
 ## Design
 
 `setup.ts` is the executable boundary. It treats `skills/` and
-`.agents/agents/` in the bundle root as the only canonical resource folders.
+`agents/` in the bundle root as the only canonical resource folders.
 For each detected client it creates relative symlinks under the client's
 host-native `.agents/skills` and `.agents/agents` folders, preserves collisions,
 and updates only an existing OpenCode configuration. A Pi prompt alias is
