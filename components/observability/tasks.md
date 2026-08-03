@@ -1,11 +1,11 @@
 ---
 as-is-version: 2
 task:
-  status: ready
+  status: blocked
   worker: component-builder
   updated: 2026-08-06T04:15:00Z
   task-revision: session-reference-trace-schema-recovery-2
-  attempt: 0
+  attempt: 1
 constraints:
   cost:
     currency: USD
@@ -20,9 +20,9 @@ constraints:
   execution:
     wall-clock:
       allocated-seconds: 360
-      spent-seconds: 0.00
+      spent-seconds: 192.60
       reserve-seconds: 60
-      source: fresh bounded user authorization
+      source: child-reported elapsed time
   external-effects: require-current-turn-user-approval
 acceptance:
   - Add a typed, allowlisted session-reference metadata shape to the observability tracer without adding session-store access or raw content capture.
@@ -32,28 +32,28 @@ acceptance:
   - Modify only components/observability/; do not modify launcher, extensions, session storage, setup, roles, or product components.
   - Obtain expert plan and final validation, record evidence, remove tasks.md, and create a scoped commit.
 ---
-# Session-reference trace schema
+# Session-reference trace schema recovery
 
 ## Requirement
-Implement the smallest runtime-neutral observability contract for session-reference-first tracing. The tracer may carry an explicit typed session-reference metadata object on events, but it must not resolve sessions, read Pi session JSONL, capture raw conversational/tool content, or export arbitrary paths. Runtime producers in launcher/extension components are a separately authorized successor.
+Implement the exact authorized `SessionReference` contract defined in the recovery revision: allowlisted keys `sessionId`, `store`, `revision`, `eventStart`, `eventEnd`, `messageCount`, `toolCallCount`, `inputBytes`, `outputBytes`, and `availability`; bounded opaque IDs; bounded non-negative counters; and atomic invalid-object rejection. No session access or raw content capture is authorized.
 
 ## Scope
-Only components/observability/. Expected files are tracer.ts, tracer.test.ts, and component records. No cross-component edits.
+Only components/observability/. The preserved child changes are limited to `tracer.ts`, `tracer.test.ts`, and this task record.
 
-## Plan
-Define the optional `SessionReference` contract at the tracer boundary with exact keys and deterministic bounds. Allowed serialized keys are: `sessionId`, `store`, `revision`, `eventStart`, `eventEnd`, `messageCount`, `toolCallCount`, `inputBytes`, `outputBytes`, and `availability`. `sessionId` and `revision` are opaque UTF-8 strings, max 128 bytes each, and must not contain `/`, `\\`, or NUL. `store` is `project-local` or `host-local`; `availability` is `available`, `missing`, `inaccessible`, `expired`, or `out-of-range`. Numeric fields are non-negative safe integers no greater than 1,000,000,000; `eventEnd` must be no less than `eventStart` when both exist. All fields except `sessionId`, `store`, and `availability` are optional; invalid objects are rejected deterministically rather than partially serialized. No absolute paths, URLs, raw content, or session-store reads are permitted. Existing lifecycle callers remain unchanged and existing sink policies are preserved.
+## Progress
+The builder implemented the typed serializer and tests in the preserved worktree `/tmp/as-is-child-3tukAc/worktree`. Plan review required and received one revision to reject URL-like scheme prefixes in opaque `sessionId`/`revision` values in addition to slash, backslash, and NUL. Implementation remained inside the component.
 
 ## Validation
-Not started for recovery revision 2.
+Implementation checks passed in the preserved worktree: `bun test components/observability/tracer.test.ts` — 8 passed, 55 expectations; Bun tracer build passed; `git diff --check` passed; scoped status showed only `tasks.md`, `tracer.ts`, and `tracer.test.ts`. Final expert validation failed twice: the first direct-file review found a U+0000 defect, which the builder fixed and rechecked; the next review was not attributable to the correct component context and inspected an unrelated root task, so it could not assess the actual files or state commit safety.
 
 ## Result
-Not available.
+Blocked attempt 1. Typed `SessionReference` implementation remains uncommitted in `/tmp/as-is-child-3tukAc/worktree`; no parent integration occurred.
 
 ## Blockers And Escalations
-Fresh recovery authorization after the prior plan-review blocker. Stop if the exact contract cannot be validated, if runtime session access is required, or if scope expands beyond `components/observability/`.
+Required final expert validation did not return an attributable pass. Do not remove this task record, commit, cherry-pick, or claim completion. Do not retry this revision or bypass the expert gate. A new recovery authorization must establish a reliable direct-file expert context before another attempt.
 
 ## Recovery
-Revision 1 was blocked before edits and is preserved in commit `48827da`; it must not be retried. This revision explicitly authorizes the schema contract above.
+Preserve `/tmp/as-is-child-3tukAc/worktree` and the child registry/session evidence. Child-reported elapsed time is approximately 192.6 seconds; monetary spent remains `0.00` because host cost is unavailable. No setup, launcher, extension, role, session-store, product, or external files changed.
 
 ## Next Action
-Launch one bounded component-builder recovery attempt.
+Authorize a new recovery revision only after resolving attributable direct-file expert validation in the controlled worktree.
