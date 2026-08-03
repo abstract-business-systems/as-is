@@ -1,11 +1,11 @@
 ---
 as-is-version: 2
 task:
-  status: blocked
+  status: ready
   worker: component-builder
-  updated: 2026-08-06T04:00:00Z
-  task-revision: session-reference-trace-schema-1
-  attempt: 1
+  updated: 2026-08-06T04:15:00Z
+  task-revision: session-reference-trace-schema-recovery-2
+  attempt: 0
 constraints:
   cost:
     currency: USD
@@ -41,19 +41,19 @@ Implement the smallest runtime-neutral observability contract for session-refere
 Only components/observability/. Expected files are tracer.ts, tracer.test.ts, and component records. No cross-component edits.
 
 ## Plan
-Define the typed metadata shape and deterministic validation/serialization at the tracer boundary. Keep it optional so existing lifecycle callers remain unchanged. Ensure exports include only allowlisted bounded reference fields and preserve existing local-full/export-bounded semantics for any legacy raw payload policy.
+Define the optional `SessionReference` contract at the tracer boundary with exact keys and deterministic bounds. Allowed serialized keys are: `sessionId`, `store`, `revision`, `eventStart`, `eventEnd`, `messageCount`, `toolCallCount`, `inputBytes`, `outputBytes`, and `availability`. `sessionId` and `revision` are opaque UTF-8 strings, max 128 bytes each, and must not contain `/`, `\\`, or NUL. `store` is `project-local` or `host-local`; `availability` is `available`, `missing`, `inaccessible`, `expired`, or `out-of-range`. Numeric fields are non-negative safe integers no greater than 1,000,000,000; `eventEnd` must be no less than `eventStart` when both exist. All fields except `sessionId`, `store`, and `availability` are optional; invalid objects are rejected deterministically rather than partially serialized. No absolute paths, URLs, raw content, or session-store reads are permitted. Existing lifecycle callers remain unchanged and existing sink policies are preserved.
 
 ## Validation
-Blocked during required read-only expert plan review before implementation edits. The expert review could not approve the plan because it did not define exact metadata field names and serialized keys, store and missing-status allowlists, opaque-ID and numeric bounds, or deterministic invalid-value omission/rejection behavior. No implementation or tests were run.
+Not started for recovery revision 2.
 
 ## Result
-No implementation edits were made and no scoped commit was produced.
+Not available.
 
 ## Blockers And Escalations
-Durable blocker: required expert plan review failed before edits. Recovery requires revising this task plan with exact allowlists, field/key contract, numeric bounds, opaque-ID rule, and invalid-value behavior, then obtaining a fresh attributable expert plan review. Do not implement, remove tasks.md, or commit until that review passes. No scope expansion, runtime access, or raw-content capture was performed.
+Fresh recovery authorization after the prior plan-review blocker. Stop if the exact contract cannot be validated, if runtime session access is required, or if scope expands beyond `components/observability/`.
 
 ## Recovery
-The component-builder attempt produced no usable worktree or caller-visible changes. This record and commit `f1b8f69` preserve the authorized revision; do not retry it. A new recovery revision must explicitly authorize the revised schema contract.
+Revision 1 was blocked before edits and is preserved in commit `48827da`; it must not be retried. This revision explicitly authorizes the schema contract above.
 
 ## Next Action
-Obtain authorization for a new recovery revision with an exact schema contract, then launch component-builder again.
+Launch one bounded component-builder recovery attempt.
