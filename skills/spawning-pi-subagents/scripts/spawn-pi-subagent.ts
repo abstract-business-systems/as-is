@@ -834,13 +834,18 @@ const main = async() => {
   // Caller identity and parent job id propagate through env so a child agent's
   // own delegations record the correct lineage without OS parentage.
   const identity = identityFromAgent(agentPath, definition);
-  const caller = options.caller ?? process.env.AS_IS_IDENTITY ?? "user";
+  // Nested launches must carry both identity and job id. Ignore a stale
+  // identity without its lineage marker so a direct host launch cannot inherit
+  // builder authority, while builder-owned expert validation remains
+  // attributable through the propagated pair.
+  const inheritedCaller = process.env.AS_IS_JOB_ID ? process.env.AS_IS_IDENTITY : undefined;
+  const caller = options.caller ?? inheritedCaller ?? "user";
   const parentJobId = options.parentJobId ?? process.env.AS_IS_JOB_ID ?? null;
   const authorized = identity === "as-is"
     ? caller === "user" || caller === "as-is"
     : identity === "component-builder"
       ? caller === "as-is" || caller === "component-builder"
-      : (identity === "worker" || identity === "expert") && caller === "component-builder";
+      : (identity === "worker" || identity === "expert") && caller === "component-builder" && parentJobId !== null;
   if (!authorized) {
     throw new Error(`unauthorized delegation: ${caller} cannot launch ${identity}; delegation decisions belong to as-is`);
   }

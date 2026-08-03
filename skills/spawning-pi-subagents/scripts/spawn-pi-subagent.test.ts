@@ -11,9 +11,15 @@ type RunResult = { stdout: string; stderr: string; exitCode: number };
 
 const runLauncher = (args: string[], env: NodeJS.ProcessEnv = process.env): Promise<RunResult> =>
   new Promise((resolveRun) => {
+    const childEnv = { ...env };
+    // Tests model a direct host launch unless a caller is explicitly supplied.
+    if (!args.includes("--caller")) {
+      delete childEnv.AS_IS_IDENTITY;
+      delete childEnv.AS_IS_JOB_ID;
+    }
     const child = spawn(Bun.which("bun") ?? "bun", [SCRIPT, ...args], {
       cwd: process.cwd(),
-      env,
+      env: childEnv,
       shell: false,
       stdio: ["ignore", "pipe", "pipe"],
     });
@@ -89,6 +95,27 @@ test("allows component-builder launches from as-is", async () => {
     "--dry-run",
   ]);
   expect(result.exitCode).toBe(0);
+});
+
+test("allows builder-owned expert validation and rejects direct expert launch", async () => {
+  const authorized = await runLauncher([
+    "--agent", ".agents/agents/expert/agent.md",
+    "--task", "Read-only validation.",
+    "--cwd", process.cwd(),
+    "--caller", "component-builder",
+    "--dry-run",
+  ]);
+  expect(authorized.exitCode).toBe(0);
+
+  const direct = await runLauncher([
+    "--agent", ".agents/agents/expert/agent.md",
+    "--task", "Unauthorized direct validation.",
+    "--cwd", process.cwd(),
+    "--caller", "user",
+    "--dry-run",
+  ]);
+  expect(direct.exitCode).toBe(1);
+  expect(direct.stderr).toContain("unauthorized delegation");
 });
 
 test("detach dry-run reports the detach flag and forwarded budget", async () => {

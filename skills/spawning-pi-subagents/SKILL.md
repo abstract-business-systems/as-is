@@ -208,6 +208,9 @@ model; it is read-only and never contacts a provider.
   authorizes independent siblings.
 - Resolve the agent file and component record before launch; do not substitute
   `general`, `explore`, or a direct worker when the configured role is missing.
+  A builder-owned read-only `expert` validation is authorized only when the
+  caller is `component-builder` and the propagated job id is present; direct
+  user/as-is expert launches remain rejected.
 - Pass the child only its role contract, task-specific direction, named
   dependencies, and centrally supplied repository context. Do not copy an
   unrelated root record or private runtime state into the prompt.
