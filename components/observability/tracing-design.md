@@ -13,8 +13,33 @@ The design is staged: stabilize this event model and its capture boundaries;
 then obtain approval and rehearse a dummy delegation flow. The tracer now
 implements local-full raw payload retention and export-bounded capture: local
 JSONL is controlled by retention/size limits, while OTLP payloads are filtered,
-redacted, and byte-bounded only when explicitly enabled. No launcher, session,
-tool, or output source is added by this document.
+redacted, and byte-bounded only when explicitly enabled. No launcher, session, tool, or output source is added by this document.
+
+## Session-reference-first policy
+
+For conversational and tool detail, the normal trace payload is a reference,
+not session content. Each trace may record an opaque Pi session ID and a
+scoped session-store reference, plus the configured role, approved model and
+provider metadata, job/delegation correlation, session revision and event
+range, bounded message/tool/usage counts, byte counts, timing, and an explicit
+missing-session status. These fields are correlation and measurement metadata;
+they do not expose session contents or grant access.
+
+Prompts, responses, tool arguments, and tool results are not normal trace
+payloads, including in local-full capture. Full detail is retrieved only by a
+separately authorized session inspection that enforces its own scope, access,
+retention, and redaction controls. A reference must be scoped to the permitted
+session store and event/revision range; it must not be an arbitrary path or
+query. If the session is unavailable, inaccessible, deleted, or outside the
+requested range, the trace records a bounded missing-session status and does
+not retry, inline, or substitute raw content.
+
+Session references are subject to the same least-privilege access, retention,
+size, redaction, and failure controls as other sensitive correlation metadata.
+Export carries only the allowlisted reference and bounded metadata, with the
+existing filtering, redaction, and byte bounds; it never exports resolved
+session content. Local-full/export-bounded remains a telemetry sink policy,
+not authorization to add session sources or broaden normal trace capture.
 
 ## Authority and identity
 

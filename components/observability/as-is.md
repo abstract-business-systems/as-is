@@ -33,6 +33,9 @@ without becoming task, job, validation, recovery, or completion authority.
 The component uses the repository tracer configuration and local JSONL sink,
 with optional backend-compatible export. Trace content remains bounded and must
 respect privacy, security, redaction, retention, access, and failure controls.
+Conversational and tool detail is session-reference-first: traces carry opaque,
+scoped session correlation and bounded metadata, while full content requires
+separate authorization for session inspection.
 
 ## Boundaries
 This component owns tracing implementation, trace queries, and observability
@@ -44,7 +47,8 @@ backlog items. It does not own task-record semantics or durable task authority.
 - [`backlog.md`](backlog.md) — open and deferred observability planning.
 
 ## Capture Policy
-The tracer implements local-full raw payload retention and an export-bounded
+Session references are correlation metadata, not resolved content. The tracer
+implements local-full raw payload retention and an export-bounded
 policy. Local JSONL retains declared payload classes subject to configured file
 retention and size controls; OTLP export is suppressed by default and, when
 explicitly enabled, filters classes, redacts sensitive values, and bounds bytes.
