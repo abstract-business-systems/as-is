@@ -3,8 +3,8 @@ as-is-version: 2
 task:
   status: ready
   worker: component-builder
-  updated: 2026-08-03T10:00:00Z
-  task-revision: canonical-agent-source-launcher-phase-1
+  updated: 2026-08-03T10:50:00Z
+  task-revision: canonical-agent-source-launcher-phase-3
   attempt: 0
 constraints:
   cost:
@@ -22,29 +22,32 @@ constraints:
       allocated-seconds: 600
       spent-seconds: 0.00
       reserve-seconds: 60
-      source: fresh phase authorization
+      source: fresh recovery authorization
   external-effects: require-current-turn-user-approval
 acceptance:
   - Launcher documentation and test fixtures use top-level agents/{as-is,component-builder,expert,worker} as canonical role-source paths.
-  - .agents/agents remains identified only as client host projection, not repository source.
-  - Focused launcher tests and build pass, including direct expert rejection and builder-owned expert lineage.
-  - No stale canonical .agents/agents role-source references remain in launcher artifacts.
-  - Only skills/spawning-pi-subagents artifacts and root handoff records change; setup, role sources, product, and unrelated components remain unchanged.
-  - Final expert validation reads the named changed files directly, a scoped commit is created, ancestry is verified, and the working tree is clean.
+  - .agents/agents remains only a client projection reference.
+  - Focused launcher tests and build pass.
+  - Direct unauthorized expert rejection and builder-owned expert lineage remain covered.
+  - Only skills/spawning-pi-subagents artifacts and component-local task/changelog records change.
+  - Expert directly reads the exact changed files and returns an attributable pass before commit.
 ---
-# Canonical Agent-Source Launcher Phase 1
+# Canonical Agent-Source Launcher Phase 3
 
 ## Requirement
-Update launcher documentation and test fixtures to use the canonical top-level `agents/` role sources after the source-layout and setup migrations. Preserve `.agents/agents` only as the client projection destination and preserve all delegation authorization behavior.
+Recover the preserved launcher implementation and complete the canonical source-reference migration. The implementation must use top-level `agents/` for repository role sources and retain `.agents/agents` only as client projection terminology.
 
 ## Scope
-Only `skills/spawning-pi-subagents/` and root task/changelog handoff records. Do not modify `components/as-is-setup`, top-level role sources, product components, or unrelated documentation. Use only component-builder.
+Only `skills/spawning-pi-subagents/` and its component-local task/changelog records. Do not modify root task records, setup, role sources, product, or unrelated files.
 
-## Plan
-Inspect launcher source, tests, and component records. Replace repository role-source references in launcher docs/tests with `agents/`; retain projection references where semantically required. Run focused launcher tests and Bun build, invoke expert with direct-file validation over the exact changed files, then create one scoped commit. Parent will cherry-pick and verify ancestry.
+## Recovery
+Previous component-local attempt produced the implementation in `/tmp/as-is-child-CZc13w/worktree` and passed 16 focused tests, build, and diff checks, but final expert validation failed. Recover its four launcher files or reproduce the same minimal changes. Do not trust the prior commit gate.
 
-## Prior Evidence And Authorization
-Canonical role sources are integrated in `82d8645`; setup source inventory is integrated in `cfe657f`. The previous setup validation blocker was resolved by direct-file expert validation. This fresh phase authorizes 600 seconds with monetary spent `0.00` because host cost is unavailable.
+## Validation Plan
+Run focused tests and Bun build. Invoke exactly one configured expert through the repaired builder lineage with a strict instruction to use only direct file reads on the named changed files, not Git/subprocess inspection. Provide the exact changed-file list, expected old/new path semantics, and acceptance mapping. Record the expert result before committing. Update component changelog, remove this transient task record, and create one scoped commit. Parent will cherry-pick and verify ancestry.
+
+## Authorization
+Fresh 600-second phase, monetary spent `0.00` because host cost is unavailable. This is a new revision after the prior expert failure; no silent retry.
 
 ## Validation
 Not started.
@@ -53,10 +56,7 @@ Not started.
 Not available.
 
 ## Blockers And Escalations
-None for this fresh phase. If final expert validation cannot directly assess the named files or scope crosses the launcher boundary, stop and record a blocker without retrying.
-
-## Recovery
-Preserve any incomplete component-builder worktree and registry evidence. Do not alter setup, role sources, or product files.
+Stop if direct-file expert validation does not return pass or if scope expands. Preserve evidence; do not bypass the gate.
 
 ## Next Action
-Launch one bounded component-builder launcher migration phase.
+Launch one bounded component-builder recovery attempt.
