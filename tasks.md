@@ -1,11 +1,11 @@
 ---
 as-is-version: 2
 task:
-  status: blocked
+  status: ready
   worker: component-builder
-  updated: 2026-08-03T06:20:00Z
-  task-revision: launcher-expert-authority-repair-2
-  attempt: 1
+  updated: 2026-08-03T06:40:00Z
+  task-revision: launcher-expert-authority-repair-3
+  attempt: 0
 constraints:
   cost:
     currency: USD
@@ -13,16 +13,16 @@ constraints:
     spent: 0.00
     reserve: 0.05
     source: unavailable
-    fallback-metric: validation elapsed-seconds
+    fallback-metric: host-observed elapsed-seconds only; not monetary cost
   delegation:
     maximum-depth: 1
     maximum-children: 1
   execution:
     wall-clock:
-      allocated-seconds: 600
-      spent-seconds: 300
-      reserve-seconds: 60
-      source: host-observed prior attempt; fresh 600-second authorization; cumulative ceiling 900 seconds
+      allocated-seconds: 900
+      spent-seconds: 0.00
+      reserve-seconds: 90
+      source: host-observed cumulative history retained separately; fresh 900-second authorization
   external-effects: require-current-turn-user-approval
 acceptance:
   - Reproduce and explain the authorized as-is -> component-builder -> expert path without weakening direct expert authorization rules.
@@ -42,21 +42,19 @@ Only launcher/orchestration files and focused tests/docs owned by `skills/spawni
 Reproduce the role lineage and environment propagation, identify the smallest authorization or attribution defect, implement a scoped fix, and validate the exact chain `as-is -> component-builder -> expert`. Direct user/as-is expert launches must remain rejected.
 
 ## Prior Evidence And Authorization
-A prior repair attempt (`launcher-expert-authority-repair-1/1`) consumed its 300-second wall-clock allocation and budget-stopped without a child commit or validation evidence; that accounting is preserved. The user now authorizes a fresh bounded 600-second attempt under this new task revision. This is not a silent retry and does not authorize the agent-source migration.
+Previous attempts consumed observed wall-clock budgets of 300 seconds and 600 seconds without an implementation handoff. Those observations are historical elapsed-time evidence only; host-reported monetary cost remains unavailable and is recorded as USD spent `0.00`. The user now authorizes this fresh 900-second wall-clock attempt under a new task revision. This is not a silent retry and does not authorize the canonical agent-source migration.
 
 ## Validation
-The configured chain did launch an expert from component-builder, but the mandatory plan review failed on budget admission: the task record conflated prior elapsed seconds with USD cost and did not admit a fresh 600-second allocation after reserve. No implementation or focused validation was authorized.
+Not started.
 
 ## Result
-Blocked before implementation. No launcher repair was made and no migration retry occurred.
+Not available.
 
 ## Blockers And Escalations
-- Prior 300 seconds is preserved as wall-clock history, not monetary cost; host cost remains unavailable.
-- The previous 600-second authorization was not admitted cumulatively after the retained reserve, so the expert correctly rejected the attempt.
-- No child implementation commit or validation evidence exists. Do not retry until a fresh task revision records unambiguous units and admission.
+None for this newly authorized attempt. If the chain cannot be completed within the fresh allocation, preserve separate elapsed-time and cost accounting and record a durable blocker without retrying.
 
 ## Recovery
-Preserve the expert and component-builder evidence, including `/tmp/as-is-child-27vm10/worktree`. Correct the task accounting in a new authorized revision before retrying. Do not begin the agent-source migration until this repair is completed and validated.
+Preserve any incomplete worktree, registry, and launcher evidence. Do not begin the agent-source migration until this repair is completed and validated.
 
 ## Next Action
-Await explicit budget-accounting reconciliation; no further launch is authorized by this blocked record.
+Launch one bounded component-builder attempt for the launcher repair with the fresh 900-second allocation.
