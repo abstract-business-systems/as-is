@@ -1,11 +1,11 @@
 ---
 as-is-version: 2
 task:
-  status: ready
+  status: blocked
   worker: component-builder
-  updated: 2026-08-06T06:00:00Z
+  updated: 2026-08-06T06:15:00Z
   task-revision: session-reference-trace-e2e-recovery-3
-  attempt: 0
+  attempt: 1
 constraints:
   cost:
     currency: USD
@@ -44,16 +44,16 @@ Only components/observability/. Expected changes are tracer tests and component 
 Extend focused tracer tests with representative parent `SessionReference` events for start, success, and failure, assert local JSONL and OTLP contain only bounded session-reference metadata, assert trace/span/parent relationships remain intact, and assert invalid or absent references are omitted atomically. Include forbidden-content and path/URL cases. Preserve existing local-full/export-bounded raw-payload tests as legacy sink-policy coverage; do not broaden capture.
 
 ## Validation
-Not started for recovery revision 3.
+Builder-reported checks passed: `bun test tracer.test.ts` — 9 passed, 60 expectations; tracer Bun build passed; `git diff --check` passed; scoped status contained only the expected component files. Final expert direct-file validation failed: it identified no explicit absent-reference assertion and could not independently verify Git scope with read-only tools.
 
 ## Result
-Not available.
+Blocked attempt 1. The deterministic test changes remain uncommitted; no parent integration occurred.
 
 ## Blockers And Escalations
-Fresh recovery authorization after a handoff-sequencing failure. The builder must complete implementation checks, update changelog and task evidence, then invoke final expert validation on the complete final changed-file list. If the expert passes, task management may remove tasks.md and the builder may commit. The expert remains read-only and must not be asked to validate a state that will still change materially afterward.
+The expert had sufficient direct-file permissions. This is an evidence/coverage blocker, not a permission blocker. Do not retry this revision, remove tasks.md, or commit without fresh authorization. A new recovery must add the explicit absent-reference assertion and use host executable checks as separate evidence while the expert reviews content and scope.
 
 ## Recovery
-Recover or reproduce the bounded tracer tests from prior attempts; no runtime producer or cross-component edits are authorized. Prior revisions `e1293f0` and `7365ae1` remain historical blocker evidence and are not retried.
+Preserve the current builder worktree and registry evidence if available. No runtime producer or cross-component edits are authorized. Prior revisions `e1293f0`, `7365ae1`, and `f821f61` remain recovery evidence and are not retried.
 
 ## Next Action
-Launch one bounded component-builder recovery attempt with final-handoff sequencing.
+Await fresh authorization to address the missing assertion and repeat the final handoff sequence.
