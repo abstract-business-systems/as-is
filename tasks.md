@@ -1,11 +1,11 @@
 ---
 as-is-version: 2
 task:
-  status: completed
+  status: ready
   worker: component-builder
-  updated: 2026-08-03T06:40:00Z
-  task-revision: launcher-expert-authority-repair-3
-  attempt: 1
+  updated: 2026-08-03T07:00:00Z
+  task-revision: canonical-agent-source-migration-3
+  attempt: 0
 constraints:
   cost:
     currency: USD
@@ -16,47 +16,46 @@ constraints:
     fallback-metric: host-observed elapsed-seconds only; not monetary cost
   delegation:
     maximum-depth: 1
-    maximum-children: 1
+    maximum-children: 3
   execution:
     wall-clock:
       allocated-seconds: 900
       spent-seconds: 0.00
       reserve-seconds: 90
-      source: host-observed cumulative history retained separately; fresh 900-second authorization
+      source: fresh authorization; prior attempts retained as historical evidence
   external-effects: require-current-turn-user-approval
 acceptance:
-  - Reproduce and explain the authorized as-is -> component-builder -> expert path without weakening direct expert authorization rules.
-  - Apply the smallest launcher/orchestration repair needed for builder-owned expert validation to start and be attributable.
-  - Add focused regression coverage for authorized builder-owned expert validation and unauthorized direct expert launch.
-  - Preserve unrelated work and validate focused launcher tests, build, and diff check.
+  - Top-level agents/ is the canonical role-source tree; .agents/agents remains host projection only.
+  - Setup reads canonical agents/ sources and projects them into host .agents/agents without creating a second source.
+  - Launcher, focused tests, and scoped documentation use canonical top-level agent paths while preserving host projection semantics.
+  - Product components are unchanged and all implementation children use component-builder.
+  - Required expert plan/final validation, focused setup/launcher tests, builds, diff checks, ancestry, and clean-worktree evidence pass.
 ---
-# Launcher Expert-Authority Repair
+# Canonical Agent-Source Migration
 
 ## Requirement
-Repair the launcher authority/attribution path that prevented the configured component-builder from starting its mandatory expert plan review. Do not perform the canonical agent-source migration in this task.
+Proceed with approved Option B: make top-level `agents/` the sole canonical role-source tree, retain `.agents/agents/` as host projection only, and update setup, launcher references, focused tests, and scoped documentation.
 
 ## Scope
-Only launcher/orchestration files and focused tests/docs owned by `skills/spawning-pi-subagents`; root task/changelog handoff is allowed. Do not modify product components, agent role contracts, or unrelated components. Use only component-builder for implementation.
+Root coordination plus `.agents/`, `components/as-is-setup/`, and `skills/spawning-pi-subagents/` boundaries. Do not modify product components or unrelated backlog items. Use only `component-builder` implementation children and the repaired builder-owned expert path.
 
 ## Plan
-1. Reproduce the role lineage and environment propagation with launcher dry-runs.
-2. Add the smallest focused regression coverage for component-builder -> expert authorization and direct expert rejection.
-3. Run focused tests, Bun build, and diff check, then obtain fresh expert validation before commit.
+Resume from preserved migration evidence only after rereading current records. Delegate bounded source-layout, setup, and launcher work through component-builder, obtain expert plan and final validation, integrate scoped child commits in the caller repository, and verify source/projection references, focused tests, builds, ancestry, and clean worktree.
 
 ## Prior Evidence And Authorization
-Previous attempts consumed observed wall-clock budgets of 300 seconds and 600 seconds without an implementation handoff. Those observations are historical elapsed-time evidence only; host-reported monetary cost remains unavailable and is recorded as USD spent `0.00`. The user now authorizes this fresh 900-second wall-clock attempt under a new task revision. This is not a silent retry and does not authorize the canonical agent-source migration.
+Earlier migration attempts were blocked before implementation because the launcher could not attribute builder-owned expert validation. That path is now repaired and validated in commits `c88cdad` and `19f803a`. Prior elapsed observations remain historical and are not treated as current cost. This fresh revision authorizes one bounded 900-second attempt with monetary spent `0.00` because host cost is unavailable.
 
 ## Validation
-`expert` plan review was launched through the launcher with caller `component-builder`; launcher attribution accepted the bounded review path. Focused launcher test passed (16/16), Bun build passed, and `git diff --check` passed. Fresh `expert` validation was launched through the same launcher with caller `component-builder` and parent job id; no implementation-scope blocker was reported. Direct expert launch from `user` remains rejected. Host-observed implementation/check elapsed time was approximately 10 seconds; monetary cost unavailable.
+Not started.
 
 ## Result
-Completed: launcher authority now requires a propagated parent job id for worker/expert identities while preserving component-builder-owned expert validation. Focused regression coverage verifies builder-owned expert authorization and direct expert rejection. Safe to commit after the fresh expert validation.
+Not available.
 
 ## Blockers And Escalations
-None for this newly authorized attempt. If the chain cannot be completed within the fresh allocation, preserve separate elapsed-time and cost accounting and record a durable blocker without retrying.
+None for this fresh revision. Preserve separate elapsed-time and cost accounting if any child or validation gate blocks; do not silently retry.
 
 ## Recovery
-Preserve any incomplete worktree, registry, and launcher evidence. Do not begin the agent-source migration until this repair is completed and validated.
+Inspect prior recovery evidence at `/tmp/as-is-child-y8gx0I/worktree` only as historical context. Preserve any new incomplete child worktree and registry evidence. Do not delete either source tree until all consumers and projection behavior are verified.
 
 ## Next Action
-Commit the scoped launcher, focused test/docs, task-record, and changelog handoff.
+Launch one bounded component-builder migration attempt using the repaired as-is → component-builder → expert path.
