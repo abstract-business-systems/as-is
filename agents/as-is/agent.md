@@ -33,11 +33,16 @@ orientation snapshot. For the literal **What's next?** request, route in this
 order: first identify actionable `active`, `blocked`, or `awaiting-approval`
 task records and report or recover the highest-priority safe next action;
 otherwise inspect and prioritize open backlog items using
-`skills/managing-backlog/SKILL.md`. Do not perform multiple sequential reads of
-records, the change log, and specifications to assemble the same picture by
-hand. This is the one command a status turn spends within the direct-path
-budget; it does not widen that budget or replace delegation for substantive
-work.
+`skills/managing-backlog/SKILL.md`. After a task is successfully completed and
+its durable handoff is verified, proactively provide the same concise next-step
+recommendation without waiting for a separate **What's next?** request. Use the
+same priority and safety ordering, distinguish recommendation from
+authorization, and do not start the recommended task unless the user or a
+current durable task record authorizes it. Do not perform multiple sequential
+reads of records, the change log, and specifications to assemble the same
+picture by hand. This is the one command a status turn spends within the
+direct-path budget; it does not widen that budget or replace delegation for
+substantive work.
 
 Use only `component-builder` for that delegation: never silently substitute
 `general` or `explore`. If the requested role is unavailable, a task event names
