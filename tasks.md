@@ -1,11 +1,11 @@
 ---
 as-is-version: 2
 task:
-  status: ready
+  status: blocked
   worker: component-builder
-  updated: 2026-08-03T05:30:00Z
+  updated: 2026-08-03T05:46:00Z
   task-revision: launcher-expert-authority-repair-1
-  attempt: 0
+  attempt: 1
 constraints:
   cost:
     currency: USD
@@ -45,16 +45,18 @@ Reproduce the role lineage and environment propagation, identify the smallest au
 The canonical agent-source migration was blocked because its component-builder launch returned without attributable implementation evidence and required expert validation was unavailable. No migration files were changed. This is a new task revision with a separate bounded budget; no migration retry is authorized by this record.
 
 ## Validation
-Not started.
+Blocked by the bounded launcher attempt: `as-is budget-stopped: limit=wall-clock seconds=300 exit=124`. No scoped implementation handoff, focused test evidence, or expert-validation evidence was produced. `git diff --check` remains clean for the caller worktree.
 
 ## Result
-Not available.
+Incomplete; the authority repair was not implemented or validated. No migration retry was performed.
 
 ## Blockers And Escalations
-None. If the authorized chain cannot be reproduced safely within this budget, record the exact blocker and preserve recovery evidence without retrying.
+- The configured component-builder repair attempt consumed its 300-second wall-clock allocation and budget-stopped.
+- No attributable child commit or validation evidence is available.
+- Do not silently retry or substitute another role. A future attempt requires a new durable authorization with sufficient budget and preserved cumulative accounting.
 
 ## Recovery
-Preserve any incomplete worktree and registry evidence. Do not begin the agent-source migration until this repair is completed and validated.
+Preserve any incomplete worktree and registry evidence; inspect launcher job records before any future attempt. This task has spent one bounded attempt with 300 observed seconds. Do not begin the agent-source migration until this repair is completed and validated. Resume only under a new task revision and explicit authorization.
 
 ## Next Action
-Launch one bounded component-builder attempt for the launcher repair.
+Escalate the budget-stopped authority-repair attempt; no further launch is authorized by this record.
