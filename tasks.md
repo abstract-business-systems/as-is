@@ -1,16 +1,16 @@
 ---
 as-is-version: 2
 task:
-  status: blocked
+  status: ready
   worker: component-builder
-  updated: 2026-08-03T05:46:00Z
-  task-revision: launcher-expert-authority-repair-1
-  attempt: 1
+  updated: 2026-08-03T06:00:00Z
+  task-revision: launcher-expert-authority-repair-2
+  attempt: 0
 constraints:
   cost:
     currency: USD
     allocated: 0.50
-    spent: 0.00
+    spent: 300.00
     reserve: 0.05
     source: unavailable
     fallback-metric: validation elapsed-seconds
@@ -19,10 +19,10 @@ constraints:
     maximum-children: 1
   execution:
     wall-clock:
-      allocated-seconds: 300
-      spent-seconds: 0.00
+      allocated-seconds: 600
+      spent-seconds: 300
       reserve-seconds: 60
-      source: unavailable
+      source: host-observed prior attempt; fresh 600-second authorization
   external-effects: require-current-turn-user-approval
 acceptance:
   - Reproduce and explain the authorized as-is -> component-builder -> expert path without weakening direct expert authorization rules.
@@ -41,22 +41,20 @@ Only launcher/orchestration files and focused tests/docs owned by `skills/spawni
 ## Plan
 Reproduce the role lineage and environment propagation, identify the smallest authorization or attribution defect, implement a scoped fix, and validate the exact chain `as-is -> component-builder -> expert`. Direct user/as-is expert launches must remain rejected.
 
-## Prior Evidence
-The canonical agent-source migration was blocked because its component-builder launch returned without attributable implementation evidence and required expert validation was unavailable. No migration files were changed. This is a new task revision with a separate bounded budget; no migration retry is authorized by this record.
+## Prior Evidence And Authorization
+A prior repair attempt (`launcher-expert-authority-repair-1/1`) consumed its 300-second wall-clock allocation and budget-stopped without a child commit or validation evidence; that accounting is preserved. The user now authorizes a fresh bounded 600-second attempt under this new task revision. This is not a silent retry and does not authorize the agent-source migration.
 
 ## Validation
-Blocked by the bounded launcher attempt: `as-is budget-stopped: limit=wall-clock seconds=300 exit=124`. No scoped implementation handoff, focused test evidence, or expert-validation evidence was produced. `git diff --check` remains clean for the caller worktree.
+Not started.
 
 ## Result
-Incomplete; the authority repair was not implemented or validated. No migration retry was performed.
+Not available.
 
 ## Blockers And Escalations
-- The configured component-builder repair attempt consumed its 300-second wall-clock allocation and budget-stopped.
-- No attributable child commit or validation evidence is available.
-- Do not silently retry or substitute another role. A future attempt requires a new durable authorization with sufficient budget and preserved cumulative accounting.
+None for this newly authorized attempt. If the chain cannot be completed within the fresh allocation, preserve cumulative accounting and record a durable blocker without retrying.
 
 ## Recovery
-Preserve any incomplete worktree and registry evidence; inspect launcher job records before any future attempt. This task has spent one bounded attempt with 300 observed seconds. Do not begin the agent-source migration until this repair is completed and validated. Resume only under a new task revision and explicit authorization.
+Preserve any incomplete worktree, registry, and launcher evidence. Do not begin the agent-source migration until this repair is completed and validated.
 
 ## Next Action
-Escalate the budget-stopped authority-repair attempt; no further launch is authorized by this record.
+Launch one bounded component-builder attempt for the launcher repair with the fresh 600-second allocation.
