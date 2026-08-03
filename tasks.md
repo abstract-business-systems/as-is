@@ -1,11 +1,11 @@
 ---
 as-is-version: 2
 task:
-  status: blocked
+  status: ready
   worker: component-builder
-  updated: 2026-08-03T05:18:00Z
-  task-revision: canonical-agent-source-migration-2
-  attempt: 1
+  updated: 2026-08-03T05:30:00Z
+  task-revision: launcher-expert-authority-repair-1
+  attempt: 0
 constraints:
   cost:
     currency: USD
@@ -16,51 +16,45 @@ constraints:
     fallback-metric: validation elapsed-seconds
   delegation:
     maximum-depth: 1
-    maximum-children: 3
+    maximum-children: 1
   execution:
     wall-clock:
-      allocated-seconds: 600
-      spent-seconds: 244.898
+      allocated-seconds: 300
+      spent-seconds: 0.00
       reserve-seconds: 60
-      source: host-observed prior attempt; new authorization adds 600 seconds
+      source: unavailable
   external-effects: require-current-turn-user-approval
 acceptance:
-  - Top-level agents/ is the canonical role-source tree; .agents/agents remains host projection only.
-  - Setup reads canonical agents/ sources and projects them into host .agents/agents without copying or creating a second source.
-  - Launcher, focused tests, and scoped documentation use canonical top-level agent paths while preserving host projection semantics.
-  - Product components are unchanged and all child work is delegated only to component-builder.
-  - Focused setup and launcher tests, relevant builds, and diff checks pass; handoff summary and integration evidence are recorded.
+  - Reproduce and explain the authorized as-is -> component-builder -> expert path without weakening direct expert authorization rules.
+  - Apply the smallest launcher/orchestration repair needed for builder-owned expert validation to start and be attributable.
+  - Add focused regression coverage for authorized builder-owned expert validation and unauthorized direct expert launch.
+  - Preserve unrelated work and validate focused launcher tests, build, and diff check.
 ---
-# Canonical Agent-Source Migration
+# Launcher Expert-Authority Repair
 
 ## Requirement
-Proceed with the approved Option B migration. Make top-level `agents/` the sole canonical role-source tree, retain `.agents/agents/` as host projection only, and update setup, launcher references, focused tests, and scoped documentation.
+Repair the launcher authority/attribution path that prevented the configured component-builder from starting its mandatory expert plan review. Do not perform the canonical agent-source migration in this task.
 
 ## Scope
-Root coordination plus the `.agents/`, `components/as-is-setup/`, and `skills/spawning-pi-subagents/` component boundaries. Do not modify product components or unrelated backlog items. Use only `component-builder` for implementation children.
-
-## Prior Attempt And Authorization
-The prior attempt was blocked before implementation when required expert plan validation was budget-stopped after approximately 20 seconds; observed parent/child elapsed time was approximately 244.898 seconds. The user now authorizes a fresh bounded attempt with a 600-second wall-clock allocation. This is attempt 1 of revision 2, not an unrecorded retry.
+Only launcher/orchestration files and focused tests/docs owned by `skills/spawning-pi-subagents`; root task/changelog handoff is allowed. Do not modify product components, agent role contracts, or unrelated components. Use only component-builder for implementation.
 
 ## Plan
-Resume from the preserved recovery evidence only after rereading the current records. Delegate bounded component work through `component-builder`, obtain required expert plan/final validation, integrate only scoped child handoffs in the caller repository, and verify ancestry, focused tests, references, and clean worktree.
+Reproduce the role lineage and environment propagation, identify the smallest authorization or attribution defect, implement a scoped fix, and validate the exact chain `as-is -> component-builder -> expert`. Direct user/as-is expert launches must remain rejected.
 
-## Progress
-Attempt 1 was authorized and launched through the configured `component-builder` path with the fresh 600-second allocation. The launcher returned without an attributable child handoff, implementation commit, or validation evidence. No migration edits were integrated.
+## Prior Evidence
+The canonical agent-source migration was blocked because its component-builder launch returned without attributable implementation evidence and required expert validation was unavailable. No migration files were changed. This is a new task revision with a separate bounded budget; no migration retry is authorized by this record.
 
 ## Validation
-Blocked before implementation. The mandatory expert plan review was rejected by launcher authority (`as-is cannot launch expert; delegation decisions belong to as-is`), and no attributable component-builder result was produced. No focused migration tests, builds, diff, or ancestry checks were run.
+Not started.
 
 ## Result
-Blocked; Option B was not completed. Prior observed 244.898 seconds remains preserved in cumulative accounting; the fresh attempt was consumed as a bounded attempt. No silent retry occurred.
+Not available.
 
 ## Blockers And Escalations
-- Required expert plan validation is unavailable from the current caller path under launcher authority.
-- The component-builder launch returned without a child record, scoped commit, or validation evidence.
-- Do not substitute another role or retry without an authorized launcher-path repair and new task revision.
+None. If the authorized chain cannot be reproduced safely within this budget, record the exact blocker and preserve recovery evidence without retrying.
 
 ## Recovery
-The prior recovery candidate is `/tmp/as-is-child-y8gx0I/worktree`; inspect it only as historical recovery evidence. Preserve any new incomplete worktree and record its path. Do not delete either source tree until migration consumers and projection behavior are verified.
+Preserve any incomplete worktree and registry evidence. Do not begin the agent-source migration until this repair is completed and validated.
 
 ## Next Action
-Stop and escalate the launcher-authority blocker. Do not alter the canonical layout or retry attempt 1 silently.
+Launch one bounded component-builder attempt for the launcher repair.
