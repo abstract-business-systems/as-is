@@ -381,6 +381,63 @@ these schemas and bounded evidence only, cannot send requests, acknowledge,
 write or alter checkpoints, inspect raw sessions, issue leases, or change
 authority. This contract does not define its admission or implementation.
 
+## Resume and fork admission contract
+
+This contract makes **resume** the normative default recovery mechanism. A
+resume preserves the task revision, attempt, source checkpoint, and work line;
+it is not a new invocation and must not reset identity or accounting. A
+**fork** is a divergent recovery branch, never an implicit fallback: it requires
+separate explicit authorization and must preserve the source as immutable audit
+evidence.
+
+### Admission inputs and ceilings
+
+A resume request must identify the exact `taskRevision` and `attempt`, source
+`checkpointRef`, authorization `recordId`, predecessor `leaseId`, and opaque
+`sessionRef` and `worktreeRef`. Each reference must include or resolve to its
+store scope, revision/range, access policy, expiry, and integrity marker. The
+request must also carry the bounded validation result for the source checkpoint,
+changed-artifact scope, recovery boundary, and a newly issued unique lease.
+
+Admission validates identity, authority, source references, checkpoint state,
+lease state, scope, integrity, and that the new lease fits the immutable hard
+wall-clock and cost ceilings (including required reserve). It rejects rather
+than clamps, overdraws, or extends a ceiling. Cumulative allocations,
+observations, and remaining envelope are carried forward across every resume;
+missing monetary observations remain explicitly unavailable and never become
+permission to admit cost.
+
+Admission is idempotent. A unique operation or lease identity may be admitted
+only once; a repeated identity returns the original outcome without replaying
+work, while a payload mismatch is an idempotency conflict. Source checkpoints,
+lease records, and fork lineage are append-only, so duplicate admission cannot
+silently create a second continuation or mutate the source.
+
+### Recovery outcomes and fork authorization
+
+A stale, revoked, expired, exhausted, superseded, integrity-failing, or
+otherwise non-resumable source is rejected for resume. The authority records
+the failure class, last valid checkpoint, cumulative accounting, and safe
+recovery boundary. A missing, invalid, inaccessible, or mismatched reference
+has the same fail-closed result: it does **not** authorize automatic
+fork/recreation, automatic resume, lease extension, or completion.
+
+A fork may be admitted only through a separate authorization that names the
+reason, authority, source `recordId`/`taskRevision`/`attempt`, source
+checkpoint and session/worktree references, and the new branch identity and
+attempt/revision policy. The resulting branch must retain explicit source
+lineage, independent lease/accounting records, changed-artifact scope, and
+validation evidence; the source remains preserved and is not rewritten. Fork
+authorization does not imply extension or completion, and a missing or invalid
+source reference still requires an explicit recovery decision rather than
+automatic recreation.
+
+This is a documentation/schema contract only. It does not implement launcher
+flags, session reopening, session-store reads, runtime branching, automatic
+continuation, or extension. `dynamic-expert-validation-access` remains open
+as a separate bounded, read-only validation dependency and cannot authorize
+resume, fork, lease, extension, or completion.
+
 ### Retention, cleanup, and worktree contract
 
 This is a documentation/schema boundary for future implementation. It does not

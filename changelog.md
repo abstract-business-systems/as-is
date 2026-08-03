@@ -2,6 +2,8 @@
 
 # Changelog
 
+- 2026-08-06: Added the documentation-only `Resume and fork admission contract` to adaptive session budgeting: resume is the normative recovery default, forks require explicit authorization and source lineage, and admission preserves identity, references, immutable ceilings, cumulative accounting, idempotency, and fail-closed non-resumable behavior. Dynamic expert validation remains open; exact diff checks and read-only expert plan/final validation passed, with final validation declaring the change safe to commit.
+
 - 2026-08-06: Wired validated project-local session references into `.pi/extensions/worker-tools.ts` for `call_subagent` and `worker.result` start/success/failure events. Invalid or missing IDs are omitted; no child/session-store or raw content access was added. `bun --check` and diff checks passed; standalone `bunx tsc` was unavailable, leaving host dependency validation as residual risk. Expert plan and final direct-file reviews recorded safe-to-commit evidence.
 
 - 2026-08-06: Closed `canonical-agent-source-layout`: top-level `agents/` is the sole tracked role-source tree; `.agents/agents/` is client projection-only. Setup projection, launcher, extension role paths, dummy rehearsal, and supported host checks were validated. OpenCode discovery is available; native Pi extension bundling remains host-environment dependent because standalone dependencies are unavailable.
