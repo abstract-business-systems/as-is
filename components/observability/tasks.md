@@ -1,11 +1,11 @@
 ---
 as-is-version: 2
 task:
-  status: blocked
+  status: ready
   worker: component-builder
-  updated: 2026-08-06T05:45:00Z
-  task-revision: session-reference-trace-e2e-recovery-2
-  attempt: 1
+  updated: 2026-08-06T06:00:00Z
+  task-revision: session-reference-trace-e2e-recovery-3
+  attempt: 0
 constraints:
   cost:
     currency: USD
@@ -44,16 +44,16 @@ Only components/observability/. Expected changes are tracer tests and component 
 Extend focused tracer tests with representative parent `SessionReference` events for start, success, and failure, assert local JSONL and OTLP contain only bounded session-reference metadata, assert trace/span/parent relationships remain intact, and assert invalid or absent references are omitted atomically. Include forbidden-content and path/URL cases. Preserve existing local-full/export-bounded raw-payload tests as legacy sink-policy coverage; do not broaden capture.
 
 ## Validation
-Builder-reported checks passed: `bun test components/observability/tracer.test.ts` — 9 passed, 84 expectations; Bun tracer build passed; `git diff --check` passed. The expert read the named files and confirmed no scope expansion, but returned `fail / not safe-to-commit` because the durable handoff cleanup had not yet been completed.
+Not started for recovery revision 3.
 
 ## Result
-Blocked attempt 1. The deterministic test change remains uncommitted in the preserved builder context; no parent integration occurred.
+Not available.
 
 ## Blockers And Escalations
-The expert had sufficient read-only permissions. The failure was a handoff-state failure, not a missing permission: the builder invoked final validation before updating the changelog and preparing the required task-record cleanup. Do not retry this revision or bypass the gate. A new recovery revision must explicitly sequence validation evidence, changelog update, task-record removal, and commit, while ensuring the expert reviews the final changed-file set.
+Fresh recovery authorization after a handoff-sequencing failure. The builder must complete implementation checks, update changelog and task evidence, then invoke final expert validation on the complete final changed-file list. If the expert passes, task management may remove tasks.md and the builder may commit. The expert remains read-only and must not be asked to validate a state that will still change materially afterward.
 
 ## Recovery
-No parent files beyond this task record changed. Preserve any builder worktree and registry evidence if available. Prior validation evidence is supplementary and does not establish completion.
+Recover or reproduce the bounded tracer tests from prior attempts; no runtime producer or cross-component edits are authorized. Prior revisions `e1293f0` and `7365ae1` remain historical blocker evidence and are not retried.
 
 ## Next Action
-Authorize a fresh recovery revision with explicit final-handoff sequencing.
+Launch one bounded component-builder recovery attempt with final-handoff sequencing.
