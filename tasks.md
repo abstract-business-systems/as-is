@@ -3,8 +3,8 @@ as-is-version: 2
 task:
   status: ready
   worker: component-builder
-  updated: 2026-08-03T09:40:00Z
-  task-revision: canonical-agent-source-setup-phase-2
+  updated: 2026-08-03T10:00:00Z
+  task-revision: canonical-agent-source-launcher-phase-1
   attempt: 0
 constraints:
   cost:
@@ -22,31 +22,29 @@ constraints:
       allocated-seconds: 600
       spent-seconds: 0.00
       reserve-seconds: 60
-      source: fresh recovery authorization; prior elapsed history retained separately
+      source: fresh phase authorization
   external-effects: require-current-turn-user-approval
 acceptance:
-  - components/as-is-setup/setup.ts inventories canonical agents/ sources.
-  - Client projection remains .agents/agents and preserves collision/idempotence behavior.
-  - Focused setup tests and build pass.
-  - Only components/as-is-setup artifacts and root handoff records change.
-  - Final expert validation reads the named changed files in the controlled worktree and explicitly assesses scope and safety; it need not use subprocesses.
+  - Launcher documentation and test fixtures use top-level agents/{as-is,component-builder,expert,worker} as canonical role-source paths.
+  - .agents/agents remains identified only as client host projection, not repository source.
+  - Focused launcher tests and build pass, including direct expert rejection and builder-owned expert lineage.
+  - No stale canonical .agents/agents role-source references remain in launcher artifacts.
+  - Only skills/spawning-pi-subagents artifacts and root handoff records change; setup, role sources, product, and unrelated components remain unchanged.
+  - Final expert validation reads the named changed files directly, a scoped commit is created, ancestry is verified, and the working tree is clean.
 ---
-# Canonical Agent-Source Setup Phase 2
+# Canonical Agent-Source Launcher Phase 1
 
 ## Requirement
-Recover and complete the setup phase: source role inventory from top-level `agents/`, project to client `.agents/agents/`, preserve existing behavior, and validate the actual named files before commit.
+Update launcher documentation and test fixtures to use the canonical top-level `agents/` role sources after the source-layout and setup migrations. Preserve `.agents/agents` only as the client projection destination and preserve all delegation authorization behavior.
 
 ## Scope
-Only `components/as-is-setup/` and root task/changelog handoff records. Do not modify role sources, launcher files, product components, or unrelated documentation. Use only component-builder.
-
-## Recovery And Validation Decision
-The previous implementation passed focused tests/build but its final expert call was blocked because the expert attempted to inspect Git status/diff using prohibited subprocesses. This recovery explicitly requires the builder to pass the expert the exact changed-file list and acceptance mapping; the expert must read those files directly in the controlled worktree and assess the implementation without subprocesses. The expert result must be attributable and passing before commit.
+Only `skills/spawning-pi-subagents/` and root task/changelog handoff records. Do not modify `components/as-is-setup`, top-level role sources, product components, or unrelated documentation. Use only component-builder.
 
 ## Plan
-Reimplement the minimal setup source-path change in the builder worktree, update its fixture/docs, run focused tests/build/diff check, invoke expert with direct file-read validation instructions, then commit one scoped handoff. Parent will cherry-pick the child commit and verify ancestry.
+Inspect launcher source, tests, and component records. Replace repository role-source references in launcher docs/tests with `agents/`; retain projection references where semantically required. Run focused launcher tests and Bun build, invoke expert with direct-file validation over the exact changed files, then create one scoped commit. Parent will cherry-pick and verify ancestry.
 
 ## Prior Evidence And Authorization
-The canonical role-source move is integrated in `82d8645`. The previous setup attempt is preserved at `/tmp/as-is-child-XNPTJh/worktree` as recovery evidence but was not committed. This is a fresh 600-second phase authorization with monetary spent `0.00` because host cost is unavailable.
+Canonical role sources are integrated in `82d8645`; setup source inventory is integrated in `cfe657f`. The previous setup validation blocker was resolved by direct-file expert validation. This fresh phase authorizes 600 seconds with monetary spent `0.00` because host cost is unavailable.
 
 ## Validation
 Not started.
@@ -55,10 +53,10 @@ Not started.
 Not available.
 
 ## Blockers And Escalations
-None for this fresh recovery phase. If the expert cannot complete direct file-read validation or the task crosses scope, stop and record a blocker without retrying.
+None for this fresh phase. If final expert validation cannot directly assess the named files or scope crosses the launcher boundary, stop and record a blocker without retrying.
 
 ## Recovery
-Preserve any incomplete worktree and registry evidence. The prior uncommitted recovery candidate remains `/tmp/as-is-child-XNPTJh/worktree`; do not delete it.
+Preserve any incomplete component-builder worktree and registry evidence. Do not alter setup, role sources, or product files.
 
 ## Next Action
-Launch one bounded component-builder recovery attempt with explicit direct-file expert validation.
+Launch one bounded component-builder launcher migration phase.
