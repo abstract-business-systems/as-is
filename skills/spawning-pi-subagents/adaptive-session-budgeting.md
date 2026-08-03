@@ -252,6 +252,83 @@ recovery consequence. A missing, expired, inaccessible, or integrity-failing
 reference makes the record non-resumable and produces a recovery candidate;
 it does not authorize recreation, resume, fork, extension, or completion.
 
+### Retention, cleanup, and worktree contract
+
+This is a documentation/schema boundary for future implementation. It does not
+authorize a store, cleanup worker, launcher operation, or process behavior.
+
+**Approved stores and references.** A retention reference identifies an entry
+in an explicitly approved, project-controlled session store or worktree
+retention store. The approved scope is the store named by future
+authorization/configuration; an arbitrary host path, provider URL, network
+location, temporary directory, or caller-selected store is not approved here.
+`store` is a closed policy label, not a path. `sessionRef` and `worktreeRef`
+are opaque identifiers (including revision/range and access class where
+required), and must not encode prompts, responses, tool arguments/results,
+secrets, absolute paths, URLs, credentials, or serialized session content. A
+reference is useful only with store, task revision/attempt, access policy,
+expiry, and integrity/revision marker; none grants authority.
+
+**Retention lifecycle.** Retention begins only when an authorized checkpoint or
+lease record publishes a valid reference and expiry. The reference is retained
+until expiry, then `expired-pending-disposition`; it may be `released` only by
+an authorized disposition. Expiry is a reference state, not proof the
+underlying artifact was deleted. A future implementation must record a
+disposition (reference, checkpoint/lease, observed expiry, actor, time, reason,
+artifact outcome, and recovery state) before deleting, releasing, or losing
+access to an artifact. An unexpired reference is never cleanup-eligible.
+Retention may be extended only by the authority controlling lease/checkpoint
+policy, with a new bounded expiry and durable reason; the child cannot extend
+it.
+
+**Cleanup authorization and evidence.** Cleanup is an explicit,
+authority-controlled operation, separate from lease issuance and checkpoint
+writing. It must re-check expiry, store scope, revision, access policy, and
+integrity atomically; ambiguity, races, access failure, or integrity mismatch
+is a no-delete outcome. It may act only on the named expired reference, never
+on a directory, worktree, session family, or unreferenced neighbor by
+inference. Before destructive disposition, the authority must audit tracked,
+untracked, and ignored worktree contents, ownership, consumers, recovery/audit
+value, and recreation cost, and preserve the last valid checkpoint, cumulative
+accounting, changed-artifact scope, and cleanup consequence. If those facts
+cannot be recorded durably, cleanup is not authorized. Artifact deletion and
+reference removal are separate outcomes and must each be recorded; this
+contract implements neither.
+
+**Worktree ownership boundary.** A retained worktree remains owned by the
+worker/job isolation owner until a committed handoff, explicit authority
+transfer, or authorized terminal disposition is recorded. A parent may inspect
+bounded state and decide retention, but may not mutate or remove the child's
+worktree implicitly. A child may write only within its assigned component and
+may not claim ownership of the retention store, lease, or cleanup decision.
+Shared or caller worktrees are not resumable by a reference alone: ownership,
+scope, dirty state, and commit/recovery boundary must be recorded. Cleanup
+must not remove a worktree with uncommitted changes unless its recovery
+consequence and exact disposition are explicitly authorized.
+
+**Resumability outcomes.** Resolution is fail-closed. A `missing`, `expired`,
+`inaccessible`, or `integrity-failing` session or worktree reference marks the
+checkpoint/lease recovery candidate `non-resumable` and records a bounded
+failure class and safe recovery boundary. It does not permit guessing,
+recreating content, automatic resume, automatic fork, extension, or completion.
+A valid reference must match task revision/attempt and integrity marker; a
+mismatch is integrity failure, not a new branch. Only a separately authorized
+future operation may choose a new checkpoint, resume, or fork, preserving the
+source record and cumulative accounting.
+
+**Interaction with states.** `authorized`/`running` leases require references
+only when their retention policy says they are needed; `checkpointing` cannot
+become `paused` until required references and checkpoint evidence are valid.
+`paused` requires an unexpired, accessible, integrity-valid recovery boundary or
+is a recovery candidate. `exhausted`, `revoked`, and `closed` retain accounting
+and disposition evidence; closure alone does not authorize cleanup.
+`requested`/`writing` checkpoints must not publish resumability. `ready` and
+`blocked` are resumable only while required references validate. `failed` and
+`budget-stopped` preserve the last valid boundary and are non-complete;
+reference failure makes them non-resumable until an authority records a
+separate recovery plan. `superseded` checkpoints remain audit evidence and are
+not silently cleaned up.
+
 `dynamic-expert-validation-access` remains an open separate dependency. It may
 validate these records and their evidence only through bounded read-only access;
 it cannot issue leases, alter checkpoints, inspect raw sessions, or change
