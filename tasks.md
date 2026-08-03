@@ -1,11 +1,11 @@
 ---
 as-is-version: 2
 task:
-  status: blocked
+  status: ready
   worker: component-builder
-  updated: 2026-08-03T09:20:00Z
-  task-revision: canonical-agent-source-setup-phase-1
-  attempt: 1
+  updated: 2026-08-03T09:40:00Z
+  task-revision: canonical-agent-source-setup-phase-2
+  attempt: 0
 constraints:
   cost:
     currency: USD
@@ -22,42 +22,43 @@ constraints:
       allocated-seconds: 600
       spent-seconds: 0.00
       reserve-seconds: 60
-      source: fresh phase authorization; prior migration history retained separately
+      source: fresh recovery authorization; prior elapsed history retained separately
   external-effects: require-current-turn-user-approval
 acceptance:
   - components/as-is-setup/setup.ts inventories canonical agents/ sources.
   - Client projection remains .agents/agents and preserves collision/idempotence behavior.
   - Focused setup tests and build pass.
-  - Only components/as-is-setup artifacts and root handoff records change; launcher, role sources, product, and unrelated components remain unchanged.
-  - Expert plan/final validation, scoped commit, ancestry, and clean-worktree evidence are recorded.
+  - Only components/as-is-setup artifacts and root handoff records change.
+  - Final expert validation reads the named changed files in the controlled worktree and explicitly assesses scope and safety; it need not use subprocesses.
 ---
-# Canonical Agent-Source Setup Phase 1
+# Canonical Agent-Source Setup Phase 2
 
 ## Requirement
-Update `components/as-is-setup` to read canonical role sources from top-level `agents/` while continuing to project them into client-local `.agents/agents/`. Preserve skill wiring, collision behavior, idempotence, and host detection.
+Recover and complete the setup phase: source role inventory from top-level `agents/`, project to client `.agents/agents/`, preserve existing behavior, and validate the actual named files before commit.
 
 ## Scope
-Only `components/as-is-setup/` and root task/changelog handoff records. Do not modify `skills/spawning-pi-subagents`, role source files, product components, or unrelated documentation. Use only component-builder.
+Only `components/as-is-setup/` and root task/changelog handoff records. Do not modify role sources, launcher files, product components, or unrelated documentation. Use only component-builder.
+
+## Recovery And Validation Decision
+The previous implementation passed focused tests/build but its final expert call was blocked because the expert attempted to inspect Git status/diff using prohibited subprocesses. This recovery explicitly requires the builder to pass the expert the exact changed-file list and acceptance mapping; the expert must read those files directly in the controlled worktree and assess the implementation without subprocesses. The expert result must be attributable and passing before commit.
 
 ## Plan
-Reread the setup component record and tests plus the canonical source-layout decision. Change the bundle source path from `.agents/agents` to `agents`, update deterministic fixtures/tests and component documentation as needed, obtain expert plan and final validation through the repaired lineage, run focused setup tests/build/diff checks, and commit one scoped handoff.
+Reimplement the minimal setup source-path change in the builder worktree, update its fixture/docs, run focused tests/build/diff check, invoke expert with direct file-read validation instructions, then commit one scoped handoff. Parent will cherry-pick the child commit and verify ancestry.
 
 ## Prior Evidence And Authorization
-Canonical role sources were moved and integrated in `82d8645`; `.agents/agents` is now projection-only. This fresh phase authorizes 600 seconds with monetary spent `0.00` because host cost is unavailable. The launcher phase and role-source phase are complete and must remain unchanged.
+The canonical role-source move is integrated in `82d8645`. The previous setup attempt is preserved at `/tmp/as-is-child-XNPTJh/worktree` as recovery evidence but was not committed. This is a fresh 600-second phase authorization with monetary spent `0.00` because host cost is unavailable.
 
 ## Validation
-Implementation validation passed in the preserved child worktree: `bun test components/as-is-setup/setup.test.ts` — 3 passed; `bun build components/as-is-setup/setup.ts --outdir /tmp/as-is-setup-build` passed; `git diff --check` passed. The required final expert validation was blocked because the read-only expert could not inspect the actual uncommitted diff/status under its tool contract.
+Not started.
 
 ## Result
-Blocked; setup changes appear behaviorally correct but are not safe to integrate without the required passing final expert gate. No commit was created.
+Not available.
 
 ## Blockers And Escalations
-- Final configured expert validation returned BLOCKED on inability to inspect actual diff/status.
-- Do not substitute a role or bypass the required commit gate.
-- Preserve the implementation worktree and obtain a compliant validation path before retrying integration.
+None for this fresh recovery phase. If the expert cannot complete direct file-read validation or the task crosses scope, stop and record a blocker without retrying.
 
 ## Recovery
-Preserve implementation worktree `/tmp/as-is-child-XNPTJh/worktree` and registry evidence. Its changes are limited to `components/as-is-setup` plus the root task record. Do not alter canonical role sources or launcher files. Resume only after a compliant final expert validation path is available.
+Preserve any incomplete worktree and registry evidence. The prior uncommitted recovery candidate remains `/tmp/as-is-child-XNPTJh/worktree`; do not delete it.
 
 ## Next Action
-Resolve the final expert-validation blocker; do not integrate or retry silently.
+Launch one bounded component-builder recovery attempt with explicit direct-file expert validation.
