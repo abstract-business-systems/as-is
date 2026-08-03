@@ -1,65 +1,60 @@
 ---
 as-is-version: 2
 task:
-  status: completed
+  status: ready
   worker: component-builder
-  updated: 2026-08-06T02:00:00Z
-  task-revision: canonical-agent-source-launcher-phase-3
-  attempt: 1
+  updated: 2026-08-06T04:45:00Z
+  task-revision: session-reference-runtime-producer-1
+  attempt: 0
 constraints:
   cost:
     currency: USD
-    allocated: 0.50
+    allocated: 0.45
     spent: 0.00
-    reserve: 0.05
+    reserve: 0.08
     source: unavailable
     fallback-metric: host-observed elapsed-seconds only; not monetary cost
   delegation:
-    maximum-depth: 1
-    maximum-children: 1
+    maximum-depth: 0
+    maximum-children: 0
   execution:
     wall-clock:
-      allocated-seconds: 600
+      allocated-seconds: 360
       spent-seconds: 0.00
       reserve-seconds: 60
-      source: fresh recovery authorization
+      source: fresh bounded user authorization
   external-effects: require-current-turn-user-approval
 acceptance:
-  - Launcher documentation and test fixtures use top-level agents/{as-is,component-builder,expert,worker} as canonical role-source paths.
-  - .agents/agents remains only a client projection reference.
-  - Focused launcher tests and build pass.
-  - Direct unauthorized expert rejection and builder-owned expert lineage remain covered.
-  - Only canonical-path consumer documentation, extension wiring, setup backlog wording, dummy fixture tests, and root handoff records change; product behavior remains untouched.
-  - Expert directly reads the exact changed files and returns an attributable pass before commit.
+  - Runtime producer emits only the current Pi session reference into worker-tools trace events.
+  - Session reference uses the observability contract and contains no raw prompt, response, tool content, absolute path, or URL.
+  - Parent session ID is correlated on call_subagent and worker.result events; child session correlation is added only when the supported API exposes it safely.
+  - Existing trace query behavior, worker behavior, role authorization, and telemetry failure isolation remain unchanged.
+  - Changes are limited to `.pi/extensions/worker-tools.ts` and root handoff records; do not modify observability schema, launcher, setup, roles, session storage, or product components.
+  - Native host validation is attempted where dependencies are available; unavailable standalone extension dependencies are recorded as residual risk.
+  - Expert plan and final direct-file validation pass before a scoped commit.
 ---
-# Canonical Agent-Source Launcher Phase 3
+# Session-reference runtime producer
 
 ## Requirement
-Recover the preserved launcher implementation and complete the canonical source-reference migration. The implementation must use top-level `agents/` for repository role sources and retain `.agents/agents` only as client projection terminology.
+Wire the already-approved session-reference schema into the `.pi` worker-tools runtime producer. Add the current Pi session ID as a typed, scoped `SessionReference` on the existing `call_subagent` and `worker.result` trace events. Do not inspect or resolve sessions, read session JSONL, capture raw conversational/tool content, or change worker execution semantics.
 
 ## Scope
-Only `skills/spawning-pi-subagents/` and its component-local task/changelog records. Do not modify root task records, setup, role sources, product, or unrelated files.
+Root-owned runtime integration limited to `.pi/extensions/worker-tools.ts` and this root task/handoff. The observability schema in `components/observability/` is already integrated and must not be modified. No external services.
 
-## Recovery
-Previous component-local attempt produced the implementation in `/tmp/as-is-child-CZc13w/worktree` and passed 16 focused tests, build, and diff checks, but final expert validation failed. Recover its four launcher files or reproduce the same minimal changes. Do not trust the prior commit gate.
-
-## Validation Plan
-Run focused tests and Bun build. Invoke exactly one configured expert through the repaired builder lineage with a strict instruction to use only direct file reads on the named changed files, not Git/subprocess inspection. Provide the exact changed-file list, expected old/new path semantics, and acceptance mapping. Record the expert result before committing. Update component changelog, remove this transient task record, and create one scoped commit. Parent will cherry-pick and verify ancestry.
-
-## Authorization
-Fresh 600-second phase, monetary spent `0.00` because host cost is unavailable. This is a new revision after the prior expert failure; no silent retry.
+## Plan
+Inspect the existing `ctx.sessionManager.getSessionId()` producer and tracer contract. Import or use the typed session-reference contract without duplicating its validation authority. Construct only a `project-local` reference with `availability: available` and the opaque session ID; omit the reference when no valid ID is exposed. Attach it to start and result/failure events without changing attributes or raw payload behavior. Validate syntax/type/build in the native host environment if possible and perform direct-file expert review.
 
 ## Validation
-Component-local launcher recovery was implemented and expert-gated by the builder. Launcher tests passed: 16 passed, 0 failed, 131 expectations. Bun launcher build passed and `git diff --check` passed. Parent cherry-picked the scoped child commit as `cb8d927` and verified ancestry and a clean worktree. End-to-end canonical-path checks then passed: setup, dummy delegation, and launcher startup tests — 5 passed, 0 failed, 20 expectations. Runtime worker/expert paths, as-is entrypoint documentation, and dummy fixtures now use canonical `agents/` sources; `.agents/agents/` remains projection-only.
+Not started.
 
 ## Result
-Completed. Canonical role-source migration is wired through setup, launcher, extension role paths, as-is documentation, and the deterministic dummy-delegation rehearsal. The rehearsal confirms one bounded as-is-to-component-builder flow with durable evidence and no product changes.
+Not available.
 
 ## Blockers And Escalations
-No implementation blocker. The optional standalone extension bundle build could not resolve host-only dependencies (`@earendil-works/pi-coding-agent` and `typebox`) in this repository checkout; the extension path change is a literal source-path update and remains covered by repository conventions. Historical design references retain their archival `.agents/agents` wording and were not changed because they document prior architecture rather than runtime source lookup.
+Stop if the extension API cannot safely expose the session ID, if integration requires session-store access or raw content, or if host-only dependencies prevent all meaningful validation. Record residual risk rather than changing unrelated components.
 
 ## Recovery
-Integrated launcher commit: `cb8d927`. Current follow-up changes are limited to canonical path consumers, backlog wording, and fixture rehearsal coverage. Working tree must be clean after the handoff commit.
+Recover from this task, `.pi/extensions/worker-tools.ts`, and the integrated observability schema in `components/observability/tracer.ts`. No session store or runtime artifact is authoritative.
 
 ## Next Action
-No further migration action. Future work may validate host discovery where supported.
+Launch one bounded root component-builder attempt.
