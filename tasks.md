@@ -1,11 +1,11 @@
 ---
 as-is-version: 2
 task:
-  status: blocked
+  status: ready
   worker: component-builder
-  updated: 2026-08-03T07:20:00Z
-  task-revision: canonical-agent-source-migration-3
-  attempt: 1
+  updated: 2026-08-03T08:00:00Z
+  task-revision: canonical-role-source-phase-1
+  attempt: 0
 constraints:
   cost:
     currency: USD
@@ -16,49 +16,45 @@ constraints:
     fallback-metric: host-observed elapsed-seconds only; not monetary cost
   delegation:
     maximum-depth: 1
-    maximum-children: 3
+    maximum-children: 1
   execution:
     wall-clock:
-      allocated-seconds: 900
+      allocated-seconds: 600
       spent-seconds: 0.00
-      reserve-seconds: 90
-      source: fresh authorization; prior attempts retained as historical evidence
+      reserve-seconds: 60
+      source: fresh phase authorization; prior migration elapsed history retained separately
   external-effects: require-current-turn-user-approval
 acceptance:
-  - Top-level agents/ is the canonical role-source tree; .agents/agents remains host projection only.
-  - Setup reads canonical agents/ sources and projects them into host .agents/agents without creating a second source.
-  - Launcher, focused tests, and scoped documentation use canonical top-level agent paths while preserving host projection semantics.
-  - Product components are unchanged and all implementation children use component-builder.
-  - Required expert plan/final validation, focused setup/launcher tests, builds, diff checks, ancestry, and clean-worktree evidence pass.
+  - Four role source directories are moved to top-level agents/ as the sole canonical source.
+  - .agents/agents is documented as host projection only; no duplicate source is maintained.
+  - Only the .agents component and its records/docs change in this phase; setup, launcher, and product components remain untouched.
+  - Focused source-layout/reference checks and diff checks pass, with a scoped committed handoff.
 ---
-# Canonical Agent-Source Migration
+# Canonical Role-Source Phase 1
 
 ## Requirement
-Proceed with approved Option B: make top-level `agents/` the sole canonical role-source tree, retain `.agents/agents/` as host projection only, and update setup, launcher references, focused tests, and scoped documentation.
+Begin Option B with only the canonical role-source move. Move `.agents/agents/{as-is,component-builder,expert,worker}` to top-level `agents/`, document `.agents/agents/` as host projection only, and update only `.agents`-component links and references.
 
 ## Scope
-Root coordination plus `.agents/`, `components/as-is-setup/`, and `skills/spawning-pi-subagents/` boundaries. Do not modify product components or unrelated backlog items. Use only `component-builder` implementation children and the repaired builder-owned expert path.
+`.agents/` and top-level `agents/` only, plus this root task handoff. Do not modify `components/as-is-setup`, `skills/spawning-pi-subagents`, product components, or unrelated documentation. Use only component-builder.
 
 ## Plan
-Resume from preserved migration evidence only after rereading current records. Delegate bounded source-layout, setup, and launcher work through component-builder, obtain expert plan and final validation, integrate scoped child commits in the caller repository, and verify source/projection references, focused tests, builds, ancestry, and clean worktree.
+Reread `.agents/as-is.md`, `.agents/backlog.md`, and the preserved prior recovery evidence. Move the four role directories without maintaining duplicate source files, update `.agents` durable links and source-layout documentation, run focused path/reference checks and `git diff --check`, obtain expert plan/final validation through the repaired lineage, and commit one scoped handoff.
 
 ## Prior Evidence And Authorization
-Earlier migration attempts were blocked before implementation because the launcher could not attribute builder-owned expert validation. That path is now repaired and validated in commits `c88cdad` and `19f803a`. Prior elapsed observations remain historical and are not treated as current cost. This fresh revision authorizes one bounded 900-second attempt with monetary spent `0.00` because host cost is unavailable.
+The monolithic migration was budget-stopped after 900 seconds without implementation. This is a newly bounded phase with a fresh 600-second wall-clock allocation; prior elapsed time remains historical and host monetary cost remains unavailable (`spent: 0.00`). This phase does not authorize setup or launcher changes.
 
 ## Validation
-Blocked by the bounded 900-second parent attempt. The repaired expert path was exercised: expert launches were attributable to `component-builder` and returned successfully. The component-builder produced no migration handoff or scoped commit before the parent budget stopped (`as-is budget-stopped: limit=wall-clock seconds=900 exit=124`). No focused migration tests or final integrated-diff validation were completed.
+Not started.
 
 ## Result
-Incomplete; Option B was not implemented or integrated. No product components were changed and no silent retry occurred.
+Not available.
 
 ## Blockers And Escalations
-- Parent attempt 1 consumed its 900-second wall-clock allocation and budget-stopped.
-- The component-builder worktree was preserved as `/tmp/as-is-child-XNv75J/worktree` with only task-record changes observed; no migration commit exists.
-- Expert launches were authorized and attributable, so the prior authority defect is not the current blocker.
-- Do not retry until a new task revision records a bounded recovery plan and sufficient allocation.
+None for this fresh phase. If the phase exceeds budget or crosses its boundary, preserve the worktree and record a blocker without retrying.
 
 ## Recovery
-Inspect `/tmp/as-is-child-XNv75J/worktree` and its child task record before any future attempt; preserve the worktree and registry evidence. Do not delete either source tree until all consumers and projection behavior are verified. A future attempt requires a new task revision and explicit authorization; do not silently retry.
+Preserve any incomplete worktree and registry evidence. Do not delete the source/projection representation until the phase is validated and committed.
 
 ## Next Action
-Escalate the budget-stopped migration attempt. The canonical source migration remains deferred.
+Launch one bounded component-builder attempt for canonical role-source phase 1.
