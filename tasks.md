@@ -1,76 +1,66 @@
 ---
 as-is-version: 2
 task:
-  status: completed
-  worker: implementer
-  updated: 2026-08-06T01:00:00Z
+  status: blocked
+  worker: component-builder
+  updated: 2026-08-03T05:18:00Z
+  task-revision: canonical-agent-source-migration-2
+  attempt: 1
 constraints:
   cost:
     currency: USD
-    allocated: 0.40
+    allocated: 0.50
     spent: 0.00
     reserve: 0.05
     source: unavailable
+    fallback-metric: validation elapsed-seconds
   delegation:
-    maximum-depth: 0
-    maximum-children: 0
+    maximum-depth: 1
+    maximum-children: 3
   execution:
     wall-clock:
-      allocated-seconds: 240
-      spent-seconds: 0
-      reserve-seconds: 30
-      source: unavailable
+      allocated-seconds: 600
+      spent-seconds: 244.898
+      reserve-seconds: 60
+      source: host-observed prior attempt; new authorization adds 600 seconds
   external-effects: require-current-turn-user-approval
 acceptance:
-  - pending-parent-integration is a hard completion blocker in the parent-agent/orchestration contract.
-  - Integration is performed from the caller repository, and completion reporting verifies commit ancestry.
-  - Focused regression coverage proves pending-parent-integration becomes integrated only after caller-worktree integration.
-  - Relevant tests pass and evidence is recorded here and in changelog.md.
+  - Top-level agents/ is the canonical role-source tree; .agents/agents remains host projection only.
+  - Setup reads canonical agents/ sources and projects them into host .agents/agents without copying or creating a second source.
+  - Launcher, focused tests, and scoped documentation use canonical top-level agent paths while preserving host projection semantics.
+  - Product components are unchanged and all child work is delegated only to component-builder.
+  - Focused setup and launcher tests, relevant builds, and diff checks pass; handoff summary and integration evidence are recorded.
 ---
+# Canonical Agent-Source Migration
 
-# Parent integration contract hardening
+## Requirement
+Proceed with the approved Option B migration. Make top-level `agents/` the sole canonical role-source tree, retain `.agents/agents/` as host projection only, and update setup, launcher references, focused tests, and scoped documentation.
 
-## Scope and plan
+## Scope
+Root coordination plus the `.agents/`, `components/as-is-setup/`, and `skills/spawning-pi-subagents/` component boundaries. Do not modify product components or unrelated backlog items. Use only `component-builder` for implementation children.
 
-Inspect the launcher, orchestration skill, execution contract, and existing handoff tests. Expected changes are limited to the root orchestration contract and focused launcher regression tests, plus this record and changelog. No child component or external dependency is involved. Obtain read-only expert plan review before edits. Implement the smallest contract/test change, run focused Bun validation, obtain fresh read-only expert validation of the actual diff, and commit this component handoff. The parent orchestrator must integrate the resulting commit in the caller repository; this task does not claim integrated completion.
+## Prior Attempt And Authorization
+The prior attempt was blocked before implementation when required expert plan validation was budget-stopped after approximately 20 seconds; observed parent/child elapsed time was approximately 244.898 seconds. The user now authorizes a fresh bounded attempt with a 600-second wall-clock allocation. This is attempt 1 of revision 2, not an unrecorded retry.
+
+## Plan
+Resume from the preserved recovery evidence only after rereading the current records. Delegate bounded component work through `component-builder`, obtain required expert plan/final validation, integrate only scoped child handoffs in the caller repository, and verify ancestry, focused tests, references, and clean worktree.
 
 ## Progress
+Attempt 1 was authorized and launched through the configured `component-builder` path with the fresh 600-second allocation. The launcher returned without an attributable child handoff, implementation commit, or validation evidence. No migration edits were integrated.
 
-Implementation and caller-worktree integration are complete. The source handoff
-was integrated into `master`; this record is now closed.
+## Validation
+Blocked before implementation. The mandatory expert plan review was rejected by launcher authority (`as-is cannot launch expert; delegation decisions belong to as-is`), and no attributable component-builder result was produced. No focused migration tests, builds, diff, or ancestry checks were run.
 
-## Validation and handoff
+## Result
+Blocked; Option B was not completed. Prior observed 244.898 seconds remains preserved in cumulative accounting; the fresh attempt was consumed as a bounded attempt. No silent retry occurred.
 
-Implementation changed only `skills/spawning-pi-subagents/SKILL.md`,
-`skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts`,
-`skills/spawning-pi-subagents/scripts/spawn-pi-subagent.test.ts`, this record,
-and `docs/execution-contract.md`. The launcher now derives status by
-`merge-base --is-ancestor` in the caller repository, while the orchestration
-contract makes pending-parent-integration a hard blocker and requires caller
-integration plus ancestry verification. The focused regression creates a
-caller repository, observes the child commit as an ancestor, resets the caller
-branch to make it pending, then cherry-picks in the caller worktree and observes
-integrated.
+## Blockers And Escalations
+- Required expert plan validation is unavailable from the current caller path under launcher authority.
+- The component-builder launch returned without a child record, scoped commit, or validation evidence.
+- Do not substitute another role or retry without an authorized launcher-path repair and new task revision.
 
-Validation: with inherited `AS_IS_IDENTITY`/`AS_IS_JOB_ID` unset,
-`bun test skills/spawning-pi-subagents/scripts/spawn-pi-subagent.test.ts`
-passed: **15 pass, 0 fail, 128 expect() calls**. `git diff --check` passed.
-The first run while the parent-agent environment variables were inherited
-failed existing authorization-sensitive tests; that environment issue was
-corrected and the authoritative focused run passed. Expert plan review was
-requested; it returned a blocker because its isolated worktree could not see
-this uncommitted root record. Fresh expert validation likewise could not
-observe this controlled worktree's uncommitted diff, so it did not provide a
-passing commit gate; this is recorded as a validation-path limitation, not
-silently treated as approval.
+## Recovery
+The prior recovery candidate is `/tmp/as-is-child-y8gx0I/worktree`; inspect it only as historical recovery evidence. Preserve any new incomplete worktree and record its path. Do not delete either source tree until migration consumers and projection behavior are verified.
 
-Actual host-reported cost is unavailable. Host-observed focused validation was
-7.35 seconds. Residual risk: the regression exercises ancestry mechanics and
-launcher status computation but does not execute a real parent orchestrator
-integration workflow. The caller branch contains the integrated handoff and
-ancestry verification is recorded in `changelog.md` and Git history.
-
-## Next action
-
-No further action for this task. Future orchestration work must create a new
-bounded task record.
+## Next Action
+Stop and escalate the launcher-authority blocker. Do not alter the canonical layout or retry attempt 1 silently.
