@@ -1,11 +1,11 @@
 ---
 as-is-version: 2
 task:
-  status: ready
+  status: blocked
   worker: component-builder
-  updated: 2026-08-06T05:00:00Z
+  updated: 2026-08-06T05:15:00Z
   task-revision: session-reference-trace-e2e-1
-  attempt: 0
+  attempt: 1
 constraints:
   cost:
     currency: USD
@@ -44,16 +44,16 @@ Only components/observability/. Expected changes are tracer tests and component 
 Extend focused tracer tests with representative parent `SessionReference` events for start, success, and failure, assert local JSONL and OTLP contain only bounded session-reference metadata, assert trace/span/parent relationships remain intact, and assert invalid or absent references are omitted atomically. Include forbidden-content and path/URL cases. Preserve existing local-full/export-bounded raw-payload tests as legacy sink-policy coverage; do not broaden capture.
 
 ## Validation
-Not started.
+Implementation checks in the preserved child worktree passed: `bun test components/observability/tracer.test.ts` — 9 passed, 80 expectations; tracer Bun build passed; `git diff --check` passed. The required final expert direct-file validation did not certify commit safety because it could not independently execute checks or verify Git state.
 
 ## Result
-Not available.
+Blocked attempt 1. Test changes remain uncommitted in the preserved child worktree; no parent integration occurred.
 
 ## Blockers And Escalations
-Stop if the test requires runtime producer changes, session-store access, external services, or raw-content capture. Record a blocker rather than crossing the component boundary.
+The final expert gate did not return an attributable safe-to-commit pass. Do not remove this task record, commit, cherry-pick, or claim completion. Do not retry this revision or bypass the expert gate. A new recovery authorization must establish a compliant validation method.
 
 ## Recovery
-Recover from this task, components/observability/tracer.ts, tracer.test.ts, and the integrated session-reference schema. No private session state is authoritative.
+Preserve the child worktree and registry evidence if available. No runtime producer, session store, launcher, setup, role, or product files were changed in the parent. Prior implementation checks are evidence only and do not replace the expert gate.
 
 ## Next Action
-Launch one bounded component-builder attempt.
+Authorize a fresh recovery revision only after resolving the final expert validation boundary.
