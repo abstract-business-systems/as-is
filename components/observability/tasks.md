@@ -1,11 +1,11 @@
 ---
 as-is-version: 2
 task:
-  status: blocked
+  status: ready
   worker: component-builder
-  updated: 2026-08-06T05:15:00Z
-  task-revision: session-reference-trace-e2e-1
-  attempt: 1
+  updated: 2026-08-06T05:30:00Z
+  task-revision: session-reference-trace-e2e-recovery-2
+  attempt: 0
 constraints:
   cost:
     currency: USD
@@ -44,16 +44,16 @@ Only components/observability/. Expected changes are tracer tests and component 
 Extend focused tracer tests with representative parent `SessionReference` events for start, success, and failure, assert local JSONL and OTLP contain only bounded session-reference metadata, assert trace/span/parent relationships remain intact, and assert invalid or absent references are omitted atomically. Include forbidden-content and path/URL cases. Preserve existing local-full/export-bounded raw-payload tests as legacy sink-policy coverage; do not broaden capture.
 
 ## Validation
-Implementation checks in the preserved child worktree passed: `bun test components/observability/tracer.test.ts` — 9 passed, 80 expectations; tracer Bun build passed; `git diff --check` passed. The required final expert direct-file validation did not certify commit safety because it could not independently execute checks or verify Git state.
+Not started for recovery revision 2.
 
 ## Result
-Blocked attempt 1. Test changes remain uncommitted in the preserved child worktree; no parent integration occurred.
+Not available.
 
 ## Blockers And Escalations
-The final expert gate did not return an attributable safe-to-commit pass. Do not remove this task record, commit, cherry-pick, or claim completion. Do not retry this revision or bypass the expert gate. A new recovery authorization must establish a compliant validation method.
+The user explicitly authorized recovery after the prior expert permission-boundary blocker. The expert remains read-only and may directly read the exact changed files plus the task record; it does not need Git, bash, subprocess, or write permissions. The builder must supply the executable-check results and exact changed-file list as evidence, while the expert independently assesses file contents, scope, and acceptance and explicitly states safe-to-commit. Stop if the expert cannot read the named files or attribution is ambiguous.
 
 ## Recovery
-Preserve the child worktree and registry evidence if available. No runtime producer, session store, launcher, setup, role, or product files were changed in the parent. Prior implementation checks are evidence only and do not replace the expert gate.
+Recover the prior uncommitted test work from the preserved child worktree if available; otherwise reproduce only the bounded observability tests. Do not modify runtime producers or cross component boundaries. Prior revision `e1293f0` records the validation blocker and is not retried.
 
 ## Next Action
-Authorize a fresh recovery revision only after resolving the final expert validation boundary.
+Launch one bounded component-builder recovery attempt with the expert's existing read-only direct-file permissions and explicit separation of executable evidence from content review.
