@@ -252,6 +252,135 @@ recovery consequence. A missing, expired, inaccessible, or integrity-failing
 reference makes the record non-resumable and produces a recovery candidate;
 it does not authorize recreation, resume, fork, extension, or completion.
 
+### Checkpoint operation and control-channel contract
+
+This section defines the durable operation boundary for a future implementation.
+It is a schema and protocol contract only: it does not authorize a launcher
+command, IPC transport, signal handling, supervisor behavior, session-store
+read, automatic continuation, or extension.
+
+#### Operation envelope
+
+A checkpoint request is an authority-issued operation with an opaque
+`operationId`. Its request envelope is append-only and contains exactly these
+fields:
+
+| Field | Required shape and constraint |
+| --- | --- |
+| `schemaVersion` | Positive integer; starts at `1`. |
+| `operationId` | Opaque unique idempotency key; never reused for another operation. |
+| `operation` | `checkpoint` only in this contract. `resume`, `fork`, `extend`, and `cleanup` are separate future operations and are rejected here. |
+| `recordId` / `leaseId` | Authorization record and current lease being addressed. |
+| `taskRevision` / `attempt` | Must exactly match the authorization and lease records; continuation does not reset either value. |
+| `authority` | Opaque authorized parent/task-management identity, authorization timestamp, and authorization revision; the child cannot issue or broaden it. |
+| `requestedAt` / `deadlineAt` | Ordered timestamps; the deadline is bounded by the current lease expiry and hard ceiling. |
+| `reasonClass` | Closed, bounded reason code such as `soft-threshold`, `validation-failure`, `blocked`, or `pre-hard-stop`; no raw session content. |
+| `requiredEvidence` | Bounded names or opaque references to task/checkpoint evidence; never prompts, responses, or tool data. |
+| `responseDeadlineAt` | Optional bounded acknowledgement deadline, no later than `deadlineAt`. |
+
+The control channel carries only this structured envelope and structured
+acknowledgement/outcome records. Transport, endpoint, authentication
+mechanism, and delivery implementation are intentionally unspecified. A
+receiver must reject unknown fields, mismatched identity keys, stale
+authorization revisions, wrong task/attempt/lease identities, expired
+requests, and requests whose deadline exceeds the lease or hard ceiling.
+Authentication and authorization are distinct: a valid identity does not grant
+permission to request a checkpoint.
+
+#### Request, acknowledgement, and lifecycle
+
+The operation state is one of `requested`, `acknowledged`, `checkpointing`,
+`ready`, `blocked`, `non-cooperative`, `timed-out`, `failed`, `budget-stopped`,
+`rejected`, or `superseded`. State transitions are append-only and must carry
+`operationId`, actor, timestamp, and a bounded reason or evidence reference:
+
+```text
+requested -> acknowledged -> checkpointing -> ready
+                                      \-> blocked
+requested -> rejected | timed-out | non-cooperative | failed | budget-stopped
+acknowledged -> timed-out | non-cooperative | failed | budget-stopped
+checkpointing -> failed | budget-stopped
+ready | blocked -> superseded
+```
+
+`acknowledged` means only that the authorized request was received and
+admitted; it is not evidence that a checkpoint was written. `checkpointing`
+means the child has entered a safe boundary and is attempting durable writes.
+The child should acknowledge promptly, but acknowledgement must not interrupt
+an in-flight tool operation. The safe boundary is the earliest point at which
+that operation has returned or otherwise has a documented recovery boundary;
+no operation may claim `ready` or `blocked` before the checkpoint record,
+accounting snapshot, and required retention references are durable.
+
+If the child cannot cooperate before `responseDeadlineAt`, the supervisor or
+registry records `non-cooperative` with the last external observation, lease
+accounting, changed-artifact scope, and safe recovery boundary. It must not
+infer progress, completion, resumability, or a missing checkpoint from silence.
+A cooperative refusal is likewise `non-cooperative` with a bounded reason.
+`timed-out` means the operation deadline elapsed before a valid checkpoint
+outcome; `budget-stopped` means the hard lease/envelope stopped execution.
+Neither outcome implies completion. `rejected` means admission failed before
+checkpointing and must include a bounded rejection class.
+
+#### Durable ordering and outcome record
+
+The operation outcome is a separate append-only record with required fields
+`schemaVersion`, `operationId`, `recordId`, `leaseId`, `taskRevision`, `attempt`,
+`state`, `actor`, `createdAt`, `accounting`, `checkpointRef`, `sessionRef`,
+`worktreeRef`, and `failure` when applicable. References are opaque and must
+satisfy the retention contract below; absent references are represented by an
+explicit bounded reason, never by an inferred path.
+
+The required write order is:
+
+1. validate identity, authorization, lease state, idempotency key, and bounded
+   deadline;
+2. append the admission/acknowledgement event;
+3. enter the safe boundary and append `checkpointing`;
+4. persist the checkpoint, cumulative accounting, changed-artifact scope,
+   validation, blockers, next action, and required retention references;
+5. verify persistence and reference integrity;
+6. append exactly one terminal outcome and only then permit a clean child exit.
+
+A failed persistence or verification step records `failed` and preserves the
+last known valid checkpoint plus observed accounting and cleanup boundary. It
+never overwrites a prior checkpoint or claims completion. If the child exits
+before step 6, the external record is `non-cooperative`, `timed-out`, or
+`budget-stopped` according to observed evidence; process exit alone is not a
+successful outcome.
+
+#### Idempotency, expiry, and recovery
+
+For a repeated `operationId`, the authority returns the original admitted or
+terminal outcome without replaying the checkpoint request. A payload mismatch
+for an existing id is an `idempotency-conflict` rejection, not a new request.
+Idempotency records must outlive the operation's response timeout for the
+retention period required by the authority, and may not be silently reused.
+
+Admission fails closed when the lease is expired, revoked, exhausted, or does
+not leave the required reserve. A request admitted before expiry may finish
+only within the bounded safe-boundary deadline; it cannot renew or extend the
+lease. At hard stop, record `budget-stopped`, cumulative accounting, the last
+valid checkpoint, changed-artifact scope, retention disposition, and whether
+the recovery candidate is resumable. If any required reference is missing,
+expired, inaccessible, or integrity-failing, record `non-resumable` and the
+safe recovery boundary. No timeout, non-cooperation, hard stop, or reference
+failure authorizes automatic resume, fork, extension, cleanup, or completion.
+Only a separately authorized future operation may make that decision while
+preserving the source record and cumulative accounting.
+
+#### Control-channel authority and access boundary
+
+The authority may issue a checkpoint request and record its outcome; the child
+may acknowledge, checkpoint, refuse, or report failure but cannot change the
+lease, hard ceiling, task status, retention policy, or operation identity. A
+parent may observe bounded operation metadata and durable records, but control
+channel access does not grant raw session access. `dynamic-expert-validation-access`
+remains open as a separate, read-only validation dependency: it may inspect
+these schemas and bounded evidence only, cannot send requests, acknowledge,
+write or alter checkpoints, inspect raw sessions, issue leases, or change
+authority. This contract does not define its admission or implementation.
+
 ### Retention, cleanup, and worktree contract
 
 This is a documentation/schema boundary for future implementation. It does not
