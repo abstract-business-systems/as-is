@@ -1,9 +1,9 @@
 ---
 as-is-version: 2
 task:
-  status: ready
+  status: blocked
   worker: component-builder
-  updated: 2026-08-04T03:30:00Z
+  updated: 2026-08-03T04:31:42Z
 constraints:
   cost:
     currency: USD
@@ -34,19 +34,22 @@ Run only the harmless dummy delegation fixture; do not modify product components
 Use a deterministic stub, one child attempt, one scoped commit, and explicit parent integration classification.
 
 ## Progress
-Ready for the controlled rehearsal.
+Recovery reconciliation completed without launching another builder attempt. Historical child evidence was inspected, but its commit is not an ancestor of the current branch and no parent integration evidence is durable.
 
 ## Validation
-Not started.
+The focused fixture suite passes: `bun test validation-fixtures/dummy-delegation/*.test.ts` — 3 passed, 0 failed, 15 expectations. `git diff --check` passes.
 
 ## Result
-Not available.
+Blocked; the rehearsal is not considered integrated or complete.
 
 ## Blockers And Escalations
-None.
+- Historical child commit `c1d10c0917a66d7bdade2a1090151c497111e74c` is not an ancestor of current `HEAD` (`0fec557f097acab96db5446a61231a4cea8eef60`).
+- Reported authorization commits `3f4aa91` and `3b23921` are sibling commits, not parent integrations.
+- No durable fixture history records a child SHA, integration SHA, or caller-branch ancestry.
+- Do not launch another builder attempt until a new durable authorization and recovery plan are recorded.
 
 ## Recovery
-Preserve any dirty worktree and record its path before cleanup.
+To recover, inspect the historical child diff and either explicitly integrate a verified scoped commit into the current branch or record a new authorized rehearsal with cumulative budget accounting. Preserve any dirty worktree and record its path before cleanup.
 
 ## Next Action
-Run the fixture test without a provider call.
+Await an explicit recovery decision; no child launch is authorized by this blocked record.
