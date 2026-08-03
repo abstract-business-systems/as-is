@@ -1,7 +1,7 @@
 ---
 as-is-version: 2
 task:
-  status: active
+  status: completed
   worker: component-builder
   updated: 2026-08-03T06:40:00Z
   task-revision: launcher-expert-authority-repair-3
