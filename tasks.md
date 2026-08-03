@@ -1,11 +1,11 @@
 ---
 as-is-version: 2
 task:
-  status: ready
+  status: blocked
   worker: component-builder
-  updated: 2026-08-03T09:00:00Z
+  updated: 2026-08-03T09:20:00Z
   task-revision: canonical-agent-source-setup-phase-1
-  attempt: 0
+  attempt: 1
 constraints:
   cost:
     currency: USD
@@ -46,16 +46,18 @@ Reread the setup component record and tests plus the canonical source-layout dec
 Canonical role sources were moved and integrated in `82d8645`; `.agents/agents` is now projection-only. This fresh phase authorizes 600 seconds with monetary spent `0.00` because host cost is unavailable. The launcher phase and role-source phase are complete and must remain unchanged.
 
 ## Validation
-Not started.
+Implementation validation passed in the preserved child worktree: `bun test components/as-is-setup/setup.test.ts` — 3 passed; `bun build components/as-is-setup/setup.ts --outdir /tmp/as-is-setup-build` passed; `git diff --check` passed. The required final expert validation was blocked because the read-only expert could not inspect the actual uncommitted diff/status under its tool contract.
 
 ## Result
-Not available.
+Blocked; setup changes appear behaviorally correct but are not safe to integrate without the required passing final expert gate. No commit was created.
 
 ## Blockers And Escalations
-None for this fresh phase. If the task crosses the component boundary or exceeds budget, preserve evidence and record a blocker without retrying.
+- Final configured expert validation returned BLOCKED on inability to inspect actual diff/status.
+- Do not substitute a role or bypass the required commit gate.
+- Preserve the implementation worktree and obtain a compliant validation path before retrying integration.
 
 ## Recovery
-Preserve any incomplete component-builder worktree and registry evidence. Do not alter canonical role sources or launcher files during this phase.
+Preserve implementation worktree `/tmp/as-is-child-XNPTJh/worktree` and registry evidence. Its changes are limited to `components/as-is-setup` plus the root task record. Do not alter canonical role sources or launcher files. Resume only after a compliant final expert validation path is available.
 
 ## Next Action
-Launch one bounded component-builder setup phase.
+Resolve the final expert-validation blocker; do not integrate or retry silently.
