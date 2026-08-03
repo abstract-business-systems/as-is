@@ -2,9 +2,14 @@
 
 ## Status
 
-Proposed design linked from the `adaptive-session-budgeting` item in
-[`backlog.md`](backlog.md). This document records the design discussion and
-constraints; it does not authorize implementation.
+Reviewed contract for the `adaptive-session-budgeting` backlog item in
+[`backlog.md`](backlog.md). This document records the design boundary and
+constraints; it does not authorize runtime implementation. The capability-gap
+decision is explicit: the launcher currently has durable sessions and bounded
+execution, but does not provide the control channel, checkpoint protocol,
+session analysis, retention policy, or authorized resume/fork lifecycle needed
+to implement this contract. Those capabilities remain a future, separately
+authorized change.
 
 ## Purpose
 
@@ -157,6 +162,23 @@ A checkpoint review may be requested:
 The child should checkpoint cooperatively, but the supervisor and registry must
 retain enough external job evidence to recover if the child crashes or fails to
 cooperate.
+
+## Capability-gap decision
+
+The gap is architectural rather than a documentation defect. Existing durable
+session output and detached wall-clock enforcement are useful evidence, but they
+cannot safely provide cooperative checkpointing, continuation identity, bounded
+analysis, retention, or authorization. In particular, a session reference or
+telemetry event must never become authority for extending a lease, resuming a
+record, selecting a fork, or declaring completion.
+
+Therefore this revision authorizes only this reviewed contract documentation.
+It does not authorize launcher commands, a supervisor/control channel, session
+store reads, session-content analysis, retention or cleanup changes, automatic
+extension, or cost enforcement. A future implementation task must first define
+and validate the durable operation and record schemas, admission checks against
+the hard envelope, checkpoint failure recovery, and safe session/worktree
+retention before changing runtime behavior.
 
 ## Non-goals and open implementation questions
 
