@@ -21,8 +21,9 @@ the status of all registered jobs on demand.
 
 The launcher accepts:
 
-- an agent Markdown file, such as `.agents/agents/as-is/agent.md` or
-  `.agents/agents/component-builder/agent.md`;
+- an agent Markdown file from the canonical repository role sources, such as
+  `agents/as-is/agent.md` or `agents/component-builder/agent.md`. The
+  `.agents/agents` tree is reserved for client-host projection semantics;
 - one task string;
 - the repository working directory;
 - optional Pi model, tool, approval, and additional skill settings;
@@ -65,7 +66,7 @@ controls.
 
 ```bash
 bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
-  --agent .agents/agents/component-builder/agent.md \
+  --agent agents/component-builder/agent.md \
   --task "Delegate the bounded component task recorded in the named component as-is.md." \
   --cwd "$PWD" \
   --tools read,grep,find,ls,bash,edit,write \
@@ -76,7 +77,7 @@ With delegation budgets forwarded to the child:
 
 ```bash
 bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
-  --agent .agents/agents/component-builder/agent.md \
+  --agent agents/component-builder/agent.md \
   --task "Implement the bounded task recorded in the assigned component." \
   --cwd "$PWD" \
   --budget-wall-clock-seconds 220 \
@@ -87,7 +88,7 @@ For a short task:
 
 ```bash
 bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
-  --agent .agents/agents/component-builder/agent.md \
+  --agent agents/component-builder/agent.md \
   --task "Implement the bounded task recorded in the assigned component." \
   --cwd "$PWD"
 ```
@@ -284,7 +285,7 @@ exit 0
 EOF
 chmod +x /tmp/as-is-pi-stub.sh
 bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
-  --agent .agents/agents/as-is/agent.md \
+  --agent agents/as-is/agent.md \
   --task "Stub task for budget enforcement." \
   --cwd "$PWD" \
   --pi /tmp/as-is-pi-stub.sh \

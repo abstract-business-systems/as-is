@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const SCRIPT = "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts";
-const AGENT = ".agents/agents/as-is/agent.md";
+const AGENT = "agents/as-is/agent.md";
 
 type RunResult = { stdout: string; stderr: string; exitCode: number };
 
@@ -75,7 +75,7 @@ const readRegistryLines = (registry: string): unknown[] =>
 
 test("rejects component-builder launches from an unauthorized caller", async () => {
   const result = await runLauncher([
-    "--agent", ".agents/agents/component-builder/agent.md",
+    "--agent", "agents/component-builder/agent.md",
     "--task", "Unauthorized implementation launch.",
     "--cwd", process.cwd(),
     "--caller", "user",
@@ -88,7 +88,7 @@ test("rejects component-builder launches from an unauthorized caller", async () 
 
 test("allows component-builder launches from as-is", async () => {
   const result = await runLauncher([
-    "--agent", ".agents/agents/component-builder/agent.md",
+    "--agent", "agents/component-builder/agent.md",
     "--task", "Authorized implementation launch.",
     "--cwd", process.cwd(),
     "--caller", "as-is",
@@ -99,7 +99,7 @@ test("allows component-builder launches from as-is", async () => {
 
 test("allows builder-owned expert validation and rejects direct expert launch", async () => {
   const authorized = await runLauncher([
-    "--agent", ".agents/agents/expert/agent.md",
+    "--agent", "agents/expert/agent.md",
     "--task", "Read-only validation.",
     "--cwd", process.cwd(),
     "--caller", "component-builder",
@@ -109,7 +109,7 @@ test("allows builder-owned expert validation and rejects direct expert launch", 
   expect(authorized.exitCode).toBe(0);
 
   const direct = await runLauncher([
-    "--agent", ".agents/agents/expert/agent.md",
+    "--agent", "agents/expert/agent.md",
     "--task", "Unauthorized direct validation.",
     "--cwd", process.cwd(),
     "--caller", "user",

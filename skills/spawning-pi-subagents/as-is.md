@@ -97,7 +97,7 @@ must receive `--provider` and `--model` explicitly so it does not depend on
 
 Implemented in commit `2a40de0`: model preset resolution, explicit provider/model arguments, durable session-directory default with `--no-session` opt-out, and session/provider observability in dry-run and handles. This task is the
 enabler for the as-is agent's `model: small` pin (see
-`.agents/agents/as-is/as-is.md`).
+`agents/as-is/as-is.md`). The `.agents/agents` tree is reserved for client host projection semantics.
 
 ## Validation
 
