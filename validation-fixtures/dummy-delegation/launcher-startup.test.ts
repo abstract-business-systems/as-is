@@ -22,7 +22,7 @@ test("same launcher prompt construction reaches a local child without model late
     ].join("\n"), { mode: 0o755 });
     const result = Bun.spawnSync([
       "bun", "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts",
-      "--agent", ".agents/agents/as-is/agent.md",
+      "--agent", "agents/as-is/agent.md",
       "--task", "Startup-only dummy diagnostic.",
       "--cwd", process.cwd(),
       "--pi", stub,

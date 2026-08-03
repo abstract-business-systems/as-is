@@ -13,8 +13,8 @@ import { Type } from "typebox";
 import { emitTrace } from "../../components/observability/tracer.ts";
 
 const rolePaths = {
-  worker: ".agents/agents/worker/agent.md",
-  expert: ".agents/agents/expert/agent.md",
+  worker: "agents/worker/agent.md",
+  expert: "agents/expert/agent.md",
 } as const;
 const maxResultCharacters = 12_000;
 const defaultTimeoutMs = 60_000;

@@ -1,11 +1,11 @@
 ---
 as-is-version: 2
 task:
-  status: ready
+  status: completed
   worker: component-builder
-  updated: 2026-08-03T10:50:00Z
+  updated: 2026-08-06T02:00:00Z
   task-revision: canonical-agent-source-launcher-phase-3
-  attempt: 0
+  attempt: 1
 constraints:
   cost:
     currency: USD
@@ -29,7 +29,7 @@ acceptance:
   - .agents/agents remains only a client projection reference.
   - Focused launcher tests and build pass.
   - Direct unauthorized expert rejection and builder-owned expert lineage remain covered.
-  - Only skills/spawning-pi-subagents artifacts and component-local task/changelog records change.
+  - Only canonical-path consumer documentation, extension wiring, setup backlog wording, dummy fixture tests, and root handoff records change; product behavior remains untouched.
   - Expert directly reads the exact changed files and returns an attributable pass before commit.
 ---
 # Canonical Agent-Source Launcher Phase 3
@@ -50,13 +50,16 @@ Run focused tests and Bun build. Invoke exactly one configured expert through th
 Fresh 600-second phase, monetary spent `0.00` because host cost is unavailable. This is a new revision after the prior expert failure; no silent retry.
 
 ## Validation
-Not started.
+Component-local launcher recovery was implemented and expert-gated by the builder. Launcher tests passed: 16 passed, 0 failed, 131 expectations. Bun launcher build passed and `git diff --check` passed. Parent cherry-picked the scoped child commit as `cb8d927` and verified ancestry and a clean worktree. End-to-end canonical-path checks then passed: setup, dummy delegation, and launcher startup tests — 5 passed, 0 failed, 20 expectations. Runtime worker/expert paths, as-is entrypoint documentation, and dummy fixtures now use canonical `agents/` sources; `.agents/agents/` remains projection-only.
 
 ## Result
-Not available.
+Completed. Canonical role-source migration is wired through setup, launcher, extension role paths, as-is documentation, and the deterministic dummy-delegation rehearsal. The rehearsal confirms one bounded as-is-to-component-builder flow with durable evidence and no product changes.
 
 ## Blockers And Escalations
-Stop if direct-file expert validation does not return pass or if scope expands. Preserve evidence; do not bypass the gate.
+No implementation blocker. The optional standalone extension bundle build could not resolve host-only dependencies (`@earendil-works/pi-coding-agent` and `typebox`) in this repository checkout; the extension path change is a literal source-path update and remains covered by repository conventions. Historical design references retain their archival `.agents/agents` wording and were not changed because they document prior architecture rather than runtime source lookup.
+
+## Recovery
+Integrated launcher commit: `cb8d927`. Current follow-up changes are limited to canonical path consumers, backlog wording, and fixture rehearsal coverage. Working tree must be clean after the handoff commit.
 
 ## Next Action
-Launch one bounded component-builder recovery attempt.
+No further migration action. Future work may validate host discovery where supported.

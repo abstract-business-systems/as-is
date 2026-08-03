@@ -4,8 +4,8 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 const launcher = resolve("skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts");
-const asIsAgent = resolve(".agents/agents/as-is/agent.md");
-const builderAgent = resolve(".agents/agents/component-builder/agent.md");
+const asIsAgent = resolve("agents/as-is/agent.md");
+const builderAgent = resolve("agents/component-builder/agent.md");
 const record = resolve("validation-fixtures/dummy-delegation/tasks.md");
 
 type RegistryEvent = { event?: string; identity?: string; caller?: string; recordPath?: string; jobId?: string; exitCode?: number };
