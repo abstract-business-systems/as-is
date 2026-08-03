@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-08-06: Added an implementation-ready adaptive session budgeting schema contract for authorization/lease and checkpoint records, including bounded lifecycle, cumulative hard-ceiling admission, failure recovery, and scoped retention references. Runtime control, session inspection, automatic extension, and resume/fork remain unimplemented; dynamic expert validation access remains open.
+
 - 2026-08-06: Added the open `dynamic-expert-validation-access` backlog item and temporarily enabled read-only inspection tools (`read,grep,find,ls,bash`) in the expert role so builder-controlled validation can inspect Git status, exact diffs, and focused checks. The expert contract explicitly prohibits mutating commands, delegation, web access, and authority changes; runtime launcher behavior is unchanged.
 
 - 2026-08-06: Reviewed the `adaptive-session-budgeting` contract and recorded its capability gap: soft execution leases, hard safety ceilings, checkpoint-and-exit, authorized resume/fork, bounded session analysis, and cumulative accounting are documented, while control-channel, retention, analysis, and runtime continuation remain separately authorized future work. No launcher behavior changed.

@@ -163,6 +163,100 @@ The child should checkpoint cooperatively, but the supervisor and registry must
 retain enough external job evidence to recover if the child crashes or fails to
 cooperate.
 
+## Durable record schema contract
+
+The following records are the minimum durable boundary for a future
+implementation. They are documentation contracts, not a request to create
+runtime files or a session store. Unknown fields are rejected unless a later
+schema revision explicitly adds them; references are opaque and never contain
+session content.
+
+### Authorization and lease record
+
+One authorization record owns a task revision and hard envelope; each lease is
+one bounded run segment within that record. The stable identity is
+`component-path/task-revision/attempt/lease-id`; a runtime JobId may appear only
+as a source-labelled diagnostic.
+
+| Field | Required shape and constraint |
+| --- | --- |
+| `schemaVersion` | Positive integer; starts at `1`. |
+| `recordId` | Opaque unique authorization-record identifier. |
+| `componentPath` | Canonical repository-relative component path. |
+| `taskRevision` / `attempt` | Durable revision and one-based invocation ordinal; never reset by continuation. |
+| `authority` | Opaque parent/task-management identity plus authorization timestamp; child cannot self-authorize. |
+| `state` | `authorized`, `running`, `checkpointing`, `paused`, `exhausted`, `revoked`, or `closed`. |
+| `hardWallClockSeconds` / `hardCostUsd` | Immutable ceilings; cost ceiling may be `unavailable` with source. |
+| `initialWallClockSeconds` / `initialCostUsd` | Initial lease allocation, each no greater than its ceiling. |
+| `cumulativeWallClockSeconds` / `cumulativeCostUsd` | Sum of recorded allocations; cost remains source-labelled and never treats estimates as actual. |
+| `observedElapsedSeconds` / `observedCostUsd` | Cumulative observations; unavailable values retain source and do not imply enforcement. |
+| `remainingWallClockSeconds` / `remainingCostUsd` | Derived non-negative remainder after allocations and observations, never exceeding the hard ceiling. |
+| `leaseId` / `issuedAt` / `expiresAt` | Opaque unique lease identity and bounded validity interval. |
+| `leaseWallClockSeconds` / `leaseCostUsd` | This segment's allocation; must fit remaining hard envelope and retained reserve. |
+| `parentLeaseId` | Optional opaque predecessor for continuation; required for a reallocation chain, absent for the first lease. |
+| `sessionRef` / `worktreeRef` | Optional opaque, scoped retention references; no path outside the approved store, URL, prompt, response, or tool data. |
+| `decisionEvidence` | Bounded reason class and references to durable task/checkpoint evidence, never raw session content. |
+
+A lease is admitted only when its interval is bounded, its identity is unique,
+its authorization is current, and both cumulative allocation plus the new lease
+(and any required reserve) fit the immutable hard ceilings. Admission is
+atomic: reject rather than clamp, overdraw, or implicitly extend. A missing
+monetary observation can never authorize cost admission; wall-clock admission
+uses the host observation, with unavailable enforcement recorded explicitly.
+Only the authority may issue, renew, revoke, or close a lease.
+
+Lease transitions are `authorized -> running -> checkpointing -> paused`, with
+`running -> exhausted` on a hard stop, `running -> revoked` on authority
+revocation, `paused -> running` only after a newly admitted lease, and
+`paused -> closed`, `exhausted -> closed`, or `revoked -> closed` only after the
+authority records final accounting and retention disposition. `exhausted`,
+`revoked`, and `closed` are terminal for that lease. A continuation
+keeps the task revision and attempt; a new worker invocation increments attempt.
+A fork must create a separately authorized branch retaining the source record.
+
+### Checkpoint record
+
+A checkpoint is append-only by `checkpointId`; later records supersede it by an
+explicit `supersedes` reference rather than rewriting history. Required bounded
+fields are:
+
+| Field | Required shape and constraint |
+| --- | --- |
+| `schemaVersion` / `checkpointId` | Version and opaque unique identifier. |
+| `recordId` / `leaseId` | Authorization record and lease identity being checkpointed. |
+| `taskRevision` / `attempt` / `createdAt` | Stable accounting key and ordering timestamp. |
+| `state` | `requested`, `writing`, `ready`, `blocked`, `failed`, `budget-stopped`, or `superseded`. |
+| `progress` | Bounded summary of completed work and current phase; no transcript or raw tool data. |
+| `validation` | Bounded check names/results and timestamps, or explicit `not-run` reason. |
+| `blockers` | Bounded blocker codes and approval-needed scope, if any. |
+| `changedArtifacts` | Repository-relative paths or bounded scope patterns, constrained to authorized component scope. |
+| `nextAction` | One bounded, specific action or explicit terminal/no-action value. |
+| `accounting` | Snapshot of cumulative allocations, observations, remaining ceilings, and source labels from the lease record. |
+| `sessionRef` / `worktreeRef` | Opaque retention references with store, revision/range, access class, expiry, and integrity marker; references only. |
+| `failure` | Required for `failed`: failure class, safe recovery boundary, cleanup status, and whether retry is permitted. |
+| `supersedes` | Optional prior checkpoint ID; no deletion or in-place mutation. |
+
+The normal lifecycle is `requested -> writing -> ready`; `ready -> blocked` or
+`ready -> superseded` is allowed. A validation or persistence failure enters
+`failed`; a hard ceiling enters `budget-stopped`. A failed checkpoint must
+preserve the last known valid checkpoint, observed accounting, changed-file
+scope, and cleanup boundary, and must not claim completion. Recovery either
+resumes from that valid checkpoint under a newly admitted lease or records an
+explicitly authorized fork; it never guesses from process exit or missing
+private session state.
+
+Retention references must be scoped to an approved session/worktree store,
+carry an expiry and access policy, and support integrity/revision checking.
+Cleanup may remove only expired references after recording the checkpoint's
+recovery consequence. A missing, expired, inaccessible, or integrity-failing
+reference makes the record non-resumable and produces a recovery candidate;
+it does not authorize recreation, resume, fork, extension, or completion.
+
+`dynamic-expert-validation-access` remains an open separate dependency. It may
+validate these records and their evidence only through bounded read-only access;
+it cannot issue leases, alter checkpoints, inspect raw sessions, or change
+authority.
+
 ## Capability-gap decision
 
 The gap is architectural rather than a documentation defect. Existing durable
