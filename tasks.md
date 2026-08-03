@@ -1,11 +1,11 @@
 ---
 as-is-version: 2
 task:
-  status: ready
+  status: blocked
   worker: component-builder
-  updated: 2026-08-03T08:00:00Z
+  updated: 2026-08-03T08:25:00Z
   task-revision: canonical-role-source-phase-1
-  attempt: 0
+  attempt: 1
 constraints:
   cost:
     currency: USD
@@ -45,16 +45,20 @@ Reread `.agents/as-is.md`, `.agents/backlog.md`, and the preserved prior recover
 The monolithic migration was budget-stopped after 900 seconds without implementation. This is a newly bounded phase with a fresh 600-second wall-clock allocation; prior elapsed time remains historical and host monetary cost remains unavailable (`spent: 0.00`). This phase does not authorize setup or launcher changes.
 
 ## Validation
-Not started.
+The repaired expert lineage ran the required plan review and returned **fail**. It found that the requested move crosses the `.agents/` component and role subcomponent boundaries without explicit ownership, projection representation, acceptance-mapped checks, or rollback boundaries. It also identified a budget-policy discrepancy between the 600-second phase allocation and the root 300-second unit budget. No implementation or focused checks were authorized.
 
 ## Result
-Not available.
+Blocked before implementation. No role directories moved; the caller worktree remains unchanged.
 
 ## Blockers And Escalations
-None for this fresh phase. If the phase exceeds budget or crosses its boundary, preserve the worktree and record a blocker without retrying.
+- Clarify and explicitly authorize ownership of top-level `agents/` and moved role components.
+- Define `.agents/agents/` host-projection representation and owner.
+- Enumerate acceptance-mapped checks and rollback boundary.
+- Reconcile the phase budget with root policy.
+- Do not retry or substitute a worker until these are resolved.
 
 ## Recovery
-Preserve any incomplete worktree and registry evidence. Do not delete the source/projection representation until the phase is validated and committed.
+Preserve the unchanged `.agents/agents/` source layout and the delegated recovery evidence at `/tmp/as-is-child-lw2fU3/worktree`. Resume only after the bounded authorization is updated and the repaired expert lineage returns a passing plan review.
 
 ## Next Action
-Launch one bounded component-builder attempt for canonical role-source phase 1.
+Resolve the expert scope and authorization blocker before any retry.
