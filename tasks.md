@@ -1,11 +1,11 @@
 ---
 as-is-version: 2
 task:
-  status: ready
+  status: blocked
   worker: component-builder
-  updated: 2026-08-03T07:00:00Z
+  updated: 2026-08-03T07:20:00Z
   task-revision: canonical-agent-source-migration-3
-  attempt: 0
+  attempt: 1
 constraints:
   cost:
     currency: USD
@@ -46,16 +46,19 @@ Resume from preserved migration evidence only after rereading current records. D
 Earlier migration attempts were blocked before implementation because the launcher could not attribute builder-owned expert validation. That path is now repaired and validated in commits `c88cdad` and `19f803a`. Prior elapsed observations remain historical and are not treated as current cost. This fresh revision authorizes one bounded 900-second attempt with monetary spent `0.00` because host cost is unavailable.
 
 ## Validation
-Not started.
+Blocked by the bounded 900-second parent attempt. The repaired expert path was exercised: expert launches were attributable to `component-builder` and returned successfully. The component-builder produced no migration handoff or scoped commit before the parent budget stopped (`as-is budget-stopped: limit=wall-clock seconds=900 exit=124`). No focused migration tests or final integrated-diff validation were completed.
 
 ## Result
-Not available.
+Incomplete; Option B was not implemented or integrated. No product components were changed and no silent retry occurred.
 
 ## Blockers And Escalations
-None for this fresh revision. Preserve separate elapsed-time and cost accounting if any child or validation gate blocks; do not silently retry.
+- Parent attempt 1 consumed its 900-second wall-clock allocation and budget-stopped.
+- The component-builder worktree was preserved as `/tmp/as-is-child-XNv75J/worktree` with only task-record changes observed; no migration commit exists.
+- Expert launches were authorized and attributable, so the prior authority defect is not the current blocker.
+- Do not retry until a new task revision records a bounded recovery plan and sufficient allocation.
 
 ## Recovery
-Inspect prior recovery evidence at `/tmp/as-is-child-y8gx0I/worktree` only as historical context. Preserve any new incomplete child worktree and registry evidence. Do not delete either source tree until all consumers and projection behavior are verified.
+Inspect `/tmp/as-is-child-XNv75J/worktree` and its child task record before any future attempt; preserve the worktree and registry evidence. Do not delete either source tree until all consumers and projection behavior are verified. A future attempt requires a new task revision and explicit authorization; do not silently retry.
 
 ## Next Action
-Launch one bounded component-builder migration attempt using the repaired as-is → component-builder → expert path.
+Escalate the budget-stopped migration attempt. The canonical source migration remains deferred.
