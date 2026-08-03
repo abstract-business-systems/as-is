@@ -44,7 +44,7 @@ test("as-is delegates one bounded component-builder attempt with durable evidenc
     expect(child).toMatchObject({ identity: "component-builder", caller: "as-is", recordPath: record });
     expect(finishes.find((event) => event.jobId === child?.jobId)).toMatchObject({ exitCode: 0 });
     // The task record, not process exit, is the durable protocol source supplied to the child.
-    expect(readFileSync(record, "utf8")).toContain("status: active");
+    expect(readFileSync(record, "utf8")).toContain("status: completed");
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
