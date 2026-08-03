@@ -1,16 +1,16 @@
 ---
 as-is-version: 2
 task:
-  status: ready
+  status: blocked
   worker: component-builder
-  updated: 2026-08-03T06:00:00Z
+  updated: 2026-08-03T06:20:00Z
   task-revision: launcher-expert-authority-repair-2
-  attempt: 0
+  attempt: 1
 constraints:
   cost:
     currency: USD
     allocated: 0.50
-    spent: 300.00
+    spent: 0.00
     reserve: 0.05
     source: unavailable
     fallback-metric: validation elapsed-seconds
@@ -22,7 +22,7 @@ constraints:
       allocated-seconds: 600
       spent-seconds: 300
       reserve-seconds: 60
-      source: host-observed prior attempt; fresh 600-second authorization
+      source: host-observed prior attempt; fresh 600-second authorization; cumulative ceiling 900 seconds
   external-effects: require-current-turn-user-approval
 acceptance:
   - Reproduce and explain the authorized as-is -> component-builder -> expert path without weakening direct expert authorization rules.
@@ -45,16 +45,18 @@ Reproduce the role lineage and environment propagation, identify the smallest au
 A prior repair attempt (`launcher-expert-authority-repair-1/1`) consumed its 300-second wall-clock allocation and budget-stopped without a child commit or validation evidence; that accounting is preserved. The user now authorizes a fresh bounded 600-second attempt under this new task revision. This is not a silent retry and does not authorize the agent-source migration.
 
 ## Validation
-Not started.
+The configured chain did launch an expert from component-builder, but the mandatory plan review failed on budget admission: the task record conflated prior elapsed seconds with USD cost and did not admit a fresh 600-second allocation after reserve. No implementation or focused validation was authorized.
 
 ## Result
-Not available.
+Blocked before implementation. No launcher repair was made and no migration retry occurred.
 
 ## Blockers And Escalations
-None for this newly authorized attempt. If the chain cannot be completed within the fresh allocation, preserve cumulative accounting and record a durable blocker without retrying.
+- Prior 300 seconds is preserved as wall-clock history, not monetary cost; host cost remains unavailable.
+- The previous 600-second authorization was not admitted cumulatively after the retained reserve, so the expert correctly rejected the attempt.
+- No child implementation commit or validation evidence exists. Do not retry until a fresh task revision records unambiguous units and admission.
 
 ## Recovery
-Preserve any incomplete worktree, registry, and launcher evidence. Do not begin the agent-source migration until this repair is completed and validated.
+Preserve the expert and component-builder evidence, including `/tmp/as-is-child-27vm10/worktree`. Correct the task accounting in a new authorized revision before retrying. Do not begin the agent-source migration until this repair is completed and validated.
 
 ## Next Action
-Launch one bounded component-builder attempt for the launcher repair with the fresh 600-second allocation.
+Await explicit budget-accounting reconciliation; no further launch is authorized by this blocked record.
