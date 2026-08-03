@@ -1,11 +1,11 @@
 ---
 as-is-version: 2
 task:
-  status: ready
+  status: blocked
   worker: component-builder
-  updated: 2026-08-03T10:20:00Z
+  updated: 2026-08-03T10:35:00Z
   task-revision: canonical-agent-source-launcher-phase-2
-  attempt: 0
+  attempt: 1
 constraints:
   cost:
     currency: USD
@@ -47,16 +47,18 @@ Inspect the launcher source, tests, and durable component records. Replace repos
 Attempt 1 of the root-scoped revision was stopped during plan review because this directory is a separate component boundary and lacked a component-local task record; no launcher implementation was produced. This new component-local revision authorizes one fresh 600-second phase with monetary spent `0.00` because host cost is unavailable.
 
 ## Validation
-Not started.
+Implementation checks passed in the preserved builder worktree: focused launcher tests — 16 passed; Bun build — passed; `git diff --check` — passed. Mandatory final expert validation was attempted through the repaired builder lineage but returned failure, so commit safety was not established.
 
 ## Result
-Not available.
+Blocked attempt 1. Launcher implementation remains uncommitted in `/tmp/as-is-child-CZc13w/worktree`; no parent integration occurred.
 
 ## Blockers And Escalations
-None for this correctly scoped phase. If validation cannot directly assess named files or scope crosses this component boundary, stop and record a blocker without retrying.
+- Final configured expert validation failed despite the required caller and propagated parent job ID.
+- Do not bypass the expert gate, substitute a role, or retry this revision.
+- A new recovery authorization and compliant expert-validation path are required before integration.
 
 ## Recovery
-Preserve any incomplete builder worktree and registry evidence. Do not alter setup, role sources, or root records.
+Preserve `/tmp/as-is-child-CZc13w/worktree` and registry evidence. The reported implementation is limited to this component, but remains uncommitted. Do not alter setup, role sources, or root records.
 
 ## Next Action
-Launch one bounded component-builder attempt for this component-local task.
+Resolve the expert-validation failure and authorize a fresh component-local recovery revision.
