@@ -1,10 +1,10 @@
 ---
 as-is-version: 2
 task:
-  status: ready
+  status: blocked
   worker: component-builder
-  revision: launcher-task-context-delivery-2026-08-06-r3
-  updated: 2026-08-06T00:00:00Z
+  revision: launcher-task-context-delivery-2026-08-06-r4
+  updated: 2026-08-07T00:00:00Z
 constraints:
   cost:
     currency: USD
@@ -34,13 +34,13 @@ acceptance:
 # Task
 
 ## Requirement
-Fresh focused recovery from caller HEAD 62147f3. First diagnose the component-builder task-boundary failure by inspecting the protocol, agents/component-builder/agent.md, launcher task-record construction, and preserved worktree `/tmp/as-is-child-MACitY/worktree`. Do not begin launcher implementation until exact role, task path, record, and component boundary delivery is verified. If unreliable, make only the smallest delivery correction with focused tests; otherwise implement only the launcher changed-path allowlist and caller ancestry gate. No Phase 2a or migration artifacts.
+Fresh recovery from caller HEAD d2ade8a. First inspect the launcher/session/result protocol and preserved prior result/session/worktree evidence. Do not attempt migration or Phase 2a. Exactly one direct component-builder attempt is conditionally authorized only if child context and evidence capture are demonstrably fixed. The child must commit launcher/control-plane corrections and its terminal component record; the parent independently reads preserved child record/session/result and verifies expert gates, scope, ancestry, diff-check, and caller integration. If evidence remains unavailable, do not integrate and commit a concrete durable blocker on the caller branch.
 
 ## Plan
-One direct `component-builder` descendant owns the component boundary. It must obtain a read-only expert plan review before edits, implement the smallest API-compatible launcher gate and focused tests, run the smallest relevant checks, obtain a fresh expert final-diff review, and commit the completed handoff. No nested implementation descendants are authorized.
+First establish attributable evidence capture: every direct child handle/result must carry parent job id, task revision/attempt, record path, session path/reference, base and commit ancestry, and durable result location; expert plan/final returns must be recorded with job id and task revision in the component record rather than relying on opaque provider output. Then exactly one direct `component-builder` descendant may own the component boundary, with no nested implementation descendants. It must obtain a read-only expert plan review before edits, implement only the smallest launcher/control-plane correction and focused tests, obtain a fresh expert final-diff review, and commit the correction plus terminal component record. Each implementation, expert-plan, expert-final, and handoff/integration subtask has a minimum 600-second allocation.
 
 ## Progress
-Fresh recovery authorized from caller HEAD 62147f3. Preflight verified role, exact record path, component boundary, baseline, and preserved child evidence. Exactly one direct component-builder attempt was authorized. The child returned without a commit and without attributable/evidenced expert gates; no behavior was integrated.
+Recovery starts at caller HEAD d2ade8a. Protocol, launcher, component-builder role, expert profile, and prior registry/session/result evidence were inspected. Prior evidence is insufficient: result.json omits session/task-revision attribution, expert sessions are forced ephemeral, and expert return text is not durably linked to the parent record. No child has been launched in this revision; Phase 2a and migration artifacts remain untouched.
 
 ## Attempt
 - id: launcher-task-context-delivery-2026-08-06-r3-attempt-1
@@ -60,10 +60,10 @@ Fresh recovery authorized from caller HEAD 62147f3. Preflight verified role, exa
 Parent validation required: terminal component record; expert plan and fresh expert final-diff evidence; exact changed-path scope; `git diff --check`; ancestry gate with `git merge-base --is-ancestor <child-commit> HEAD` before integration; and one final `bun skills/as-is/scripts/orient.ts` orientation. Never integrate unverified work.
 
 ## Result
-Blocked. The direct component-builder attempt returned without a commit and without attributable expert plan/final evidence or terminal handoff. No launcher implementation, Phase 2a work, or integration was performed. The preserved worktree is evidence only.
+Blocked before delegation. The launcher/session/result protocol is not demonstrably fixed: prior result files contain job/base/commit/worktree facts but no session path/reference, task revision/attempt, or durable expert-gate references; expert validation is explicitly forced to `--no-session`; and prior expert output was only opaque `agent_settled`. Therefore the conditional sole child attempt was not authorized. No child work is accepted or integrated.
 
 ## Blockers And Escalations
-Durable blocker: job `j-msek9lgq-0e9iou` exited 0 with no commit and preserved `/tmp/as-is-child-unmNir/worktree`; its required expert plan returned only opaque `agent_settled` output, with no attributable review artifact. No final expert gate, terminal record, scope/diff/ancestry evidence, or caller integration exists. Do not integrate, retry, substitute a role, or implement changed-path allowlist, Phase 2a, or migration artifacts.
+Durable caller-branch blocker: no child launch in revision r4 because attribution preflight failed. Concrete evidence: job `j-msek9lgq-0e9iou` result `/tmp/as-is-child-unmNir/result.json` records caller cwd `/tmp/as-is-child-hxX0A8/worktree`, record `skills/spawning-pi-subagents/tasks.md`, base `62147f3`, exit 0, 81.871s, no commit, preserved `/tmp/as-is-child-unmNir/worktree`; its session directory `/tmp/as-is-child-unmNir/sessions/` is not referenced by result and required expert output was opaque `agent_settled`. Earlier job `j-mseivkuw-r7dvmv` result `/tmp/as-is-child-vdlCrC/result.json` records record `skills/spawning-pi-subagents/as-is.md`, base `4454998`, exit 0, 90.006s, no commit, preserved `/tmp/as-is-child-vdlCrC/worktree`; its `/tmp/as-is-child-vdlCrC/sessions/` is likewise not attributable in result. Missing: task revision/attempt linkage, session/result durable references in child record, attributable expert plan/final gates, terminal child record, scope, diff-check, ancestry, and caller integration. Do not integrate, retry, substitute a role, or touch Phase 2a/migration artifacts.
 
 ## Recovery
-Preserved `/tmp/as-is-child-RU1mpn/worktree` and `/tmp/as-is-child-unmNir/worktree` are non-integrated evidence only. Recovery requires a new authorized task revision that resolves attributable expert validation and supplies a complete child handoff.
+Preserved `/tmp/as-is-child-RU1mpn/worktree`, `/tmp/as-is-child-unmNir/worktree`, and `/tmp/as-is-child-vdlCrC/worktree` are non-integrated evidence only. A future revision must first implement and deterministically test launcher-owned attribution for task revision/attempt, parent lineage, session/result references, and expert-gate evidence; only then may a newly authorized sole component-builder attempt run.
