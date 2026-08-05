@@ -1,0 +1,21 @@
+{
+  "actionablePrecedence": [
+    { "status": "active", "id": "active-task", "priority": "High" },
+    { "status": "blocked", "id": "blocked-task", "priority": "High" },
+    { "status": "awaiting-approval", "id": "approval-task", "priority": "High" }
+  ],
+  "fallback": {
+    "openBacklog": [
+      { "id": "unsafe-high-priority-item", "priority": "High", "outcome": "Requires unavailable approval", "safe": false },
+      { "id": "low-priority-item", "priority": "Low", "outcome": "Low value", "safe": true },
+      { "id": "whats-next-routing", "priority": "High", "outcome": "Repair What's next? routing", "safe": true }
+    ],
+    "genericResponse": "No actionable task is recorded.",
+    "expected": {
+      "itemId": "whats-next-routing",
+      "rationale": "High priority and directly addresses the broken routing fallback.",
+      "authorization": "recommendation only",
+      "startsWork": false
+    }
+  }
+}
