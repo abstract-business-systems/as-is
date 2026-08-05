@@ -44,19 +44,19 @@ Execute the approved phases in dependency order through component-owned `compone
 | 4 | Documentation reconciliation | Phases 1–3; affected AGENTS/design/component records | Terminology and links reconcile with no unauthorized runtime or prompt changes. |
 
 ## Progress
-Root task explicitly activated by current-turn user authorization. Planning evidence is present in `29ce77b` and has been read from Git history. One implementation descendant is authorized at a time under the root allocation; child work must be committed in isolation, expert-gated, and integrated here only after caller ancestry verification.
+Root task explicitly activated by current-turn user authorization. Planning evidence is present in `29ce77b` and has been read from Git history. The first bounded descendant completed Phase 1 in child commit `21fcb08109615f78a8c73d6dd123f0e7e2b2a9c6`, adding `skills/building-components/SKILL.md` and one `skills/changelog.md` entry. Caller ancestry was verified: child parent is `bc88972`, and fast-forward integration advanced this caller to `21fcb08`. The child returned budget-stopped (`124`) after its final report; its committed handoff is valid, and its transient `skills/tasks.md` was cleaned from the caller worktree.
 
 ## Validation
-Pending descendant implementation and required expert gates. Root validation will include focused checks for task-record structure, changed-scope diff, relevant tests, `git diff --check`, and ancestry verification for every integrated child commit.
+Phase 1 child reported passing expert plan review and fresh expert final-diff validation after correcting a relative-link issue; it also reported `git diff --check` and staged diff checks passing. Caller independently verified the child commit exists, has parent `bc88972`, contains only the scoped skills changes, and fast-forward integration made it the caller HEAD. Root `git diff --check` and orientation validation remain pending. Residual risk: the child process was wall-clock budget-stopped after its completion report, so no further descendant may be inferred complete without rereading a durable terminal record.
 
 ## Result
 Pending.
 
 ## Blockers And Escalations
-None currently. A missing named dependency, unavailable configured worker or expert, budget excess, failed descendant, or approval-gated scope must remain a durable blocker and must not trigger an unrecorded retry.
+Budget boundary reached for the first descendant: the component-builder launcher returned exit 124 with the recorded `as-is budget-stopped` marker at 180 seconds. The child commit and final report were available before the stop, but the child record was not durably terminal in the caller because its transient record was not included in the commit. Further phases require a fresh authorized allocation and a durable child task record; do not retry this attempt or infer completion of remaining phases. No genuine implementation failure was observed.
 
 ## Recovery
 If interrupted, inspect this active record and the delegation registry; do not launch a duplicate attempt for the same revision. Read the child record from its committed handoff, integrate only from the caller branch, and account for preserved uncommitted worktrees or budget-stopped descendants.
 
 ## Next Action
-Commit this activation checkpoint, then launch the first bounded `component-builder` descendant for the skills-component building-components extraction contract.
+Record the verified Phase 1 integration and budget-stopped accounting in this root task, run root-focused validation, and stop for the current budget boundary. Resume only with explicit recovery/allocation authority for Phase 2.
