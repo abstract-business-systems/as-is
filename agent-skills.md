@@ -80,6 +80,12 @@ that govern this catalog and its implementation.
   next action. See [`skills/context-building/SKILL.md`](skills/context-building/SKILL.md)
   for the operational contract.
 
+- **Execution-evidence exploration:** Use bounded trace and authorized session
+  metadata evidence for debugging, process improvement, and budget analysis
+  without granting execution or task authority. See
+  [`skills/exploring-execution-evidence/SKILL.md`](skills/exploring-execution-evidence/SKILL.md)
+  for the operational contract.
+
 - **Evidence gathering:** Collect relevant facts from records, systems,
   documentation, observations, tests, logs, and authoritative sources.
 - **Source evaluation:** Judge authority, freshness, applicability, provenance,

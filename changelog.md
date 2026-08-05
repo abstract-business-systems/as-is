@@ -2,6 +2,8 @@
 
 # Changelog
 
+- 2026-08-11: Renamed and expanded the read-only role to `execution-advisor` with bounded local trace-query and durably authorized, metadata-only Pi session analysis. It diagnoses execution issues and prepares approval-required time or money extension requests without mutating budgets, task state, sessions, processes, or completion authority. The launcher now takes the role's tool set from front matter; 21 launcher tests and 3 session-analysis tests passed, both builds passed, content/reference checks passed, and `git diff --check` passed. Final expert validation found the scoped change safe to commit. No live advisor run or raw session-content inspection was exercised.
+
 - 2026-08-12: Updated `skills/managing-backlog` to use `description` and optional `notes` backlog fields, distinguish user-provided priority from system-decided dependency-aware project sequence, and document influence through priority changes or explicit reprioritization requests. The component handoff `c8251eb` was integrated as `15c989c`; focused content validation and diff checks passed.
 
 - 2026-08-08: Restored the approved `skills-agents-separation-plan` planning artifact from historical source `adac5cb` and linked it from the root backlog. The handoff preserves the authority order, six-phase sequence, dependencies, gates, rollback/recovery, residual risk, and explicit deferral of migration; no Phase 2a, migration implementation, new skill, prompt extraction, or runtime changes were made. Focused reference checks and `git diff --check` passed; attributable in-process expert plan/final gates were recorded.

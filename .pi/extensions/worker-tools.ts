@@ -10,6 +10,7 @@ import {
   type ExtensionAPI,
 } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
+import { ControlPlane } from "../../components/control-plane/control-plane.ts";
 import {
   emitTrace,
   serializeSessionReference,
@@ -72,6 +73,110 @@ function boundedJson(value: unknown): string {
   return JSON.stringify(value, null, 2).slice(0, maxResultCharacters);
 }
 
+function numericUsage(value: unknown): { input: number; output: number; totalTokens: number; totalCost: number } {
+  if (!value || typeof value !== "object") return { input: 0, output: 0, totalTokens: 0, totalCost: 0 };
+  const usage = value as Record<string, unknown>;
+  const cost = usage.cost && typeof usage.cost === "object" ? usage.cost as Record<string, unknown> : {};
+  const number = (candidate: unknown): number => typeof candidate === "number" && Number.isFinite(candidate) && candidate >= 0 ? candidate : 0;
+  return {
+    input: number(usage.input),
+    output: number(usage.output),
+    totalTokens: number(usage.totalTokens),
+    totalCost: number(cost.total),
+  };
+}
+
+function validSessionId(sessionId: string): boolean {
+  return sessionId.length <= 128 && !(/[\\/\u0000]/u).test(sessionId) && !/^[A-Za-z][A-Za-z0-9+.-]*:/u.test(sessionId);
+}
+
+async function analyzeSessionManager(manager: SessionManager, sessionId: string, limit: number): Promise<Record<string, unknown>> {
+  const entries = manager.getEntries();
+  const roles: Record<string, number> = {};
+  const outcomes: Record<string, number> = {};
+  const toolNames = new Set<string>();
+  const models = new Set<string>();
+  const usage = { input: 0, output: 0, totalTokens: 0, totalCost: 0 };
+  const observeUsage = (value: unknown) => {
+    const measured = numericUsage(value);
+    usage.input += measured.input;
+    usage.output += measured.output;
+    usage.totalTokens += measured.totalTokens;
+    usage.totalCost += measured.totalCost;
+  };
+  for (const entry of entries) {
+    if (entry.type === "message") {
+      const message = entry.message as Record<string, unknown>;
+      const role = typeof message.role === "string" ? message.role : "unknown";
+      roles[role] = (roles[role] ?? 0) + 1;
+      if (typeof message.provider === "string" && typeof message.model === "string") models.add(`${message.provider}/${message.model}`);
+      if (typeof message.toolName === "string") toolNames.add(message.toolName);
+      if (message.role === "assistant") {
+        const stopReason = typeof message.stopReason === "string" ? message.stopReason : "unspecified";
+        outcomes[stopReason] = (outcomes[stopReason] ?? 0) + 1;
+      }
+      observeUsage(message.usage);
+    } else if (entry.type === "model_change") {
+      if (typeof entry.provider === "string" && typeof entry.modelId === "string") models.add(`${entry.provider}/${entry.modelId}`);
+    }
+    if (entry.type === "compaction" || entry.type === "branch_summary") observeUsage(entry.usage);
+  }
+  const sample = entries.slice(-limit).map((entry) => {
+    const message = entry.type === "message" ? entry.message as Record<string, unknown> : undefined;
+    return {
+      type: entry.type,
+      timestamp: entry.timestamp,
+      role: typeof message?.role === "string" ? message.role : undefined,
+      toolName: typeof message?.toolName === "string" ? message.toolName : undefined,
+      outcome: typeof message?.stopReason === "string" ? message.stopReason : undefined,
+    };
+  });
+  const header = manager.getHeader();
+  const messageCount = entries.filter((entry) => entry.type === "message").length;
+  const timestamps = entries.map((entry) => entry.timestamp).filter((timestamp): timestamp is string => typeof timestamp === "string");
+  return {
+    sessionId,
+    availability: "available",
+    entryCount: entries.length,
+    messageCount,
+    created: header?.timestamp,
+    modified: timestamps.at(-1),
+    roles,
+    outcomes,
+    toolNames: [...toolNames].sort(),
+    models: [...models].sort(),
+    usage,
+    sample,
+  };
+}
+
+export type SessionAnalysisAuthorization = { sessionId: string; taskPath: string; questionId: string };
+
+export function hasDurableSessionApproval(status: unknown, authorization: SessionAnalysisAuthorization): boolean {
+  if (!status || typeof status !== "object") return false;
+  const tasks = (status as { tasks?: unknown }).tasks;
+  if (!Array.isArray(tasks)) return false;
+  const task = tasks.find((candidate): candidate is { path?: unknown; decisions?: unknown } =>
+    Boolean(candidate) && typeof candidate === "object" && (candidate as { path?: unknown }).path === authorization.taskPath,
+  );
+  if (!task || !Array.isArray(task.decisions)) return false;
+  return task.decisions.some((decision) => {
+    if (!decision || typeof decision !== "object") return false;
+    const value = decision as { event?: unknown; "question-id"?: unknown; approval?: unknown };
+    return value.event === "approval" && value["question-id"] === authorization.questionId && value.approval === `session-metadata:${authorization.sessionId}`;
+  });
+}
+
+export async function analyzeProjectSession(cwd: string, sessionId: string, limit = 20, currentManager?: SessionManager, authorization?: SessionAnalysisAuthorization): Promise<Record<string, unknown>> {
+  if (!authorization || authorization.sessionId !== sessionId || !hasDurableSessionApproval(new ControlPlane(cwd).status(), authorization)) return { sessionId, availability: "authorization-required" };
+  if (!validSessionId(sessionId)) return { sessionId, availability: "invalid-selector" };
+  if (currentManager?.getSessionId() === sessionId) return analyzeSessionManager(currentManager, sessionId, limit);
+  const sessions = await SessionManager.list(cwd);
+  const info = sessions.find((candidate) => candidate.id === sessionId);
+  if (!info) return { sessionId, availability: "missing-or-out-of-scope" };
+  return analyzeSessionManager(SessionManager.open(info.path), sessionId, limit);
+}
+
 const gitInspectionOperations = {
   status: ["status", "--short"],
   diff: ["diff", "--no-ext-diff", "--"],
@@ -106,6 +211,25 @@ const gitInspectTool: ToolDefinition = {
   }),
   async execute(_id, params, _signal, _update, ctx) {
     return { content: [{ type: "text", text: await runGitInspection(ctx.cwd, params.operation) }], details: {} };
+  },
+};
+
+const sessionAnalysisTool: ToolDefinition = {
+  name: "analyze_session",
+  label: "Analyze project session",
+  description: "Return bounded metadata and usage for one explicitly identified project-local Pi session; never returns session content.",
+  parameters: Type.Object({
+    sessionId: Type.String({ minLength: 1, maxLength: 128 }),
+    authorization: Type.Object({
+      sessionId: Type.String({ minLength: 1, maxLength: 128 }),
+      taskPath: Type.String({ minLength: 1, maxLength: 256 }),
+      questionId: Type.String({ minLength: 1, maxLength: 128 }),
+    }),
+    limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 50 })),
+  }),
+  async execute(_id, params, _signal, _update, ctx) {
+    const result = await analyzeProjectSession(ctx.cwd, params.sessionId, params.limit ?? 20, ctx.sessionManager, params.authorization);
+    return { content: [{ type: "text", text: boundedJson(result) }], details: { availability: result.availability } };
   },
 };
 
@@ -335,5 +459,6 @@ const callSubagent: ToolDefinition = {
 
 export default function workerTools(pi: ExtensionAPI): void {
   pi.registerTool(callSubagent);
+  pi.registerTool(sessionAnalysisTool);
   for (const tool of traceQueryTools) pi.registerTool(tool);
 }

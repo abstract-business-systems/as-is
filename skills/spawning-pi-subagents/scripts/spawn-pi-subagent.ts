@@ -845,7 +845,9 @@ const main = async() => {
     ? caller === "user" || caller === "as-is"
     : identity === "component-builder"
       ? caller === "as-is" || caller === "component-builder"
-      : (identity === "worker" || identity === "expert") && caller === "component-builder" && parentJobId !== null;
+      : identity === "execution-advisor"
+        ? caller === "user" || caller === "as-is" || caller === "component-builder"
+        : (identity === "worker" || identity === "expert") && caller === "component-builder" && parentJobId !== null;
   if (!authorized) {
     throw new Error(`unauthorized delegation: ${caller} cannot launch ${identity}; delegation decisions belong to as-is`);
   }

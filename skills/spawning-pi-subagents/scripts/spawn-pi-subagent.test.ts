@@ -145,6 +145,50 @@ test("expert validation uses the fixed read-only same-worktree capability profil
   expect(parsed.skills).toEqual([]);
 });
 
+test("execution advisor launches use its frontmatter tool set and skills", async () => {
+  const result = await runLauncher([
+    "--agent", "agents/execution-advisor/agent.md",
+    "--task", "Inspect bounded execution evidence.",
+    "--cwd", process.cwd(),
+    "--caller", "user",
+    "--dry-run",
+  ]);
+  expect(result.exitCode).toBe(0);
+  const parsed = JSON.parse(result.stdout);
+  expect(parsed.identity).toBe("execution-advisor");
+  expect(parsed.tools).toBe("read,grep,find,ls,search_traces,get_trace,summarize_trace,compare_traces,analyze_session");
+  expect(parsed.args).toContain("read,grep,find,ls,search_traces,get_trace,summarize_trace,compare_traces,analyze_session");
+  expect(parsed.skills).toContain(`${process.cwd()}/skills/exploring-execution-evidence`);
+  expect(parsed.skills).toContain(`${process.cwd()}/skills/context-building`);
+});
+
+test("execution advisor forwards caller tool override as the documented launcher input", async () => {
+  const result = await runLauncher([
+    "--agent", "agents/execution-advisor/agent.md",
+    "--task", "Inspect bounded execution evidence.",
+    "--cwd", process.cwd(),
+    "--caller", "user",
+    "--tools", "read,analyze_session",
+    "--dry-run",
+  ]);
+  expect(result.exitCode).toBe(0);
+  const parsed = JSON.parse(result.stdout);
+  expect(parsed.tools).toBe("read,analyze_session");
+  expect(parsed.args).toContain("read,analyze_session");
+});
+
+test("rejects execution advisor launch from an unauthorized worker caller", async () => {
+  const result = await runLauncher([
+    "--agent", "agents/execution-advisor/agent.md",
+    "--task", "Unauthorized execution analysis.",
+    "--cwd", process.cwd(),
+    "--caller", "worker",
+    "--dry-run",
+  ]);
+  expect(result.exitCode).toBe(1);
+  expect(result.stderr).toContain("unauthorized delegation");
+});
+
 test("allows builder-owned expert validation and rejects direct expert launch", async () => {
   const authorized = await runLauncher([
     "--agent", "agents/expert/agent.md",
