@@ -1,7 +1,4 @@
 # Changelog
 
-- 2026-08-04: Replaced the backlog `outcome` field with `description`, added optional `notes`, and documented user-provided priority versus system-decided dependency-aware project sequence, including priority changes and explicit reprioritization requests while preserving planning-only authority boundaries. Focused content validation passed.
-
-- 2026-08-06: Added task-management completion reconciliation: selected backlog items are removed only after identity/ownership, acceptance evidence, terminal task and descendant closure, concise changelog handoff, and scoped durable handoff agree; incomplete or failed work remains planned.
-
-- 2026-08-02: Corrected backlog policy so completed items are removed from the planning index and summarized only in component changelogs; removed the misplaced naming guidance.
+- 2026-08-08: Added the stable backlog recording table, deterministic integer preference migration, query-time dependency-aware weighting, repository migration, and focused schema/query tests. Uncertain legacy dependency text is retained in notes.
+- 2026-08-08: A fresh Pi “Show me the backlog, please.” validation exposed a presentation defect: the agent returned only weight, component, id, status, and purpose, and omitted description, dependencies, and notes. Added an exact representation-column validator and regression test; the deterministic query already emitted all requested columns.

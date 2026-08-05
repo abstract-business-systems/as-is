@@ -13,11 +13,14 @@ const required = [
   "leave the\nbacklog item in place",
   "must not invent status",
   "| `description` |",
+  "| `acceptance` |",
   "| `notes` |",
-  "`priority` is supplied by the user",
-  "project-level `sequence` is decided by the system",
+  "`user preference` is attributable to the user",
+  "`system preference` is a model-reasoned planning input",
+  "weight` is deliberately not stored",
+  "project-level sequence is decided by the system",
   "dependency-aware",
-  "changing an item's priority",
+  "changing `user preference`",
   "explicit reprioritization request",
 ];
 for (const phrase of required) {
@@ -26,7 +29,7 @@ for (const phrase of required) {
 if (!skill.includes("planning-only") || !skill.includes("does not contain active status")) {
   throw new Error("planning-only boundary is missing");
 }
-if (!skill.includes("must not silently reinterpret it as an authority") ||
+if (!skill.includes("must not be silently\nreinterpreted as task authority") ||
     !skill.includes("may decline or\ndelay the requested order")) {
   throw new Error("priority and sequence authority boundary is missing");
 }

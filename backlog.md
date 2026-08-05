@@ -23,9 +23,9 @@ not repeated here:
 
 Remaining root-owned planning items:
 
-| ID | Priority | Component | Status | Outcome | Approach |
-| --- | --- | --- | --- | --- | --- |
-| skills-agents-separation-migration | Medium | root | deferred | Implement the approved separation in bounded descendant tasks only after the planning record establishes contracts, dependencies, and acceptance evidence. | Depends on `skills-agents-separation-plan`; requires explicit activation in a new root task record and component-owned child records. |
+| id | status | user preference | system preference | purpose | description | dependencies | acceptance | notes |
+| --- | --- | ---: | ---: | --- | --- | --- | --- | --- |
+| skills-agents-separation-migration | deferred | 2 | 2 | Establish the approved separation of reusable skills and authority-bearing agents | Implement the approved separation in bounded descendant tasks only after the planning record establishes contracts, dependencies, and acceptance evidence. Approach: Depends on `skills-agents-separation-plan`; requires explicit activation in a new root task record and component-owned child records. | - |  |  |
 
 
 
