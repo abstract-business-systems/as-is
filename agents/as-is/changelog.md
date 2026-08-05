@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-08-06: Clarified the live What's next? routing contract in `agent.md`: authoritative task records now explicitly take `active` > `blocked` > `awaiting-approval` precedence; only when none exist does the router inspect safe component/repository backlog items and report the required ID, owner, priority, bounded outcome, dependencies, acceptance signal, and rationale. The fallback is explicitly recommendation-only, does not authorize or start work, and focused validation passed (6/6); separate expert validation marked the scoped change SAFE TO COMMIT. Residual risk is limited to fixture-level execution not exercising the full orientation/backlog parser.
+
 - 2026-08-06: Verified `whats-next-routing` without production edits: the existing contract routes actionable `active`, `blocked`, and `awaiting-approval` tasks before recommending a safe highest-priority backlog item, clearly marks the fallback recommendation-only, and never starts work. Focused tests passed: bounded-reasoning 4/4 and whats-next-routing 6/6; expert final validation marked the implementation SAFE TO COMMIT.
 
 - 2026-08-06: Added a bounded mechanical path for explicitly named, single-component documentation transformations, retaining component-builder authority for substantive or ambiguous work and enforcing a 30-second stop/no-retry recovery guard. Added focused fixture coverage; 4 tests pass. `whats-next-routing` remains untouched.

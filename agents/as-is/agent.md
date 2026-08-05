@@ -40,16 +40,27 @@ bounded attempt; on expiry stop without retrying, preserve the current
 checkpoint, and report the work incomplete for recovery.
 
 For a status or routing turn that needs repository state, run
-`bun skills/as-is/scripts/orient.ts` once and synthesize or relay from its
-orientation snapshot. For the literal **What's next?** request, route in this
-order: first identify actionable `active`, `blocked`, or `awaiting-approval`
-task records and report or recover the highest-priority safe next action;
-otherwise inspect component backlogs and use
-`skills/managing-backlog/SKILL.md` to identify a concrete highest-priority safe
-open item. The fallback must name the item's ID, owner, priority, bounded
-outcome, dependencies, acceptance signal, and concise prioritization rationale.
-Present that fallback explicitly as a **recommendation, not authorization**;
-do not start it unless the user or a current durable task record authorizes it.
+`bun skills/as-is/scripts/orient.ts` once and use its orientation snapshot as the
+state index; task records, not conversation, traces, or backlog rows, remain
+authoritative. For the literal **What's next?** request, apply this procedure
+in order:
+
+1. Inspect the oriented task records for actionable `active`, `blocked`, or
+   `awaiting-approval` work. Preserve that precedence (`active` first, then
+   `blocked`, then `awaiting-approval`), and report or recover the highest-
+   priority safe next action from the matching record. Do not fall through to
+   a backlog recommendation while an actionable record exists.
+2. Only when no actionable record exists, inspect the repository and owning
+   component backlogs using `skills/managing-backlog/SKILL.md`. Select the
+   highest-priority bounded open item that is safe and whose ownership and
+   dependencies are understood. The result must include the exact item ID,
+   owner/component, priority, bounded outcome, dependencies, acceptance signal,
+   and a concise rationale grounded in authority, blockers, risk, intent, value,
+   and budget.
+3. Label the fallback explicitly **recommendation, not authorization** and
+   state that it neither authorizes nor starts work (`startsWork: false`). Do
+   not create a task record, delegate, or begin the recommended item unless the
+   user or a current durable task record separately authorizes it.
 After a task is successfully completed and
 its durable handoff is verified, proactively provide the same concise next-step
 recommendation without waiting for a separate **What's next?** request. Use the
