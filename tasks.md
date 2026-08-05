@@ -1,7 +1,7 @@
 ---
 as-is-version: 2
 task:
-  status: active
+  status: blocked
   worker: as-is
   revision: phase-2a-2026-08-06
   updated: 2026-08-06T00:00:00Z
@@ -68,16 +68,16 @@ Forbidden: runtime code changes, Phase 2b or later work, changes outside the all
 Reconciled for the authorized Phase 2a retry. No implementation has been delegated. The caller-side reconciliation commit must be the parent of the preflight and implementation flow. The preflight must receive this actual root record and explicit ancestry command results, not an unavailable `agents/as-is/tasks.md` or child `as-is` record.
 
 ## Validation
-Pending: reconciliation commit ancestry, preflight expert decision, direct child implementation and terminal record, expert final validation, focused checks, and verified integration. No unverified implementation may be integrated.
+Reconciliation preflight evidence: caller commit `0c2dcd0d4583e71753432d9dc5c360e329e7e66d` has parent `1992ae6c6ce61bcc78ba22f5af8be9cb74695ee1`; `git merge-base --is-ancestor` passed for `ea4f032`, `50fe83c`, and `1992ae6`; `git diff --check` passed; status was clean. The direct child launch returned a preflight failure before implementation. No implementation child, final expert validation, terminal child record, or integration occurred.
 
 ## Result
-Pending Phase 2a only.
+Blocked before Phase 2a implementation. No unverified implementation integrated. Stop after Phase 2a as required.
 
 ## Blockers And Escalations
-The prior Phase 1 attempt and reference `21fcb08` are historical evidence only. If preflight, budget, terminal-record, scope, ancestry, or expert gates fail, record the durable blocker here, commit it on the caller branch, and leave implementation unintegrated. Do not retry beyond the one authorized Phase 2a attempt.
+The prior Phase 1 attempt and reference `21fcb08` are historical evidence only. The one authorized Phase 2a attempt was stopped because preflight did not pass: required child budget-admission and handoff/rehearsal evidence were not recorded. The child reported no implementation delegation, no nested work, no later-phase work, and no new commit. This blocker is now durable on the caller branch; do not retry beyond the one authorized Phase 2a attempt.
 
 ## Recovery
-Inspect this revision and the delegation registry before any recovery. There may be at most one active Phase 2a attempt and one direct component-builder implementation delegation. A failed or budget-stopped descendant must produce durable accounting/blocker evidence; do not infer completion or retry.
+Inspect this revision and the delegation registry before any recovery. The single authorized Phase 2a attempt is closed as preflight-blocked; there is no implementation commit or child terminal record to integrate. A future recovery requires fresh user authorization and a new task revision; do not infer completion or retry this attempt.
 
 ## Next Action
-Commit this reconciliation on the caller branch, verify it is descended from `1992ae6`, provide preflight with this record plus explicit ancestry command results, and proceed only if preflight passes. After verified Phase 2a integration, stop and recommend later work without starting it.
+Remain blocked at Phase 2a. The reconciliation commit and this durable blocker must remain on the caller branch. Do not start later phases or integrate implementation.
