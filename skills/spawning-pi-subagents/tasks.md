@@ -1,9 +1,9 @@
 ---
 as-is-version: 2
 task:
-  status: ready
+  status: blocked
   worker: component-builder
-  revision: launcher-scope-gate-prerequisite-2026-08-06
+  revision: launcher-scope-gate-prerequisite-recovery-2026-08-06
   updated: 2026-08-06T00:00:00Z
 constraints:
   cost:
@@ -13,13 +13,13 @@ constraints:
     reserve: 0.10
     source: host-reported
   delegation:
-    maximum-depth: 0
-    maximum-children: 0
+    maximum-depth: 1
+    maximum-children: 1
   execution:
     wall-clock:
       allocated-seconds: 600
       spent-seconds: 0
-      reserve-seconds: 60
+      reserve-seconds: 0
       source: host-reported
   external-effects: require-current-turn-user-approval
 acceptance:
@@ -39,19 +39,29 @@ Implement the smallest launcher post-child changed-path allowlist and ancestry g
 One direct `component-builder` descendant owns the component boundary. It must obtain a read-only expert plan review before edits, implement the smallest API-compatible launcher gate and focused tests, run the smallest relevant checks, obtain a fresh expert final-diff review, and commit the completed handoff. No nested implementation descendants are authorized.
 
 ## Progress
-New prerequisite revision authorized from caller HEAD e59a120. Component task record is at `skills/spawning-pi-subagents/tasks.md`; no child attempt has started.
+Fresh recovery revision authorized from caller HEAD 7b24483 after inspecting the prior preserved worktree `/tmp/as-is-child-vdlCrC/worktree`; its record-only blocker is not duplicated. Exactly one direct component-builder attempt is authorized. The attempt must reserve the 600-second child budget across implementation, expert plan, expert final, and handoff/integration.
+
+## Attempt
+- id: launcher-scope-gate-prerequisite-recovery-2026-08-06-attempt-1
+- status: blocked
+- parent-head: 7b24483
+- descendants: exactly one direct `component-builder`; no nested descendants
+- child-budget: 600 wall-clock seconds minimum, reserved for implementation, expert plan, expert final, and handoff/integration
+- recovery: budget excess or any failed gate is a durable blocker; do not retry without a new revision
+
+## Changed-Path Allowlist
+- `skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts`
+- the existing focused launcher test file only
+- `skills/spawning-pi-subagents/tasks.md` terminal handoff cleanup only
 
 ## Validation
-Parent validation required: terminal child record; expert plan and final evidence; changed paths limited to launcher script, focused launcher tests, and this component record cleanup; `git diff --check`; and `git merge-base --is-ancestor <child-commit> HEAD` after integration. Run orientation once for final repository state.
+Parent validation required: terminal component record; expert plan and fresh expert final-diff evidence; exact changed-path scope; `git diff --check`; ancestry gate with `git merge-base --is-ancestor <child-commit> HEAD` before integration; and one final `bun skills/as-is/scripts/orient.ts` orientation. Never integrate unverified work.
 
 ## Result
-Pending delegated component-builder handoff.
+Blocked: the exactly-one child attempt `j-mseivkuw-r7dvmv` exited successfully but did not operate on this component record. Its preserved worktree is `/tmp/as-is-child-MACitY/worktree`; it changed `changelog.md` and `tasks.md`, not the authorized launcher or focused tests. The child record was non-terminal/active for a different root task and no valid component commit or handoff exists. No implementation was integrated.
 
 ## Blockers And Escalations
-None at authorization. If the child handoff is incomplete, out of scope, non-terminal, lacks expert gates, or fails ancestry/diff checks, record a durable blocker on the caller branch and do not integrate it.
+Durable blocker recorded on the caller branch. The delegated result failed the actual-record, terminal-record, exact-scope, expert-gate, and handoff requirements; its source worktree is preserved for recovery evidence. Do not retry this revision or integrate the unrelated changes. A new revision is required to recover the launcher prerequisite.
 
 ## Recovery
-One active attempt is authorized for this revision. A failed or budget-stopped attempt is not retried without a new revision and durable recovery decision. Preserve incomplete child worktree evidence for recovery.
-
-## Next Action
-Launch exactly one bounded component-builder descendant with a 600-second wall-clock budget and actual component task-record context.
+Attempt `j-mseivkuw-r7dvmv` is terminally blocked at the parent because no valid component-builder handoff was produced. Preserve `/tmp/as-is-child-MACitY/worktree` until recovery is assessed; do not copy or integrate its unrelated changes. Recovery requires a new revision with corrected record routing and fresh authorization, while preserving the minimum 600-second allocation.
