@@ -1,5 +1,8 @@
 # Changelog
 
+- Completion evidence for `in-process-authority-alignment` is recorded below;
+  the implemented item is eligible for cleanup.
+
 ## 2026-08-08 — Align component-builder authority model
 
 Updated `agent.md` so component-builder owns semantic completion, uses in-process
