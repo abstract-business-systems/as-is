@@ -1,9 +1,9 @@
 ---
 as-is-version: 2
 task:
-  status: active
+  status: ready
   worker: as-is
-  updated: 2026-08-03T17:41:01Z
+  updated: 2026-08-03T18:25:11Z
 constraints:
   cost:
     currency: USD
@@ -35,10 +35,10 @@ Diagnose and remedy the inability to start a new root as-is task after the prior
 Inspect the root task lifecycle and startup launcher, replace the terminal transient root record with this new ready record, and run focused control-plane and orientation checks.
 
 ## Progress
-The prior root `tasks.md` was terminal (`completed`). It has been replaced with this authorized ready record for the current diagnosis.
+The prior root `tasks.md` was terminal (`completed`). No root worker process is currently running, and the prior launcher jobs are terminal diagnostic history. This record is ready for a fresh authorized attempt.
 
 ## Validation
-Pending final task handoff.
+Pending execution of the authorized task.
 
 ## Result
 Pending.
@@ -47,7 +47,7 @@ Pending.
 None currently.
 
 ## Recovery
-If interrupted, resume from this ready record and verify the root task status before launching the as-is agent.
+If interrupted, verify that no root worker process is running, preserve this ready status, and launch the as-is agent once.
 
 ## Next Action
 Activate this root task and launch `skills/as-is/SKILL.md` through the generic Pi launcher.
