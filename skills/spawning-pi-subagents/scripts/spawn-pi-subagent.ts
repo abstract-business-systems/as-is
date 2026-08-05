@@ -871,7 +871,7 @@ const main = async() => {
   const tools = isExpertValidation
     ? "read,grep,find,ls,git_inspect"
     : identity === "component-builder"
-      ? [...new Set([...(requestedTools?.split(",") ?? []), "call_subagent"])].join(",")
+      ? [...new Set([...(requestedTools?.split(",") ?? ["read", "grep", "find", "ls", "bash", "edit", "write"]), "call_subagent"])].join(",")
       : requestedTools;
   // One launcher-boundary session span: lifecycle metadata only. In
   // particular, never pass prompts, responses, tools, or exception text to it.

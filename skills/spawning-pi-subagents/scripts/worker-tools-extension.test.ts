@@ -3,7 +3,7 @@ import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { SessionManager } from "@earendil-works/pi-coding-agent";
-import { analyzeProjectSession } from "./worker-tools";
+import { analyzeProjectSession } from "../../../.pi/extensions/worker-tools";
 
 const rootRecord = `---
 as-is-version: 2
