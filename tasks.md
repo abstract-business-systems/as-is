@@ -1,7 +1,7 @@
 ---
 as-is-version: 2
 task:
-  status: active
+  status: blocked
   worker: as-is
   revision: launcher-scope-gate-prerequisite-2026-08-06
   updated: 2026-08-06T00:00:00Z
@@ -65,15 +65,17 @@ Exact checks:
 Forbidden: runtime code changes, Phase 2b or later work, changes outside the allowlist, nested implementation delegation, and use of `21fcb08` as current evidence.
 
 ## Progress
-Reconciled for the authorized Phase 2a retry. No implementation has been delegated. The caller-side reconciliation commit must be the parent of the preflight and implementation flow. The preflight must receive this actual root record and explicit ancestry command results, not an unavailable `agents/as-is/tasks.md` or child `as-is` record.
+Created and committed the fresh prerequisite record at `skills/spawning-pi-subagents/tasks.md` in caller commit `4454998`, then launched exactly one direct `component-builder` descendant from that actual context with a 600-second budget. Job `j-mseivkuw-r7dvmv` exited after 90.006 seconds with exit 0 but no implementation commit; its result records `commitSha: 4454998`, `committed: false`, `integrationStatus: not-committed`, and preserved recovery worktree `/tmp/as-is-child-vdlCrC/worktree`. The component record remained `ready`, so no terminal child handoff exists.
 
 ## Validation
-Reconciliation preflight evidence: caller commit `0c2dcd0d4583e71753432d9dc5c360e329e7e66d` has parent `1992ae6c6ce61bcc78ba22f5af8be9cb74695ee1`; `git merge-base --is-ancestor` passed for `ea4f032`, `50fe83c`, and `1992ae6`; `git diff --check` passed; status was clean. The direct child launch returned a preflight failure before implementation. No implementation child, final expert validation, terminal child record, or integration occurred.
+The caller-side authorization commit `4454998` is clean. `git diff --check` passed after the attempt, and `bun skills/as-is/scripts/orient.ts` ran once; orientation reports root `blocked`, component `ready`, and the working tree clean. No changed-path or ancestry integration check was applicable because the child produced no commit. Required terminal child record and expert plan/final gates are absent.
 
 ## Result
-Blocked before Phase 2a implementation. No unverified implementation integrated. Stop after Phase 2a as required.
+Blocked: the focused launcher prerequisite was not implemented. No unverified child work was integrated. No Phase 2a or migration artifacts were created.
 
 ## Blockers And Escalations
+The authorized prerequisite child handoff is incomplete: job `j-mseivkuw-r7dvmv` returned without a commit, without a terminal component record, and without evidenced expert plan/final gates. Preserve `/tmp/as-is-child-vdlCrC/worktree` as recovery evidence and do not integrate it. No retry is authorized in this revision; recovery requires a new current-turn authorization and task revision.
+
 The prior Phase 1 attempt and reference `21fcb08` are historical evidence only. The one authorized Phase 2a attempt is closed and must not be retried. Diagnosis of the latest preserved attempt found no launcher role substitution: registry job `j-msee2iwg-quowh5` recorded `identity: component-builder`, `caller: as-is`, base `0c2dcd0d4583e71753432d9dc5c360e329e7e66d`, 600-second/$0.40 budget, exit 0, no commit, and preserved uncommitted worktree `/tmp/as-is-child-ypkUJL/worktree`; session `/tmp/as-is-child-ypkUJL/sessions/2026-08-04T08-21-15-054Z_019fcbdc-d4ae-722a-a247-1ac7a2c94487.jsonl` and result `/tmp/as-is-child-ypkUJL/result.json` are preserved evidence.
 
 The delegated task explicitly said `PHASE 2a DIRECT IMPLEMENTATION` and “sole direct component-builder implementation.” That matched `agents/component-builder/agent.md`, whose contract says to build the requirement, advance the record, obtain plan review before edits, and commit completed work; it did not become an implementer task through launcher substitution. The launcher forwards the task and, for normal children, exposed `read,grep,find,ls,bash,edit,write`; it does not enforce textual path allowlists. The role's repository-root boundary therefore permitted broader edits in principle. In this preserved attempt, session/worktree evidence shows only `tasks.md`, which is within the stated allowlist; no out-of-allowlist changed path is evidenced. The failure was routing/authorization conflict, not proven out-of-allowlist output.
@@ -84,4 +86,4 @@ No routing/configuration file change is required on this evidence. The smallest 
 Before any recovery, preserve and inspect the cited registry, result, session, and worktree evidence; do not integrate it. Treat `j-msee2iwg-quowh5` as non-integrated and incomplete: no child commit, terminal child record, final expert validation, or integration exists. Recovery requires fresh current-turn user authorization, a new task revision/attempt, and a newly recorded preflight that proves child budget admission, configured-role attribution, handoff/rehearsal readiness, and exact allowlist enforcement. Do not reuse this revision or retry implementation.
 
 ## Next Action
-Launch the one authorized component-builder descendant from `skills/spawning-pi-subagents/tasks.md`; integrate only after terminal record, expert gates, changed-path diff-check, and caller ancestry verification.
+Remain blocked. Do not integrate the preserved child worktree or launch a retry. A future recovery must authorize a new revision and re-establish one active component-builder attempt with terminal record, expert gates, changed-path diff-check, and caller ancestry verification.
