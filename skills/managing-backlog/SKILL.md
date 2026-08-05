@@ -12,22 +12,43 @@ Maintain the repository backlog as a planning index, not as task authority.
 | Field | Meaning | Required |
 | --- | --- | --- |
 | `id` | Stable concise item identifier | Yes |
-| `priority` | Ordered urgency/value class | Yes |
+| `priority` | User-provided urgency/value input | Yes |
 | `component` | Owning component path | Yes |
-| `outcome` | Desired bounded result | Yes |
+| `description` | Bounded work proposal and desired result | Yes |
+| `notes` | Supporting context, rationale, or constraints | No |
 | `dependencies` | Required completed inputs | When applicable |
 | `acceptance` | Observable completion signal | Yes |
 | `status` | `open` or `selected` | Yes |
+
+## Priority And Project Sequence
+
+`priority` is supplied by the user. It records the user's urgency or value
+judgment; backlog management must not silently reinterpret it as an authority
+to start work. The project-level `sequence` is decided by the system from the
+backlog as a whole. It is dependency-aware: work is sequenced only after its
+required dependencies are complete or otherwise available, and an available
+prerequisite takes precedence over a dependent item when needed. The system may
+also consider readiness, scope, risk, value, and budget when producing the
+sequence, while preserving the recorded user priority as an input rather than
+rewriting it.
+
+Users influence the sequence by changing an item's priority or by making an
+explicit reprioritization request. A request is a planning input, not an
+instruction to bypass dependencies, component ownership, acceptance, or task
+management. The system evaluates the request against those constraints and
+records the resulting project-level sequence and rationale; it may decline or
+delay the requested order when dependencies or boundaries require it.
 
 ## Selection Contract
 
 | Condition | Required result |
 | --- | --- |
 | Component context | Owning `as-is.md` exists and is understood |
-| Priority | Rationale reflects authority, blockers, risk, intent, value, and budget |
-| Scope | Outcome and acceptance are bounded to the owning component |
+| Priority | User-provided priority and its rationale reflect urgency, blockers, risk, intent, value, and budget |
+| Sequence | System-decided project-level sequence accounts for dependencies and records why a requested order is accepted, delayed, or declined |
+| Scope | Description, notes, and acceptance are bounded to the owning component |
 | Hierarchy | A backlog may propose work within its own component boundary, but a descendant backlog cannot authorize changes to an ancestor, sibling, or shared boundary. Work that changes a directory structure, source-tree convention, or authority beyond the owning component must be proposed and accepted in the nearest affected ancestor backlog; descendant backlogs may be referenced as bounded follow-ups only after that ancestor decision |
-| Dependencies | Required inputs are named and available or remain open |
+| Dependencies | Required inputs are named; their availability is reflected in the system-decided sequence or remains open |
 | Selection | Invoke `implementing-component-tasks` with the selected item |
 
 ## Completion Reconciliation
@@ -82,6 +103,7 @@ carry only its bounded implementation or compatibility follow-up.
 | Check | Required evidence |
 | --- | --- |
 | Ownership | Component path or explicitly proposed new component |
-| Priority | Observable prioritization rationale |
+| Description and notes | Description states the bounded proposal; notes preserve relevant supporting context without becoming task authority |
+| Priority and sequence | Priority is attributable to the user; project-level sequence is system-decided, dependency-aware, and responsive to priority changes or explicit reprioritization requests |
 | Scope | Bounded dependencies and acceptance conditions |
 | Completion | Completed item is removed; its summary is recorded in the owning component's `changelog.md` |
