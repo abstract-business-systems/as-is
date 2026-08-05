@@ -21,8 +21,8 @@ function route(tasks: Task[], openBacklog: BacklogItem[]) {
   return {
     kind: "recommendation",
     item,
-    rationale: "High priority and directly addresses the broken routing fallback.",
-    authorization: "recommendation only",
+    rationale: "High priority and directly addresses the broken routing fallback while remaining within the owning component and available bounded evidence.",
+    authorization: "recommendation only; does not authorize or start work",
     startsWork: false,
   };
 }
@@ -68,6 +68,11 @@ test("fallback names the highest-priority safe backlog item with rationale and d
   const result = route([], fixture.fallback.openBacklog);
   expect(result.kind).toBe("recommendation");
   expect(result.item?.id).toBe(fixture.fallback.expected.itemId);
+  expect(result.item?.component).toBe(fixture.fallback.expected.component);
+  expect(result.item?.priority).toBe(fixture.fallback.expected.priority);
+  expect(result.item?.outcome).toBe(fixture.fallback.expected.outcome);
+  expect(result.item?.dependencies).toBe(fixture.fallback.expected.dependencies);
+  expect(result.item?.acceptance).toBe(fixture.fallback.expected.acceptance);
   expect(result.rationale).toBe(fixture.fallback.expected.rationale);
   expect(result.authorization).toBe(fixture.fallback.expected.authorization);
   expect(result.startsWork).toBe(fixture.fallback.expected.startsWork);

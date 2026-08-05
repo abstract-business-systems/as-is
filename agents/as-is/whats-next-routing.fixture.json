@@ -8,13 +8,26 @@
     "openBacklog": [
       { "id": "unsafe-high-priority-item", "priority": "High", "outcome": "Requires unavailable approval", "safe": false },
       { "id": "low-priority-item", "priority": "Low", "outcome": "Low value", "safe": true },
-      { "id": "whats-next-routing", "priority": "High", "outcome": "Repair What's next? routing", "safe": true }
+      {
+        "id": "whats-next-routing",
+        "priority": "High",
+        "component": "agents/as-is",
+        "outcome": "Repair What's next? routing",
+        "dependencies": "Current agent.md routing contract, orient snapshot, task-record protocol, and backlog ownership/schema",
+        "acceptance": "Actionable task precedence and concrete recommendation-only fallback are visibly covered by focused routing checks",
+        "safe": true
+      }
     ],
     "genericResponse": "No actionable task is recorded.",
     "expected": {
       "itemId": "whats-next-routing",
-      "rationale": "High priority and directly addresses the broken routing fallback.",
-      "authorization": "recommendation only",
+      "component": "agents/as-is",
+      "priority": "High",
+      "outcome": "Repair What's next? routing",
+      "dependencies": "Current agent.md routing contract, orient snapshot, task-record protocol, and backlog ownership/schema",
+      "acceptance": "Actionable task precedence and concrete recommendation-only fallback are visibly covered by focused routing checks",
+      "rationale": "High priority and directly addresses the broken routing fallback while remaining within the owning component and available bounded evidence.",
+      "authorization": "recommendation only; does not authorize or start work",
       "startsWork": false
     }
   }

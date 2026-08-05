@@ -50,13 +50,15 @@ in order:
    `blocked`, then `awaiting-approval`), and report or recover the highest-
    priority safe next action from the matching record. Do not fall through to
    a backlog recommendation while an actionable record exists.
-2. Only when no actionable record exists, inspect the repository and owning
-   component backlogs using `skills/managing-backlog/SKILL.md`. Select the
-   highest-priority bounded open item that is safe and whose ownership and
-   dependencies are understood. The result must include the exact item ID,
-   owner/component, priority, bounded outcome, dependencies, acceptance signal,
-   and a concise rationale grounded in authority, blockers, risk, intent, value,
-   and budget.
+2. Only when no actionable record exists, perform bounded read-only inspection
+   of the actual repository and applicable owning component backlogs using
+   `skills/managing-backlog/SKILL.md`; this is the explicit multi-source
+   exception to the direct-path read/command budget. Select the highest-priority
+   bounded open item that is safe and whose ownership and dependencies are
+   understood. The result must include the exact item ID, owner/component,
+   priority, bounded outcome, dependencies, acceptance signal, and a concise
+   rationale grounded in authority, blockers, risk, intent, value, and budget.
+   This inspection does not create a task record, delegate, or start work.
 3. Label the fallback explicitly **recommendation, not authorization** and
    state that it neither authorizes nor starts work (`startsWork: false`). Do
    not create a task record, delegate, or begin the recommended item unless the
