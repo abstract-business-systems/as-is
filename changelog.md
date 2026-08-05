@@ -2,6 +2,8 @@
 
 # Changelog
 
+- 2026-08-12: Updated `skills/managing-backlog` to use `description` and optional `notes` backlog fields, distinguish user-provided priority from system-decided dependency-aware project sequence, and document influence through priority changes or explicit reprioritization requests. The component handoff `c8251eb` was integrated as `15c989c`; focused content validation and diff checks passed.
+
 - 2026-08-08: Restored the approved `skills-agents-separation-plan` planning artifact from historical source `adac5cb` and linked it from the root backlog. The handoff preserves the authority order, six-phase sequence, dependencies, gates, rollback/recovery, residual risk, and explicit deferral of migration; no Phase 2a, migration implementation, new skill, prompt extraction, or runtime changes were made. Focused reference checks and `git diff --check` passed; attributable in-process expert plan/final gates were recorded.
 
 - 2026-08-06: Added the documentation-only `Resume and fork admission contract` to adaptive session budgeting: resume is the normative recovery default, forks require explicit authorization and source lineage, and admission preserves identity, references, immutable ceilings, cumulative accounting, idempotency, and fail-closed non-resumable behavior. Dynamic expert validation remains open; exact diff checks and read-only expert plan/final validation passed, with final validation declaring the change safe to commit.
