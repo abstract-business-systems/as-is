@@ -492,7 +492,8 @@ export class ControlPlane {
 
   private recordFor(component: string): DurableRecord {
     let candidate = resolve(this.root, component);
-    if (pathExistsAsDirectory(candidate)) candidate = join(candidate, "as-is.md");
+    if (candidate === this.root && this.rootRecordPath) candidate = this.rootRecordPath;
+    else if (pathExistsAsDirectory(candidate)) candidate = join(candidate, "as-is.md");
     const outside = relative(this.root, candidate);
     if (outside === ".." || outside.startsWith(`..${sep}`) || outside.startsWith(sep)) {
       throw new ControlPlaneError("component is outside the root task scope");

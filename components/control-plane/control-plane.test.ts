@@ -80,6 +80,18 @@ function fixture(): { root: string; cleanup: () => void } {
   return { root, cleanup: () => rmSync(root, { recursive: true, force: true }) };
 }
 
+test("root activation resolves the existing transient root task record", () => {
+  const fixtureRoot = fixture();
+  try {
+    writeFileSync(join(fixtureRoot.root, "tasks.md"), record("ready").replace("maxConcurrentTasks: 1", "maxConcurrentTasks: 2"), "utf8");
+    const control = new ControlPlane(fixtureRoot.root);
+    control.activate(".");
+    expect((control as any).recordFor(".").status).toBe("active");
+  } finally {
+    fixtureRoot.cleanup();
+  }
+});
+
 test("root orientation accepts an absent transient root task record", () => {
   const fixtureRoot = fixture();
   try {
