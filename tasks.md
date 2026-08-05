@@ -1,25 +1,26 @@
 ---
 as-is-version: 2
 task:
-  status: blocked
+  status: ready
   worker: as-is
-  revision: launcher-scope-gate-prerequisite-2026-08-06
-  updated: 2026-08-06T00:00:00Z
+  revision: authority-alignment-2026-08-08-r1
+  updated: 2026-08-08T00:00:00Z
 constraints:
   cost:
     currency: USD
-    allocated: 0.50
+    allocated: 3.00
     spent: 0.00
-    reserve: 0.10
+    reserve: 0.20
     source: host-reported
   delegation:
     maximum-depth: 1
     maximum-children: 1
-    implementation-delegations: 1
-    nested-implementation-delegation: false
   execution:
     wall-clock:
-      source: host-reported
+      allocated-seconds: 2400
+      spent-seconds: 0
+      reserve-seconds: 0
+      source: host-enforced
     minimum-seconds:
       implementation: 600
       expert-plan: 600
@@ -27,63 +28,39 @@ constraints:
       handoff-integration: 600
   external-effects: require-current-turn-user-approval
 acceptance:
-  - Recover only the focused launcher scope-gate prerequisite from caller HEAD e59a120.
-  - Delegate exactly one bounded component-builder descendant with 600-second minimum gates and actual component task-record context.
-  - Integrate only a terminal, expert-gated child commit that passes changed-path and caller-ancestry checks.
-  - Do not implement Phase 2a or create migration artifacts.
+  - Phase 2a is explicitly parked/deferred with its prior blockers preserved as history; no Phase 2a or migration implementation is started.
+  - Create root and component planning backlog entries without putting active task state in backlog files.
+  - Select and authorize one fresh component-builder task with one active attempt, 600-second minimum implementation/expert-plan/expert-final/handoff gates, and no nested implementation descendant.
+  - The component-builder owns semantic completion, uses in-process call_subagent for same-component worker implementation and expert advice/final validation, and uses spawning-pi-subagents only for separately owned component boundaries.
+  - Integrate only a terminal, expert-gated child commit after focused validation, scoped diff, and caller ancestry verification; otherwise record a durable blocker and leave work unintegrated.
 ---
 # Task
 
 ## Requirement
-Freshly recover only the focused launcher post-child changed-path allowlist and ancestry gate prerequisite from caller HEAD e59a120. Implement through the authorized component task record at `skills/spawning-pi-subagents/tasks.md`; do not implement Phase 2a or create migration artifacts. The approved planning handoff is commit `29ce77b`; Phase 1 is integrated through the chain `ea4f032 -> 50fe83c -> 1992ae6`. Root `tasks.md` is the current task authority; backlog entries remain planning indexes.
+Park the blocked Phase 2a implementation permanently for this revision and begin the highest-priority bounded authority-alignment task. The selected task is the component-builder follow-up recorded at `agents/component-builder/tasks.md`: align its contract with in-process `call_subagent` for same-component implementation and expert gates, reserving `spawning-pi-subagents` for separately owned component boundaries. Do not start Phase 2a, any migration phase, or recover prior uncommitted worktrees.
 
-## Baseline reconciliation
-- Baseline HEAD is `1992ae6`.
-- Integrated Phase 1 chain is `ea4f032 -> 50fe83c -> 1992ae6`; these are the authoritative current ancestors for this retry.
-- Old reference `21fcb08` is historical only and must not be used as a current parent, integration target, or completion proof.
-- This reconciliation is authorized by the current user and must be committed on the caller branch before preflight or delegation.
-
-## Phase 2a scope
-Direct component-builder implementation only; no nested implementation delegation.
-
-Exact allowlist:
-- `agents/as-is/agent.md`
-- `skills/as-is/SKILL.md`
-- `skills/spawning-pi-subagents/SKILL.md`
-- `skills/changelog.md` (only the Phase 2a entry)
-- this root `tasks.md` for durable task evidence only
-
-Exact checks:
-- `git diff --check`
-- `git diff --name-only` and allowlist enforcement
-- `git diff --unified=0` review for scope and authority boundaries
-- `bash skills/as-is/scripts/orient.ts` once for final repository orientation
-- expert plan review before implementation
-- fresh expert final-diff review after implementation
-- terminal child record, commit parent, commit scope, and caller ancestry verification
-
-Forbidden: runtime code changes, Phase 2b or later work, changes outside the allowlist, nested implementation delegation, and use of `21fcb08` as current evidence.
+## Plan
+1. Preserve the prior Phase 2a and launcher-prerequisite failures below as historical evidence, then authorize this new revision.
+2. Add planning-only root and component backlog entries.
+3. Launch exactly one configured `component-builder` child for the separately owned `agents/component-builder` component. The child must obtain in-process expert plan review before edits and fresh in-process expert final validation before commit; each implementation, plan, final, and handoff/integration gate is allocated at least 600 seconds.
+4. Read the terminal child record, verify focused checks, changed scope, and ancestry, then integrate only the verified child commit. If the in-process extension/tool is unavailable or evidence is not durable, record a blocker and do not substitute subprocess worker/expert calls.
 
 ## Progress
-Created and committed the fresh prerequisite record at `skills/spawning-pi-subagents/tasks.md` in caller commit `4454998`, then launched exactly one direct `component-builder` descendant from that actual context with a 600-second budget. Job `j-mseivkuw-r7dvmv` exited after 90.006 seconds with exit 0 but no implementation commit; its result records `commitSha: 4454998`, `committed: false`, `integrationStatus: not-committed`, and preserved recovery worktree `/tmp/as-is-child-vdlCrC/worktree`. The component record remained `ready`, so no terminal child handoff exists.
+Fresh revision authorized by the current user. Phase 2a is parked; no prior Phase 2a worktree or commit is being retried or integrated. Planning entries and the component task record are prepared before delegation.
 
 ## Validation
-The caller-side authorization commit `4454998` is clean. `git diff --check` passed after the attempt, and `bun skills/as-is/scripts/orient.ts` ran once; orientation reports root `blocked`, component `ready`, and the working tree clean. No changed-path or ancestry integration check was applicable because the child produced no commit. Required terminal child record and expert plan/final gates are absent.
+Pending child handoff. Required final checks: focused component checks selected by the child, `git diff --check`, scoped changed-path review, final `bun skills/as-is/scripts/orient.ts`, and `git merge-base --is-ancestor <child-commit> HEAD` after integration.
 
 ## Result
-Blocked: the focused launcher prerequisite was not implemented. No unverified child work was integrated. No Phase 2a or migration artifacts were created.
+Pending. Completion requires terminal child record, attributable in-process expert plan/final evidence, scoped commit, caller ancestry integration, and descendant closure.
 
 ## Blockers And Escalations
-The authorized prerequisite child handoff is incomplete: job `j-mseivkuw-r7dvmv` returned without a commit, without a terminal component record, and without evidenced expert plan/final gates. Preserve `/tmp/as-is-child-vdlCrC/worktree` as recovery evidence and do not integrate it. No retry is authorized in this revision; recovery requires a new current-turn authorization and task revision.
+If the Pi extension/tool path cannot provide in-process `call_subagent`, or if expert returns cannot be attributed and recorded in the component task record, stop and record that durable blocker. Do not revert to subprocess worker/expert calls, retry a failed attempt, or integrate unverified work.
 
-The prior Phase 1 attempt and reference `21fcb08` are historical evidence only. The one authorized Phase 2a attempt is closed and must not be retried. Diagnosis of the latest preserved attempt found no launcher role substitution: registry job `j-msee2iwg-quowh5` recorded `identity: component-builder`, `caller: as-is`, base `0c2dcd0d4583e71753432d9dc5c360e329e7e66d`, 600-second/$0.40 budget, exit 0, no commit, and preserved uncommitted worktree `/tmp/as-is-child-ypkUJL/worktree`; session `/tmp/as-is-child-ypkUJL/sessions/2026-08-04T08-21-15-054Z_019fcbdc-d4ae-722a-a247-1ac7a2c94487.jsonl` and result `/tmp/as-is-child-ypkUJL/result.json` are preserved evidence.
-
-The delegated task explicitly said `PHASE 2a DIRECT IMPLEMENTATION` and “sole direct component-builder implementation.” That matched `agents/component-builder/agent.md`, whose contract says to build the requirement, advance the record, obtain plan review before edits, and commit completed work; it did not become an implementer task through launcher substitution. The launcher forwards the task and, for normal children, exposed `read,grep,find,ls,bash,edit,write`; it does not enforce textual path allowlists. The role's repository-root boundary therefore permitted broader edits in principle. In this preserved attempt, session/worktree evidence shows only `tasks.md`, which is within the stated allowlist; no out-of-allowlist changed path is evidenced. The failure was routing/authorization conflict, not proven out-of-allowlist output.
-
-No routing/configuration file change is required on this evidence. The smallest corrective rule is durable routing behavior: a failed preflight or `blocked` Phase 2a record must stop the attempt rather than launch `component-builder`; any diagnostic child must be explicitly report-only with no edit/write tools. A future host-side changed-path check may supplement this, but is not introduced here.
+Historical Phase 2a blocker (parked, not retryable): prior direct component-builder attempts returned without terminal records, expert gates, or commits; preserved evidence and job identifiers remain in the previous root task history and Git history. The authorized Phase 2a implementation is explicitly deferred and must not be restarted in this revision. Historical launcher-prerequisite blockers remain evidence only; no prior preserved worktree is an integration source.
 
 ## Recovery
-Before any recovery, preserve and inspect the cited registry, result, session, and worktree evidence; do not integrate it. Treat `j-msee2iwg-quowh5` as non-integrated and incomplete: no child commit, terminal child record, final expert validation, or integration exists. Recovery requires fresh current-turn user authorization, a new task revision/attempt, and a newly recorded preflight that proves child budget admission, configured-role attribution, handoff/rehearsal readiness, and exact allowlist enforcement. Do not reuse this revision or retry implementation.
+A blocked or budget-stopped child remains non-terminal and must be accounted for here. Preserve its component worktree and record the exact missing gate, budget observation, and next safe action. Recovery requires a new task revision and explicit authorization; it must not retry Phase 2a.
 
 ## Next Action
-Remain blocked. Do not integrate the preserved child worktree or launch a retry. A future recovery must authorize a new revision and re-establish one active component-builder attempt with terminal record, expert gates, changed-path diff-check, and caller ancestry verification.
+Delegate the single ready `agents/component-builder/tasks.md` task through the configured `component-builder` role, subject to the in-process call_subagent gate and the recorded 600-second minimums.
