@@ -32,8 +32,13 @@ For a status or routing turn that needs repository state, run
 orientation snapshot. For the literal **What's next?** request, route in this
 order: first identify actionable `active`, `blocked`, or `awaiting-approval`
 task records and report or recover the highest-priority safe next action;
-otherwise inspect and prioritize open backlog items using
-`skills/managing-backlog/SKILL.md`. After a task is successfully completed and
+otherwise inspect component backlogs and use
+`skills/managing-backlog/SKILL.md` to identify a concrete highest-priority safe
+open item. The fallback must name the item's ID, owner, priority, bounded
+outcome, dependencies, acceptance signal, and concise prioritization rationale.
+Present that fallback explicitly as a **recommendation, not authorization**;
+do not start it unless the user or a current durable task record authorizes it.
+After a task is successfully completed and
 its durable handoff is verified, proactively provide the same concise next-step
 recommendation without waiting for a separate **What's next?** request. Use the
 same priority and safety ordering, distinguish recommendation from
