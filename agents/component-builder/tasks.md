@@ -1,7 +1,7 @@
 ---
 as-is-version: 2
 task:
-  status: ready
+  status: blocked
   worker: component-builder
   revision: in-process-authority-alignment-2026-08-08-r1
   updated: 2026-08-08T00:00:00Z
@@ -43,19 +43,19 @@ Align the `agents/component-builder` contract with the repository's intended aut
 Inspect the local role contract and the in-process worker extension contract. Obtain an attributable read-only expert plan through `call_subagent` before editing. Make the smallest contract/documentation change within this component, validate it, then obtain a fresh attributable expert final-diff review through `call_subagent`. Record both gates and commit only after they pass.
 
 ## Progress
-Ready for the sole authorized component-builder attempt. No descendant implementation is permitted. The parent must not integrate without this record becoming terminal and containing both expert gates.
+The sole authorized attempt stopped before implementation because the active delegated Pi process did not expose the required in-process `call_subagent` extension/tool. No implementation edits were made and no descendant implementation is permitted.
 
 ## Validation
-Pending. At minimum verify the role contract is internally consistent, no Phase 2a/migration files changed, `git diff --check` passes, and the final expert explicitly says whether the scoped change is safe to commit.
+Blocked before validation. No contract or Phase 2a/migration files changed. Required in-process expert plan/final gates were unavailable and cannot support a commit.
 
 ## Result
-Pending expert-gated implementation.
+Blocked: authority-alignment was not implemented and no child commit exists.
 
 ## Blockers And Escalations
-If `call_subagent` is unavailable in the active Pi extension/tool path, or returns cannot be durably attributed in this record, mark blocked and stop. Do not substitute `spawning-pi-subagents` for same-component workers or experts.
+Durable blocker: `call_subagent` was unavailable in the active delegated Pi extension/tool path. The attempt returned without implementation, expert-plan/final evidence, or a commit. Do not substitute subprocess workers, spawning-pi-subagents, or another expert path; do not retry this revision.
 
 ## Recovery
-Preserve the current checkpoint and any uncommitted scoped edits. A retry requires a new revision and authorization; do not retry Phase 2a or consume this attempt twice.
+Caller-verifiable checkpoint: no scoped files changed and no child commit was produced. Recovery requires a new revision and authorization after the in-process extension is available, with 600-second minimum implementation, expert-plan, expert-final, and handoff/integration gates.
 
 ## Next Action
-Component-builder begins with in-process expert plan review, then performs the bounded contract alignment.
+Provide the required in-process `call_subagent` extension/tool, then authorize a new task revision. Do not start Phase 2a or migration work.

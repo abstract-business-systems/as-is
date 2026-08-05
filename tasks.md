@@ -1,7 +1,7 @@
 ---
 as-is-version: 2
 task:
-  status: ready
+  status: blocked
   worker: as-is
   revision: authority-alignment-2026-08-08-r1
   updated: 2026-08-08T00:00:00Z
@@ -46,16 +46,16 @@ Park the blocked Phase 2a implementation permanently for this revision and begin
 4. Read the terminal child record, verify focused checks, changed scope, and ancestry, then integrate only the verified child commit. If the in-process extension/tool is unavailable or evidence is not durable, record a blocker and do not substitute subprocess worker/expert calls.
 
 ## Progress
-Fresh revision authorized by the current user. Phase 2a is parked; no prior Phase 2a worktree or commit is being retried or integrated. Planning entries and the component task record are prepared before delegation.
+Fresh revision was authorized and exactly one component-builder attempt was launched from the actual component task record. The child stopped before implementation because the delegated Pi process did not expose the required in-process `call_subagent` extension/tool. Phase 2a remains parked; no prior Phase 2a worktree or commit was retried or integrated.
 
 ## Validation
-Pending child handoff. Required final checks: focused component checks selected by the child, `git diff --check`, scoped changed-path review, final `bun skills/as-is/scripts/orient.ts`, and `git merge-base --is-ancestor <child-commit> HEAD` after integration.
+`git diff --check` passed and the final orientation snapshot was run. No child handoff, implementation, expert gates, or commit exists; changed-path and ancestry integration checks are intentionally not applicable.
 
 ## Result
-Pending. Completion requires terminal child record, attributable in-process expert plan/final evidence, scoped commit, caller ancestry integration, and descendant closure.
+Blocked. The selected authority-alignment task was not implemented because the required in-process `call_subagent` path was unavailable. No unverified work was integrated.
 
 ## Blockers And Escalations
-If the Pi extension/tool path cannot provide in-process `call_subagent`, or if expert returns cannot be attributed and recorded in the component task record, stop and record that durable blocker. Do not revert to subprocess worker/expert calls, retry a failed attempt, or integrate unverified work.
+Durable blocker from the authorized child: `call_subagent` was unavailable in the active delegated Pi extension/tool path. Required in-process implementation assistance and expert plan/final gates could not run or be attributed. No subprocess fallback, retry, or unverified integration was performed. The child returned without a commit; isolated recovery evidence is non-integrated.
 
 Historical Phase 2a blocker (parked, not retryable): prior direct component-builder attempts returned without terminal records, expert gates, or commits; preserved evidence and job identifiers remain in the previous root task history and Git history. The authorized Phase 2a implementation is explicitly deferred and must not be restarted in this revision. Historical launcher-prerequisite blockers remain evidence only; no prior preserved worktree is an integration source.
 
@@ -63,4 +63,4 @@ Historical Phase 2a blocker (parked, not retryable): prior direct component-buil
 A blocked or budget-stopped child remains non-terminal and must be accounted for here. Preserve its component worktree and record the exact missing gate, budget observation, and next safe action. Recovery requires a new task revision and explicit authorization; it must not retry Phase 2a.
 
 ## Next Action
-Delegate the single ready `agents/component-builder/tasks.md` task through the configured `component-builder` role, subject to the in-process call_subagent gate and the recorded 600-second minimums.
+Remain blocked pending a host/tool-path correction that exposes in-process `call_subagent`; then authorize a new revision. Phase 2a and migration phases remain parked/deferred.
