@@ -29,9 +29,19 @@ function relativeLink(source: string, target: string) {
   return relative(dirname(target), source) || ".";
 }
 
+function targetExists(path: string) {
+  if (existsSync(path)) return true;
+  try {
+    lstatSync(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function link(source: string, target: string, result: SetupResult) {
   mkdirSync(dirname(target), { recursive: true });
-  if (existsSync(target)) { result.preserved.push(target); return; }
+  if (targetExists(target)) { result.preserved.push(target); return; }
   symlinkSync(relativeLink(source, target), target, "junction");
   result.linked.push(target);
 }
@@ -53,16 +63,66 @@ export function detectClient(root: string): ClientDetection {
   };
 }
 
-function configureOpenCode(root: string, bundleRoot: string) {
+type SetupLink = { source: string; target: string };
+type OpenCodeConfigPlan = { path: string; contents: string };
+type AdapterPlan = { links: SetupLink[]; config?: OpenCodeConfigPlan };
+
+function canonicalLinks(bundle: string, inventory: CanonicalResourceInventory, root: string, directory: string, includeAgents: boolean): SetupLink[] {
+  const links = inventory.skills.map((name) => ({
+    source: join(bundle, "skills", name),
+    target: join(root, directory, "skills", name),
+  }));
+  if (includeAgents) {
+    links.push(...inventory.agents.map((name) => ({
+      source: join(bundle, "agents", name),
+      target: join(root, directory, "agents", name),
+    })));
+  }
+  return links;
+}
+
+function configurePi(root: string, bundle: string, inventory: CanonicalResourceInventory): AdapterPlan {
+  const links = canonicalLinks(bundle, inventory, root, ".agents", false);
+  const prompt = join(bundle, ".pi", "prompts", "as-is.md");
+  if (isFile(prompt)) links.push({ source: prompt, target: join(root, ".pi", "prompts", "as-is.md") });
+  return { links };
+}
+
+function configureOpenCode(root: string, bundle: string, inventory: CanonicalResourceInventory): AdapterPlan {
   const configPath = join(root, ".opencode", "opencode.json");
-  if (!isFile(configPath)) return;
-  const config = JSON.parse(readFileSync(configPath, "utf8"));
-  const skills = config.skills && typeof config.skills === "object" ? config.skills : {};
-  const paths = Array.isArray(skills.paths) ? skills.paths : [];
-  const bundleSkills = relative(dirname(configPath), join(bundleRoot, "skills")) || ".";
-  if (!paths.includes(bundleSkills)) paths.push(bundleSkills);
-  config.skills = { ...skills, paths };
-  writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`);
+  if (!isFile(configPath)) return { links: [] };
+  let config: unknown;
+  try {
+    config = JSON.parse(readFileSync(configPath, "utf8"));
+  } catch (error) {
+    throw new Error(`Invalid OpenCode configuration: ${configPath}`, { cause: error });
+  }
+  if (config === null || typeof config !== "object" || Array.isArray(config))
+    throw new Error(`OpenCode configuration must be a JSON object: ${configPath}`);
+  const record = config as Record<string, unknown>;
+  if ("skills" in record && (record.skills === null || typeof record.skills !== "object" || Array.isArray(record.skills)))
+    throw new Error(`OpenCode skills configuration must be an object: ${configPath}`);
+  const skills = (record.skills ?? {}) as Record<string, unknown>;
+  if ("paths" in skills && (!Array.isArray(skills.paths) || skills.paths.some((path) => typeof path !== "string")))
+    throw new Error(`OpenCode skills.paths must be an array of strings: ${configPath}`);
+  const paths = Array.isArray(skills.paths) ? [...skills.paths] as string[] : [];
+  const nativeSkills = "skills";
+  if (!paths.includes(nativeSkills)) paths.push(nativeSkills);
+  const nextConfig = { ...record, skills: { ...skills, paths } };
+  return {
+    config: { path: configPath, contents: `${JSON.stringify(nextConfig, null, 2)}\n` },
+    links: canonicalLinks(bundle, inventory, root, ".opencode", true),
+  };
+}
+
+function configureGenericAgents(root: string, bundle: string, inventory: CanonicalResourceInventory): AdapterPlan {
+  return { links: canonicalLinks(bundle, inventory, root, ".agents", true) };
+}
+
+function adapterPlan(kind: ClientKind, root: string, bundle: string, inventory: CanonicalResourceInventory): AdapterPlan {
+  if (kind === "pi") return configurePi(root, bundle, inventory);
+  if (kind === "opencode") return configureOpenCode(root, bundle, inventory);
+  return configureGenericAgents(root, bundle, inventory);
 }
 
 export function setupClient(clientRoot: string, bundleRoot: string, detected?: ClientKind[]): SetupResult {
@@ -71,17 +131,10 @@ export function setupClient(clientRoot: string, bundleRoot: string, detected?: C
   const kinds = detected ?? (detection.ambiguous ? [] : detection.kinds);
   const result: SetupResult = { root, kinds, linked: [], preserved: [] };
   const inventory = inventoryCanonicalResources(bundle);
-  const skills = join(bundle, "skills");
-  const agents = join(bundle, "agents");
-  for (const kind of kinds) {
-    if (kind === "opencode") configureOpenCode(root, bundle);
-    if (kind === "pi" || kind === "opencode" || kind === "agents") {
-      for (const name of inventory.skills) link(join(skills, name), join(root, ".agents", "skills", name), result);
-      for (const name of inventory.agents) link(join(agents, name), join(root, ".agents", "agents", name), result);
-    }
-    if (kind === "pi" && isFile(join(bundle, ".pi", "prompts", "as-is.md")))
-      link(join(bundle, ".pi", "prompts", "as-is.md"), join(root, ".pi", "prompts", "as-is.md"), result);
-  }
+  const plans = kinds.map((kind) => adapterPlan(kind, root, bundle, inventory));
+  for (const plan of plans) if (plan.config) writeFileSync(plan.config.path, plan.config.contents);
+  for (const plan of plans)
+    for (const operation of plan.links) link(operation.source, operation.target, result);
   return result;
 }
 

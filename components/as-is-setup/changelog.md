@@ -1,5 +1,13 @@
 # Changelog
 
+- Added explicit Pi, OpenCode, and generic-agent wiring plans. Pi now projects
+  only skills and its prompt alias, OpenCode validates existing JSON before
+  updating its skill path and projects skills and agents through `.opencode`,
+  and generic-agent setup retains the `.agents` projection. Added malformed
+  configuration atomicity and adapter-separation coverage; focused tests,
+  syntax validation, and diff checks passed. Residual risk: live host
+  discovery was not rerun.
+
 - Added structured persisted client detection with absolute signal paths and
   ambiguity reporting; implicit setup now refuses ambiguous detection while
   explicit client selection remains available.

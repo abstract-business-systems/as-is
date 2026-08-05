@@ -45,9 +45,10 @@ test("detects persisted Pi clients and links only canonical resources", () => {
     ambiguous: false,
   });
   const result = setupClient(f.client, f.bundle);
-  expect(result.linked).toHaveLength(3);
+  expect(result.linked).toHaveLength(2);
   expect(Bun.file(join(f.client, ".agents", "skills", "alpha", "SKILL.md")).text()).resolves.toBe("alpha");
-  expect(Bun.file(join(f.client, ".agents", "agents", "worker", "agent.md")).text()).resolves.toBe("worker");
+  expect(Bun.file(join(f.client, ".pi", "prompts", "as-is.md")).text()).resolves.toBe("prompt");
+  expect(Bun.file(join(f.client, ".agents", "agents", "worker", "agent.md")).exists()).resolves.toBe(false);
 });
 
 test("preserves collisions and is repeatable", () => {
@@ -105,5 +106,29 @@ test("detects OpenCode persisted configuration and preserves unrelated JSON", ()
   setupClient(f.client, f.bundle);
   const config = JSON.parse(readFileSync(join(f.client, ".opencode", "opencode.json"), "utf8"));
   expect(config["$schema"]).toBe("x");
-  expect(config.skills.paths).toHaveLength(1);
+  expect(config.skills.paths).toEqual(["skills"]);
+  expect(Bun.file(join(f.client, ".opencode", "skills", "alpha", "SKILL.md")).text()).resolves.toBe("alpha");
+  expect(Bun.file(join(f.client, ".opencode", "agents", "worker", "agent.md")).text()).resolves.toBe("worker");
+});
+
+test("keeps generic agent projection separate from host adapters", () => {
+  const f = fixture();
+  rmSync(join(f.client, ".pi"), { recursive: true, force: true });
+  mkdirSync(join(f.client, ".agents"), { recursive: true });
+  const result = setupClient(f.client, f.bundle);
+  expect(result.kinds).toEqual(["agents"]);
+  expect(Bun.file(join(f.client, ".agents", "skills", "alpha", "SKILL.md")).text()).resolves.toBe("alpha");
+  expect(Bun.file(join(f.client, ".agents", "agents", "worker", "agent.md")).text()).resolves.toBe("worker");
+  expect(Bun.file(join(f.client, ".opencode", "opencode.json")).exists()).resolves.toBe(false);
+});
+
+test("rejects malformed OpenCode configuration before mutation", () => {
+  const f = fixture();
+  rmSync(join(f.client, ".pi"), { recursive: true, force: true });
+  mkdirSync(join(f.client, ".opencode"), { recursive: true });
+  const configPath = join(f.client, ".opencode", "opencode.json");
+  writeFileSync(configPath, JSON.stringify({ skills: { paths: "not-an-array" }, unrelated: true }));
+  expect(() => setupClient(f.client, f.bundle)).toThrow(/skills\.paths/);
+  expect(readFileSync(configPath, "utf8")).toBe(JSON.stringify({ skills: { paths: "not-an-array" }, unrelated: true }));
+  expect(Bun.file(join(f.client, ".opencode", "skills", "alpha", "SKILL.md")).exists()).resolves.toBe(false);
 });
