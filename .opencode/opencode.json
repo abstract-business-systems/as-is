@@ -2,53 +2,143 @@
   "$schema": "https://opencode.ai/config.json",
   "default_agent": "as-is",
   "skills": {
-    "paths": ["skills"]
+    "paths": [
+      "skills",
+      "../skills"
+    ]
   },
   "lsp": {
-    "astro": { "disabled": true },
-    "biome": { "disabled": true },
-    "clangd": { "disabled": true },
-    "clojure-ls": { "disabled": true },
-    "clojure-lsp": { "disabled": true },
-    "csharp": { "disabled": true },
-    "dart": { "disabled": true },
-    "deno": { "disabled": true },
-    "dockerfile": { "disabled": true },
-    "elixir-ls": { "disabled": true },
-    "fsharp": { "disabled": true },
-    "gleam": { "disabled": true },
-    "gopls": { "disabled": true },
-    "haskell-language-server": { "disabled": true },
-    "jdtls": { "disabled": true },
-    "julials": { "disabled": true },
-    "kotlin-ls": { "disabled": true },
-    "lua-ls": { "disabled": true },
-    "nixd": { "disabled": true },
-    "ocaml-lsp": { "disabled": true },
-    "oxlint": { "disabled": true },
-    "php intelephense": { "disabled": true },
-    "prisma": { "disabled": true },
-    "razor": { "disabled": true },
-    "ruby-lsp": { "disabled": true },
-    "rust": { "disabled": true },
-    "sourcekit-lsp": { "disabled": true },
-    "svelte": { "disabled": true },
-    "terraform": { "disabled": true },
-    "texlab": { "disabled": true },
-    "tinymist": { "disabled": true },
-    "vue": { "disabled": true },
-    "zls": { "disabled": true }
+    "astro": {
+      "disabled": true
+    },
+    "biome": {
+      "disabled": true
+    },
+    "clangd": {
+      "disabled": true
+    },
+    "clojure-ls": {
+      "disabled": true
+    },
+    "clojure-lsp": {
+      "disabled": true
+    },
+    "csharp": {
+      "disabled": true
+    },
+    "dart": {
+      "disabled": true
+    },
+    "deno": {
+      "disabled": true
+    },
+    "dockerfile": {
+      "disabled": true
+    },
+    "elixir-ls": {
+      "disabled": true
+    },
+    "fsharp": {
+      "disabled": true
+    },
+    "gleam": {
+      "disabled": true
+    },
+    "gopls": {
+      "disabled": true
+    },
+    "haskell-language-server": {
+      "disabled": true
+    },
+    "jdtls": {
+      "disabled": true
+    },
+    "julials": {
+      "disabled": true
+    },
+    "kotlin-ls": {
+      "disabled": true
+    },
+    "lua-ls": {
+      "disabled": true
+    },
+    "nixd": {
+      "disabled": true
+    },
+    "ocaml-lsp": {
+      "disabled": true
+    },
+    "oxlint": {
+      "disabled": true
+    },
+    "php intelephense": {
+      "disabled": true
+    },
+    "prisma": {
+      "disabled": true
+    },
+    "razor": {
+      "disabled": true
+    },
+    "ruby-lsp": {
+      "disabled": true
+    },
+    "rust": {
+      "disabled": true
+    },
+    "sourcekit-lsp": {
+      "disabled": true
+    },
+    "svelte": {
+      "disabled": true
+    },
+    "terraform": {
+      "disabled": true
+    },
+    "texlab": {
+      "disabled": true
+    },
+    "tinymist": {
+      "disabled": true
+    },
+    "vue": {
+      "disabled": true
+    },
+    "zls": {
+      "disabled": true
+    }
   },
   "provider": {
     "openrouter": {
       "models": {
-        "mini":          { "id": "openai/gpt-5.4-mini",        "name": "Mini (gpt-5.4-mini)" },
-        "text":          { "id": "openai/gpt-5.5",            "name": "Text (gpt-5.5)" },
-        "vision":        { "id": "openai/gpt-5.5",            "name": "Vision (gpt-5.5)" },
-        "reasoner":      { "id": "openai/o3",                 "name": "Reasoner (o3)" },
-        "deep-research": { "id": "openai/o3-deep-research",   "name": "Deep Research (o3-deep-research)" },
-        "code":          { "id": "anthropic/claude-sonnet-4.6", "name": "Code (claude-sonnet-4.6)" },
-        "primary":       { "id": "anthropic/claude-sonnet-4.6", "name": "Primary (claude-sonnet-4.6)" }
+        "mini": {
+          "id": "openai/gpt-5.4-mini",
+          "name": "Mini (gpt-5.4-mini)"
+        },
+        "text": {
+          "id": "openai/gpt-5.5",
+          "name": "Text (gpt-5.5)"
+        },
+        "vision": {
+          "id": "openai/gpt-5.5",
+          "name": "Vision (gpt-5.5)"
+        },
+        "reasoner": {
+          "id": "openai/o3",
+          "name": "Reasoner (o3)"
+        },
+        "deep-research": {
+          "id": "openai/o3-deep-research",
+          "name": "Deep Research (o3-deep-research)"
+        },
+        "code": {
+          "id": "anthropic/claude-sonnet-4.6",
+          "name": "Code (claude-sonnet-4.6)"
+        },
+        "primary": {
+          "id": "anthropic/claude-sonnet-4.6",
+          "name": "Primary (claude-sonnet-4.6)"
+        }
       }
     }
   }

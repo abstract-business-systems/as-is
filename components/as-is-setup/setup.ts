@@ -3,15 +3,26 @@ import { existsSync, lstatSync, mkdirSync, readFileSync, symlinkSync, writeFileS
 import { dirname, join, relative, resolve } from "node:path";
 
 export type ClientKind = "pi" | "opencode" | "agents";
+export type CanonicalResourceInventory = { skills: string[]; agents: string[] };
+export type ClientSignal = { kind: ClientKind; path: string };
+export type ClientDetection = { kinds: ClientKind[]; signals: ClientSignal[]; ambiguous: boolean };
 export type SetupResult = { root: string; kinds: ClientKind[]; linked: string[]; preserved: string[] };
 
 const isDirectory = (path: string) => existsSync(path) && lstatSync(path).isDirectory();
 const isFile = (path: string) => existsSync(path) && lstatSync(path).isFile();
-function resourceNames(path: string, marker: string): string[] {
+function canonicalResourceNames(path: string, marker: string): string[] {
   if (!isDirectory(path)) return [];
   return Array.from(new Bun.Glob("*").scanSync({ cwd: path, onlyFiles: false }))
     .filter((name) => isDirectory(join(path, name)) && isFile(join(path, name, marker)))
     .sort();
+}
+
+export function inventoryCanonicalResources(bundleRoot: string): CanonicalResourceInventory {
+  const bundle = resolve(bundleRoot);
+  return {
+    skills: canonicalResourceNames(join(bundle, "skills"), "SKILL.md"),
+    agents: canonicalResourceNames(join(bundle, "agents"), "agent.md"),
+  };
 }
 
 function relativeLink(source: string, target: string) {
@@ -25,12 +36,21 @@ function link(source: string, target: string, result: SetupResult) {
   result.linked.push(target);
 }
 
-export function detectClient(root: string): ClientKind[] {
-  const kinds: ClientKind[] = [];
-  if (isDirectory(join(root, ".pi")) || isDirectory(join(root, ".agents"))) kinds.push("pi");
-  if (isFile(join(root, ".opencode", "opencode.json")) || isDirectory(join(root, ".opencode"))) kinds.push("opencode");
-  if (isDirectory(join(root, ".agents")) && !kinds.includes("agents")) kinds.push("agents");
-  return kinds;
+export function detectClient(root: string): ClientDetection {
+  const clientRoot = resolve(root);
+  const signals: ClientSignal[] = [];
+  const addSignal = (kind: ClientKind, path: string) => signals.push({ kind, path });
+  const piPath = join(clientRoot, ".pi");
+  const opencodePath = join(clientRoot, ".opencode", "opencode.json");
+  const agentsPath = join(clientRoot, ".agents");
+  if (isDirectory(piPath)) addSignal("pi", piPath);
+  if (isFile(opencodePath)) addSignal("opencode", opencodePath);
+  if (isDirectory(agentsPath)) addSignal("agents", agentsPath);
+  return {
+    kinds: signals.map(({ kind }) => kind),
+    signals,
+    ambiguous: signals.length > 1,
+  };
 }
 
 function configureOpenCode(root: string, bundleRoot: string) {
@@ -45,16 +65,19 @@ function configureOpenCode(root: string, bundleRoot: string) {
   writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`);
 }
 
-export function setupClient(clientRoot: string, bundleRoot: string, detected = detectClient(clientRoot)): SetupResult {
+export function setupClient(clientRoot: string, bundleRoot: string, detected?: ClientKind[]): SetupResult {
   const root = resolve(clientRoot), bundle = resolve(bundleRoot);
-  const result: SetupResult = { root, kinds: detected, linked: [], preserved: [] };
+  const detection = detectClient(root);
+  const kinds = detected ?? (detection.ambiguous ? [] : detection.kinds);
+  const result: SetupResult = { root, kinds, linked: [], preserved: [] };
+  const inventory = inventoryCanonicalResources(bundle);
   const skills = join(bundle, "skills");
   const agents = join(bundle, "agents");
-  for (const kind of detected) {
+  for (const kind of kinds) {
     if (kind === "opencode") configureOpenCode(root, bundle);
     if (kind === "pi" || kind === "opencode" || kind === "agents") {
-      for (const name of resourceNames(skills, "SKILL.md")) link(join(skills, name), join(root, ".agents", "skills", name), result);
-      for (const name of resourceNames(agents, "agent.md")) link(join(agents, name), join(root, ".agents", "agents", name), result);
+      for (const name of inventory.skills) link(join(skills, name), join(root, ".agents", "skills", name), result);
+      for (const name of inventory.agents) link(join(agents, name), join(root, ".agents", "agents", name), result);
     }
     if (kind === "pi" && isFile(join(bundle, ".pi", "prompts", "as-is.md")))
       link(join(bundle, ".pi", "prompts", "as-is.md"), join(root, ".pi", "prompts", "as-is.md"), result);
