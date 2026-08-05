@@ -211,7 +211,13 @@ model; it is read-only and never contacts a provider.
   `general`, `explore`, or a direct worker when the configured role is missing.
   A builder-owned read-only `expert` validation is authorized only when the
   caller is `component-builder` and the propagated job id is present; direct
-  user/as-is expert launches remain rejected.
+  user/as-is expert launches remain rejected. The launcher owns an expert
+  capability profile: it ignores caller tool/approval/session/extension
+  overrides, forces same-worktree and ephemeral session mode, disables
+  extensions except the bundled inspection extension, and exposes only
+  `read,grep,find,ls,git_inspect`. `git_inspect` permits only bounded status,
+  scoped diff, diff-check, and HEAD-summary operations; it has no shell or
+  write path.
 - Pass the child only its role contract, task-specific direction, named
   dependencies, and centrally supplied repository context. Do not copy an
   unrelated root record or private runtime state into the prompt.
@@ -267,7 +273,11 @@ repository's existing agent definitions as the source of role prompts.
 ## Checks
 
 The launcher supports a syntax/build check and an optional dry-run inspection
-that does not contact a provider. When using `--dry-run`, confirm that it names
+that does not contact a provider. Expert validation is same-worktree by design
+so it can inspect the builder's uncommitted state; it never persists raw
+sessions. The fixed inspection extension executes only allowlisted `git`
+queries and caps output; unsupported operations and mutation-capable tools are
+not exposed. When using `--dry-run`, confirm that it names
 the expected agent file, repository directory, Pi executable, system-prompt
 handoff, and task. When budgets are supplied, confirm the dry-run `budget`
 object records the forwarded `wall-clock-seconds` and `cost-usd` values.

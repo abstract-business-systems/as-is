@@ -97,6 +97,31 @@ test("allows component-builder launches from as-is", async () => {
   expect(result.exitCode).toBe(0);
 });
 
+test("expert validation uses the fixed read-only same-worktree capability profile", async () => {
+  const result = await runLauncher([
+    "--agent", "agents/expert/agent.md",
+    "--task", "Read-only validation.",
+    "--cwd", process.cwd(),
+    "--caller", "component-builder",
+    "--parent-job-id", "builder-job-test",
+    "--tools", "bash,write,edit,webfetch",
+    "--skill", "./untrusted-skill",
+    "--approve",
+    "--no-tools",
+    "--dry-run",
+  ]);
+  expect(result.exitCode).toBe(0);
+  const parsed = JSON.parse(result.stdout);
+  expect(parsed.tools).toBe("read,grep,find,ls,git_inspect");
+  expect(parsed.worktree).toBe(false);
+  expect(parsed.sessionPath).toBe(null);
+  expect(parsed.args).toContain("--no-extensions");
+  expect(parsed.args).toContain("--no-approve");
+  expect(parsed.args).not.toContain("bash,write,edit,webfetch");
+  expect(parsed.args).not.toContain("--no-tools");
+  expect(parsed.skills).toEqual([]);
+});
+
 test("allows builder-owned expert validation and rejects direct expert launch", async () => {
   const authorized = await runLauncher([
     "--agent", "agents/expert/agent.md",

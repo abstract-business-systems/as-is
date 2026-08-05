@@ -861,7 +861,11 @@ const main = async() => {
   const resolved = resolveModel(options.model ?? definition.model, config);
   const model = resolved.model;
   const provider = resolved.provider;
-  const tools = options.tools ?? definition.tools;
+  const isExpertValidation = identity === "expert";
+  // Expert validation is a launcher-owned capability profile, not a caller
+  // supplied tool list. It deliberately has no shell and runs in the caller's
+  // controlled worktree so it can inspect the actual uncommitted diff.
+  const tools = isExpertValidation ? "read,grep,find,ls,git_inspect" : options.tools ?? definition.tools;
   // One launcher-boundary session span: lifecycle metadata only. In
   // particular, never pass prompts, responses, tools, or exception text to it.
   const sessionSpan = startSpan("session.lifecycle", {
@@ -876,7 +880,7 @@ const main = async() => {
   // An agent file may narrow the skill set explicitly. With no `skills` field,
   // preserve the CLI's normal discovery and pass it through by not adding an
   // explicit skill allowlist. Explicit launcher skills remain additive.
-  const skillPaths = definition.skills
+  const skillPaths = isExpertValidation ? [] : definition.skills
     ? uniquePaths([
       ...definition.skills.map((skill) => resolveFromCwd(skill, cwd)),
       ...options.skills.map((skill) => resolveFromCwd(skill, cwd)),
@@ -886,15 +890,18 @@ const main = async() => {
       : [];
   const piInvocation = resolvePi(options.pi, cwd);
   const baseArgs = ["--mode", "json", "--print"];
-  if (options.noSession) baseArgs.push("--no-session");
+  if (isExpertValidation || options.noSession) baseArgs.push("--no-session");
   else baseArgs.push("--session-dir", "<session-dir>");
+  if (isExpertValidation) {
+    baseArgs.push("--no-extensions", "--extension", resolve(cwd, "skills/spawning-pi-subagents/scripts/expert-inspection-extension.ts"));
+  }
   if (provider) baseArgs.push("--provider", provider);
   if (model) baseArgs.push("--model", model);
   if (tools) baseArgs.push("--tools", tools);
-  if (options.noTools) baseArgs.push("--no-tools");
+  if (!isExpertValidation && options.noTools) baseArgs.push("--no-tools");
   if (definition.skills) baseArgs.push("--no-skills");
-  if (options.approve) baseArgs.push("--approve");
-  if (options.noApprove) baseArgs.push("--no-approve");
+  if (!isExpertValidation && options.approve) baseArgs.push("--approve");
+  if (options.noApprove || isExpertValidation) baseArgs.push("--no-approve");
   for (const skillPath of skillPaths) baseArgs.push("--skill", skillPath);
 
   const budget = {
@@ -920,10 +927,10 @@ const main = async() => {
       skills: skillPaths,
       model: model ?? null,
       provider: provider ?? null,
-      sessionPath: options.noSession ? null : "<session-dir>",
+      sessionPath: isExpertValidation || options.noSession ? null : "<session-dir>",
       tools: tools ?? null,
       detach: options.detach ?? false,
-      worktree: !(options.noWorktree ?? false),
+      worktree: isExpertValidation ? false : !(options.noWorktree ?? false),
       budget,
       tracer: {
         backend: process.env.AS_IS_COMPONENT_BUILD_TRACER,
@@ -957,7 +964,9 @@ const main = async() => {
   const bunBin = Bun.which("bun") ?? "bun";
   const jobId = newJobId();
   const launchedAt = new Date().toISOString();
-  const useWorktree = !(options.noWorktree ?? false);
+  // Experts must see the builder's controlled worktree. Other roles retain the
+  // existing isolation default and explicit --no-worktree escape hatch.
+  const useWorktree = isExpertValidation ? false : !(options.noWorktree ?? false);
 
   if (options.detach) {
     const jobDirectory = await mkdtemp(join(tmpdir(), "as-is-child-"));
