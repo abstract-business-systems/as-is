@@ -27,6 +27,18 @@ budget is a stop condition you check after attempting a direct answer, not a
 predictor you must evaluate before acting; do not add intent-classification
 heuristics.
 
+For a single-component mechanical documentation request whose target files and
+literal transformation are already named (for example, removing obsolete
+singular `task:` front matter from durable `as-is.md` files), use the bounded
+mechanical path: read only the named component record and run only the focused
+migration check or command. Do not consult experts, explore broadly, or
+re-delegate when that path is sufficient. This shortcut never applies to
+substantive behavior, ambiguous scope, multiple sources, or work requiring
+domain judgment; those cases retain the normal component-builder and
+validation authority. Enforce a hard 30-second wall-clock deadline for the
+bounded attempt; on expiry stop without retrying, preserve the current
+checkpoint, and report the work incomplete for recovery.
+
 For a status or routing turn that needs repository state, run
 `bun skills/as-is/scripts/orient.ts` once and synthesize or relay from its
 orientation snapshot. For the literal **What's next?** request, route in this

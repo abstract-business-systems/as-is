@@ -1,0 +1,19 @@
+{
+  "boundedMechanicalRequest": {
+    "description": "Remove obsolete singular task: front matter from named durable as-is.md files",
+    "sources": 1,
+    "requiresJudgment": false,
+    "targetFilesNamed": true,
+    "literalTransformationNamed": "remove singular task: front matter",
+    "expectedPath": "bounded-mechanical",
+    "wallClockSeconds": 30
+  },
+  "substantiveRequest": {
+    "description": "Change routing behavior across components",
+    "sources": 2,
+    "requiresJudgment": true,
+    "targetFilesNamed": false,
+    "literalTransformationNamed": "",
+    "expectedPath": "component-builder"
+  }
+}
