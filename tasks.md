@@ -1,9 +1,9 @@
 ---
 as-is-version: 2
 task:
-  status: blocked
+  status: active
   worker: as-is
-  revision: phase-2a-2026-08-06
+  revision: launcher-scope-gate-prerequisite-2026-08-06
   updated: 2026-08-06T00:00:00Z
 constraints:
   cost:
@@ -27,15 +27,15 @@ constraints:
       handoff-integration: 600
   external-effects: require-current-turn-user-approval
 acceptance:
-  - Execute only Phase 2a of the approved skills-agents-separation-migration.
-  - Preserve agent authority, skill non-calling boundaries, generalized subagent flows, explicit dependencies, and durable task-record evidence.
-  - Validate the direct component-builder descendant with expert plan and final-diff gates, integrate only verified commits with caller ancestry evidence, and account for residual risk or blockers.
-  - Stop after Phase 2a; do not start later phases.
+  - Recover only the focused launcher scope-gate prerequisite from caller HEAD e59a120.
+  - Delegate exactly one bounded component-builder descendant with 600-second minimum gates and actual component task-record context.
+  - Integrate only a terminal, expert-gated child commit that passes changed-path and caller-ancestry checks.
+  - Do not implement Phase 2a or create migration artifacts.
 ---
 # Task
 
 ## Requirement
-Implement Phase 2a of the approved `skills-agents-separation-migration` in one direct component-builder descendant. The approved planning handoff is commit `29ce77b`; Phase 1 is integrated through the chain `ea4f032 -> 50fe83c -> 1992ae6`. Root `tasks.md` is the current task authority; backlog entries remain planning indexes.
+Freshly recover only the focused launcher post-child changed-path allowlist and ancestry gate prerequisite from caller HEAD e59a120. Implement through the authorized component task record at `skills/spawning-pi-subagents/tasks.md`; do not implement Phase 2a or create migration artifacts. The approved planning handoff is commit `29ce77b`; Phase 1 is integrated through the chain `ea4f032 -> 50fe83c -> 1992ae6`. Root `tasks.md` is the current task authority; backlog entries remain planning indexes.
 
 ## Baseline reconciliation
 - Baseline HEAD is `1992ae6`.
@@ -84,4 +84,4 @@ No routing/configuration file change is required on this evidence. The smallest 
 Before any recovery, preserve and inspect the cited registry, result, session, and worktree evidence; do not integrate it. Treat `j-msee2iwg-quowh5` as non-integrated and incomplete: no child commit, terminal child record, final expert validation, or integration exists. Recovery requires fresh current-turn user authorization, a new task revision/attempt, and a newly recorded preflight that proves child budget admission, configured-role attribution, handoff/rehearsal readiness, and exact allowlist enforcement. Do not reuse this revision or retry implementation.
 
 ## Next Action
-Remain blocked at Phase 2a. Keep the reconciliation and diagnosis commits on the caller branch. Do not start later phases, launch another component-builder, or integrate migration artifacts.
+Launch the one authorized component-builder descendant from `skills/spawning-pi-subagents/tasks.md`; integrate only after terminal record, expert gates, changed-path diff-check, and caller ancestry verification.
