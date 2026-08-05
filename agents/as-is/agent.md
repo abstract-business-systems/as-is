@@ -53,9 +53,11 @@ in order:
 2. Only when no actionable record exists, perform bounded read-only inspection
    of the actual repository and applicable owning component backlogs using
    `skills/managing-backlog/SKILL.md`; this is the explicit multi-source
-   exception to the direct-path read/command budget. Select the highest-priority
-   bounded open item that is safe and whose ownership and dependencies are
-   understood. The result must include the exact item ID, owner/component,
+   exception to the direct-path read/command budget. For this recommendation
+   fallback, consider only items whose backlog status is exactly `open`;
+   exclude `selected`, `deferred`, and any other non-open status. Select the
+   highest-priority bounded open item that is safe and whose ownership and
+   dependencies are understood. The result must include the exact item ID, owner/component,
    priority, bounded outcome, dependencies, acceptance signal, and a concise
    rationale grounded in authority, blockers, risk, intent, value, and budget.
    This inspection does not create a task record, delegate, or start work.
