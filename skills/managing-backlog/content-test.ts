@@ -22,6 +22,10 @@ const required = [
   "dependency-aware",
   "changing `user preference`",
   "explicit reprioritization request",
+  "## Cleanup Of Implemented Items",
+  "owning `changelog.md`",
+  "cleanupCompletedBacklogs",
+  "Do not infer completion",
 ];
 for (const phrase of required) {
   if (!skill.includes(phrase)) throw new Error(`missing required phrase: ${phrase}`);

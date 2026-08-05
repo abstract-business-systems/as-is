@@ -58,6 +58,13 @@ without abbreviating it. The representation columns are exactly `weight`,
 contract after a fresh Pi validation found a five-column summary that omitted
 description, dependencies, and notes.
 
+Cleanup is evidence-gated and component-owned. `cleanupCompletedBacklogs`
+removes only rows whose exact IDs occur in the owning `changelog.md` alongside a
+completion term; it preserves ambiguous, cross-component, and merely mentioned
+items. It does not replace task-management reconciliation or invent completion
+status. The cleanup command reports each removed item and its evidence for
+review.
+
 ## Links
 
 - `SKILL.md` — authoritative backlog procedure.

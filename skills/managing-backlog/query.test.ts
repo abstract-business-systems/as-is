@@ -1,5 +1,8 @@
 import { expect, test } from "bun:test";
-import { calculateWeights, loadBacklogs, parseBacklog, renderQuery, validateQueryRepresentation } from "./scripts/query";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { calculateWeights, cleanupCompletedBacklogs, findCompletedItems, loadBacklogs, parseBacklog, renderQuery, validateQueryRepresentation } from "./scripts/query";
 
 const schema = `# Backlog\n\n| id | status | user preference | system preference | purpose | description | dependencies | acceptance | notes |\n| --- | --- | ---: | ---: | --- | --- | --- | --- | --- |\n| prerequisite | open | 3 | 1 | Unblock work | Do prerequisite | - | It works | user value |\n| dependent | selected | 2 | 0 | Deliver value | Use prerequisite | skills/managing-backlog:prerequisite | It integrates | selected intentionally |\n`;
 
@@ -54,6 +57,37 @@ test("loads every repository backlog using the same schema", () => {
   expect(items.every((item) => item.id && ["open", "selected", "deferred"].includes(item.status))).toBe(true);
   expect(items.every((item) => Number.isInteger(item.userPreference) && Number.isInteger(item.systemPreference))).toBe(true);
   expect(items.every((item) => item.acceptance !== undefined)).toBe(true);
+});
+
+test("finds completion only when the owning changelog names the item with completion evidence", () => {
+  const items = parseBacklog(schema, "skills/managing-backlog/backlog.md", "skills/managing-backlog");
+  const completed = findCompletedItems(items, new Map([
+    ["skills/managing-backlog", "# Changelog\n- Completed `prerequisite`; validation passed.\n"],
+  ]));
+  expect(completed.map((item) => item.id)).toEqual(["prerequisite"]);
+  expect(completed[0].evidence).toContain("prerequisite");
+});
+
+test("does not remove a stale item from a different component or an unverified changelog", () => {
+  const items = parseBacklog(schema, "skills/managing-backlog/backlog.md", "skills/managing-backlog");
+  expect(findCompletedItems(items, new Map([
+    ["other-component", "- Completed `prerequisite`."],
+    ["skills/managing-backlog", "- Work mentioned prerequisite but remains open."],
+  ]))).toEqual([]);
+});
+
+test("cleans evidenced completed rows and leaves other rows intact", () => {
+  const root = mkdtempSync(join(tmpdir(), "backlog-cleanup-"));
+  const component = join(root, "component");
+  mkdirSync(component);
+  Bun.write(join(component, "as-is.md"), "# Component\n");
+  writeFileSync(join(component, "backlog.md"), schema.replace("skills/managing-backlog/backlog.md", "component/backlog-table-schema"));
+  writeFileSync(join(component, "changelog.md"), "# Changelog\n- Completed `prerequisite`; tests passed.\n");
+  const completed = cleanupCompletedBacklogs(root);
+  expect(completed.map((item) => item.id)).toEqual(["prerequisite"]);
+  const remaining = readFileSync(join(component, "backlog.md"), "utf8");
+  expect(remaining).not.toContain("| prerequisite | open |");
+  expect(remaining).toContain("| dependent | selected |");
 });
 
 test("breaks dependency cycles deterministically", () => {

@@ -90,7 +90,7 @@ The representation produced by a query is the complete requested view:
 
 Use `skills/managing-backlog/scripts/query.ts` for the deterministic query and
 `skills/managing-backlog/query.test.ts` for focused schema, weighting, sorting,
-cycle, representation-column, and repository-shape checks. The representation
+cycle, cleanup-evidence, representation-column, and repository-shape checks. The representation
 omits recording-only preferences and acceptance because it is an at-a-glance
 prioritization view; the source table remains authoritative for those fields.
 For a request such as “Show me the backlog, please.”, run the query and return
@@ -100,6 +100,35 @@ response must include all representation columns, especially `description`,
 `dependencies`, and `notes`; a shortened summary table is not a valid backlog
 representation. Validate a captured response with
 `validateQueryRepresentation` before treating the display as complete.
+
+## Cleanup Of Implemented Items
+
+Backlog cleanup is a separate, evidence-gated operation. It may remove a row
+only when all of the following are true:
+
+| Condition | Required evidence |
+| --- | --- |
+| Ownership | The row belongs to the backlog file's component |
+| Changelog | That component has its configured `changelog.md` |
+| Identity | The changelog explicitly names the exact backlog `id` |
+| Completion | The same changelog evidence uses a completion term such as completed, closed, finished, implemented, validated, or removed |
+| Scope | Only the evidenced row is removed; neighboring rows and changelog history remain unchanged |
+
+Do not infer completion from an old status, a matching description, a commit,
+process exit, or a changelog entry for a similarly named item. If evidence is
+ambiguous or belongs to another component, leave the row in place and report it
+for review. Cleanup is not task management: it does not create completion
+status, rewrite changelogs, or replace the reconciliation requirements above.
+
+Run the deterministic cleanup with:
+
+```bash
+bun skills/managing-backlog/scripts/query.ts --cleanup .
+```
+
+The command reports each removed `component:id` and its changelog evidence. Use
+version control or a focused diff to review the removal before handoff; the
+cleaned item's concise history remains in the owning changelog.
 
 ## Priority And Project Sequence
 

@@ -1,4 +1,4 @@
-import { lstatSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { lstatSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 
 export type BacklogStatus = "open" | "selected" | "deferred";
@@ -18,6 +18,11 @@ export type BacklogItem = {
 };
 
 export type WeightedBacklogItem = BacklogItem & { weight: number };
+
+export type CompletedBacklogItem = BacklogItem & {
+  changelog: string;
+  evidence: string;
+};
 
 const statusWeight: Record<BacklogStatus, number> = {
   open: 0,
@@ -48,10 +53,8 @@ function parseStatus(value: string, source: string): BacklogStatus {
   return value;
 }
 
-/** Parse the stable table schema used by a single backlog file. */
-export function parseBacklog(markdown: string, source = "backlog.md", component = "root"): BacklogItem[] {
-  const lines = markdown.split(/\r?\n/);
-  const headerIndex = lines.findIndex((line) => {
+function itemTableHeaderIndex(lines: string[]): number {
+  return lines.findIndex((line) => {
     if (!line.trim().startsWith("|")) return false;
     const headers = cells(line).map((cell) => cell.toLowerCase());
     return headers.join("|") === [
@@ -59,6 +62,12 @@ export function parseBacklog(markdown: string, source = "backlog.md", component 
       "description", "dependencies", "acceptance", "notes",
     ].join("|");
   });
+}
+
+/** Parse the stable table schema used by a single backlog file. */
+export function parseBacklog(markdown: string, source = "backlog.md", component = "root"): BacklogItem[] {
+  const lines = markdown.split(/\r?\n/);
+  const headerIndex = itemTableHeaderIndex(lines);
   if (headerIndex < 0) throw new Error(`${source}: backlog item table is missing or has the wrong schema`);
   if (headerIndex + 1 >= lines.length || !/^\|?\s*:?-{3,}/.test(lines[headerIndex + 1].trim())) {
     throw new Error(`${source}: backlog table is missing its separator row`);
@@ -166,7 +175,7 @@ export function renderQuery(items: WeightedBacklogItem[]): string {
   return lines.join("\n");
 }
 
-function backlogFiles(directory: string): string[] {
+function repositoryFiles(directory: string, filename: string): string[] {
   const result: string[] = [];
   for (const entry of readdirSync(directory)) {
     if (entry === ".git" || entry === "node_modules") continue;
@@ -178,10 +187,14 @@ function backlogFiles(directory: string): string[] {
     } catch {
       continue;
     }
-    if (stat.isDirectory()) result.push(...backlogFiles(path));
-    else if (entry === "backlog.md") result.push(path);
+    if (stat.isDirectory()) result.push(...repositoryFiles(path, filename));
+    else if (entry === filename) result.push(path);
   }
   return result;
+}
+
+function backlogFiles(directory: string): string[] {
+  return repositoryFiles(directory, "backlog.md");
 }
 
 export function componentForBacklog(root: string, file: string): string {
@@ -192,6 +205,45 @@ export function componentForBacklog(root: string, file: string): string {
   return directory || "root";
 }
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&");
+}
+
+function isCompletionEvidence(line: string): boolean {
+  if (!/\b(added|closed|completed|created|finished|implemented|introduced|removed|validated)\b/i.test(line)) return false;
+  return !/\b(no|not|never|unimplemented|remains?)\b.{0,50}\b(added|closed|completed|created|finished|implemented|introduced|removed|validated)\b/i.test(line) &&
+    !/\b(deferred|pending|open)\b/i.test(line);
+}
+
+export function findCompletedItems(
+  items: BacklogItem[],
+  changelogs: Map<string, string>,
+): CompletedBacklogItem[] {
+  return items.flatMap((item) => {
+    const changelog = changelogs.get(item.component);
+    const itemPattern = new RegExp(`(^|[^a-z0-9-])${escapeRegExp(item.id)}(?=[^a-z0-9-]|$)`, "i");
+    if (!changelog || !itemPattern.test(changelog)) return [];
+    const evidence = changelog.split(/\r?\n/).find((line) => itemPattern.test(line) && isCompletionEvidence(line));
+    return evidence ? [{ ...item, changelog: item.component, evidence }] : [];
+  });
+}
+
+/** Remove only rows whose completion is evidenced by the owning changelog. */
+export function removeCompletedRows(markdown: string, completedIds: Set<string>): string {
+  if (completedIds.size === 0) return markdown;
+  const lines = markdown.split(/\r?\n/);
+  const headerIndex = itemTableHeaderIndex(lines);
+  if (headerIndex < 0) return markdown;
+  const output = [...lines];
+  let index = headerIndex + 2;
+  while (index < output.length && output[index].trim().startsWith("|")) {
+    const row = cells(output[index]).map(unescapeCell);
+    if (row.length === 9 && completedIds.has(row[0])) output.splice(index, 1);
+    else index += 1;
+  }
+  return output.join("\n");
+}
+
 export function loadBacklogs(root: string): BacklogItem[] {
   return backlogFiles(root).flatMap((file) => parseBacklog(
     readFileSync(file, "utf8"),
@@ -200,7 +252,33 @@ export function loadBacklogs(root: string): BacklogItem[] {
   ));
 }
 
+export function loadChangelogs(root: string): Map<string, string> {
+  return new Map(repositoryFiles(root, "changelog.md").map((file) => {
+    const relativePath = relative(root, file);
+    const component = relativePath.endsWith("/changelog.md")
+      ? relativePath.slice(0, -"/changelog.md".length)
+      : relativePath.slice(0, -"changelog.md".length);
+    return [component || "root", readFileSync(file, "utf8")];
+  }));
+}
+
+export function cleanupCompletedBacklogs(root: string): CompletedBacklogItem[] {
+  const completed = findCompletedItems(loadBacklogs(root), loadChangelogs(root));
+  for (const file of backlogFiles(root)) {
+    const component = componentForBacklog(root, file);
+    const ids = new Set(completed.filter((item) => item.component === component).map((item) => item.id));
+    if (ids.size > 0) writeFileSync(file, removeCompletedRows(readFileSync(file, "utf8"), ids));
+  }
+  return completed;
+}
+
 if (import.meta.main) {
-  const root = resolve(process.argv[2] ?? process.cwd());
-  console.log(renderQuery(calculateWeights(loadBacklogs(root))));
+  const rootArgument = process.argv.find((argument, index) => index >= 2 && argument !== "--cleanup");
+  const root = resolve(rootArgument ?? process.cwd());
+  if (process.argv.includes("--cleanup")) {
+    const completed = cleanupCompletedBacklogs(root);
+    console.log(completed.map((item) => `${item.component}:${item.id} — ${item.evidence}`).join("\n") || "No changelog-evidenced completed backlog items found.");
+  } else {
+    console.log(renderQuery(calculateWeights(loadBacklogs(root))));
+  }
 }
