@@ -64,10 +64,14 @@ invent alternate names. A directory with
 component boundary. Components link to relevant files and folders from their
 `as-is.md`; a change crossing a child component boundary is delegated to a new
 component-builder task. Reusable skills define operational behavior, flow,
-and lifecycle logic, so system functionality can be modified by changing the
-applicable skills without rewriting the core component model. Agents define
-roles, authority boundaries, and responsibility; they do not duplicate reusable
-flow logic.
+and lifecycle logic, so system functionality can be modified by changing applicable skills without
+rewriting the core component model. Agents are the authority-bearing
+composition layer: they utilize skills and define roles, permissions,
+authority boundaries, and responsibility. Skills never call, launch, or
+delegate to agents. Subagents are generalized independent workers that may
+support implementation, research, review, planning, recovery, or other bounded
+flows—not only jobs. Workflows and orchestrators compose agents and skills
+without transferring agent authority into a skill.
 
 ## Structure
 

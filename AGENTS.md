@@ -40,9 +40,17 @@ this repository.
 
 ## Agents And Skills
 
-- An agent role combines skills, permissions, tools, and a bounded
-  responsibility. Skills remain reusable procedures; roles do not redefine
-  their shared policy.
+- Agents are the authority-bearing composition layer: an agent role combines
+  reusable skills with permissions, tools, model settings, and bounded
+  responsibility. Agents utilize skills; skills never call, launch, or
+  delegate to agents.
+- Skills remain focused, reusable procedures and may be composed by an agent or
+  workflow. A skill may describe a handoff or subagent contract as an input or
+  output, but authority to select, launch, observe, recover, or cancel a
+  subagent belongs to the agent/orchestrator layer.
+- Subagents are generalized independent workers. They may support any bounded
+  flow requiring an agent boundary—implementation, research, review, planning,
+  recovery, or another approved workflow—not only job execution.
 - Delegate independent, bounded work only when it has a clear input, expected
   output, and verification boundary. Preserve the result in repository context
   before dependent work proceeds. Delegation, scoping, completion gates, and

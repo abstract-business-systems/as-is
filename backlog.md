@@ -1,11 +1,13 @@
 # Backlog
 
-This is a planning index, not task authority. Active work is owned by the
-relevant component `task.md`; durable component context remains in `as-is.md`.
+This is a planning index, not task authority. Active root work is owned by
+`tasks.md`; durable component context remains in `as-is.md`. Component task
+records use the configured filename, currently `tasks.md`.
 Completed items are removed after their concise summary is recorded in the
 owning component's `changelog.md`; this index retains only open or deferred
-items. Record filenames default to `backlog.md`, `changelog.md`, and `task.md`
-and are configurable through `config.records.filenames` in root `as-is.md`.
+items. Record filenames are configured through `config.records.filenames` in
+root `as-is.md`; this repository uses `backlog.md`, `changelog.md`, and
+`tasks.md`.
 
 ## Items
 
@@ -23,6 +25,8 @@ Remaining root-owned planning items:
 
 | ID | Priority | Component | Status | Outcome | Approach |
 | --- | --- | --- | --- | --- | --- |
+| skills-agents-separation-plan | High | root | planned | Produce and approve the phased migration plan for authority-safe separation of reusable skills, agent composition, and generalized subagent flows; planning only. | Root `tasks.md` is the sole current authority. Map inventory/contracts first, then plan root orchestration extraction, building-components extraction, generalized runtime flows, composition/authority validation, and documentation reconciliation. No implementation is authorized by this backlog item. |
+| skills-agents-separation-migration | Medium | root | deferred | Implement the approved separation in bounded descendant tasks only after the planning record establishes contracts, dependencies, and acceptance evidence. | Depends on `skills-agents-separation-plan`; requires explicit activation in a new root task record and component-owned child records. |
 
 
 
@@ -39,7 +43,7 @@ Remaining root-owned planning items:
 
 | Decision | Rule |
 | --- | --- |
-| Authority | This file is a planning index; active state belongs to component `task.md`. |
+| Authority | This file is a planning index; active root state belongs to the root `tasks.md`; other components use their configured local task record. |
 | Hierarchy | A descendant backlog does not authorize changes to this backlog's scope, an ancestor, a sibling, or a shared boundary. Broader structural or authority decisions must be recorded in the nearest affected ancestor backlog; descendant backlogs may hold linked bounded follow-ups only after that decision. |
 | Context | Component purpose and design belong to component `as-is.md`. |
 | History | Completed summaries belong to component `changelog.md`. |
