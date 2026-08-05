@@ -95,6 +95,28 @@ test("allows component-builder launches from as-is", async () => {
     "--dry-run",
   ]);
   expect(result.exitCode).toBe(0);
+  const parsed = JSON.parse(result.stdout);
+  expect(parsed.args).toContain("--no-extensions");
+  expect(parsed.args).toContain("--extension");
+  expect(parsed.args).toContain(`${process.cwd()}/.pi/extensions/worker-tools.ts`);
+  expect(parsed.tools).toContain("call_subagent");
+  expect(parsed.args).toContain("call_subagent");
+});
+
+test("normal component-builder launches forward the bounded in-process gate budget", async () => {
+  const result = await runLauncher([
+    "--agent", "agents/component-builder/agent.md",
+    "--task", "Authorized implementation launch.",
+    "--cwd", process.cwd(),
+    "--caller", "as-is",
+    "--budget-wall-clock-seconds", "900",
+    "--dry-run",
+  ]);
+  expect(result.exitCode).toBe(0);
+  const parsed = JSON.parse(result.stdout);
+  expect(parsed.args).toContain(`${process.cwd()}/.pi/extensions/worker-tools.ts`);
+  expect(parsed.tools).toContain("call_subagent");
+  expect(parsed.budget["wall-clock-seconds"]).toBe(900);
 });
 
 test("expert validation uses the fixed read-only same-worktree capability profile", async () => {
@@ -117,6 +139,7 @@ test("expert validation uses the fixed read-only same-worktree capability profil
   expect(parsed.sessionPath).toBe(null);
   expect(parsed.args).toContain("--no-extensions");
   expect(parsed.args).toContain("--no-approve");
+  expect(parsed.args).not.toContain(`${process.cwd()}/.pi/extensions/worker-tools.ts`);
   expect(parsed.args).not.toContain("bash,write,edit,webfetch");
   expect(parsed.args).not.toContain("--no-tools");
   expect(parsed.skills).toEqual([]);

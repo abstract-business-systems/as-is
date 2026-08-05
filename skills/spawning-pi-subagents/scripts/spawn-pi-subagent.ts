@@ -865,7 +865,12 @@ const main = async() => {
   // Expert validation is a launcher-owned capability profile, not a caller
   // supplied tool list. It deliberately has no shell and runs in the caller's
   // controlled worktree so it can inspect the actual uncommitted diff.
-  const tools = isExpertValidation ? "read,grep,find,ls,git_inspect" : options.tools ?? definition.tools;
+  const requestedTools = options.tools ?? definition.tools;
+  const tools = isExpertValidation
+    ? "read,grep,find,ls,git_inspect"
+    : identity === "component-builder"
+      ? [...new Set([...(requestedTools?.split(",") ?? []), "call_subagent"])].join(",")
+      : requestedTools;
   // One launcher-boundary session span: lifecycle metadata only. In
   // particular, never pass prompts, responses, tools, or exception text to it.
   const sessionSpan = startSpan("session.lifecycle", {
@@ -894,6 +899,11 @@ const main = async() => {
   else baseArgs.push("--session-dir", "<session-dir>");
   if (isExpertValidation) {
     baseArgs.push("--no-extensions", "--extension", resolve(cwd, "skills/spawning-pi-subagents/scripts/expert-inspection-extension.ts"));
+  } else {
+    // Explicitly load only the trusted project-local worker/expert tool
+    // extension. Disable discovery so project settings cannot load the same
+    // extension twice in an isolated child worktree.
+    baseArgs.push("--no-extensions", "--extension", resolve(cwd, ".pi/extensions/worker-tools.ts"));
   }
   if (provider) baseArgs.push("--provider", provider);
   if (model) baseArgs.push("--model", model);

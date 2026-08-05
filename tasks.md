@@ -1,9 +1,9 @@
 ---
 as-is-version: 2
 task:
-  status: blocked
+  status: completed
   worker: as-is
-  revision: authority-alignment-2026-08-08-r1
+  revision: authority-alignment-2026-08-08-r3
   updated: 2026-08-08T00:00:00Z
 constraints:
   cost:
@@ -46,21 +46,21 @@ Park the blocked Phase 2a implementation permanently for this revision and begin
 4. Read the terminal child record, verify focused checks, changed scope, and ancestry, then integrate only the verified child commit. If the in-process extension/tool is unavailable or evidence is not durable, record a blocker and do not substitute subprocess worker/expert calls.
 
 ## Progress
-Fresh revision was authorized and exactly one component-builder attempt was launched from the actual component task record. The child stopped before implementation because the delegated Pi process did not expose the required in-process `call_subagent` extension/tool. Phase 2a remains parked; no prior Phase 2a worktree or commit was retried or integrated.
+Fresh revision r3 was authorized from caller HEAD `58a0fc3`. Exactly one component-builder attempt ran from caller `as-is` with parent job `caller-ad7825d`, producing source commit `992c10abf1f0f5b02795dbc6e1468d662cc77b9c`. The parent independently verified its scoped diff and integrated the durable handoff as `650342c`. Phase 2a remains parked; no prior Phase 2a worktree or commit was retried or integrated.
 
 ## Validation
-`git diff --check` passed and the final orientation snapshot was run. No child handoff, implementation, expert gates, or commit exists; changed-path and ancestry integration checks are intentionally not applicable.
+Terminal child handoff: commit `992c10abf1f0f5b02795dbc6e1468d662cc77b9c`, exit 0, 149.285 seconds, `pending-parent-integration`; terminal record was removed by the child completion procedure and its concise summary is in `agents/component-builder/changelog.md`. The child reported attributable in-process expert plan/final gates, no descendants, and scoped validation. Parent inspected the child commit: it changed only `agents/component-builder/agent.md`, added `agents/component-builder/changelog.md`, and removed the transient task record. Parent integrated the related source commits as `a571633` (task-record retirement) and `650342c` (contract/changelog handoff); `650342c` is caller-ancestral, `git diff --check` passes, focused launcher tests (18) and launcher build pass, final orientation completed, and the caller worktree is clean.
 
 ## Result
-Blocked. The selected authority-alignment task was not implemented because the required in-process `call_subagent` path was unavailable. No unverified work was integrated.
+Completed. Component-builder now owns semantic completion, uses in-process `call_subagent` for same-component implementation assistance and expert plan/advice/final validation, and reserves `spawning-pi-subagents` for separately owned component boundaries. Source child commit `992c10ab` was mechanically integrated into caller history as `650342c` after scope, validation, and ancestry checks.
 
 ## Blockers And Escalations
-Durable blocker from the authorized child: `call_subagent` was unavailable in the active delegated Pi extension/tool path. Required in-process implementation assistance and expert plan/final gates could not run or be attributed. No subprocess fallback, retry, or unverified integration was performed. The child returned without a commit; isolated recovery evidence is non-integrated.
+No active blocker for r3. Historical r1/r2 launcher/tool-path failures remain preserved below as evidence only. Historical Phase 2a remains explicitly parked and non-retryable.
 
 Historical Phase 2a blocker (parked, not retryable): prior direct component-builder attempts returned without terminal records, expert gates, or commits; preserved evidence and job identifiers remain in the previous root task history and Git history. The authorized Phase 2a implementation is explicitly deferred and must not be restarted in this revision. Historical launcher-prerequisite blockers remain evidence only; no prior preserved worktree is an integration source.
 
 ## Recovery
-A blocked or budget-stopped child remains non-terminal and must be accounted for here. Preserve its component worktree and record the exact missing gate, budget observation, and next safe action. Recovery requires a new task revision and explicit authorization; it must not retry Phase 2a.
+Completed handoff is recoverable from source commit `992c10abf1f0f5b02795dbc6e1468d662cc77b9c`, parent bookkeeping commit `a571633`, and caller integration commit `650342c`. The caller worktree is clean. Do not reopen r3 or recover prior uncommitted worktrees.
 
 ## Next Action
-Remain blocked pending a host/tool-path correction that exposes in-process `call_subagent`; then authorize a new revision. Phase 2a and migration phases remain parked/deferred.
+No further action within this completed r3 task. Keep Phase 2a and migration deferred; any later work requires a new authorized root task revision.

@@ -22,6 +22,7 @@ const rolePaths = {
 } as const;
 const maxResultCharacters = 12_000;
 const defaultTimeoutMs = 60_000;
+const maximumTimeoutMs = 900_000;
 
 type TraceContext = {
   traceId?: string;
@@ -70,6 +71,43 @@ async function readTraceEvents(cwd: string): Promise<TraceEvent[]> {
 function boundedJson(value: unknown): string {
   return JSON.stringify(value, null, 2).slice(0, maxResultCharacters);
 }
+
+const gitInspectionOperations = {
+  status: ["status", "--short"],
+  diff: ["diff", "--no-ext-diff", "--"],
+  diffCheck: ["diff", "--check", "--no-ext-diff", "--"],
+  head: ["log", "-1", "--oneline", "--decorate"],
+} as const;
+
+async function runGitInspection(cwd: string, operation: keyof typeof gitInspectionOperations): Promise<string> {
+  const proc = Bun.spawn(["git", "-C", cwd, ...gitInspectionOperations[operation]], {
+    cwd,
+    stdin: "ignore",
+    stdout: "pipe",
+    stderr: "pipe",
+  });
+  const [stdout, stderr] = await Promise.all([
+    new Response(proc.stdout).text(),
+    new Response(proc.stderr).text(),
+  ]);
+  const code = await proc.exited;
+  if (code !== 0) throw new Error(`git inspection failed (${code}): ${stderr.trim()}`);
+  return stdout.slice(0, 100_000);
+}
+
+const gitInspectTool: ToolDefinition = {
+  name: "git_inspect",
+  label: "Git inspection",
+  description: "Read-only bounded Git evidence: status, scoped diff, diff check, or HEAD summary.",
+  parameters: Type.Object({
+    operation: Type.Union([
+      Type.Literal("status"), Type.Literal("diff"), Type.Literal("diffCheck"), Type.Literal("head"),
+    ]),
+  }),
+  async execute(_id, params, _signal, _update, ctx) {
+    return { content: [{ type: "text", text: await runGitInspection(ctx.cwd, params.operation) }], details: {} };
+  },
+};
 
 const traceQueryTools: ToolDefinition[] = [
   {
@@ -189,7 +227,7 @@ const callSubagent: ToolDefinition = {
   parameters: Type.Object({
     role: Type.Optional(Type.Union([Type.Literal("worker"), Type.Literal("expert")])),
     task: Type.String({ description: "One bounded read-only question or investigation." }),
-    timeoutMs: Type.Optional(Type.Integer({ minimum: 1_000, maximum: 120_000 })),
+    timeoutMs: Type.Optional(Type.Integer({ minimum: 1_000, maximum: maximumTimeoutMs })),
     traceId: Type.Optional(Type.String()),
     runId: Type.Optional(Type.String()),
   }),
@@ -229,9 +267,11 @@ const callSubagent: ToolDefinition = {
         cwd,
         model: ctx.model,
         resourceLoader: createWorkerLoader(role),
-        tools: ["read", "grep", "find", "ls"],
+        tools: roleName === "expert"
+          ? ["read", "grep", "find", "ls", "git_inspect"]
+          : ["read", "grep", "find", "ls"],
         sessionManager: SessionManager.inMemory(cwd),
-        customTools: traceQueryTools,
+        customTools: roleName === "expert" ? [gitInspectTool] : traceQueryTools,
       });
       worker = result.session;
 

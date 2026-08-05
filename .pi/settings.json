@@ -1,4 +1,5 @@
 {
+  "extensions": ["./extensions/worker-tools.ts"],
   "skills": [
     "../skills/as-is",
     "../skills/committing-completed-work",
