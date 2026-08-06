@@ -1,5 +1,14 @@
 # Changelog
 
+- Completed `frontmatter-authoritative-tool-admission`: ordinary launcher tool
+  admission now comes from agent front matter, conflicting caller overrides and
+  unsupported/empty declarations are rejected, missing declarations emit an
+  explicit empty tool set, identity-based injection was removed, and the fixed
+  expert profile remains launcher-owned. Focused launcher tests (26 passed),
+  Bun build, `git diff --check`, and a real configured-provider smoke call all
+  passed. Residual risk: roles without declarations need separate contract
+  updates to gain tools; real validation used a harmless model call only.
+
 - 2026-08-06: Replaced the temporary expert bash allowance with a launcher-owned bounded inspection profile. Builder-attributed experts now validate the actual same worktree through only the fixed `git_inspect` status/scoped-diff/diff-check/HEAD operations, with no shell, mutation, web, raw session, delegation, authority, or caller capability overrides. Added deterministic profile/authorization coverage; 17 focused launcher tests passed, Bun build and `git diff --check` passed. Same-worktree expert plan and final validations passed; final validation marked the implementation safe to commit. Residual risk: no live provider execution.
 
 - 2026-08-03: Added a dependency-free adaptive-session-budgeting record validation and lifecycle-transition module for authorization/lease, checkpoint, and checkpoint-operation records. It enforces closed fields, core identity/schema/accounting bounds, required failure data, and documented fail-closed transitions without process control, IPC, session reads/analysis, resume/fork, extension, or cleanup behavior. Focused tests (2 passed), Bun build, and `git diff --check` passed; same-worktree expert plan/final validations passed, with final validation declaring the implementation safe to commit. Residual risk: persistence, temporal semantics, idempotency storage, retention-reference checks, and runtime integration remain future work; dynamic-expert-validation-access remains read-only and open.

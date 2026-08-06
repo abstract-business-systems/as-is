@@ -86,7 +86,7 @@ test("rejects component-builder launches from an unauthorized caller", async () 
   expect(result.stderr).toContain("delegation decisions belong to as-is");
 });
 
-test("allows component-builder launches from as-is", async () => {
+test("allows component-builder launches without identity-based tool injection", async () => {
   const result = await runLauncher([
     "--agent", "agents/component-builder/agent.md",
     "--task", "Authorized implementation launch.",
@@ -98,12 +98,11 @@ test("allows component-builder launches from as-is", async () => {
   const parsed = JSON.parse(result.stdout);
   expect(parsed.args).toContain("--no-extensions");
   expect(parsed.args).toContain("--extension");
-  expect(parsed.args).toContain(`${process.cwd()}/.pi/extensions/worker-tools.ts`);
-  expect(parsed.tools).toContain("call_subagent");
-  expect(parsed.args.join(" ")).toContain("call_subagent");
+  expect(parsed.args.join(" ")).not.toContain("call_subagent");
+  expect(parsed.tools).toBe(null);
 });
 
-test("component-builder launches retain its standard tools alongside call_subagent", async () => {
+test("component-builder launches do not receive identity-based fallback tools", async () => {
   const result = await runLauncher([
     "--agent", "agents/component-builder/agent.md",
     "--task", "Authorized implementation launch.",
@@ -113,11 +112,9 @@ test("component-builder launches retain its standard tools alongside call_subage
   ]);
   expect(result.exitCode).toBe(0);
   const parsed = JSON.parse(result.stdout);
-  expect(parsed.tools).toContain("read");
-  expect(parsed.tools).toContain("bash");
-  expect(parsed.tools).toContain("edit");
-  expect(parsed.tools).toContain("write");
-  expect(parsed.tools).toContain("call_subagent");
+  expect(parsed.tools).toBe(null);
+  expect(parsed.args).not.toContain("--tools");
+  expect(parsed.args.join(" ")).not.toContain("call_subagent");
 });
 
 test("normal component-builder launches forward the bounded in-process gate budget", async () => {
@@ -132,7 +129,8 @@ test("normal component-builder launches forward the bounded in-process gate budg
   expect(result.exitCode).toBe(0);
   const parsed = JSON.parse(result.stdout);
   expect(parsed.args).toContain(`${process.cwd()}/.pi/extensions/worker-tools.ts`);
-  expect(parsed.tools).toContain("call_subagent");
+  expect(parsed.tools).toBe(null);
+  expect(parsed.args).toContain("--no-tools");
   expect(parsed.budget["wall-clock-seconds"]).toBe(900);
 });
 
@@ -179,7 +177,7 @@ test("execution advisor launches use its frontmatter tool set and skills", async
   expect(parsed.skills).toContain(`${process.cwd()}/skills/context-building`);
 });
 
-test("execution advisor forwards caller tool override as the documented launcher input", async () => {
+test("rejects caller tool overrides for front-matter-authoritative roles", async () => {
   const result = await runLauncher([
     "--agent", "agents/execution-advisor/agent.md",
     "--task", "Inspect bounded execution evidence.",
@@ -188,10 +186,62 @@ test("execution advisor forwards caller tool override as the documented launcher
     "--tools", "read,analyze_session",
     "--dry-run",
   ]);
-  expect(result.exitCode).toBe(0);
-  const parsed = JSON.parse(result.stdout);
-  expect(parsed.tools).toBe("read,analyze_session");
-  expect(parsed.args).toContain("read,analyze_session");
+  expect(result.exitCode).toBe(1);
+  expect(result.stderr).toContain("--tools is not accepted");
+});
+
+test("rejects no-tools overrides for front-matter-authoritative roles", async () => {
+  const result = await runLauncher([
+    "--agent", "agents/execution-advisor/agent.md",
+    "--task", "Inspect bounded execution evidence.",
+    "--cwd", process.cwd(),
+    "--caller", "user",
+    "--no-tools",
+    "--dry-run",
+  ]);
+  expect(result.exitCode).toBe(1);
+  expect(result.stderr).toContain("--no-tools is not accepted");
+});
+
+test("rejects unsupported declared tools before launch", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "as-is-tools-test-"));
+  try {
+    const agent = join(dir, "agent.md");
+    writeFileSync(agent, ["---", "name: execution-advisor", "mode: subagent", "tools: read,unknown_tool", "---", "Return ok."].join("\n"));
+    const result = await runLauncher([
+      "--agent", agent, "--task", "Tool declaration test.", "--cwd", process.cwd(), "--caller", "user", "--dry-run",
+    ]);
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain("unsupported tools unknown_tool");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("uses an explicit empty tool set when declaration is missing", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "as-is-tools-missing-test-"));
+  try {
+    const agent = join(dir, "agent.md");
+    writeFileSync(agent, ["---", "name: execution-advisor", "mode: subagent", "---", "Return ok."].join("\n"));
+    const result = await runLauncher([
+      "--agent", agent, "--task", "Tool declaration test.", "--cwd", process.cwd(), "--caller", "user", "--dry-run",
+    ]);
+    expect(result.exitCode).toBe(0);
+    const parsed = JSON.parse(result.stdout);
+    expect(parsed.tools).toBe(null);
+    expect(parsed.args).toContain("--no-tools");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("rejects empty declared tools before launch", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "as-is-tools-empty-test-"));
+  try {
+    const agent = join(dir, "agent.md");
+    writeFileSync(agent, ["---", "name: execution-advisor", "mode: subagent", "tools: []", "---", "Return ok."].join("\n"));
+    const result = await runLauncher([
+      "--agent", agent, "--task", "Tool declaration test.", "--cwd", process.cwd(), "--caller", "user", "--dry-run",
+    ]);
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain("tools declaration is empty");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
 test("rejects execution advisor launch from an unauthorized worker caller", async () => {

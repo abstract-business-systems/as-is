@@ -402,6 +402,24 @@ const resolvePi = (requested: string | undefined, cwd: string): PiInvocation => 
 
 const uniquePaths = (paths: string[]): string[] => [...new Set(paths.map((path) => resolve(path)))];
 
+const supportedToolNames = new Set([
+  "read", "write", "edit", "bash", "grep", "find", "ls", "webfetch", "websearch",
+  "call_subagent", "git_inspect", "search_traces", "get_trace", "summarize_trace",
+  "compare_traces", "analyze_session",
+]);
+
+const parseDeclaredTools = (value: string | undefined, agentPath: string): string | undefined => {
+  if (value === undefined) return undefined;
+  const normalized = value.trim();
+  if (normalized === "[]" || normalized === "") throw new Error(`Agent tools declaration is empty: ${agentPath}`);
+  const names = normalized.split(",").map((name) => name.trim()).filter(Boolean);
+  if (names.length === 0) throw new Error(`Agent tools declaration is empty: ${agentPath}`);
+  const unsupported = names.filter((name) => !supportedToolNames.has(name));
+  if (unsupported.length > 0)
+    throw new Error(`Agent declares unsupported tools ${unsupported.join(", ")}: ${agentPath}`);
+  return [...new Set(names)].join(",");
+};
+
 const newJobId = (): string =>
   `j-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -867,12 +885,15 @@ const main = async() => {
   // Expert validation is a launcher-owned capability profile, not a caller
   // supplied tool list. It deliberately has no shell and runs in the caller's
   // controlled worktree so it can inspect the actual uncommitted diff.
-  const requestedTools = options.tools ?? definition.tools;
-  const tools = isExpertValidation
-    ? "read,grep,find,ls,git_inspect"
-    : identity === "component-builder"
-      ? [...new Set([...(requestedTools?.split(",") ?? ["read", "grep", "find", "ls", "bash", "edit", "write"]), "call_subagent"])].join(",")
-      : requestedTools;
+  const declaredTools = parseDeclaredTools(definition.tools, agentPath);
+  if (!isExpertValidation && options.tools)
+    throw new Error(`--tools is not accepted; declare tools in agent front matter: ${agentPath}`);
+  if (!isExpertValidation && options.noTools)
+    throw new Error(`--no-tools is not accepted; declare the role's tool policy in agent front matter: ${agentPath}`);
+  // Ordinary roles receive exactly the declared set. A missing declaration is
+  // represented by an explicit empty capability set, never Pi defaults or an
+  // identity-specific fallback.
+  const tools = isExpertValidation ? "read,grep,find,ls,git_inspect" : declaredTools;
   // One launcher-boundary session span: lifecycle metadata only. In
   // particular, never pass prompts, responses, tools, or exception text to it.
   const sessionSpan = startSpan("session.lifecycle", {
@@ -910,7 +931,7 @@ const main = async() => {
   if (provider) baseArgs.push("--provider", provider);
   if (model) baseArgs.push("--model", model);
   if (tools) baseArgs.push("--tools", tools);
-  if (!isExpertValidation && options.noTools) baseArgs.push("--no-tools");
+  else if (!isExpertValidation) baseArgs.push("--no-tools");
   if (definition.skills) baseArgs.push("--no-skills");
   if (!isExpertValidation && options.approve) baseArgs.push("--approve");
   if (options.noApprove || isExpertValidation) baseArgs.push("--no-approve");

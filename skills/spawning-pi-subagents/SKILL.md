@@ -26,7 +26,8 @@ The launcher accepts:
   `.agents/agents` tree is reserved for client-host projection semantics;
 - one task string;
 - the repository working directory;
-- optional Pi model, tool, approval, and additional skill settings;
+- optional Pi model, approval, and additional skill settings; ordinary tool
+  admission comes only from the selected agent file's `tools:` front matter;
 - optional wall-clock and monetary-cost budget constraints.
 
 ### Budget Surface
@@ -52,15 +53,20 @@ stderr marker of the form
 status `124`. A zero or unset budget disables enforcement.
 
 The launcher extracts the agent file body and passes it to Pi as an appended
-system prompt. It reads simple `model:` and `tools:` front-matter values when
-present. Model policy is resolved from the root `as-is.md` `config.agents`
-section: `defaultModel`, `provider`, and the named `models` map. Supported
-project presets are `small`, `medium`, `large`, and `xlarge`; the resulting
-model value and provider are passed explicitly to Pi. The launcher does not
-read model or provider policy from OpenCode configuration or environment
-variables; those are not system configuration sources. OpenCode-specific front matter such as `permission:` is not a Pi
-permission mechanism; the explicit Pi tool and approval options are the host
-controls.
+system prompt. For ordinary roles, the agent file's `tools:` front matter is
+the authoritative capability declaration: caller `--tools` and `--no-tools`
+overrides are rejected, missing declarations produce no implicit tool set, and
+unsupported declarations fail before Pi starts. The launcher does not add tools
+because of an agent identity. The `expert` validation role is the sole
+launcher-owned exception and always receives the fixed read-only
+`read,grep,find,ls,git_inspect` profile. Model policy is resolved from the root
+`as-is.md` `config.agents` section: `defaultModel`, `provider`, and the named
+`models` map. Supported project presets are `small`, `medium`, `large`, and
+`xlarge`; the resulting model value and provider are passed explicitly to Pi.
+The launcher does not read model or provider policy from OpenCode configuration
+or environment variables; those are not system configuration sources.
+OpenCode-specific front matter such as `permission:` is not a Pi permission
+mechanism; explicit Pi approval flags remain host controls.
 
 ## Invocation
 
@@ -69,7 +75,6 @@ bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
   --agent agents/component-builder/agent.md \
   --task "Delegate the bounded component task recorded in the named component as-is.md." \
   --cwd "$PWD" \
-  --tools read,grep,find,ls,bash,edit,write \
   --approve
 ```
 
