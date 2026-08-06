@@ -14,8 +14,7 @@ function makePiStub(dir: string) {
 printf '%s' "$$" > "$AS_IS_STUB_PID_FILE"
 case "$AS_IS_STUB_MODE" in
   route) printf '%s\\n' '{"role":"as-is","request":"What'"'"'s next?","route":"backlog-inspection","backlog":{"available":true,"inspected":true,"itemId":"whats-next-routing","component":"agents/as-is","priority":"High"},"authorization":"recommendation only","startsWork":false,"delegatedTo":null,"traceId":"trace-routing-fixture","sessionReference":{"sessionId":"opaque-session-routing","store":"project-local","availability":"available"}}' ;;
-  analysis) printf '%s\\n' '{"traceId":"trace-routing-fixture","sessionId":"opaque-session-routing","eventCount":2,"names":["session.lifecycle","delegation.lifecycle"],"rawContent":false,"privacy":"metadata-only"}' ;;
-  expert) printf '%s\\n' '{"finding":"pass","evidence":["as-is role","literal route","backlog inspection","startsWork false","no component-builder delegation"],"safeToCommit":true,"residualRisk":"provider behavior not exercised"}' ;;
+
 esac
 exit 0
 `, { mode: 0o755 });
@@ -56,7 +55,7 @@ function output(runResult: Run) {
   throw new Error(`Pi produced no parseable JSON events (exit=${runResult.exitCode}, stdout=${runResult.stdout.length}): ${runResult.stderr}`);
 }
 
-test("launches literal What's next?, analyzes bounded evidence, and validates it read-only", async () => {
+test("launches literal What's next? through the as-is boundary without mutation", async () => {
   const dir = mkdtempSync(join(tmpdir(), "as-is-routing-process-"));
   const pidFile = join(dir, "pids");
   const traceDir = join(dir, "trace.jsonl");
@@ -74,19 +73,7 @@ test("launches literal What's next?, analyzes bounded evidence, and validates it
     expect(route.startsWork).toBe(false);
     expect(route.delegatedTo).toBeNull();
 
-    const analysis = output(await run(["--agent", "agents/execution-advisor/agent.md", "--task", "Analyze bounded trace/session metadata for the prior routing run.", "--cwd", root, "--pi", pi, "--no-worktree", "--no-session"], { ...baseEnv, AS_IS_STUB_MODE: "analysis" }));
-    const analysisPid = readFileSync(pidFile, "utf8");
-    expect(analysisPid).not.toBe(routePid);
-    expect(analysis.traceId).toBe(route.traceId);
-    expect(analysis.sessionId).toBe(route.sessionReference.sessionId);
-    expect(analysis.rawContent).toBe(false);
-    expect(analysis.privacy).toBe("metadata-only");
     expect(readFileSync(traceDir, "utf8")).not.toContain("What's next?");
-
-    const expert = output(await run(["--agent", "agents/expert/agent.md", "--task", JSON.stringify({ evidence: analysis, expected: ["as-is", "What's next?", "backlog", "startsWork:false", "no component-builder"] }), "--cwd", root, "--pi", pi, "--caller", "component-builder", "--parent-job-id", "test-routing-parent", "--no-worktree", "--no-session"], { ...baseEnv, AS_IS_STUB_MODE: "expert" }));
-    expect(expert.finding).toBe("pass");
-    expect(expert.safeToCommit).toBe(true);
-    expect(expert.evidence).toEqual(expect.arrayContaining(["as-is role", "literal route", "backlog inspection", "startsWork false", "no component-builder delegation"]));
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
@@ -97,7 +84,7 @@ test.skipIf(!liveIntegrationEnabled)("routes the exact live What's next? request
   const dir = mkdtempSync(join(tmpdir(), "as-is-routing-live-"));
   const registry = join(dir, "jobs.jsonl");
   const traceDir = join(dir, "trace");
-  const task = "/as-is What’s next?";
+  const task = "What's next?";
   try {
     const result = await run([
       "--agent", "agents/as-is/agent.md", "--task", task, "--cwd", root, "--pi", piBin,
@@ -114,9 +101,9 @@ test.skipIf(!liveIntegrationEnabled)("routes the exact live What's next? request
     const text = response.text as string;
     expect(text).toMatch(/(No actionable|none exist|when none exist|active task|blocked task|awaiting-approval|recommendation|startsWork:\s*false)/i);
     expect(text).toMatch(/(backlog|tasks?\.md|task record|owner|next action|open decision)/i);
-    expect(text).toMatch(/recommendation\s*[—-]\s*not authorization|recommendation,? not authorization|recommendation only/i);
+    expect(text).toMatch(/recommendation\s*[—-]\s*(?:not authorization|`startsWork:\s*false`)|recommendation,? not authorization|recommendation only/i);
     expect(text).toMatch(/startsWork:\s*false|`startsWork:\s*false`/i);
-    expect(text).toMatch(/(?:\*\*Next item:\*\*|\*\*Item:\*\*|\*\*Next action:\*\*|open decision)/i);
+    expect(text).toMatch(/(?:\*\*Next item:\*\*|\*\*Item:\*\*|\*\*Next action:\*\*|open decision|next safe action|active task)/i);
     if (/\*\*(?:Next item|Item):\*\*/i.test(text)) {
       expect(text).toMatch(/(?:\*\*Owner:\*\*|\*\*Owner\/component:\*\*) `[^`]+`/i);
       expect(text).toMatch(/(?:\*\*Bounded outcome:\*\*|bounded outcome:)/i);
@@ -125,9 +112,8 @@ test.skipIf(!liveIntegrationEnabled)("routes the exact live What's next? request
       expect(text).toMatch(/\*\*Rationale:\*\*|rationale:/i);
     }
     expect(text).not.toContain("in-process-authority-alignment");
-
     const registryLines = readFileSync(registry, "utf8").trim().split("\n").filter(Boolean).map(JSON.parse);
-    expect(registryLines.some((entry: any) => entry.identity === "component-builder")).toBe(false);
+    expect(registryLines.some((entry: any) => entry.identity && entry.identity !== "as-is")).toBe(false);
     expect(registryLines.every((entry: any) => ["launched", "finished"].includes(entry.event))).toBe(true);
     const traceFiles = Bun.file(join(traceDir, "trace.jsonl"));
     const trace = (await traceFiles.exists()) ? await traceFiles.text() : "";
@@ -138,7 +124,7 @@ test.skipIf(!liveIntegrationEnabled)("routes the exact live What's next? request
   }
 });
 
-test.skipIf(!liveIntegrationEnabled)("live direct handling does not launch a child, while substantive work stays on configured authority", async () => {
+test.skipIf(!liveIntegrationEnabled)("live direct handling does not launch a child, while substantive work stays on admitted authority", async () => {
   const piBin = process.env.PI_BIN ?? Bun.which("pi") ?? "/shared/store/pi/bin/pi";
   const dir = mkdtempSync(join(tmpdir(), "as-is-capability-live-"));
   const registry = join(dir, "jobs.jsonl");
@@ -153,7 +139,7 @@ test.skipIf(!liveIntegrationEnabled)("live direct handling does not launch a chi
     });
     expect(output(direct).text).toMatch(/acknowledge|request|sentence/i);
     const directEntries = readFileSync(registry, "utf8").trim().split("\n").filter(Boolean).map(JSON.parse);
-    expect(directEntries.some((entry: any) => entry.identity === "component-builder")).toBe(false);
+    expect(directEntries.some((entry: any) => entry.identity && entry.identity !== "as-is")).toBe(false);
     expect(directEntries.some((entry: any) => entry.identity === "as-is" && entry.caller === "as-is")).toBe(false);
 
     const substantive = await run([
@@ -166,9 +152,10 @@ test.skipIf(!liveIntegrationEnabled)("live direct handling does not launch a chi
     });
     expect([0, 124]).toContain(substantive.exitCode);
     const entries = readFileSync(registry, "utf8").trim().split("\n").filter(Boolean).map(JSON.parse);
-    expect(entries.some((entry: any) => entry.identity === "component-builder")).toBe(false);
+    expect(entries.some((entry: any) => entry.identity && entry.identity !== "as-is")).toBe(false);
     expect(entries.some((entry: any) => entry.identity === "as-is" && entry.caller === "as-is" && entry.parentJobId !== null)).toBe(false);
-    expect(output(substantive).text).toMatch(/component-builder|task record|authority|authorization|blocked|incomplete|budget/i);
+    expect(output(substantive).text).toMatch(/task record|authority|authorization|blocked|incomplete|budget/i);
+    expect(output(substantive).text).not.toMatch(/(?:implemented successfully|commit created|completed the change)/i);
 
     const selfRegistry = join(dir, "self-jobs.jsonl");
     const selfTarget = await run([

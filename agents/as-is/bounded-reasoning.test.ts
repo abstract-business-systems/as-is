@@ -12,7 +12,7 @@ function pathFor(request: {
     request.targetFilesNamed &&
     request.literalTransformationNamed.length > 0
     ? "bounded-mechanical"
-    : "component-builder";
+    : "admitted-authority";
 }
 
 test("routes named single-source mechanical documentation to bounded path", () => {
@@ -23,7 +23,7 @@ test("routes named single-source mechanical documentation to bounded path", () =
 });
 
 test("keeps substantive or multi-source work under component authority", () => {
-  expect(pathFor(fixture.substantiveRequest)).toBe("component-builder");
+  expect(pathFor(fixture.substantiveRequest)).toBe("admitted-authority");
 });
 
 test("ambiguous requests stay under component authority", () => {
@@ -32,7 +32,7 @@ test("ambiguous requests stay under component authority", () => {
     requiresJudgment: false,
     targetFilesNamed: false,
     literalTransformationNamed: "",
-  })).toBe("component-builder");
+  })).toBe("admitted-authority");
 });
 
 test("bounded deadline failure is non-retrying and recoverable", () => {

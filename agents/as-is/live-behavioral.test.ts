@@ -126,7 +126,7 @@ test.skipIf(!liveEnabled)("as-is live substantive routing identifies authority w
       directory,
     );
     const response = behavioralOutput(result);
-    expect(response.text).toMatch(/authority|owner|component-builder|component builder|task record/i);
+    expect(response.text).toMatch(/authority|owner|admitted|task record/i);
     expect(response.text).toMatch(/do not|not start|recommendation|incomplete|next action/i);
     expect(response.text).not.toMatch(/implemented successfully|commit created|completed the change/i);
     expectNoDescendantLaunch(directory);

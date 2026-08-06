@@ -1,5 +1,13 @@
 # Changelog
 
+- 2026-08-06: Completed `independent-behavior-contract`. Replaced deterministic
+  route labels and live assertions that required named downstream roles with
+  generic admitted-authority semantics. The exact literal `What's next?` live
+  case and the direct, substantive, and self-target scenarios passed after the
+  refactor; no child was launched and no repository mutation was observed.
+  Post-refactor behavior is recorded in `as-is.md`; provider wording and
+  latency remain residual risks.
+
 - 2026-08-06: Completed `live-behavioral-baseline`. Corrected the direct case
   to use the literal `What's next?` request and ran all three independently
   fixture-backed scenarios against the real Pi provider. The tests passed

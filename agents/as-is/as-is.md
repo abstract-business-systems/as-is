@@ -46,8 +46,10 @@ Three isolated scenarios passed in 58.24 seconds (3 tests, 16 assertions):
 
 The assertions intentionally check semantic behavior rather than exact model
 wording. Registry and trace directories are isolated per scenario, and no
-child launch or repository mutation was observed. Provider response wording
-and latency remain model-dependent residual risks.
+child launch or repository mutation was observed. The post-baseline contract
+uses declared capability and explicit admission rather than naming a required
+implementation, review, or downstream role. Provider response wording and
+latency remain model-dependent residual risks.
 
 ## Boundary
 

@@ -20,7 +20,7 @@ type Request = {
   requiredRoleUtility?: string;
 };
 
-type Route = "direct" | "component-builder" | "analysis" | "reject-self" | "blocked";
+type Route = "direct" | "admitted-authority" | "analysis" | "reject-self" | "blocked";
 
 function route(request: Request, availability: Availability): Route {
   if (request.target === "as-is" || request.resolvedTarget === "agents/as-is/agent.md") return "reject-self";
@@ -34,7 +34,7 @@ function route(request: Request, availability: Availability): Route {
   if (request.anotherAuthority || request.substantive || request.multiSource || request.ambiguous) {
     return availability.roles.some(({ name, description }) =>
       availability.admittedRoles.includes(name) && description.includes(request.requiredCapability ?? "component"))
-      ? "component-builder" : "blocked";
+      ? "admitted-authority" : "blocked";
   }
   if (request.specializedSkill) {
     const hasAnalysisRole = availability.roles.some(({ name, description }) =>
@@ -44,7 +44,7 @@ function route(request: Request, availability: Availability): Route {
     return hasAnalysisRole && hasRequiredSkill ? "analysis" : "blocked";
   }
   if (availability.roles.some(({ name, description }) =>
-    availability.admittedRoles.includes(name) && description.includes(request.requiredCapability ?? "component"))) return "component-builder";
+    availability.admittedRoles.includes(name) && description.includes(request.requiredCapability ?? "component"))) return "admitted-authority";
   return "blocked";
 }
 
@@ -83,17 +83,17 @@ const direct = {
 
 test("directly handles only fully capable, non-substantive requests", () => {
   expect(route(direct, available)).toBe("direct");
-  expect(route({ ...direct, substantive: true }, available)).toBe("component-builder");
-  expect(route({ ...direct, withinCapabilities: false }, available)).toBe("component-builder");
+  expect(route({ ...direct, substantive: true }, available)).toBe("admitted-authority");
+  expect(route({ ...direct, withinCapabilities: false }, available)).toBe("admitted-authority");
 });
 
 test("specialized capability, authority, investigation, and ambiguity route away from direct handling", () => {
   expect(route({ ...direct, specializedSkill: true, requiredSkill: "renamed-helper", requiredCapability: "evidence", requiredRoleUtility: "read-only analysis" }, available)).toBe("analysis");
   expect(route({ ...direct, specializedSkill: true, requiredSkill: "missing-skill", requiredCapability: "evidence" }, available)).toBe("blocked");
-  expect(route({ ...direct, specializedSkill: true, anotherAuthority: true, requiredSkill: "renamed-helper", requiredCapability: "component" }, available)).toBe("component-builder");
-  expect(route({ ...direct, anotherAuthority: true }, available)).toBe("component-builder");
-  expect(route({ ...direct, multiSource: true }, available)).toBe("component-builder");
-  expect(route({ ...direct, ambiguous: true }, available)).toBe("component-builder");
+  expect(route({ ...direct, specializedSkill: true, anotherAuthority: true, requiredSkill: "renamed-helper", requiredCapability: "component" }, available)).toBe("admitted-authority");
+  expect(route({ ...direct, anotherAuthority: true }, available)).toBe("admitted-authority");
+  expect(route({ ...direct, multiSource: true }, available)).toBe("admitted-authority");
+  expect(route({ ...direct, ambiguous: true }, available)).toBe("admitted-authority");
 });
 
 test("self-targeted as-is launches are rejected before delegation or substitution", () => {
