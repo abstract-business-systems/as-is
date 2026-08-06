@@ -1,5 +1,7 @@
 # Changelog
 
+- Completed backlog dependency normalization for `agent-agnostic-launcher-dispatch`, `skill-owned-package-dependencies`, `pi-version-aligned-subagent-tools`, and `package-owned-subagent-extension`; structured cells now use `component:id` or `-`, with uncertain original prose retained in notes. Validation: `bun test skills/managing-backlog/query.test.ts` (10 passed) and `git diff --check` passed. Parent integration remains pending.
+
 - Completed `tool-contract-and-completion-gates`: declared the exact ordinary
   tool sets for `as-is` and `component-builder`, removed stale caller tool
   overrides from the as-is launcher examples, and strengthened task lifecycle
