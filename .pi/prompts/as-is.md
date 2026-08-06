@@ -1,9 +1,20 @@
 ---
-description: Start the repository as-is entrypoint for the current request.
+description: Start the repository as-is agent for the current request.
+argument-hint: "[request]"
 ---
 
-Use the installed Pi skill named `as-is` as the repository's as-is entrypoint.
-Read its full `SKILL.md` from the available-skill location before proceeding.
-Treat the following text as the user's request:
+Route this request to the repository's canonical `as-is` agent. Do not handle
+the request in this host session and do not infer a different role. Launch the
+agent through the repository launcher with the request as its task:
 
-$@
+```bash
+bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
+  --agent agents/as-is/agent.md \
+  --task "$@" \
+  --cwd "$PWD" \
+  --approve
+```
+
+Return the launched agent's result to the user. The agent contract, durable
+records, launcher admission, and supplied target descriptions remain
+authoritative; this prompt is only the host entrypoint.

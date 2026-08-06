@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-08-12: The Pi host `/as-is` prompt now launches this canonical agent directly through the generic launcher. The former `skills/as-is` entrypoint is no longer project-discovered and remains only as a deprecated compatibility alias; the agent contract remains authoritative.
+
 - 2026-08-12: Clarified that agents are independent and that the front-face router selects the best admitted agent and most useful supplied skill from descriptions and task authority, without assuming a fixed chain or naming another agent in its contract. Durable task-record ownership follows the selected target's procedure; workers may receive authorized delegations from any agent. No skills were modified.
 
 - 2026-08-12: Recorded agent independence in the agents-scope context and the as-is component record. The router now avoids fixed delegation-chain assumptions; target lifecycle, worker selection, validation, recovery, and handoff follow the selected target's descriptions, authority, and applicable procedures.

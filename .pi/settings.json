@@ -1,7 +1,6 @@
 {
   "extensions": ["./extensions/worker-tools.ts"],
   "skills": [
-    "../skills/as-is",
     "../skills/committing-completed-work",
     "../skills/context-building",
     "../skills/implementing-component-tasks",
