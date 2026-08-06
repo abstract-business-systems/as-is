@@ -38,10 +38,18 @@ writes the parent summary only after child closure and parent integration.
 5. Record progress, validation, blockers, recovery, residual risk, cumulative
    budget observations, and any bubbled excess requirement in `tasks.md` under
    `Current Task`; keep future work under `Other Tasks` without active claims.
-6. On completion of all tasks in the record, write a concise summary to
-   `changelog.md`, then clean up and remove `tasks.md` through the completion
-   procedure before creating the scoped durable
-   handoff.
+6. Run the required acceptance validation and record its evidence, residual
+   risk, and recovery state in `tasks.md`. Do not treat process exit or a
+   private runtime result as completion.
+7. Verify that every implementation descendant is terminal and accounted for in
+   the task result. A non-terminal, failed, or unaccounted descendant keeps the
+   task incomplete; a task with no authorized descendants records vacuous
+   terminal closure.
+8. Only after acceptance validation passes and descendant closure is verified,
+   mark the task `completed`, write its concise summary to `changelog.md`, and
+   invoke `committing-completed-work` to remove `tasks.md` and create the scoped
+   durable handoff. Changelog writing and task-record removal are completion
+   steps, never progress steps.
 
 ## Boundaries
 
@@ -56,5 +64,5 @@ completion from process exit or a private runtime artifact.
 | Bounded task | Explicit component scope and acceptance conditions |
 | Child boundary | Configured component-builder handoff |
 | Deterministic behavior | Repeatable validation where practical |
-| Changelog handoff | Summary written before `tasks.md` removal |
-| Completion | Scoped validation and residual risk recorded |
+| Changelog handoff | Acceptance validation and terminal descendant closure recorded before the summary is written |
+| Completion | Task is marked completed only after acceptance evidence and descendant closure; only then are changelog, task cleanup, and scoped commit performed |

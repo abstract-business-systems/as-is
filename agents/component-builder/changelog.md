@@ -1,5 +1,11 @@
 # Changelog
 
+- Completed `tool-contract-and-completion-gates`: declared the component-builder
+  ordinary capability set required by its role contract, including
+  `call_subagent`. The launcher remains front-matter-authoritative with no
+  identity-based injection. Focused launcher tests, builds, reference checks,
+  and read-only expert validation passed. No descendants were launched.
+
 - Completion evidence for `in-process-authority-alignment` is recorded below;
   the implemented item is eligible for cleanup.
 

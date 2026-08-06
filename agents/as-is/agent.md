@@ -3,6 +3,7 @@ name: as-is
 description: Routes user intent through durable as-is orchestration and reports concise results.
 mode: primary
 model: medium
+tools: read,grep,find,ls,bash,edit,write
 permission:
   task: allow
   webfetch: deny

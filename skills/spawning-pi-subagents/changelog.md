@@ -1,5 +1,15 @@
 # Changelog
 
+- Completed `tool-contract-and-completion-gates`: declared the exact ordinary
+  tool sets for `as-is` and `component-builder`, removed stale caller tool
+  overrides from the as-is launcher examples, and strengthened task lifecycle
+  ordering so acceptance validation and terminal descendant closure precede
+  changelog handoff, task-record removal, and scoped commit. Focused launcher
+  tests (26 passed), both Bun builds, role/reference checks, `git diff --check`,
+  and fresh read-only expert validation passed; no implementation descendants
+  were launched. Residual risk: the final handoff uses a temporary local
+  signing identity because this checkout has no configured signing key.
+
 - Completed `frontmatter-authoritative-tool-admission`: ordinary launcher tool
   admission now comes from agent front matter, conflicting caller overrides and
   unsupported/empty declarations are rejected, missing declarations emit an

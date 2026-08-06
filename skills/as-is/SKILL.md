@@ -28,7 +28,6 @@ bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
   --task "<the user's request and concise bounded direction>" \
   --cwd "$PWD" \
   --skill skills/as-is \
-  --tools read,grep,find,ls,bash \
   --approve
 ```
 
@@ -83,7 +82,6 @@ bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
   --agent agents/component-builder/agent.md \
   --task "Build <component> using its current as-is.md and named dependencies." \
   --cwd "$PWD" \
-  --tools read,grep,find,ls,bash,edit,write \
   --approve
 ```
 

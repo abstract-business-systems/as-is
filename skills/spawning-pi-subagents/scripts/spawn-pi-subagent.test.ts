@@ -86,7 +86,7 @@ test("rejects component-builder launches from an unauthorized caller", async () 
   expect(result.stderr).toContain("delegation decisions belong to as-is");
 });
 
-test("allows component-builder launches without identity-based tool injection", async () => {
+test("component-builder launches use its declared tools without identity injection", async () => {
   const result = await runLauncher([
     "--agent", "agents/component-builder/agent.md",
     "--task", "Authorized implementation launch.",
@@ -98,23 +98,21 @@ test("allows component-builder launches without identity-based tool injection", 
   const parsed = JSON.parse(result.stdout);
   expect(parsed.args).toContain("--no-extensions");
   expect(parsed.args).toContain("--extension");
-  expect(parsed.args.join(" ")).not.toContain("call_subagent");
-  expect(parsed.tools).toBe(null);
+  expect(parsed.tools).toBe("read,grep,find,ls,bash,edit,write,call_subagent");
+  expect(parsed.args.join(" ")).toContain("read,grep,find,ls,bash,edit,write,call_subagent");
 });
 
-test("component-builder launches do not receive identity-based fallback tools", async () => {
+test("as-is launches use its declared tools without caller overrides", async () => {
   const result = await runLauncher([
-    "--agent", "agents/component-builder/agent.md",
-    "--task", "Authorized implementation launch.",
+    "--agent", "agents/as-is/agent.md",
+    "--task", "Authorized routing launch.",
     "--cwd", process.cwd(),
-    "--caller", "as-is",
     "--dry-run",
   ]);
   expect(result.exitCode).toBe(0);
   const parsed = JSON.parse(result.stdout);
-  expect(parsed.tools).toBe(null);
-  expect(parsed.args).not.toContain("--tools");
-  expect(parsed.args.join(" ")).not.toContain("call_subagent");
+  expect(parsed.tools).toBe("read,grep,find,ls,bash,edit,write");
+  expect(parsed.args.join(" ")).toContain("read,grep,find,ls,bash,edit,write");
 });
 
 test("normal component-builder launches forward the bounded in-process gate budget", async () => {
@@ -129,8 +127,8 @@ test("normal component-builder launches forward the bounded in-process gate budg
   expect(result.exitCode).toBe(0);
   const parsed = JSON.parse(result.stdout);
   expect(parsed.args).toContain(`${process.cwd()}/.pi/extensions/worker-tools.ts`);
-  expect(parsed.tools).toBe(null);
-  expect(parsed.args).toContain("--no-tools");
+  expect(parsed.tools).toBe("read,grep,find,ls,bash,edit,write,call_subagent");
+  expect(parsed.args).toContain("read,grep,find,ls,bash,edit,write,call_subagent");
   expect(parsed.budget["wall-clock-seconds"]).toBe(900);
 });
 
