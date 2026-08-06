@@ -1,5 +1,7 @@
 # Changelog
 
+- Documented that the receiving component-builder owns semantic parent integration and that the launcher only observes handoff evidence and caller ancestry. Explicit no-separate-integration cases include same-component in-process assistance, parent-owned worktree changes, and no-change tasks. Agent-level planning now includes an open `agent-owned-tool-capabilities` item for declarative role tool capabilities with package/host implementation ownership.
+
 - Completed `tool-contract-and-completion-gates`: declared the component-builder
   ordinary capability set required by its role contract, including
   `call_subagent`. The launcher remains front-matter-authoritative with no

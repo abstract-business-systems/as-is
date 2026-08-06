@@ -158,15 +158,19 @@ observes the child by polling its record (structured status) and `logPath`
 On exit the bounded job runner appends a finished outcome to the registry
 (`{jobId, event:"finished", exitCode, budgetStopped, wallClockSeconds,
 commitSha, committed, integrationStatus, handoffEligible, handoffBlockers,
-finishedAt}`). A finished process is not necessarily a completed handoff:
-`handoffEligible` is true only when the committed task evidence, validation,
-result, descendant closure, scoped commit, and caller-HEAD ancestry all pass. The parent reads the transient task record via
-`git show <commitSha>:<component>/tasks.md` (durable, no filesystem race) and
-must treat missing or non-completed evidence as incomplete. Pass `--record
-<path>` to identify the component's durable `as-is.md` path. Pass
-`--parent-job-id <id>` and `--caller <identity>` to record the delegation
-lineage (they default from `AS_IS_JOB_ID`/`AS_IS_IDENTITY`, so a child agent
-forwards them automatically).
+finishedAt}`). These are launcher observations, not a merge command or a
+semantic completion decision. The receiving parent component-builder owns
+semantic handoff review and any nearest-common-ancestor integration; the
+launcher only reports whether caller-HEAD ancestry currently proves that the
+child commit is reachable. A finished process is not necessarily a completed
+handoff: `handoffEligible` is true only when the committed task evidence,
+validation, result, descendant closure, scoped commit, and caller-HEAD ancestry
+all pass. The parent reads the transient task record via `git show
+<commitSha>:<component>/tasks.md` (durable, no filesystem race) and must treat
+missing or non-completed evidence as incomplete. Pass `--record <path>` to
+identify the component's durable `as-is.md` path. Pass `--parent-job-id <id>`
+and `--caller <identity>` to record the delegation lineage (they default from
+`AS_IS_JOB_ID`/`AS_IS_IDENTITY`, so a child agent forwards them automatically).
 
 Each launch is appended as one JSON line to `/tmp/as-is-jobs.jsonl`, or to the
 path in `AS_IS_JOBS_REGISTRY` when set. Registry writes are best-effort: an
@@ -255,15 +259,21 @@ contacts a provider.
   its children: each child's budget is owned by its own runner.
 - A zero Pi exit code is only a host observation. A child commit is only a
   durable child handoff: its `integrationStatus` is
-  `pending-parent-integration` until the parent explicitly integrates the scoped
-  commit from the caller repository and ancestry verification proves it is an
-  ancestor of the caller branch. This state is a hard completion blocker: a
-  child must not be reported complete while it remains pending. Reread the
-  durable component record and validate
-  its status, handoff, acceptance evidence, parent integration, and cleanup
-  before treating the task as complete. An exit status of `124` with the
-  `as-is budget-stopped` stderr marker means the wall-clock budget stopped the
-  child; account for that as a budget-stopped return rather than a normal
+  `pending-parent-integration` until the receiving parent component-builder
+  explicitly integrates the scoped commit from the caller repository and
+  ancestry verification proves it is an ancestor of the caller branch. The
+  launcher does not merge, cherry-pick, resolve conflicts, or decide whether
+  the parent should integrate. Pending integration is a hard completion
+  blocker for an isolated child handoff. For work that stays in the parent
+  worktree, has no repository changes, or is same-component in-process
+  assistance, there is no child commit to integrate; the parent records that
+  no separate integration was required and commits its own scoped work. That
+  case must be explicit rather than inferred from exit status. Reread the
+  durable component record and validate its status, handoff, acceptance
+  evidence, parent integration or explicit no-integration disposition, and
+  cleanup before treating the task as complete. An exit status of `124` with
+  the `as-is budget-stopped` stderr marker means the wall-clock budget stopped
+  the child; account for that as a budget-stopped return rather than a normal
   completion.
 - This skill does not provide restart reconciliation, cancellation ownership
   for whole subtrees, watchdog enforcement beyond the wall-clock budget timer,
@@ -277,9 +287,17 @@ contacts a provider.
 ## Agent Handoff
 
 The child must begin from its assigned current `as-is.md` record and update
-only its component boundary. The parent rereads the child record after the
-process exits, accounts for failed or cancelled descendants, and performs
-nearest-common-ancestor integration only after the child handoff is valid.
+only its component boundary. The receiving parent component-builder rereads
+the child record after the process exits, accounts for failed or cancelled
+descendants, reviews residual risk, and performs any required
+nearest-common-ancestor integration only after the child handoff is valid. The
+launcher is an evidence and ancestry observer; it never owns the merge.
+
+A separate merge is not required when the parent retained the worktree and
+owns the resulting changes, when the task produced no repository changes, or
+when assistance and validation occurred in-process. The parent must record the
+explicit no-integration disposition and still satisfy task validation,
+descendant closure, and scoped-commit requirements.
 
 The implementation is intentionally adapted from Pi's bundled subagent
 extension pattern: discover an agent file, write its body to a private

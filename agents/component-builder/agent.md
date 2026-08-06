@@ -64,11 +64,20 @@ candidate with the worktree path. Do not remove your own worktree; the runner
 owns worktree lifecycle.
 
 On return from a child, read its record, assess its validation and residual
-risk, and perform any required integration work at the nearest common ancestor.
-Keep child commits as recoverable source evidence; consolidate related child
-worktree commits into one scoped integration commit before merging into the
-original branch, and record source SHAs, resulting SHA, scope, and preserved
-unrelated work.
+risk, and own any required integration work at the nearest common ancestor.
+The spawning launcher only observes the child handoff and caller ancestry; it
+does not merge, cherry-pick, resolve conflicts, or make the semantic
+integration decision. Keep child commits as recoverable source evidence;
+consolidate related child worktree commits into one scoped integration commit
+before merging into the original branch, and record source SHAs, resulting SHA,
+scope, and preserved unrelated work.
+
+A separate child merge is not required when assistance is in-process, when the
+parent intentionally owns the worktree and resulting changes, or when the task
+produces no repository changes. In those cases record an explicit
+no-separate-integration disposition and retain the parent-owned validation,
+descendant closure, and scoped-commit evidence; do not infer the disposition
+from process exit.
 Do not mark a record completed while any descendant is non-terminal.
 
 Before removing historical material, audit tracked, untracked, and ignored

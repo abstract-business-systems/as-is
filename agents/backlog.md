@@ -1,0 +1,10 @@
+# Agents Backlog
+
+Planning index for the `agents/` component. Active work belongs to the
+owning component task record; completed items are removed after their summary
+is recorded in the owning changelog.
+
+| id | status | user preference | system preference | purpose | description | dependencies | acceptance | notes |
+| --- | --- | ---: | ---: | --- | --- | --- | --- | --- |
+| generic-agent-specialization | open | 3 | 2 | Keep agent roles reusable without losing justified responsibility boundaries | Assess existing agents and make them less specific or more generic where evidence shows their responsibility is unnecessarily narrow or host-specific. | - | Each changed agent has a bounded reusable capability contract; justified specialization and affected consumers are recorded; no role authority is duplicated. | Original dependency text: Inventory of agent responsibilities, tools, permissions, and consumers. |
+| agent-owned-tool-capabilities | open | 3 | 3 | Let agent contracts provide role-specific tool capabilities without launcher identity branches | Define a host-neutral contract in which each canonical `agents/<role>/agent.md` declares its permitted ordinary tools, the owning host/package surface provides their implementations, and launcher admission resolves the declaration without silently injecting tools by identity. Preserve stricter safety caps for read-only expert roles. | spawning-pi-subagents:agent-agnostic-launcher-dispatch, spawning-pi-subagents:package-owned-subagent-extension | Agent declarations are authoritative for ordinary tool admission; an unsupported, unavailable, or unauthorized tool fails closed before launch; adding a role or tool does not require a new per-agent launcher branch; implementation ownership remains explicit between the agent contract and the package/host tool provider; focused admission and non-mutation tests pass. | This is an agents-level planning item, not authorization to edit role contracts or move host-specific implementations into `agents/`. Agent roles provide capability declarations and may own role-specific selection; package/host surfaces provide executable tool implementations. |

@@ -26,7 +26,9 @@ does not redefine the contract.
   configuration snapshot.
 - The component directory is the default worker read/write boundary. The
   worker may update its own record and declared component artifacts; the
-  orchestrator owns parent integration and delegation state.
+  receiving parent component-builder owns semantic parent integration and
+  delegation state. The launcher or host adapter may observe Git ancestry and
+  report integration status, but does not merge or resolve the child result.
 - Runtime handles, leases, prompts, caches, logs, and secrets are private host
   state. They may support an active attempt or recovery, but they are not
   required inputs to resume and are never authoritative over the task record.
@@ -41,10 +43,13 @@ does not redefine the contract.
   Uncommitted evidence is not presumed to be in Git; its necessary facts must
   be preserved in the current record/change log or in an authorized scoped
   evidence commit before removal.
-- At most one active worker attempt may modify a component at a time. A parent
-  orchestrator may update its own or root record and observe child records, but
+- At most one active worker attempt may modify a component at a time. A
+  parent component-builder or other explicitly authorized receiving orchestrator
+  may update its own or root record and observe child records, but
   it integrates at the nearest common ancestor only after children finish and
-  does not edit active sibling component files.
+  does not edit active sibling component files. The receiving authority owns
+  the integration decision; the host adapter only supplies mechanical ancestry
+  evidence.
 
 ## Private Transient Runtime State
 
@@ -306,7 +311,10 @@ unavailability, failed handoff, or an incomplete host attempt. The
 orchestrator identifies the configured worker in the record, verifies the
 record is still recoverable, records the recovery checkpoint/reason, and
 delegates to that worker. The worker owns the domain decision to continue,
-clean up, or restart its atomic partial result.
+clean up, or restart its atomic partial result. When a child handoff is
+returned, the receiving component-builder owns semantic review and any
+nearest-common-ancestor integration; the host adapter reports only mechanical
+ancestry evidence.
 
 Recovery must preserve the task's authority, remaining budget, descendants,
 and acceptance conditions. A failed or unavailable runtime does not justify
@@ -315,8 +323,8 @@ marking the task complete. If the configured worker is unavailable, the
 orchestrator records that blocker and follows a later replacement policy;
 this contract does not choose the replacement, retry, backoff, or scheduling
 policy. A recovery launch uses the same non-blocking supervisor/job boundary as
-the initial launch and preserves the `as-is -> orchestrator -> implementer`
-mediation; it does not turn a foreground child or a wrong-role host fallback
+the initial launch and preserves the configured agent authority and worker
+selection; it does not turn a foreground child or a wrong-role host fallback
 into an asynchronous attempt.
 
 ## Control-Plane Communication

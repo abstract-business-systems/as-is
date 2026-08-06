@@ -31,7 +31,7 @@ Maintain the durable task context and organization for independent configured ag
 ## Requirement
 Keep the agents folder's record authoritative for its bounded documentation
 organization. Agent definitions are canonically maintained under top-level `agents/`;
-`.agents/agents/` is a host projection location only and must not contain
+`../.agents/agents/` is a host projection location only and must not contain
  duplicate tracked role source files. Agent roles are independent: no role is
 intrinsically bound to another, and an authorized agent may delegate to any
 suitable target, including the generalized worker. This record tracks
@@ -66,12 +66,12 @@ cross-agent maintenance proposals; role-specific work belongs in the backlog
 of the corresponding agent component.
 
 ## Links
-- `../../agents/as-is/agent.md` — canonical primary role contract.
-- `../../agents/component-builder/agent.md` — canonical recursive builder role contract.
-- `../../agents/expert/agent.md` — canonical read-only validator contract.
-- `../../agents/worker/agent.md` — canonical bounded implementation contract;
-  any authorized agent may select it when its description fits the task.
-- `.agents/agents/` — host projection only; no duplicate tracked role source is maintained.
+- `as-is/agent.md` — canonical primary role contract.
+- `component-builder/agent.md` — canonical recursive builder role contract.
+- `expert/agent.md` — canonical read-only validator contract.
+- `worker/agent.md` — canonical bounded implementation contract; any authorized
+  agent may select it when its description fits the task.
+- `../.agents/agents/` — host projection only; no duplicate tracked role source is maintained.
 
 ## Next Action
 Schedule the backlog assessment only as an explicitly bounded maintenance task.
