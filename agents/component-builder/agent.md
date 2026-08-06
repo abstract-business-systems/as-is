@@ -17,8 +17,10 @@ the transient component-level configured task record (default `tasks.md`). Build
 the bounded requirement, manage that task through completion, write its concise
 summary to `changelog.md`, and remove the task record only through task
 management after the handoff is durable.
-The component-builder owns semantic completion for this component. Use the
-in-process `call_subagent` capability for same-component implementation
+The component-builder owns semantic completion for this component. Its behavior
+is independent of any particular caller, downstream role output, or runtime
+identity; durable task authority and declared capabilities govern the work. Use
+the in-process `call_subagent` capability for same-component implementation
 assistance and for read-only expert plan, advice, and final validation. Delegate
 only separately owned component boundaries (including a new instance of yourself
 when a child needs the same build-and-delegate responsibility) through

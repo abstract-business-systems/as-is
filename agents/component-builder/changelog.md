@@ -1,5 +1,27 @@
 # Changelog
 
+- 2026-08-06: Completed `independent-behavior-contract`. Refactored the
+  component-builder contract and live harness to express local durable task
+  authority, configured worker authority, and explicit no-delegation evidence
+  without requiring a fixed upstream caller or downstream role output. The
+  pre-refactor live baseline passed (3 tests, 27 assertions, 46.54 seconds),
+  and the post-refactor baseline passed (3 tests, 27 assertions, 35.98 seconds).
+  Deterministic live-test skip validation passed (3 skipped), and the launcher
+  regression suite passed (28 tests, 197 assertions). Final read-only expert
+  validation passed and judged the implementation safe to commit. No child
+  implementation descendants were authorized; closure was vacuously terminal.
+  Residual risk: live provider wording and latency remain model-dependent, and
+  final expert validation accepted recorded command evidence without rerunning
+  it.
+
+- 2026-08-06: Completed `live-behavioral-baseline`. Added three independently
+  fixture-backed opt-in real-Pi tests that validate the existing component-builder
+  design for report-only orientation, explicit no-change handling, and task-record
+  authority. All three live cases passed (3 tests, 27 assertions, 34.49 seconds).
+  The repository and temporary fixtures remained unchanged; no child delegation
+  or commit was observed. The test baseline records provider wording and latency
+  as residual risks without changing the durable design record.
+
 - Documented that the receiving component-builder owns semantic parent integration and that the launcher only observes handoff evidence and caller ancestry. Explicit no-separate-integration cases include same-component in-process assistance, parent-owned worktree changes, and no-change tasks. Agent-level planning now includes an open `agent-owned-tool-capabilities` item for declarative role tool capabilities with package/host implementation ownership.
 
 - Completed `tool-contract-and-completion-gates`: declared the component-builder
