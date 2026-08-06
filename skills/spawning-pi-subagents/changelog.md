@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-08-13: Added a direct, explicitly authorized parent-side handoff eligibility gate. Finished launcher jobs now remain `incomplete` unless durable task completion, validation, expert/result evidence, terminal descendant closure, scoped commit, and caller-HEAD ancestry all pass; pending-parent-integration and unreachable ancestry remain blockers. Validation: focused launcher tests passed (28 tests, 197 assertions), Bun build passed, and `git diff --check` passed. Residual risk: launcher evidence extraction is bounded text evidence; full task schema and descendant validation remain owned by task management and parent procedures. No descendants were launched.
+
 - Completed backlog dependency normalization for `agent-agnostic-launcher-dispatch`, `skill-owned-package-dependencies`, `pi-version-aligned-subagent-tools`, and `package-owned-subagent-extension`; structured cells now use `component:id` or `-`, with uncertain original prose retained in notes. Validation: `bun test skills/managing-backlog/query.test.ts` (10 passed) and `git diff --check` passed. Parent integration remains pending.
 
 - Completed `tool-contract-and-completion-gates`: declared the exact ordinary

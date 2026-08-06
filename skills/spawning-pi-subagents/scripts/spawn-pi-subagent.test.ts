@@ -3,6 +3,7 @@ import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { evaluateHandoffEligibility, type HandoffFacts } from "./handoff-eligibility.ts";
 
 const SCRIPT = "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts";
 const AGENT = "agents/as-is/agent.md";
@@ -517,7 +518,65 @@ test("blocking mode enforces the wall-clock budget and returns a budget-stopped 
   } finally { rmSync(dir, { recursive: true, force: true }); }
 }, 15000);
 
-test("--jobs reports a finished job as completed and joins its task-record status", async () => {
+test("handoff eligibility is fail-closed for every completion gate", () => {
+  const complete: HandoffFacts = {
+    record: { durable: true, status: "completed", validationEvidence: true, expertEvidence: true, resultEvidence: true },
+    descendants: { allTerminal: true, failedOrCancelledAccounted: true },
+    commit: { sha: "abc", exists: true, scoped: true },
+    integration: { status: "integrated", callerHeadAncestry: true },
+  };
+  expect(evaluateHandoffEligibility(complete)).toEqual({ eligible: true, blockers: [] });
+  const cases: Array<[keyof HandoffFacts | "integration", string]> = [
+    ["record", "record-not-completed"],
+    ["record", "validation-evidence-missing"],
+    ["record", "expert-evidence-missing"],
+    ["record", "result-evidence-missing"],
+    ["descendants", "descendants-not-terminal"],
+    ["descendants", "descendants-not-accounted"],
+    ["commit", "scoped-commit-missing"],
+    ["commit", "commit-out-of-scope"],
+    ["integration", "caller-ancestry-unverified"],
+  ];
+  for (const [part, blocker] of cases) {
+    const facts = structuredClone(complete);
+    if (part === "record") {
+      if (blocker === "record-not-completed") facts.record.status = "pending-parent-integration";
+      if (blocker === "validation-evidence-missing") facts.record.validationEvidence = false;
+      if (blocker === "expert-evidence-missing") facts.record.expertEvidence = false;
+      if (blocker === "result-evidence-missing") facts.record.resultEvidence = false;
+    } else if (part === "descendants") {
+      if (blocker === "descendants-not-terminal") facts.descendants.allTerminal = false;
+      else facts.descendants.failedOrCancelledAccounted = false;
+    } else if (part === "commit") {
+      if (blocker === "scoped-commit-missing") { facts.commit.sha = null; facts.commit.exists = false; }
+      else facts.commit.scoped = false;
+    } else {
+      facts.integration = { status: "unreachable", callerHeadAncestry: false };
+    }
+    expect(evaluateHandoffEligibility(facts).eligible).toBe(false);
+    expect(evaluateHandoffEligibility(facts).blockers).toContain(blocker);
+  }
+  const pending = evaluateHandoffEligibility({ ...complete, integration: { status: "pending-parent-integration", callerHeadAncestry: false } });
+  expect(pending.eligible).toBe(false);
+  expect(pending.blockers).toContain("pending-parent-integration");
+});
+
+test("integration status distinguishes an unreachable child commit", () => {
+  const dir = mkdtempSync(join(tmpdir(), "as-is-unreachable-test-"));
+  const git = (args: string[]) => spawnSync("git", args, { cwd: dir, encoding: "utf8" });
+  try {
+    expect(git(["init", "-q"]).status).toBe(0);
+    git(["config", "user.email", "test@example.invalid"]);
+    git(["config", "user.name", "test"]);
+    writeFileSync(join(dir, "base.txt"), "base\n");
+    expect(git(["add", "."]).status).toBe(0);
+    expect(git(["commit", "-qm", "base"]).status).toBe(0);
+    const unreachableSha = "0".repeat(40);
+    expect(spawnSync(Bun.which("bun") ?? "bun", ["-e", `import { integrationStatusFor } from ${JSON.stringify(join(process.cwd(), "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts"))}; console.log(integrationStatusFor(${JSON.stringify(unreachableSha)}, ${JSON.stringify(dir)}));`], { encoding: "utf8" }).stdout.trim()).toBe("unreachable");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("--jobs reports an exit-0 job as incomplete without handoff evidence", async () => {
   const dir = mkdtempSync(join(tmpdir(), "as-is-jobs-test-"));
   try {
     const stubPi = writeSleepStub(dir, 0);
@@ -549,8 +608,8 @@ test("--jobs reports a finished job as completed and joins its task-record statu
     const jobs = await runLauncher(["--jobs"], env);
     expect(jobs.exitCode).toBe(0);
     expect(jobs.stdout).toContain(handle.jobId);
-    expect(jobs.stdout).toContain("completed"); // proc-status from completion line
-    expect(jobs.stdout).toContain("blocked");   // record-status joined from the temp record
+    expect(jobs.stdout).toContain("incomplete"); // exit 0 is not sufficient for handoff completion
+    expect(jobs.stdout).toContain("blocked");     // record-status joined from the temp record
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 

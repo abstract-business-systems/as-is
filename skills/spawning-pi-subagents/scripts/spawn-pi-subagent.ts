@@ -2,8 +2,9 @@ import { spawn, spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { appendFile, mkdtemp, open, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { basename, dirname, isAbsolute, join, resolve } from "node:path";
+import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { emitTrace, startSpan, serializeSessionReference, type SessionReference } from "../../../components/observability/tracer.ts";
+import { evaluateHandoffEligibility, type HandoffFacts } from "./handoff-eligibility.ts";
 
 type Options = {
   agent?: string;
@@ -494,6 +495,40 @@ const removeWorktree = async (callerCwd: string, worktreePath: string): Promise<
   await gitIn(callerCwd, ["worktree", "remove", "--force", worktreePath]);
 };
 
+const taskRecordPathFor = (recordPath: string): string => join(dirname(recordPath), "tasks.md");
+const gitPathFor = (path: string, cwd: string): string => isAbsolute(path) ? relative(cwd, path) : path.replace(/^\.\//, "");
+
+const recordEvidenceFromText = (taskRaw: string | null, historyRaw: string | null): HandoffFacts["record"] & HandoffFacts["descendants"] => {
+  const addedHistory = (historyRaw ?? "").split("\n")
+    .filter((line) => line.startsWith("+") && !line.startsWith("+++"))
+    .join("\n");
+  const raw = [taskRaw, addedHistory].filter((value): value is string => value !== null).join("\n");
+  if (!raw) return { durable: false, status: null, validationEvidence: false, expertEvidence: false, resultEvidence: false, allTerminal: false, failedOrCancelledAccounted: false };
+  const status = taskRaw?.match(/^  status:\s*(.+)$/m)?.[1]?.trim()
+    ?? (/\b(?:Completed|Implemented|Validated)\b/i.test(addedHistory) ? "completed" : null);
+  const validationEvidence = (taskRaw?.includes("## Validation") && !taskRaw.match(/## Validation\s*\n\s*(Pending|None|Not run)/iu))
+    || /\bvalidation\b.{0,160}\b(?:passed|pass|successful|succeeded)\b/iu.test(raw);
+  const expertEvidence = /\b(?:expert|final[- ]diff|safe to commit)\b.{0,180}\b(?:pass|passed|safe|yes)\b/iu.test(raw);
+  const resultEvidence = status === "completed"
+    || (taskRaw?.includes("## Result") && !taskRaw.match(/## Result\s*\n\s*(Pending|None|Not run)/iu))
+    || /\bresult\b.{0,160}\b(?:completed|implemented|validated)\b/iu.test(raw);
+  const allTerminal = raw.includes("descendantsTerminal: true") || /terminal descendant closure.*(?:complete|terminal)/iu.test(raw) || /no (?:non-terminal|active|blocked) descendants/iu.test(raw) || /no descendants/iu.test(raw);
+  const failedOrCancelledAccounted = raw.includes("failedOrCancelledDescendants: []") || /no failed or cancelled descendants/iu.test(raw) || /failed(?: or|\/)cancelled descendants?.*accounted/iu.test(raw);
+  return { durable: true, status, validationEvidence, expertEvidence, resultEvidence, allTerminal, failedOrCancelledAccounted };
+};
+
+const scopedCommit = async (cwd: string, baseSha: string | null, commitSha: string | null, recordPath: string | null): Promise<{ exists: boolean; scoped: boolean }> => {
+  if (!commitSha || !recordPath) return { exists: false, scoped: false };
+  const exists = await gitIn(cwd, ["cat-file", "-e", `${commitSha}^{commit}`]) !== null;
+  if (!exists || !baseSha) return { exists, scoped: false };
+  const componentPath = dirname(recordPath).replace(/^\.\//, "");
+  const changed = await gitIn(cwd, ["diff", "--name-only", `${baseSha}..${commitSha}`]);
+  if (changed === null) return { exists, scoped: false };
+  const paths = changed.split("\n").filter(Boolean);
+  const scoped = paths.length > 0 && (componentPath === "." || paths.every((path) => path === componentPath || path.startsWith(componentPath + "/")));
+  return { exists, scoped };
+};
+
 // A bounded job runner that is the direct parent of the Pi child. Its scope is
 // process management: it owns the wall-clock budget timer, forwards signals,
 // manages the worktree lifecycle (a mechanical safety/isolation boundary,
@@ -657,11 +692,33 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
   // `git show <sha>:<path>` without a filesystem race on the worktree.
   const finalSha = childCwd !== config.callerCwd ? await gitIn(childCwd, ["rev-parse", "HEAD"]) : null;
   const committed = finalSha !== null && finalSha !== baseSha;
-  // A child commit is durable in the child worktree but is not integrated into
-  // the caller branch. The parent must explicitly cherry-pick/merge it and
-  // record that integration separately; never report a child commit as an
-  // integrated handoff.
-  const integrationStatus = committed ? "pending-parent-integration" : "not-committed";
+  // Read the transient task record from the child commit. The durable
+  // `as-is.md` path identifies the component; `tasks.md` owns current task
+  // status and handoff evidence. A disk copy or exit code is not durable
+  // handoff evidence and must not make a result eligible.
+  const taskRecordPath = config.recordPath ? taskRecordPathFor(config.recordPath) : null;
+  const componentDirectory = config.recordPath ? dirname(config.recordPath) : null;
+  const changelogPath = componentDirectory ? join(componentDirectory, "changelog.md") : null;
+  const taskRaw = committed && taskRecordPath
+    ? await gitIn(childCwd, ["show", `${finalSha}:${gitPathFor(taskRecordPath, config.callerCwd)}`])
+    : null;
+  const historyRaw = committed && changelogPath
+    ? await gitIn(childCwd, ["show", `${finalSha}:${gitPathFor(changelogPath, config.callerCwd)}`])
+    : null;
+  const recordEvidence = recordEvidenceFromText(taskRaw, historyRaw);
+  const commitEvidence = await scopedCommit(childCwd, baseSha, committed ? finalSha : null, config.recordPath);
+  const integrationStatus = committed
+    ? integrationStatusFor(finalSha, config.callerCwd) as HandoffFacts["integration"]["status"]
+    : "not-committed";
+  const handoff = evaluateHandoffEligibility({
+    record: recordEvidence,
+    descendants: recordEvidence,
+    commit: { sha: committed ? finalSha : null, ...commitEvidence },
+    integration: {
+      status: integrationStatus,
+      callerHeadAncestry: integrationStatus === "integrated",
+    },
+  });
   phaseTimings["total"] = Date.now() - startedMonotonic;
 
   await recordComponentTrace(config.callerCwd, {
@@ -719,6 +776,32 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     commitSha: finalSha,
     committed,
     integrationStatus,
+    handoffEligible: handoff.eligible,
+    handoffBlockers: handoff.blockers,
+    handoffFacts: {
+      record: {
+        durable: recordEvidence.durable,
+        status: recordEvidence.status,
+        validationEvidence: recordEvidence.validationEvidence,
+        expertEvidence: recordEvidence.expertEvidence,
+        resultEvidence: recordEvidence.resultEvidence,
+      },
+      descendants: {
+        allTerminal: recordEvidence.allTerminal,
+        failedOrCancelledAccounted: recordEvidence.failedOrCancelledAccounted,
+      },
+      commit: {
+        sha: committed ? finalSha : null,
+        exists: commitEvidence.exists,
+        scoped: commitEvidence.scoped,
+      },
+      integration: {
+        status: integrationStatus as HandoffFacts["integration"]["status"],
+        callerHeadAncestry: integrationStatus === "integrated",
+      },
+    },
+    recordStatus: recordEvidence.status,
+    taskRecordPath,
     worktreePreserved,
     preserveReason,
   };
@@ -766,6 +849,8 @@ const buildBudgetLines = (options: Options): string[] => {
 /** Derive handoff integration only from ancestry in the caller repository. */
 export const integrationStatusFor = (commitSha: string | null, callerCwd: string): string => {
   if (!commitSha) return "not-committed";
+  const exists = spawnSync("git", ["cat-file", "-e", `${commitSha}^{commit}`], { cwd: callerCwd, stdio: "ignore" });
+  if (exists.status !== 0) return "unreachable";
   const integrated = spawnSync("git", ["merge-base", "--is-ancestor", commitSha, "HEAD"], {
     cwd: callerCwd,
     stdio: "ignore",
@@ -805,8 +890,27 @@ const printJobs = async (): Promise<void> => {
     const finished = entry.finished;
     const pid = launch.pid as number | null | undefined;
     let status: string;
+    const storedFacts = finished?.handoffFacts as HandoffFacts | undefined;
+    const finishedIntegrationStatus = finished?.committed
+      ? integrationStatusFor(finished.commitSha as string | null, process.cwd())
+      : "not-committed";
+    const currentHandoff = storedFacts
+      ? evaluateHandoffEligibility({
+        ...storedFacts,
+        integration: {
+          status: finishedIntegrationStatus as HandoffFacts["integration"]["status"],
+          callerHeadAncestry: finishedIntegrationStatus === "integrated",
+        },
+      })
+      : { eligible: false, blockers: ["handoff-evidence-missing"] };
     if (finished) {
-      status = finished.budgetStopped ? "budget-stopped" : finished.exitCode === 0 ? "completed" : "failed";
+      status = finished.budgetStopped
+        ? "budget-stopped"
+        : currentHandoff.eligible
+          ? "completed"
+          : finished.exitCode === 0
+            ? "incomplete"
+            : "failed";
     } else if (typeof pid === "number" && pid > 0 && alive(pid)) {
       status = "running";
     } else {
@@ -834,11 +938,9 @@ const printJobs = async (): Promise<void> => {
         /* leave "-" */
       }
     }
-    const integrationStatus = finished?.committed
-      ? integrationStatusFor(commitSha ?? null, process.cwd())
-      : "not-committed";
+    const integrationStatus = finishedIntegrationStatus;
     const detail = finished
-      ? `exit=${finished.exitCode} wall=${finished.wallClockSeconds}s${finished.committed ? ` sha=${(finished.commitSha as string)?.slice(0, 8)}` : ""}${integrationStatus ? ` integration=${integrationStatus}` : ""}${finished.worktreePreserved ? ` preserved: ${finished.preserveReason ?? "uncommitted changes"} @ ${launch.worktreePath ?? "?"}` : ""}`
+      ? `exit=${finished.exitCode} wall=${finished.wallClockSeconds}s${finished.committed ? ` sha=${(finished.commitSha as string)?.slice(0, 8)}` : ""}${integrationStatus ? ` integration=${integrationStatus}` : ""}${!currentHandoff.eligible ? ` handoff=incomplete blockers=${currentHandoff.blockers.join(",")}` : ""}${finished.worktreePreserved ? ` preserved: ${finished.preserveReason ?? "uncommitted changes"} @ ${launch.worktreePath ?? "?"}` : ""}`
       : `budget=${launch.budgetWallClockSeconds ?? "-"}s`;
     const identity = (launch.identity as string | undefined) ?? "?";
     const caller = (launch.caller as string | undefined) ?? "?";

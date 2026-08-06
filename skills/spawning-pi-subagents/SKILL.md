@@ -155,12 +155,15 @@ the result and handoff. There is no talk-back channel to the parent: any agent
 observes the child by polling its record (structured status) and `logPath`
 (detail), or via `--jobs`.
 
-On exit the bounded job runner appends a completion line to the registry
+On exit the bounded job runner appends a finished outcome to the registry
 (`{jobId, event:"finished", exitCode, budgetStopped, wallClockSeconds,
-commitSha, committed, integrationStatus, finishedAt}`) so the job table reflects finished jobs
-with their real wall-clock, exit code, and final commit. The parent reads the
-child's record via `git show <commitSha>:<recordPath>` (durable, no filesystem
-race). Pass `--record <path>` to include the component record path. Pass
+commitSha, committed, integrationStatus, handoffEligible, handoffBlockers,
+finishedAt}`). A finished process is not necessarily a completed handoff:
+`handoffEligible` is true only when the committed task evidence, validation,
+result, descendant closure, scoped commit, and caller-HEAD ancestry all pass. The parent reads the transient task record via
+`git show <commitSha>:<component>/tasks.md` (durable, no filesystem race) and
+must treat missing or non-completed evidence as incomplete. Pass `--record
+<path>` to identify the component's durable `as-is.md` path. Pass
 `--parent-job-id <id>` and `--caller <identity>` to record the delegation
 lineage (they default from `AS_IS_JOB_ID`/`AS_IS_IDENTITY`, so a child agent
 forwards them automatically).
@@ -204,16 +207,18 @@ copy specific files out, then remove it with `git worktree remove --force
 
 `--jobs` prints a fused status table for every registered job without starting
 a Pi process: `jobId`, `identity`, `caller`, process liveness and budget from
-the registry, joined to the task-record status read via `git show
-<commitSha>:<recordPath>` (or from disk when no commit is recorded). A
-runner that is no longer alive with no completion line is reported as
-`crashed (recovery candidate)` — a dead process whose record is still
-non-terminal. A finished job whose worktree was preserved (uncommitted
-changes without a commit) is reported with `preserved: <reason> @ <path>` so
-the worktree can be inspected and recovered. The `caller`/`identity` columns
-reconstruct the logical delegation tree (OS parentage is broken by the
-runner). This is the on-query observation surface for the fire-and-forget
-model; it is read-only and never contacts a provider.
+the registry, joined to the task-record status and recomputed handoff
+eligibility. A finished exit-0 job with failed or missing handoff evidence is
+reported as `incomplete`, never `completed`; pending-parent-integration and
+unreachable caller ancestry remain explicit blockers. A runner that is no
+longer alive with no completion line is reported as `crashed (recovery
+candidate)` — a dead process whose record is still non-terminal. A finished
+job whose worktree was preserved (uncommitted changes without a commit) is
+reported with `preserved: <reason> @ <path>` so the worktree can be inspected
+and recovered. The `caller`/`identity` columns reconstruct the logical
+delegation tree (OS parentage is broken by the runner). This is the on-query
+observation surface for the fire-and-forget model; it is read-only and never
+contacts a provider.
 
 ## Process Rules
 
