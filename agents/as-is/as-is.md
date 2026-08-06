@@ -30,6 +30,25 @@ role and may receive delegations from any authorized agent; it is not a
 front-face router. The agent contract defines direct-path and contextual
 routing, not a universal mediation chain.
 
+## Observed Live Behavior
+
+The independent live baseline in `live-behavioral.test.ts` was run with the
+real Pi provider on 2026-08-06 using the literal user request `What's next?`.
+Three isolated scenarios passed in 58.24 seconds (3 tests, 16 assertions):
+
+- The literal `What's next?` request returns task or backlog context as a
+  recommendation, reports no work start, and leaves the repository unchanged.
+- A substantive cross-component request identifies the appropriate authority
+  and next action without implementing, delegating, creating a task, or
+  claiming completion.
+- A request explicitly forbidding self-delegation reports the self-target
+  rejection without launching a child or changing repository state.
+
+The assertions intentionally check semantic behavior rather than exact model
+wording. Registry and trace directories are isolated per scenario, and no
+child launch or repository mutation was observed. Provider response wording
+and latency remain model-dependent residual risks.
+
 ## Boundary
 
 This component owns the `as-is` entrypoint/front-face contract and its local
@@ -46,6 +65,7 @@ component boundary.
 - [`changelog.md`](changelog.md) — concise historical recovery and completion notes.
 - [`backlog.md`](backlog.md) — planning index for this component's open work.
 - [`orient.ts`](../../../skills/as-is/scripts/orient.ts) — repository orientation snapshot used by status/routing turns.
+- [`live-behavioral.test.ts`](live-behavioral.test.ts) — opt-in live behavioral baseline for independent routing behavior.
 
 ## Changelog
 

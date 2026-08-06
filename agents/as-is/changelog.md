@@ -1,5 +1,14 @@
 # Changelog
 
+- 2026-08-06: Completed `live-behavioral-baseline`. Corrected the direct case
+  to use the literal `What's next?` request and ran all three independently
+  fixture-backed scenarios against the real Pi provider. The tests passed
+  (3 tests, 16 assertions, 58.24 seconds), covering recommendation-only direct
+  handling, substantive authority identification without work, and self-target
+  rejection. No child was launched and repository state was unchanged. Stable
+  behavior is recorded in `as-is.md`; provider wording and latency remain
+  residual risks.
+
 - 2026-08-12: Removed the completed `bounded-reasoning-for-simple-tasks` backlog item after its bounded direct-routing behavior, no-retry guard, and focused regression coverage were implemented and validated. The completion summary is retained here.
 
 - 2026-08-12: The Pi host `/as-is` prompt now launches this canonical agent directly through the generic launcher. The former `skills/as-is` entrypoint is no longer project-discovered and remains only as a deprecated compatibility alias; the agent contract remains authoritative.
