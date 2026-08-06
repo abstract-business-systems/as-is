@@ -19,28 +19,28 @@ constraints:
       source: host-reported
   external-effects: require-current-turn-user-approval
 acceptance:
-  - Provide a discoverable bounded procedure for exploring local trace evidence and authorized Pi session metadata.
+  - Provide a discoverable bounded procedure for exploring local trace evidence and readable Pi session metadata.
   - Support debugging, process-improvement, and budget-analysis questions without granting task, job, validation, recovery, completion, or budget-allocation authority.
-  - Preserve session-reference-first privacy boundaries, durable approval requirements, and distinguish observations, inferences, unknowns, recommendations, and residual risk.
+  - Preserve session-ID correlation, filesystem ownership, external ID-only export, and distinguish observations, inferences, unknowns, recommendations, and residual risk.
 ---
 
 # Exploring Execution Evidence
 
 ## Purpose
 
-Provide a reusable read-only procedure for using bounded trace-query and
-explicitly authorized session-analysis tools to investigate a user-mentioned
-execution context and produce decision-ready evidence for debugging, process
-improvement, or budget analysis.
+Provide a reusable read-only procedure for using trace-query and readable
+session-analysis tools to investigate a user-mentioned execution context and
+produce decision-ready evidence for debugging, process improvement, or budget
+analysis.
 
 ## Design
 
 The skill starts from a supplied trace or session selector, progressively
-queries local trace summaries, events, and metadata-only session analysis, and
-reports source-labelled observations with explicit uncertainty. It treats
-session IDs and session-store references as opaque correlation metadata. It
-does not inspect raw session content, add runtime capture, or replace durable
-task and budget records.
+queries local trace summaries, events, and selected session detail, and reports
+source-labelled observations with explicit uncertainty. It treats session IDs
+as opaque correlation metadata. It does not add runtime capture or replace
+durable task and budget records. The external trace boundary carries the
+session ID only.
 
 ## Boundaries
 
@@ -48,8 +48,8 @@ This skill owns the investigation procedure and report contract. The
 observability component owns tracer implementation; the project worker
 extension owns bounded query and session-analysis tools. Task records and the
 control plane remain authoritative for status, validation, recovery, completion,
-budget limits, and allocation. Session metadata analysis remains exact-ID,
-project-local, metadata-only, and durably authorized.
+budget limits, and allocation. Session analysis remains exact-ID, read-only,
+selector-driven, and governed by readable local Pi stores.
 
 ## Links
 
@@ -62,4 +62,5 @@ project-local, metadata-only, and durably authorized.
 
 ## Changelog
 
-- 2026-08-11: Renamed and broadened the bounded execution-evidence skill to cover metadata-only, durably authorized Pi session analysis alongside local traces. No raw session content became normal trace payload or task authority.
+- 2026-08-11: Renamed and broadened the execution-evidence skill to cover Pi session analysis alongside local traces. Session content remains outside normal trace payloads and task authority.
+- 2026-08-12: Adopted filesystem ownership as the local session access boundary and restricted external trace correlation to opaque session IDs.

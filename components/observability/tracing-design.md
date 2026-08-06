@@ -3,43 +3,42 @@
 ## Status and scope
 
 This is the design contract for supplementary execution telemetry. It does not
-change `tracer.ts`, enable broad capture, add queries, or make telemetry an
-authority. The existing bounded `startSpan`/`finish` lifecycle and `emitTrace`
-sink remain the initial implementation boundary. The measured 207 ms dummy
+make telemetry an authority. The bounded `startSpan`/`finish` lifecycle and
+`emitTrace` sink are the implementation boundary. The measured 207 ms dummy
 launcher baseline (204 ms child wait) is a reference measurement, not a
-performance target or a reason to capture model content.
+performance target.
 
 The design is staged: stabilize this event model and its capture boundaries;
-then obtain approval and rehearse a dummy delegation flow. The tracer now
-implements local-full raw payload retention and export-bounded capture: local
-JSONL is controlled by retention/size limits, while OTLP payloads are filtered,
-redacted, and byte-bounded only when explicitly enabled. No launcher, session, tool, or output source is added by this document.
+then rehearse a dummy delegation flow. The tracer captures key execution
+lifecycle events, including subprocess delegation, while Pi session stores
+remain the source of conversational and tool payloads. External OTLP payloads
+carry only an opaque session ID and never resolve the session store. No
+launcher, session, tool, or output source is added by this document.
 
-## Session-reference-first policy
+## Session correlation and local inspection
 
-For conversational and tool detail, the normal trace payload is a reference,
-not session content. Each trace may record an opaque Pi session ID and a
-scoped session-store reference, plus the configured role, approved model and
-provider metadata, job/delegation correlation, session revision and event
-range, bounded message/tool/usage counts, byte counts, timing, and an explicit
-missing-session status. These fields are correlation and measurement metadata;
-they do not expose session contents or grant access.
+For conversational and tool detail, the external trace payload contains only
+an opaque Pi session ID. It does not contain session content or a session-store
+path. Other execution metadata may be exported, but the session-specific field
+is the ID only. Local analysis is a separate operation and may retrieve the
+selected session data needed for debugging.
 
-Prompts, responses, tool arguments, and tool results are not normal trace
-payloads, including in local-full capture. Full detail is retrieved only by a
-separately authorized session inspection that enforces its own scope, access,
-retention, and redaction controls. A reference must be scoped to the permitted
-session store and event/revision range; it must not be an arbitrary path or
-query. If the session is unavailable, inaccessible, deleted, or outside the
-requested range, the trace records a bounded missing-session status and does
-not retry, inline, or substitute raw content.
+Local session inspection follows data ownership rather than a tracer-specific
+approval system. A process may inspect any valid session in the configured,
+project-local session store that its effective user and file permissions can
+read. The inspection surface remains read-only and exact-ID based; it must not turn
+an opaque ID into an arbitrary filesystem path. Detail modes, paging, and role
+or tool selectors control response volume. Missing, inaccessible, deleted, or
+out-of-range sessions are reported as availability states.
 
-Session references are subject to the same least-privilege access, retention,
-size, redaction, and failure controls as other sensitive correlation metadata.
-Export carries only the allowlisted reference and bounded metadata, with the
-existing filtering, redaction, and byte bounds; it never exports resolved
-session content. Local-full/export-bounded remains a telemetry sink policy,
-not authorization to add session sources or broaden normal trace capture.
+Local trace files and local session files remain under the owning user's normal
+filesystem permissions. The tracer and query tools do not grant, revoke, or
+recheck ownership permissions, and a session reference does not itself grant
+access. External export is a separate data-flow choice: when configured, it
+exports the session ID only and never dereferences the local session store.
+The configured Jaeger/OTLP endpoint and its operator are responsible for
+access to the exported trace data; the tracer does not create a second
+per-session authorization authority.
 
 ## Authority and identity
 
@@ -97,31 +96,22 @@ Events are emitted at lifecycle boundaries, not for every internal operation.
 Completion events require an explicit finish path; missing events are an
 observability gap, never evidence of success.
 
-## Output, privacy, and controls
+## Output and controls
 
-Output is classified before any future implementation: **public** (already
-intended for repository status), **project-internal** (task metadata and
-bounded diagnostics), **sensitive** (paths, provider/model details, timing or
-identifiers that enable correlation), and **secret/personal** (credentials,
-private prompts/responses, tokens, user data). Secret/personal data is never
-captured. Sensitive data is disabled by default and requires an explicit,
-scoped policy; project-internal fields use allowlists.
+The tracer captures execution metadata and event relationships, not Pi session
+payloads. Session payloads remain in the local Pi session store and are
+resolved separately by exact session ID under normal file permissions. Local
+analysis may retrieve selected payloads when debugging requires them. Trace events
+use deterministic field allowlists and bounded values; external sinks receive
+only the opaque session ID for session correlation and never resolve the local
+session store.
 
-Future capture must apply deterministic field allowlists, length/count limits,
-structured redaction before persistence or export, and fail-closed behavior
-for unknown classifications. Redaction must cover credentials, tokens,
-secret-like headers, personal identifiers, and raw prompt/tool/model content.
-Hashes or digests are permitted only when their correlation value is justified
-and their input is already approved. Redaction is not a license to retain raw
-values for debugging.
-
-Retention is backend-specific but must define maximum age, maximum local size,
-rotation, deletion behavior, and export buffering before implementation.
-Local JSONL is diagnostic and may be deleted; it is not task or audit
-authority. Access is least privilege: local files follow repository access
-controls, exports use explicitly configured authenticated endpoints, and
-trace queries return bounded, redacted fields with limits and no arbitrary
-filesystem or backend access.
+Retention is backend-specific and defines maximum age, maximum local size,
+rotation, deletion behavior, and export buffering. Local JSONL is diagnostic
+and may be deleted; it is not task or audit authority. Trace queries return
+bounded fields with limits and no arbitrary filesystem or backend access. The
+configured user-owned local files and explicitly configured external endpoint
+are the data-ownership boundaries; the tracer does not grant or revoke access.
 
 ## Failure, cost, and rollout gates
 
@@ -138,10 +128,10 @@ Implementation gates:
 2. Rehearse a deterministic dummy delegation and confirm parent/child,
    attempt, phase, outcome, and handoff relationships, including failure and
    unavailable-backend paths.
-3. Approve privacy classification, redaction, retention, and access policy.
-4. Implement only allowlisted metadata and bounded queries; raw payload capture
-   remains confined to the explicitly approved tracer local-full/export-bounded
-   policy and is not broadened to new runtime sources.
+3. Confirm event field allowlists, retention, endpoint configuration, and the session-ID-only export boundary.
+4. Implement only allowlisted execution metadata and bounded queries; raw
+   conversational and tool payloads remain in the Pi session store and are not
+   added as tracer sources or sink payloads.
 5. Re-measure the stub baseline and retain regression evidence before enabling
    new event families.
 

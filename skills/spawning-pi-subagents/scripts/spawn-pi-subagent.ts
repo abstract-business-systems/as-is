@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { appendFile, mkdtemp, open, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, dirname, isAbsolute, join, resolve } from "node:path";
-import { emitTrace, startSpan } from "../../../components/observability/tracer.ts";
+import { emitTrace, startSpan, serializeSessionReference, type SessionReference } from "../../../components/observability/tracer.ts";
 
 type Options = {
   agent?: string;
@@ -87,6 +87,13 @@ type SuperviseConfig = {
 const BUDGET_STOPPED_EXIT_CODE = 124;
 const BUDGET_KILL_GRACE_SECONDS = 5;
 
+const sessionReferenceFromEnvironment = (): SessionReference | undefined => {
+  const value = process.env.PI_SESSION_FILE;
+  if (!value) return undefined;
+  const match = basename(value).match(/_(.+)\.jsonl$/u);
+  return match ? serializeSessionReference({ sessionId: match[1] }) : undefined;
+};
+
 const recordComponentTrace = async (cwd: string, event: Record<string, unknown>): Promise<void> => {
   const traceId = String(event.traceId ?? process.env.AS_IS_TRACE_ID ?? "component-build");
   const spanId = String(event.spanId ?? Math.random().toString(16).slice(2));
@@ -95,6 +102,7 @@ const recordComponentTrace = async (cwd: string, event: Record<string, unknown>)
     traceId,
     spanId,
     attributes: Object.fromEntries(Object.entries(event).filter(([key]) => !["name", "traceId", "spanId"].includes(key))) as Record<string, string | number | boolean | undefined>,
+    sessionReference: sessionReferenceFromEnvironment(),
   }, cwd);
 };
 
@@ -501,6 +509,7 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     cwd: config.callerCwd,
     traceId: process.env.AS_IS_TRACE_ID || undefined,
     parentSpanId: process.env.AS_IS_TRACE_PARENT_SPAN_ID || undefined,
+    sessionReference: sessionReferenceFromEnvironment(),
   });
   const phaseTimings: Record<string, number> = {};
   const phaseStarted = (name: string): number => Date.now();
@@ -530,8 +539,17 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     : null;
   phaseEnded("log-setup", logFilePhase);
 
+  const sessionStoreScope = {
+    cwd: process.env.PI_SESSION_FILE ? config.callerCwd : undefined,
+    directory: process.env.PI_SESSION_FILE ? dirname(process.env.PI_SESSION_FILE) : undefined,
+  };
   const childEnv = {
     ...process.env,
+    // Preserve the delegating session's readable store scope when the child
+    // runs in a worktree or detached supervisor directory. This is a data
+    // ownership reference, not an authorization token or session payload.
+    ...(sessionStoreScope.cwd ? { AS_IS_SESSION_CWD: sessionStoreScope.cwd } : {}),
+    ...(sessionStoreScope.directory ? { AS_IS_SESSION_DIR: sessionStoreScope.directory } : {}),
     // Propagate identity and job id so the child's own delegations can record
     // the correct caller and parent-job-id without OS parentage.
     AS_IS_IDENTITY: config.identity,
@@ -559,6 +577,7 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     cwd: config.callerCwd,
     traceId: delegationSpan.traceId,
     parentSpanId: delegationSpan.spanId,
+    sessionReference: sessionReferenceFromEnvironment(),
   });
   const child = spawn(config.command, config.args, {
     cwd: childCwd,
@@ -898,6 +917,7 @@ const main = async() => {
   // particular, never pass prompts, responses, tools, or exception text to it.
   const sessionSpan = startSpan("session.lifecycle", {
     cwd,
+    sessionReference: sessionReferenceFromEnvironment(),
     config: {
       backend: process.env.AS_IS_COMPONENT_BUILD_TRACER,
       directory: process.env.AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY,

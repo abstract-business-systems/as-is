@@ -10,46 +10,12 @@ as-is-version: 2
 ---
 # Root
 `;
-const taskRecord = (approval: string) => `---
-as-is-version: 2
-task:
-  status: active
-  worker: execution-advisor
-  updated: 2026-08-11T00:00:00Z
-constraints:
-  cost:
-    allocated: 1.00
-    spent: 0.00
-    reserve: 0.10
-    source: host-reported
-  delegation:
-    maximum-depth: 0
-    maximum-children: 0
-  execution:
-    wall-clock:
-      allocated-seconds: 100
-      spent-seconds: 0
-      reserve-seconds: 10
-      source: host-reported
-  external-effects: require-current-turn-user-approval
-acceptance:
-  - Analyze bounded execution evidence.
----
-# Task
-
-## Control Plane
-
-- control-plane: ${approval}
-`;
-
 describe("execution evidence session analysis", () => {
-  test("returns bounded metadata without session content after durable approval", async () => {
+  test("returns bounded metadata for a readable session without tracer approval", async () => {
     const cwd = await mkdtemp(join(tmpdir(), "as-is-session-analysis-"));
     const manager = SessionManager.create(cwd, join(cwd, "sessions"));
     const sessionId = manager.getSessionId();
-    const questionId = "q-session-metadata";
     await writeFile(join(cwd, "as-is.md"), rootRecord);
-    await writeFile(join(cwd, "tasks.md"), taskRecord(JSON.stringify({ event: "approval", "question-id": questionId, approval: `session-metadata:${sessionId}` })));
     manager.appendMessage({ role: "user", content: "private prompt", timestamp: Date.now() });
     manager.appendMessage({
       role: "assistant",
@@ -62,7 +28,7 @@ describe("execution evidence session analysis", () => {
       timestamp: Date.now(),
     });
 
-    const result = await analyzeProjectSession(cwd, sessionId, 1, manager, { sessionId, taskPath: ".", questionId });
+    const result = await analyzeProjectSession(cwd, sessionId, 1, manager);
     const text = JSON.stringify(result);
     expect(result.availability).toBe("available");
     expect(result.entryCount).toBe(2);
@@ -70,29 +36,59 @@ describe("execution evidence session analysis", () => {
     expect(result.usage).toEqual({ input: 3, output: 2, totalTokens: 5, totalCost: 0.03 });
     expect(text).not.toContain("private prompt");
     expect(text).not.toContain("private response");
+
+    const detail = await analyzeProjectSession(cwd, sessionId, 10, manager, undefined, "full");
+    expect(detail.detail).toBe("full");
+    expect(JSON.stringify(detail)).toContain("private prompt");
+    expect(JSON.stringify(detail)).toContain("private response");
   });
 
-  test("requires a matching durable approval before session access", async () => {
+  test("allows any valid readable session ID and keeps unknown sessions bounded", async () => {
     const cwd = await mkdtemp(join(tmpdir(), "as-is-session-analysis-"));
     await writeFile(join(cwd, "as-is.md"), rootRecord);
-    await writeFile(join(cwd, "tasks.md"), taskRecord(JSON.stringify({ event: "approval", "question-id": "other-question", approval: "session-metadata:unknown-session" })));
-    await expect(analyzeProjectSession(cwd, "unknown-session", 20, undefined, { sessionId: "unknown-session", taskPath: ".", questionId: "q-session-metadata" })).resolves.toEqual({
+    await expect(analyzeProjectSession(cwd, "unknown-session", 20)).resolves.toEqual({
       sessionId: "unknown-session",
-      availability: "authorization-required",
+      availability: "missing-or-out-of-scope",
     });
   });
 
-  test("rejects path-like and unknown session selectors after authorization", async () => {
+  test("rejects path-like and invalid bounded selectors", async () => {
     const cwd = await mkdtemp(join(tmpdir(), "as-is-session-analysis-"));
     await writeFile(join(cwd, "as-is.md"), rootRecord);
-    await writeFile(join(cwd, "tasks.md"), taskRecord(JSON.stringify({ event: "approval", "question-id": "q-session-metadata", approval: "session-metadata:../private-session" })));
-    await expect(analyzeProjectSession(cwd, "../private-session", 20, undefined, { sessionId: "../private-session", taskPath: ".", questionId: "q-session-metadata" })).resolves.toEqual({
+    await expect(analyzeProjectSession(cwd, "../private-session", 20)).resolves.toEqual({
       sessionId: "../private-session",
       availability: "invalid-selector",
     });
-    await expect(analyzeProjectSession(cwd, "unknown-session", 20, undefined, { sessionId: "unknown-session", taskPath: ".", questionId: "q-session-metadata" })).resolves.toEqual({
-      sessionId: "unknown-session",
-      availability: "authorization-required",
+    await expect(analyzeProjectSession(cwd, "valid-session", 0)).resolves.toEqual({
+      sessionId: "valid-session",
+      availability: "invalid-limit",
     });
+  });
+
+  test("uses the inherited readable session store when the child cwd differs", async () => {
+    const sourceCwd = await mkdtemp(join(tmpdir(), "as-is-session-source-"));
+    const childCwd = await mkdtemp(join(tmpdir(), "as-is-session-child-"));
+    const sessionDir = join(sourceCwd, "session-store");
+    const manager = SessionManager.create(sourceCwd, sessionDir);
+    const sessionId = manager.getSessionId();
+    await writeFile(join(sourceCwd, "as-is.md"), rootRecord);
+    manager.appendMessage({ role: "user", content: "private prompt", timestamp: Date.now() });
+    manager.appendMessage({ role: "assistant", content: [{ type: "text", text: "private response" }], timestamp: Date.now() });
+
+    const previousCwd = process.env.AS_IS_SESSION_CWD;
+    const previousDir = process.env.AS_IS_SESSION_DIR;
+    process.env.AS_IS_SESSION_CWD = sourceCwd;
+    process.env.AS_IS_SESSION_DIR = sessionDir;
+    try {
+      const result = await analyzeProjectSession(childCwd, sessionId, 1);
+      expect(result.availability).toBe("available");
+      expect(result.sessionId).toBe(sessionId);
+      expect(JSON.stringify(result)).not.toContain("private prompt");
+    } finally {
+      if (previousCwd === undefined) delete process.env.AS_IS_SESSION_CWD;
+      else process.env.AS_IS_SESSION_CWD = previousCwd;
+      if (previousDir === undefined) delete process.env.AS_IS_SESSION_DIR;
+      else process.env.AS_IS_SESSION_DIR = previousDir;
+    }
   });
 });

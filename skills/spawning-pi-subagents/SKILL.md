@@ -1,7 +1,7 @@
 ---
 name: spawning-pi-subagents
 description: Starts an isolated Pi child process from a repository agent Markdown file under a detached bounded job runner that is the child's direct parent and owns the wall-clock budget. The child runs in an isolated git worktree pruned from the caller's HEAD so its destructive git operations cannot reach the caller's uncommitted work. In blocking mode the launcher waits and returns the child's exit; with --detach it returns a handle immediately and the child runs independently. Use --jobs to query the status of all registered jobs. Use when delegating a bounded task to as-is, component-builder, or another named agent.
-compatibility: Requires Bun and a local Pi package or binary. The child process must run in the target repository and receive an explicit agent file and task.
+compatibility: Requires Bun and a Pi package or binary whose version satisfies the skill's declared peer compatibility. Skill-owned runtime and test dependencies are installed from the skill package, not the project root.
 ---
 
 # Spawning Pi Subagents
@@ -103,15 +103,17 @@ this order:
 
 1. `--pi <path>`;
 2. `PI_BIN`;
-3. the nearest repository `node_modules/.bin/pi`;
-4. Bun's package runner for
-   `@earendil-works/pi-coding-agent@0.82.0`.
+3. the nearest skill-owned `node_modules/.bin/pi` or repository-local binary
+   explicitly supplied by the skill package;
+4. Bun's package runner for the skill's declared Pi peer-compatible package.
 
-The Bun package runner may install the pinned package into Bun's local cache on
-first use, so treat the first real launch as an external setup effect. Set
-`PI_PACKAGE` to an explicitly approved package/version or `PI_BIN` to a local
-binary when needed. Use `--dry-run` to inspect the resolved command without
-starting a model process.
+The launcher must resolve the Pi executable and the package-owned extension from
+the same compatible Pi version. A future version-preflight implementation must
+reject an incompatible binary/package before starting the child. Until that
+preflight exists, `PI_PACKAGE` may select an explicitly approved package/version
+and `--dry-run` remains available to inspect the resolved command. The package
+runner may install the pinned package into Bun's local cache on first use, so
+treat the first real launch as an external setup effect.
 
 ## Detach Mode
 
@@ -139,7 +141,12 @@ Pi child pid. The runner is the child's direct parent and outlives the
 launcher. `identity` is this child's role; `caller` is the delegating agent's
 identity (propagated via the `AS_IS_IDENTITY` env var, or `--caller`);
 `parentJobId` is the caller's job id (propagated via `AS_IS_JOB_ID`, or
-`--parent-job-id`). The OS parent pid is intentionally not recorded: the
+`--parent-job-id`). When the caller has a persisted Pi session, the launcher
+also forwards only the session store scope (`AS_IS_SESSION_CWD` and
+`AS_IS_SESSION_DIR`) so a child in an isolated worktree can resolve an exact
+session ID through the same readable local store. These variables are
+filesystem-scope references, not authorization grants or session contents. The
+OS parent pid is intentionally not recorded: the
 runner breaks OS parentage, so lineage is logical (caller identity +
 parentJobId), not process-tree based.
 
@@ -229,7 +236,7 @@ model; it is read-only and never contacts a provider.
 - Use `--approve` only when project-local files are explicitly trusted for that
   attempt. Do not place credentials or tokens in task arguments, task files, or
   output.
-- The launcher uses `--mode json` and `--print`; sessions are durable by default under the supervisor job directory, with `--no-session` providing ephemeral runs. An agent file's optional `skills` front-matter field is the authority for explicit skill paths passed with `--skill`; launcher `--skill` paths are additive. When the agent file omits `skills`, no implicit skill allowlist is created, so Pi's normal CLI/project/global skill discovery remains available. It resolves model presets and providers from root `as-is.md`, passing explicit `--provider` and `--model`, and uses a shell-free child
+- The launcher uses `--mode json` and `--print`; sessions are durable by default under the supervisor job directory, with `--no-session` providing ephemeral runs. The owning skill package supplies its Pi extension and dependencies through the supported package mechanism. An agent file's optional `skills` front-matter field is the authority for explicit skill paths passed with `--skill`; launcher `--skill` paths are additive. The `analyze_session` tool uses the effective user's readable project-local session store, including the forwarded store scope for isolated children; it remains exact-ID, bounded, read-only metadata inspection and does not require tracer approval. When the agent file omits `skills`, no implicit skill allowlist is created, so Pi's normal CLI/project/global skill discovery remains available. It resolves model presets and providers from root `as-is.md`, passing explicit `--provider` and `--model`, and uses a shell-free child
   process, and a private temporary system-prompt file. In both blocking and
   detach modes the child runs under a detached bounded job runner that is the
   child's direct parent, in an isolated git worktree pruned from the caller's

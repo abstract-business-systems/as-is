@@ -10,7 +10,6 @@ import {
   type ExtensionAPI,
 } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
-import { ControlPlane } from "../../components/control-plane/control-plane.ts";
 import {
   emitTrace,
   serializeSessionReference,
@@ -21,7 +20,7 @@ const rolePaths = {
   worker: "agents/worker/agent.md",
   expert: "agents/expert/agent.md",
 } as const;
-const maxResultCharacters = 12_000;
+const maxResultCharacters = 100_000;
 const defaultTimeoutMs = 60_000;
 const maximumTimeoutMs = 900_000;
 
@@ -87,10 +86,24 @@ function numericUsage(value: unknown): { input: number; output: number; totalTok
 }
 
 function validSessionId(sessionId: string): boolean {
-  return sessionId.length <= 128 && !(/[\\/\u0000]/u).test(sessionId) && !/^[A-Za-z][A-Za-z0-9+.-]*:/u.test(sessionId);
+  return typeof sessionId === "string" && sessionId.length <= 128 && !(/[\\/\u0000]/u).test(sessionId) && !/^[A-Za-z][A-Za-z0-9+.-]*:/u.test(sessionId);
 }
 
-async function analyzeSessionManager(manager: SessionManager, sessionId: string, limit: number): Promise<Record<string, unknown>> {
+type SessionStoreScope = { cwd: string; sessionDir?: string };
+type SessionReader = Pick<SessionManager, "getSessionId" | "getCwd" | "getSessionDir" | "getSessionFile" | "getEntries" | "getHeader">;
+type SessionDetail = "summary" | "entries" | "messages" | "full";
+
+function inheritedSessionStoreScope(): SessionStoreScope | undefined {
+  const sourceCwd = process.env.AS_IS_SESSION_CWD;
+  const sessionDir = process.env.AS_IS_SESSION_DIR;
+  if (typeof sourceCwd !== "string" || sourceCwd.length === 0) return undefined;
+  return {
+    cwd: sourceCwd,
+    sessionDir: typeof sessionDir === "string" && sessionDir.length > 0 ? sessionDir : undefined,
+  };
+}
+
+async function analyzeSessionManager(manager: SessionReader, sessionId: string, limit: number, detail: SessionDetail = "summary", offset = 0, role?: string, toolName?: string): Promise<Record<string, unknown>> {
   const entries = manager.getEntries();
   const roles: Record<string, number> = {};
   const outcomes: Record<string, number> = {};
@@ -121,7 +134,13 @@ async function analyzeSessionManager(manager: SessionManager, sessionId: string,
     }
     if (entry.type === "compaction" || entry.type === "branch_summary") observeUsage(entry.usage);
   }
-  const sample = entries.slice(-limit).map((entry) => {
+  const selected = entries.filter((entry) => {
+    if (detail === "messages" && entry.type !== "message") return false;
+    if (role && (entry.type !== "message" || entry.message.role !== role)) return false;
+    if (toolName && (entry.type !== "message" || entry.message.role !== "toolResult" || entry.message.toolName !== toolName)) return false;
+    return true;
+  }).slice(offset, offset + limit);
+  const sample = entries.slice(-Math.min(limit, 50)).map((entry) => {
     const message = entry.type === "message" ? entry.message as Record<string, unknown> : undefined;
     return {
       type: entry.type,
@@ -137,6 +156,9 @@ async function analyzeSessionManager(manager: SessionManager, sessionId: string,
   return {
     sessionId,
     availability: "available",
+    sessionFile: manager.getSessionFile(),
+    sessionDir: manager.getSessionDir(),
+    cwd: manager.getCwd(),
     entryCount: entries.length,
     messageCount,
     created: header?.timestamp,
@@ -147,34 +169,47 @@ async function analyzeSessionManager(manager: SessionManager, sessionId: string,
     models: [...models].sort(),
     usage,
     sample,
+    detail,
+    offset,
+    ...(detail !== "summary" ? { entries: selected } : {}),
   };
 }
 
-export type SessionAnalysisAuthorization = { sessionId: string; taskPath: string; questionId: string };
-
-export function hasDurableSessionApproval(status: unknown, authorization: SessionAnalysisAuthorization): boolean {
-  if (!status || typeof status !== "object") return false;
-  const tasks = (status as { tasks?: unknown }).tasks;
-  if (!Array.isArray(tasks)) return false;
-  const task = tasks.find((candidate): candidate is { path?: unknown; decisions?: unknown } =>
-    Boolean(candidate) && typeof candidate === "object" && (candidate as { path?: unknown }).path === authorization.taskPath,
-  );
-  if (!task || !Array.isArray(task.decisions)) return false;
-  return task.decisions.some((decision) => {
-    if (!decision || typeof decision !== "object") return false;
-    const value = decision as { event?: unknown; "question-id"?: unknown; approval?: unknown };
-    return value.event === "approval" && value["question-id"] === authorization.questionId && value.approval === `session-metadata:${authorization.sessionId}`;
-  });
-}
-
-export async function analyzeProjectSession(cwd: string, sessionId: string, limit = 20, currentManager?: SessionManager, authorization?: SessionAnalysisAuthorization): Promise<Record<string, unknown>> {
-  if (!authorization || authorization.sessionId !== sessionId || !hasDurableSessionApproval(new ControlPlane(cwd).status(), authorization)) return { sessionId, availability: "authorization-required" };
+export async function analyzeProjectSession(cwd: string, sessionId: string, limit = 20, currentManager?: SessionReader, inheritedScope?: SessionStoreScope, detail: SessionDetail = "summary", offset = 0, role?: string, toolName?: string): Promise<Record<string, unknown>> {
   if (!validSessionId(sessionId)) return { sessionId, availability: "invalid-selector" };
-  if (currentManager?.getSessionId() === sessionId) return analyzeSessionManager(currentManager, sessionId, limit);
-  const sessions = await SessionManager.list(cwd);
-  const info = sessions.find((candidate) => candidate.id === sessionId);
-  if (!info) return { sessionId, availability: "missing-or-out-of-scope" };
-  return analyzeSessionManager(SessionManager.open(info.path), sessionId, limit);
+  if (!Number.isInteger(limit) || limit < 1 || limit > 1000) return { sessionId, availability: "invalid-limit" };
+  if (!Number.isInteger(offset) || offset < 0) return { sessionId, availability: "invalid-offset" };
+  if (!["summary", "entries", "messages", "full"].includes(detail)) return { sessionId, availability: "invalid-detail" };
+  if (currentManager?.getSessionId() === sessionId) return analyzeSessionManager(currentManager, sessionId, limit, detail, offset, role, toolName);
+  try {
+    // A delegated child has its own current session and usually runs in an
+    // isolated worktree. The launcher forwards the parent's readable session
+    // store scope explicitly; do not mistake the child's session directory or
+    // cwd for the parent's project-local store.
+    const inherited = inheritedScope ?? inheritedSessionStoreScope();
+    const scopes: SessionStoreScope[] = [];
+    if (currentManager) scopes.push({ cwd: currentManager.getCwd(), sessionDir: currentManager.getSessionDir() });
+    if (inherited) scopes.push(inherited);
+    scopes.push({ cwd });
+    const seenScopes = new Set<string>();
+    for (const scope of scopes) {
+      const key = `${scope.cwd}\u0000${scope.sessionDir ?? ""}`;
+      if (seenScopes.has(key)) continue;
+      seenScopes.add(key);
+      const sessions = await SessionManager.list(scope.cwd, scope.sessionDir);
+      const info = sessions.find((candidate) => candidate.id === sessionId);
+      if (info) return analyzeSessionManager(SessionManager.open(info.path), sessionId, limit, detail, offset, role, toolName);
+    }
+    // The trace carries only the opaque ID. For local debugging, resolve it
+    // across the effective user's default Pi session stores as a final exact-ID
+    // lookup rather than requiring a tracer-owned approval or locator index.
+    const allSessions = await SessionManager.listAll();
+    const info = allSessions.find((candidate) => candidate.id === sessionId);
+    if (info) return analyzeSessionManager(SessionManager.open(info.path), sessionId, limit, detail, offset, role, toolName);
+    return { sessionId, availability: "missing-or-out-of-scope" };
+  } catch {
+    return { sessionId, availability: "inaccessible" };
+  }
 }
 
 const gitInspectionOperations = {
@@ -214,24 +249,39 @@ const gitInspectTool: ToolDefinition = {
   },
 };
 
-const sessionAnalysisTool: ToolDefinition = {
-  name: "analyze_session",
-  label: "Analyze project session",
-  description: "Return bounded metadata and usage for one explicitly identified project-local Pi session; never returns session content.",
-  parameters: Type.Object({
-    sessionId: Type.String({ minLength: 1, maxLength: 128 }),
-    authorization: Type.Object({
+function createSessionAnalysisTool(sourceManager?: SessionReader): ToolDefinition {
+  return {
+    name: "analyze_session",
+    label: "Analyze project session",
+    description: "Inspect one exact readable local Pi session using summary, entries, messages, or full detail with paging and role/tool filters.",
+    parameters: Type.Object({
       sessionId: Type.String({ minLength: 1, maxLength: 128 }),
-      taskPath: Type.String({ minLength: 1, maxLength: 256 }),
-      questionId: Type.String({ minLength: 1, maxLength: 128 }),
+      detail: Type.Optional(Type.Union([
+        Type.Literal("summary"), Type.Literal("entries"), Type.Literal("messages"), Type.Literal("full"),
+      ])),
+      limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 1000 })),
+      offset: Type.Optional(Type.Integer({ minimum: 0 })),
+      role: Type.Optional(Type.String({ maxLength: 32 })),
+      toolName: Type.Optional(Type.String({ maxLength: 128 })),
     }),
-    limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 50 })),
-  }),
-  async execute(_id, params, _signal, _update, ctx) {
-    const result = await analyzeProjectSession(ctx.cwd, params.sessionId, params.limit ?? 20, ctx.sessionManager, params.authorization);
-    return { content: [{ type: "text", text: boundedJson(result) }], details: { availability: result.availability } };
-  },
-};
+    async execute(_id, params, _signal, _update, ctx) {
+      const result = await analyzeProjectSession(
+        ctx.cwd,
+        params.sessionId,
+        params.limit ?? 20,
+        sourceManager ?? ctx.sessionManager,
+        undefined,
+        params.detail ?? "summary",
+        params.offset ?? 0,
+        params.role,
+        params.toolName,
+      );
+      return { content: [{ type: "text", text: boundedJson(result) }], details: { availability: result.availability } };
+    },
+  };
+}
+
+const sessionAnalysisTool = createSessionAnalysisTool();
 
 const traceQueryTools: ToolDefinition[] = [
   {
@@ -297,15 +347,11 @@ async function recordTrace(event: TraceEvent, cwd: string): Promise<void> {
   await emitTrace(event, cwd);
 }
 
-function currentSessionReference(ctx: { sessionManager?: { getSessionId?: () => unknown } }): SessionReference | undefined {
+export function currentSessionReference(ctx: { sessionManager?: { getSessionId?: () => unknown } }): SessionReference | undefined {
   try {
     const sessionId = ctx.sessionManager?.getSessionId?.();
     if (typeof sessionId !== "string") return undefined;
-    return serializeSessionReference({
-      sessionId,
-      store: "project-local",
-      availability: "available",
-    });
+    return serializeSessionReference({ sessionId });
   } catch {
     return undefined;
   }
@@ -395,7 +441,9 @@ const callSubagent: ToolDefinition = {
           ? ["read", "grep", "find", "ls", "git_inspect"]
           : ["read", "grep", "find", "ls"],
         sessionManager: SessionManager.inMemory(cwd),
-        customTools: roleName === "expert" ? [gitInspectTool] : traceQueryTools,
+        customTools: roleName === "expert"
+          ? [gitInspectTool]
+          : [...traceQueryTools.filter((tool) => tool.name !== "analyze_session"), createSessionAnalysisTool(ctx.sessionManager)],
       });
       worker = result.session;
 

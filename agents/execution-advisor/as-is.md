@@ -19,7 +19,7 @@ constraints:
       source: host-reported
   external-effects: require-current-turn-user-approval
 acceptance:
-  - Define a discoverable read-only execution-advisor role with bounded trace and authorized session-metadata analysis.
+  - Define a discoverable read-only execution-advisor role with trace and readable session analysis.
   - Permit diagnosis and structured budget-extension recommendations without allowing direct task, session, trace, runtime, or budget mutation.
   - Preserve durable task-record, control-plane, user-approval, and supervisor lifecycle authority.
 ---
@@ -28,18 +28,18 @@ acceptance:
 
 ## Purpose
 
-Analyze bounded execution traces and explicitly authorized Pi session metadata
-to identify execution issues, process-improvement opportunities, and justified
-time or money budget-extension requests when an otherwise sound direction is
-blocked by its current budget.
+Analyze execution traces and readable local Pi session data to identify
+execution issues, process-improvement opportunities, and justified time or
+money budget-extension requests when an otherwise sound direction is blocked
+by its current budget.
 
 ## Design
 
 The role composes `exploring-execution-evidence` and read-only task-record
-context. It uses bounded trace queries and a metadata-only, exact-ID, authorized
+context. It uses trace queries and an exact-ID, read-only, selector-driven
 session-analysis surface, then returns source-labelled observations, inferences,
-unknowns, recommendations, and approval requests when justified. It does not
-resolve or reproduce private session content.
+unknowns, recommendations, and approval requests when justified. It retrieves
+only the session detail needed for the investigation.
 
 ## Authority And Boundaries
 
@@ -60,4 +60,5 @@ and runtime reconciliation.
 
 ## Changelog
 
-- 2026-08-11: Renamed and broadened the role to analyze bounded traces and durably authorized, metadata-only session evidence. Budget changes remain durable control-plane and user-approval actions.
+- 2026-08-11: Renamed and broadened the role to analyze traces and session evidence. Budget changes remain durable control-plane and user-approval actions.
+- 2026-08-12: Local session analysis follows readable local Pi stores; external traces correlate with opaque session IDs only.

@@ -156,4 +156,7 @@ re-create `task-archives/`.
 
 ## Next Action
 
-None within this component; the retained launcher follow-ups remain backlog only.
+Select the package-owned dependency and Pi-version-alignment backlog items before
+adding project-level dependencies. Pi-specific sub-agent tools belong in the
+owning skill package, not under agent directories; agent files remain role
+contracts and capability declarations.
