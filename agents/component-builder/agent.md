@@ -76,4 +76,7 @@ Do not change parent or sibling records, create runtime state, contact external
 services, or put secrets in durable context. Before removing historical material,
 audit tracked, untracked, and ignored consumers and audit value; preserve
 necessary facts in the task record or changelog, or use an authorized scoped
-evidence commit. Skills never select, call, launch, or delegate agents.
+evidence commit. Skills do not, by design, select, authorize, start, or
+delegate agents. Authority-bearing agents and orchestrators retain those
+decisions; a skill may expose mechanical adapter procedures without acquiring
+agent authority.

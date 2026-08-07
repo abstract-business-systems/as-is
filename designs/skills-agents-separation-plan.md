@@ -38,7 +38,7 @@ transition or infer completion.
 
 | Surface | Current responsibility | Separation constraint | Primary evidence |
 | --- | --- | --- | --- |
-| `skills/` | Reusable procedures for task management, validation, delegation, and completion | Skills may describe inputs/outputs and handoffs but must not call, launch, or select agents | `skills/*/SKILL.md`, `AGENTS.md` |
+| `skills/` | Reusable procedures for task management, validation, delegation, and completion | Skills do not, by design, select, authorize, start, or delegate agents; an authority-bearing agent or orchestrator may invoke a mechanical adapter procedure without transferring authority into the skill | `skills/*/SKILL.md`, `AGENTS.md` |
 | `agents/as-is/agent.md` | User-facing routing and control-plane policy | Retains user-intent detection and routing; does not implement component work or become a shared routing skill | `agents/as-is/agent.md` |
 | `agents/component-builder/agent.md` | Component-scoped implementation, records, delegation, validation, and handoff | Owns builder authority only within its component; delegates only at child boundaries | `agents/component-builder/agent.md` |
 | `agents/expert/agent.md` | Read-only plan and diff validation | Inspection-only; cannot edit, delegate, or commit | `agents/expert/agent.md` |
@@ -173,8 +173,11 @@ by this planning record.
 
 **Goal:** prove the separation under invalid as well as valid compositions.
 
-- Validate that skills cannot launch, delegate, mutate authority, or create a
-  second task tree, while agents can compose only permitted skills and tools.
+- Validate that skills do not, by design, select, authorize, start, or delegate
+  agents, mutate authority, or create a second task tree, while authority-
+  bearing agents can compose only permitted skills and tools. Mechanical
+  adapter procedures may execute host mechanics only when invoked by that
+  authority; the invocation does not transfer authority into the skill.
 - Test lower-authority constraint weakening, cross-component edits, wrong-role
   returns, duplicate active attempts, stale checkpoints, invalid approvals,
   and unaccounted descendants.

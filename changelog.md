@@ -1,3 +1,22 @@
+- 2026-08-07: Completed the Phase 4 composition-boundary clarification for the
+  skills/agents separation migration. Clarified across repository instructions,
+  root context, the migration plan, component-building guidance, the spawning
+  adapter description, and the component-builder contract that skills do not,
+  by design, select, authorize, start, or delegate agents. Authority-bearing
+  agents and orchestrators may invoke mechanical adapter procedures exposed by
+  skills without transferring authority into the skill. No runtime, launcher
+  implementation, tests, role front matter, or host projection behavior
+  changed. Provider-free validation passed: routing/role checks 20 passed with
+  13 provider-gated skips and 76 assertions; launcher/control-plane/supervisor
+  checks 45 passed with 354 assertions; supporting checks 32 passed with 118
+  assertions; task-record validator 6 passed; delegation fixtures 3 passed
+  with 17 assertions. The post-clarification focused rerun passed 50 tests with
+  304 assertions. `git diff --check` passed and final read-only validation
+  judged the scoped documentation handoff safe to commit. No descendants were
+  authorized; closure was vacuously terminal. Residual risk: the worker-tools
+  extension test remains unavailable because the local
+  `@earendil-works/pi-coding-agent` package is missing.
+
 - 2026-07-29: Removed mandatory dry-run/preflight checks from `skills/as-is/SKILL.md` and `skills/spawning-pi-subagents/SKILL.md`; retained optional `--dry-run` guidance and the separate provider-free stub/dummy budget-enforcement rehearsal. Build, reference, and formatting checks passed; focused launcher tests had documented host/worktree-sensitive failures. Read-only expert validation passed and judged the scoped change safe to commit.
 
 # Changelog

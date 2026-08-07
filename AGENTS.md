@@ -42,8 +42,10 @@ this repository.
 
 - Agents are the authority-bearing composition layer: an agent role combines
   reusable skills with permissions, tools, model settings, and bounded
-  responsibility. Agents utilize skills; skills never call, launch, or
-  delegate to agents.
+  responsibility. Agents utilize skills; skills do not, by design, select,
+  authorize, start, or delegate agents. An authority-bearing agent or
+  orchestrator may invoke a mechanical adapter procedure exposed by a skill;
+  that invocation does not transfer authority into the skill.
 - Skills remain focused, reusable procedures and may be composed by an agent or
   workflow. A skill may describe a handoff or subagent contract as an input or
   output, but authority to select, launch, observe, recover, or cancel a

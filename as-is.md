@@ -69,10 +69,13 @@ rewriting the core component model. Skills are globally available to every
 flow; they are not selected, allowlisted, or added through agent front matter.
 Agents are the authority-bearing composition layer: they use the applicable
 skills and define roles, permissions, authority boundaries, and responsibility.
-Skills never call, launch, or delegate to agents. Subagents are generalized
-independent workers that may support implementation, research, review, planning,
-recovery, or other bounded flows—not only jobs. Workflows and orchestrators
-compose agents and skills without transferring agent authority into a skill.
+Skills do not, by design, select, authorize, start, or delegate agents.
+Authority-bearing agents and orchestrators may invoke mechanical adapter
+procedures exposed by skills without transferring agent authority into the
+skill. Subagents are generalized independent workers that may support
+implementation, research, review, planning, recovery, or other bounded flows—not
+only jobs. Workflows and orchestrators compose agents and skills without
+transferring agent authority into a skill.
 
 ## Structure
 

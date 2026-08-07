@@ -7,7 +7,9 @@ description: Builds one bounded component and produces a validated, scoped durab
 
 Use this procedure when an agent must build a bounded component change. This
 skill composes task implementation and completion procedures; it is not an
-agent and never calls, launches, or delegates to another agent.
+agent and does not, by design, select, authorize, start, or delegate another
+agent. An authority-bearing agent or orchestrator may invoke its procedure
+without transferring authority into the skill.
 
 ## Inputs
 
