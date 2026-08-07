@@ -1,5 +1,21 @@
 # Changelog
 
+- 2026-08-07: Restored focused worker-tools extension coverage by adding a
+  skill-owned private package manifest and offline Bun lockfile with
+  `@earendil-works/pi-coding-agent@0.84.0` and `typebox@1.3.7`. The existing
+  project extension now resolves these direct dependencies through the
+  skill-owned tree, while the focused package script runs from the repository
+  root to preserve canonical-agent fixture paths. Validation passed: the
+  worker-tools suite passed 6 tests with 31 assertions; launcher regression
+  passed 29 tests with 212 assertions; adaptive-session checks passed 2 tests
+  with 11 assertions; Bun builds passed for the extension and launcher; and
+  `git diff --check` passed. No root manifest, generated dependency tree,
+  launcher behavior, extension logic, role contract, or test assertion changed.
+  No descendants were authorized; closure was vacuously terminal. The package
+  version is intentionally not claimed to align with the shared 0.83.0 Pi host;
+  that remains the separate `pi-version-aligned-subagent-tools` backlog item.
+  Final read-only validation remains required before commit.
+
 - 2026-08-14: Completed capability-based no-holds-barred delegation. Removed
   launcher caller/identity/parent authorization gates; those values remain
   diagnostic lineage only. The launcher and Pi extension now allow any agent

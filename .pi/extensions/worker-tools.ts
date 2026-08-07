@@ -8,8 +8,8 @@ import {
   type ResourceLoader,
   type ToolDefinition,
   type ExtensionAPI,
-} from "@earendil-works/pi-coding-agent";
-import { Type } from "typebox";
+} from "../../skills/spawning-pi-subagents/node_modules/@earendil-works/pi-coding-agent";
+import { Type } from "../../skills/spawning-pi-subagents/node_modules/typebox";
 import {
   emitTrace,
   serializeSessionReference,

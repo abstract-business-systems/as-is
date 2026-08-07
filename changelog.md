@@ -13,9 +13,10 @@
   with 17 assertions. The post-clarification focused rerun passed 50 tests with
   304 assertions. `git diff --check` passed and final read-only validation
   judged the scoped documentation handoff safe to commit. No descendants were
-  authorized; closure was vacuously terminal. Residual risk: the worker-tools
-  extension test remains unavailable because the local
-  `@earendil-works/pi-coding-agent` package is missing.
+  authorized; closure was vacuously terminal. The worker-tools extension test
+  was separately restored through the skill-owned dependency fix recorded in
+  `skills/spawning-pi-subagents/changelog.md`; its Pi host-version alignment
+  remains unresolved.
 
 - 2026-07-29: Removed mandatory dry-run/preflight checks from `skills/as-is/SKILL.md` and `skills/spawning-pi-subagents/SKILL.md`; retained optional `--dry-run` guidance and the separate provider-free stub/dummy budget-enforcement rehearsal. Build, reference, and formatting checks passed; focused launcher tests had documented host/worktree-sensitive failures. Read-only expert validation passed and judged the scoped change safe to commit.
 
