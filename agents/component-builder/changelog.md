@@ -1,5 +1,21 @@
 # Changelog
 
+- 2026-08-14: Completed the first skills/agents separation extraction for
+  `component-builder`. Reduced `agent.md` from 89 lines / 7,263 bytes to 79
+  lines / 4,578 bytes by moving duplicated lifecycle, validation, recovery, and
+  completion procedure to the existing globally available skills. Retained
+  role-owned component/task boundaries, configured worker selection, expert
+  gates, child delegation, parent integration, descendant closure, commit and
+  incomplete-work semantics, runtime observation boundaries, and safety rules.
+  Front matter remained byte-identical. Focused deterministic validation passed
+  (67 tests, 450 assertions, 2 live-gated skips), role capability checks passed
+  (4 deterministic checks, 13 provider-gated skips), static skill-authority
+  checks, Markdown transpilation, and `git diff --check` passed. Final
+  read-only expert validation judged the implementation safe to commit. No
+  descendants were authorized; closure was vacuously terminal. Residual risk:
+  provider-gated behavior and the unavailable local
+  `@earendil-works/pi-coding-agent` dependency remain unvalidated.
+
 - 2026-08-06: Completed `independent-behavior-contract`. Refactored the
   component-builder contract and live harness to express local durable task
   authority, configured worker authority, and explicit no-delegation evidence
