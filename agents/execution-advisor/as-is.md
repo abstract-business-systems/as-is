@@ -35,10 +35,13 @@ by its current budget.
 
 ## Design
 
-The role composes `exploring-execution-evidence` and read-only task-record
-context. It uses trace queries and an exact-ID, read-only, selector-driven
-session-analysis surface, then returns source-labelled observations, inferences,
-unknowns, recommendations, and approval requests when justified. It retrieves
+The role composes the globally available `exploring-execution-evidence`
+procedure and read-only task-record context. A future extraction may package
+this flow as `evidence-based-consultation`, subject to a naming review, while
+this role retains advisory authority. It uses trace queries and an exact-ID,
+read-only, selector-driven session-analysis surface, then returns
+source-labelled observations, inferences, unknowns, recommendations, and
+approval requests when justified. It retrieves
 only the session detail needed for the investigation.
 
 ## Authority And Boundaries

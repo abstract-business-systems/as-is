@@ -21,7 +21,8 @@ work.
 
 The router may use current durable repository context for status and routing,
 including the orientation snapshot, but does not invent task authority for
-simple queries. Sizable implementation is routed to the best admitted agent whose role
+simple queries. User-intent detection and routing remain role-owned behavior;
+they are not a shared skill. Sizable implementation is routed to the best admitted agent whose role
 supports it; that target's own contract determines whether it requires a
 component task record, selects another worker, delegates, validates, or hands
 off. A durable task record remains authoritative whenever the applicable

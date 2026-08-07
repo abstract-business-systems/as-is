@@ -19,9 +19,10 @@ exhaustive list of every technique, domain practice, or tool integration.
   smallest relevant skills and validation to address them.
 - **Domain playbook:** An organization- or domain-specific workflow that
   combines operational skills, tools, policies, and local knowledge.
-- **Agent role:** A configured bundle of skills, tools, permissions, model
-  characteristics, and instructions. Agents use skills; they do not own their
-  definitions.
+- **Agent role:** A configured role bundle of tools, permissions, model
+  characteristics, and instructions. Agents use globally available skills;
+  skills are not selected, allowlisted, or added through agent front matter,
+  and agents do not own skill definitions.
 - **Workflow or orchestrator:** The mechanism that directs work across agents,
   preserves state, applies policy, and coordinates human input.
 
@@ -221,7 +222,7 @@ that govern this catalog and its implementation.
 
 ## Composition Into Agent Roles
 
-The same skills may appear in multiple roles. A research agent might combine
+The same globally available skills may be used by multiple roles. A research agent might combine
 evidence gathering, source evaluation, evidence extraction, and synthesis. A
 planning agent might combine constraint definition, acceptance design,
 prioritization, decomposition, dependency analysis, and risk assessment.

@@ -10,6 +10,18 @@ Each later phase requires a new bounded task record and its own validation;
 `skills-agents-separation-migration` remains deferred until this plan is
 explicitly activated.
 
+Clarified migration decisions:
+
+- Skills are globally available reusable procedures. They are not selected,
+  allowlisted, or added through agent front matter; host discovery or adapter
+  configuration must not turn skill availability into role authority.
+- The `as-is` agent retains user-intent detection and routing. Those behaviors
+  are role-specific and are not extracted into a shared routing skill.
+- Migration proceeds one agent at a time, preserving the current behavior
+  tests at every step. The first implementation target is `component-builder`,
+  whose large procedural contract has the greatest justified extraction
+  surface.
+
 The fixed authority order is:
 
 1. repository instructions and design principles;
@@ -27,11 +39,11 @@ transition or infer completion.
 | Surface | Current responsibility | Separation constraint | Primary evidence |
 | --- | --- | --- | --- |
 | `skills/` | Reusable procedures for task management, validation, delegation, and completion | Skills may describe inputs/outputs and handoffs but must not call, launch, or select agents | `skills/*/SKILL.md`, `AGENTS.md` |
-| `agents/as-is/agent.md` | User-facing routing and control-plane policy | Routes through the configured `component-builder`; does not implement component work | `agents/as-is/agent.md` |
+| `agents/as-is/agent.md` | User-facing routing and control-plane policy | Retains user-intent detection and routing; does not implement component work or become a shared routing skill | `agents/as-is/agent.md` |
 | `agents/component-builder/agent.md` | Component-scoped implementation, records, delegation, validation, and handoff | Owns builder authority only within its component; delegates only at child boundaries | `agents/component-builder/agent.md` |
 | `agents/expert/agent.md` | Read-only plan and diff validation | Inspection-only; cannot edit, delegate, or commit | `agents/expert/agent.md` |
 | `agents/worker/` | Generalized worker capability and durable worker communication | Worker is a role target, not a hidden orchestrator or alternate task authority | `agents/worker/`, `worker/as-is.md` |
-| `skills/spawning-pi-subagents/` | Host launcher and bounded process/worktree mechanics | Remains an adapter skill/procedure; role admission and authority stay with agents/orchestrator | `skills/spawning-pi-subagents/SKILL.md` |
+| `skills/spawning-pi-subagents/` | Host launcher and bounded process/worktree mechanics | Remains an adapter skill/procedure; skills are globally available and role admission/authority stay with agents/orchestrator | `skills/spawning-pi-subagents/SKILL.md` |
 | `docs/execution-contract.md` | Host-neutral lifecycle contract | Defines launch/resume/observe/question/cancel/recover without host policy | `docs/execution-contract.md` |
 | `docs/component-task-record-protocol.md` | Durable record schema, boundaries, budgets, closure | Sole record contract; no parallel task tree or runtime authority | `docs/component-task-record-protocol.md` |
 | `designs/orchestration-design.md` | Settled architecture and sequencing | Source of design invariants; this plan refines migration order only | `designs/orchestration-design.md` |
@@ -73,6 +85,9 @@ all ambiguities have decisions or blockers; baseline checks pass.
 
 ### Phase 1 — Extract root orchestration policy
 
+This phase does not extract `as-is` user-intent detection or routing. Those
+remain role-owned because they are not a shared procedure.
+
 **Goal:** make the root/as-is orchestrator the sole authority-bearing
 composition layer without changing user-visible lifecycle behavior.
 
@@ -80,8 +95,9 @@ composition layer without changing user-visible lifecycle behavior.
   user control, and parent integration decisions out of reusable skill prose
   where they are currently mixed with procedure.
 - Keep skills such as task implementation, verification, and committing as
-  callable procedures with explicit inputs, outputs, stopping conditions, and
-  evidence requirements.
+  globally available procedures with explicit inputs, outputs, stopping
+  conditions, and evidence requirements; do not select them through agent
+  front matter.
 - Make the agent contract name the only configured role target; unavailable or
   wrong-role returns remain durable blockers, never substitutions.
 - Preserve the current one-task/one-active-attempt constraints and existing
@@ -93,6 +109,10 @@ launch/delegation authority; rollback is a revert of the phase commit.
 
 ### Phase 2 — Extract component-builder composition
 
+This is the first implementation target after the inventory and baseline. Work
+is one agent at a time and must preserve the existing component-builder
+behavior tests before and after each extraction.
+
 **Goal:** isolate component-scoped building and vertical delegation from
 root-level routing and from generic procedure skills.
 
@@ -100,9 +120,17 @@ root-level routing and from generic procedure skills.
   central read-only context, named dependencies, and effective budget.
 - Keep child-boundary detection, atomic child-record creation, child worker
   admission, post-return orientation, nearest-common-ancestor integration, and
-  expert-before-commit gates in the builder role.
+  expert-before-commit gates as builder-owned authority decisions. The
+  reusable execution procedure may describe how to perform them, but cannot
+  select or launch an agent.
 - Retain reusable techniques (context building, naming, verification,
-  maintenance, and committing) as skills with no agent-selection logic.
+  maintenance, and committing) as globally available skills with no
+  agent-selection logic or agent-front-matter allowlist.
+- Move reusable component-building flow into the existing
+  `skills/building-components/SKILL.md` and its focused supporting skills where
+  that reduces the role contract without combining unrelated primary purposes.
+- Keep role-specific authority and delegation decisions in the
+  `component-builder` contract.
 - Require every delegated child to use the configured `component-builder`
   target unless a durable task explicitly names another authorized role.
 
@@ -111,6 +139,13 @@ root-level routing and from generic procedure skills.
   cancelled, unavailable, and budget-stopped children remain recoverable.
 
 ### Phase 3 — Generalize runtime and subagent flows
+
+After component-builder extraction, evaluate `execution-advisor` as the next
+role for procedural extraction. A provisional capability name is
+`evidence-based-consultation`: it describes bounded consultation grounded in
+trace/session evidence and avoids claiming budget or execution authority. The
+name is subject to the naming check in that bounded task; no skill is created
+by this planning record.
 
 **Goal:** provide one host-neutral execution path for worker and expert
   interactions while keeping runtime mechanics subordinate to records.
@@ -126,6 +161,9 @@ root-level routing and from generic procedure skills.
   fan-out; reject unavailable expert capability rather than substituting a
   worker.
 - Keep host-specific projections and extensions at the adapter boundary.
+- Do not use agent front matter to select skills. The execution-advisor
+  procedure is provisionally named `evidence-based-consultation`; validate that
+  name before creating it, and preserve advisor authority in the role.
 
 **Gate:** provider-free fixtures cover launch-before-completion, polling,
   cancellation/recovery, budget stop, role attribution, cleanup, and missing
@@ -176,8 +214,10 @@ precedes Phase 3 because the runtime needs an unambiguous role boundary. Phase
 normative documentation. No phase may silently bundle unrelated cleanup.
 
 Each phase is a separate root or component task with declared changed artifacts,
-acceptance evidence, cost/wall-clock reserve, and rollback checkpoint. Work
-crossing a child component's `as-is.md` boundary must be delegated to a new
+acceptance evidence, cost/wall-clock reserve, and rollback checkpoint. Each agent
+migration is likewise a separate bounded task and scoped commit; no task may
+migrate multiple agents. Work crossing a child component's `as-is.md` boundary
+must be delegated to a new
 component-builder task; shared changes stay at the nearest common ancestor.
 Independent documentation checks may run concurrently only after their scopes
 and allocations are proven independent.

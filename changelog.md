@@ -2,6 +2,18 @@
 
 # Changelog
 
+- 2026-08-14: Recorded the clarified skills/agents separation direction.
+  Skills are globally available reusable procedures rather than agent-front-
+  matter-selected capabilities; current launcher/front-matter forwarding is
+  explicitly a compatibility surface to be retired by a later bounded task.
+  As-is user-intent detection and routing remain role-owned. Downsizing proceeds
+  one agent at a time, beginning with the component-builder contract and its
+  existing `building-components` procedure; execution-advisor extraction is
+  provisionally named `evidence-based-consultation`, pending naming review.
+  No migration behavior changed. Focused launcher validation passed (29 tests,
+  212 assertions), `git diff --check` passed, and final read-only validation
+  approved the scoped documentation handoff subject to task cleanup.
+
 - 2026-08-06: Clarified handoff ownership: the receiving component-builder owns semantic child review and nearest-common-ancestor integration; the spawning launcher only records evidence and observes caller ancestry. Documented explicit no-separate-integration cases for in-process assistance, parent-owned worktree changes, and no-change tasks. Added the open agents-level `agent-owned-tool-capabilities` backlog item so role contracts may declare ordinary tools while package/host surfaces own implementations.
 
 - 2026-08-11: Renamed and expanded the read-only role to `execution-advisor` with bounded local trace-query and durably authorized, metadata-only Pi session analysis. It diagnoses execution issues and prepares approval-required time or money extension requests without mutating budgets, task state, sessions, processes, or completion authority. The launcher now takes the role's tool set from front matter; 21 launcher tests and 3 session-analysis tests passed, both builds passed, content/reference checks passed, and `git diff --check` passed. Final expert validation found the scoped change safe to commit. No live advisor run or raw session-content inspection was exercised.
