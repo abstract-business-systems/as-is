@@ -74,6 +74,73 @@ the launch path is not portable to a host without those env vars set. This task
 makes the launcher resolve model presets and the provider from the repository's
 root `as-is.md` and makes child runs observable by default.
 
+## Design
+
+### Launch flow
+
+```mermaid
+flowchart TD
+    CALL[Caller] --> CLI[spawn-pi-subagent.ts]
+    CLI --> INPUT[Read agent file, task, cwd, and CLI options]
+    INPUT --> AUTH{Caller authorized\nfor target role?}
+    AUTH -- No --> DENY[Stop with authorization error]
+    AUTH -- Yes --> CONFIG[Find root as-is.md\nand read agent model config]
+    CONFIG --> MODEL[Resolve model alias\nand provider]
+    MODEL --> ARGS[Build explicit Pi args:\nprovider, model, tools, skills, approvals]
+    ARGS --> MODE{Dry run?}
+    MODE -- Yes --> DRY[Print resolved launch\nwithout starting Pi]
+    MODE -- No --> PROMPT[Write private system prompt]
+    PROMPT --> JOB[Create job directory\nand job identity]
+    JOB --> SUP[Start detached bounded supervisor]
+    SUP --> WT{Use worktree?}
+    WT -- Yes --> ISO[Create isolated worktree\nfrom caller HEAD]
+    WT -- No --> SAME[Use caller working directory]
+    ISO --> PI[Spawn Pi child process]
+    SAME --> PI
+    PI --> TIMER[Supervisor enforces\nwall-clock budget]
+    TIMER --> SESSION[Durable session by default\nor ephemeral with --no-session]
+    PI --> RESULT[Capture exit, timing,\ncommit, and worktree state]
+    RESULT --> REG[Write result and\noptional job registry event]
+    REG --> PARENT[Caller observes record/log/status\nand integrates child handoff]
+```
+
+### Model and execution configuration
+
+```mermaid
+flowchart LR
+    ROOT[root as-is.md\nconfig.agents] --> PARSE[Read provider,\ndefault model, aliases]
+    AGENT[agent.md model:\nsmall or full model id] --> RESOLVE{Configured alias?}
+    PARSE --> RESOLVE
+    RESOLVE -- Yes --> ALIAS[Substitute configured model id\nand provider]
+    RESOLVE -- No --> LITERAL[Pass model value literally]
+    ALIAS --> PIARGS[Pi receives explicit\n--provider and --model]
+    LITERAL --> PIARGS
+    ENV[PI_PROVIDER / PI_MODEL] -. not used for policy .-> PIARGS
+```
+
+### Worktree, handoff, and recovery flow
+
+```mermaid
+flowchart TD
+    CHILD[Pi child process] --> EXIT{How did it finish?}
+    EXIT -- committed --> DURABLE[Commit SHA captured]
+    EXIT -- uncommitted changes --> KEEP[Preserve worktree\nas recovery candidate]
+    EXIT -- clean tree --> REMOVE[Remove temporary worktree]
+    EXIT -- budget exceeded --> STOP[SIGTERM, then SIGKILL\nafter grace period]
+    DURABLE --> PENDING[Handoff is durable but\npending parent integration]
+    KEEP --> RECOVER[Parent recovers from\nrecord and preserved worktree]
+    REMOVE --> OBSERVE[Parent reads record/log/registry]
+    STOP --> OBSERVE
+    PENDING --> OBSERVE
+    OBSERVE --> VERIFY[Verify task status, validation,\nintegration, and cleanup]
+    VERIFY --> COMPLETE[Report completion only\nafter durable verification]
+```
+
+**Key:** the launcher starts and observes bounded Pi work, but it does not
+ decide whether the task itself is semantically complete. The component task
+ record and parent integration remain authoritative; process exit, logs,
+ sessions, JobIds, and registry entries are supporting evidence.
+
 ## Requirement
 
 Implement model-alias resolution and config-driven provider selection in

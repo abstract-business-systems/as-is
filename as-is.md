@@ -56,22 +56,31 @@ write their concise completed summary to `changelog.md`.
 
 ## Design
 
-The repository is composed of filesystem components. Record filenames are
-configured centrally under `config.records.filenames`; the defaults are
-`backlog.md`, `changelog.md`, and `tasks.md` and components may not silently
-invent alternate names. A directory with
-`as-is.md`, including descendants without their own `as-is.md`, forms one
-component boundary. Components link to relevant files and folders from their
-`as-is.md`; a change crossing a child component boundary is delegated to a new
-component-builder task. Reusable skills define operational behavior, flow,
-and lifecycle logic, so system functionality can be modified by changing applicable skills without
-rewriting the core component model. Agents are the authority-bearing
-composition layer: they utilize skills and define roles, permissions,
-authority boundaries, and responsibility. Skills never call, launch, or
-delegate to agents. Subagents are generalized independent workers that may
-support implementation, research, review, planning, recovery, or other bounded
-flows—not only jobs. Workflows and orchestrators compose agents and skills
-without transferring agent authority into a skill.
+```mermaid
+flowchart TD
+    USER[User intent] --> ROUTER[as-is agent]
+    ROUTER --> RECORDS[Durable as-is.md and tasks.md records]
+    RECORDS --> SCOPE[Select lowest owning component]
+    SCOPE --> AGENT[Authority-bearing agent]
+    AGENT --> SKILLS[Reusable skills]
+    SKILLS --> WORK[Bounded implementation or evidence work]
+    WORK --> VALIDATE[Validation]
+    VALIDATE --> HANDOFF[changelog.md and scoped Git commit]
+    HANDOFF --> REPORT[Parent/user result]
+    SCOPE --> CHILD{Child has its own as-is.md?}
+    CHILD -- No --> LOCAL[Keep work in current boundary]
+    CHILD -- Yes --> DELEGATE[Delegate child component-builder]
+    DELEGATE --> RECORDS
+    CONFIG[Root configuration\nrecords, budgets, agents, runtime] -. governs .-> RECORDS
+    OBS[Logs, sessions, JobIds] -. supplementary evidence .-> REPORT
+```
+
+The repository is composed of filesystem components. Each `as-is.md` describes
+one component's current purpose, design, boundary, and links. Durable records
+hold project context and task state; agents hold authority; skills provide
+reusable procedures; and host runtime artifacts provide observation only. A
+component owns its directory and delegates work when a descendant has its own
+`as-is.md` boundary.
 
 ## Structure
 

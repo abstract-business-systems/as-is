@@ -41,6 +41,25 @@ source-labelled observations with explicit uncertainty. It treats session IDs
 as opaque correlation metadata. It does not add runtime capture or replace
 durable task and budget records. The external trace boundary carries the
 session ID only.
+```mermaid
+flowchart TD
+    Q[User debugging, process-improvement,\nor budget-analysis question] --> S[Supplied trace or\nexact session selector]
+    S --> PRIV[Check scope, approval,\nand privacy boundary]
+    PRIV -- Not authorized --> STOP[Stop and report blocker]
+    PRIV -- Authorized --> KIND{Evidence source?}
+    KIND -- Local trace --> TRACE[Query summaries,\nevents, and metadata]
+    KIND -- Pi session --> SESSION[Metadata-only session analysis\nby exact reference]
+    TRACE --> LABEL[Label observations,\ninferences, unknowns]
+    SESSION --> LABEL
+    LABEL --> REPORT[Decision-ready report\nrecommendations and residual risk]
+    REPORT --> AUTH[Task records remain\nauthoritative elsewhere]
+```
+
+The skill is a read-only evidence path: it begins with an explicit trace or
+session reference, checks authorization, gathers bounded metadata, and reports
+what is observed separately from what is inferred. It never reads raw session
+content, captures new runtime data, or changes task, budget, completion, or
+recovery authority.
 
 ## Boundaries
 

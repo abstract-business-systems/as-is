@@ -50,6 +50,27 @@ child launch or repository mutation was observed. The post-baseline contract
 uses declared capability and explicit admission rather than naming a required
 implementation, review, or downstream role. Provider response wording and
 latency remain model-dependent residual risks.
+```mermaid
+flowchart TD
+    U[User request] --> R[as-is router]
+    R --> O[orient.ts\nrepository snapshot]
+    O --> T{Active or recoverable\ntask?}
+    T -- Yes --> REC[Read task record\nand recover next action]
+    T -- No --> TYPE{Request type?}
+    TYPE -- What's next? --> BACK[Inspect open backlog items]
+    BACK --> RECO[Recommendation only\nstartsWork: false]
+    TYPE -- Small mechanical change --> DIRECT[Focused direct command\n30-second limit]
+    TYPE -- Substantive or\nmulti-source work --> BUILDER[Delegate to\ncomponent-builder]
+    REC --> BUILDER
+    BUILDER --> RESULT[Read durable component\nrecord and validation]
+    DIRECT --> RESULT
+    RESULT --> REPORT[Report result, blockers,\nrisk, and next action]
+```
+
+The router keeps conversation handling lightweight: durable task records are
+used for current state, `orient.ts` supplies a compact snapshot, and only
+substantive work is handed to `component-builder`. A backlog lookup can inform
+the user, but it cannot authorize or start work.
 
 ## Boundary
 
