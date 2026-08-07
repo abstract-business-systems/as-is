@@ -1,5 +1,19 @@
 # Changelog
 
+- 2026-08-07: Completed the expert-role migration assessment with no
+  extraction. The 20-line / 1,618-byte contract is already compact, and its
+  remaining procedure is inseparable from role-specific fixed read-only
+  capability, controlled-worktree evidence authority, acceptance validation,
+  safe-to-commit reporting, and no-mutation/no-delegation/no-commit boundaries.
+  Existing `verification-discipline` and `context-building` skills were
+  reviewed but did not justify a behavior-preserving role edit or a new skill
+  solely for line-count reduction. The expert contract remained byte-identical.
+  Opt-in expert live validation passed 4 tests with 71 assertions; the launcher
+  safety suite passed 29 tests with 212 assertions; `git diff --check` passed.
+  Final read-only validation confirmed the no-extraction decision. No
+  descendants were authorized; closure was vacuously terminal. Residual risk:
+  provider-backed wording and latency remain model-dependent.
+
 - 2026-08-14: Completed `independent-behavior-contract`. Updated the expert
   contract so supplied controlled-worktree evidence and explicit acceptance
   conditions are authoritative, while caller, worker, component-builder,
