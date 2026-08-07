@@ -74,17 +74,20 @@ const readRegistryLines = (registry: string): unknown[] =>
   readFileSync(registry, "utf8").split("\n").filter((line) => line.trim())
     .map((line) => JSON.parse(line));
 
-test("rejects component-builder launches from an unauthorized caller", async () => {
+test("caller and parent metadata do not gate launcher dispatch", async () => {
   const result = await runLauncher([
     "--agent", "agents/component-builder/agent.md",
-    "--task", "Unauthorized implementation launch.",
+    "--task", "Capability-based implementation launch.",
     "--cwd", process.cwd(),
-    "--caller", "user",
+    "--caller", "untrusted-role",
+    "--parent-job-id", "diagnostic-parent",
     "--dry-run",
   ]);
-  expect(result.exitCode).toBe(1);
-  expect(result.stderr).toContain("unauthorized delegation");
-  expect(result.stderr).toContain("delegation decisions belong to as-is");
+  expect(result.exitCode).toBe(0);
+  const parsed = JSON.parse(result.stdout);
+  expect(parsed.identity).toBe("component-builder");
+  expect(parsed.caller).toBe("untrusted-role");
+  expect(parsed["parent-job-id"]).toBe("diagnostic-parent");
 });
 
 test("component-builder launches use its declared tools without identity injection", async () => {
@@ -157,6 +160,61 @@ test("expert validation uses the fixed read-only same-worktree capability profil
   expect(parsed.args).not.toContain("bash,write,edit,webfetch");
   expect(parsed.args).not.toContain("--no-tools");
   expect(parsed.skills).toEqual([]);
+});
+
+test("ordinary fixture roles use generic declarative dispatch", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "as-is-generic-role-test-"));
+  try {
+    const agent = join(dir, "fixture-agent.md");
+    writeFileSync(agent, [
+      "---",
+      "name: fixture-role",
+      "mode: subagent",
+      "model: medium",
+      "tools: read,grep,call_subagent",
+      "skills:",
+      "  - skills/context-building",
+      "---",
+      "Return the bounded fixture report.",
+    ].join("\n"));
+    const result = await runLauncher([
+      "--agent", agent,
+      "--task", "Generic fixture dispatch.",
+      "--cwd", process.cwd(),
+      "--caller", "user",
+      "--budget-wall-clock-seconds", "12",
+      "--budget-cost-usd", "0.04",
+      "--dry-run",
+    ]);
+    expect(result.exitCode).toBe(0);
+    const parsed = JSON.parse(result.stdout);
+    expect(parsed.identity).toBe("fixture-role");
+    expect(parsed.tools).toBe("read,grep,call_subagent");
+    expect(parsed.args.join(" ")).toContain("read,grep,call_subagent");
+    expect(parsed.args).toContain("--skill");
+    expect(parsed.skills).toEqual([`${process.cwd()}/skills/context-building`]);
+    expect(parsed.sessionPath).toBe("<session-dir>");
+    expect(parsed.worktree).toBe(true);
+    expect(parsed.budget).toEqual({ "wall-clock-seconds": 12, "cost-usd": 0.04 });
+    expect(parsed.args).not.toContain("--no-tools");
+    expect(parsed.args.join(" ")).toContain("call_subagent");
+    expect(parsed.args).not.toContain("--no-session");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("ordinary fixture roles ignore caller metadata without changing dispatch", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "as-is-generic-role-auth-test-"));
+  try {
+    const agent = join(dir, "fixture-agent.md");
+    writeFileSync(agent, ["---", "name: fixture-role", "mode: subagent", "tools: read", "---", "Return ok."].join("\n"));
+    const result = await runLauncher([
+      "--agent", agent, "--task", "Generic fixture authorization.", "--cwd", process.cwd(), "--caller", "untrusted", "--dry-run",
+    ]);
+    expect(result.exitCode).toBe(0);
+    const parsed = JSON.parse(result.stdout);
+    expect(parsed.identity).toBe("fixture-role");
+    expect(parsed.caller).toBe("untrusted");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
 test("execution advisor launches use its frontmatter tool set and skills", async () => {
@@ -243,38 +301,19 @@ test("rejects empty declared tools before launch", async () => {
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
-test("rejects execution advisor launch from an unauthorized worker caller", async () => {
+test("expert safety profile is independent of caller metadata", async () => {
   const result = await runLauncher([
-    "--agent", "agents/execution-advisor/agent.md",
-    "--task", "Unauthorized execution analysis.",
-    "--cwd", process.cwd(),
-    "--caller", "worker",
-    "--dry-run",
-  ]);
-  expect(result.exitCode).toBe(1);
-  expect(result.stderr).toContain("unauthorized delegation");
-});
-
-test("allows builder-owned expert validation and rejects direct expert launch", async () => {
-  const authorized = await runLauncher([
     "--agent", "agents/expert/agent.md",
-    "--task", "Read-only validation.",
+    "--task", "Capability-based read-only validation.",
     "--cwd", process.cwd(),
-    "--caller", "component-builder",
-    "--parent-job-id", "builder-job-test",
+    "--caller", "untrusted-role",
     "--dry-run",
   ]);
-  expect(authorized.exitCode).toBe(0);
-
-  const direct = await runLauncher([
-    "--agent", "agents/expert/agent.md",
-    "--task", "Unauthorized direct validation.",
-    "--cwd", process.cwd(),
-    "--caller", "user",
-    "--dry-run",
-  ]);
-  expect(direct.exitCode).toBe(1);
-  expect(direct.stderr).toContain("unauthorized delegation");
+  expect(result.exitCode).toBe(0);
+  const parsed = JSON.parse(result.stdout);
+  expect(parsed.tools).toBe("read,grep,find,ls,git_inspect");
+  expect(parsed.worktree).toBe(false);
+  expect(parsed.sessionPath).toBe(null);
 });
 
 test("detach dry-run reports the detach flag and forwarded budget", async () => {

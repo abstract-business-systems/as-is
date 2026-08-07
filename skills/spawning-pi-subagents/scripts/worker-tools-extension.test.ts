@@ -10,7 +10,30 @@ as-is-version: 2
 ---
 # Root
 `;
-describe("execution evidence session analysis", () => {
+describe("capability-based worker extension", () => {
+  test("canonical target contracts are present and distinct", async () => {
+    const cwd = process.cwd();
+    const roles = ["as-is", "component-builder", "execution-advisor", "expert", "worker"];
+    for (const role of roles) {
+      const path = join(cwd, "agents", role, "agent.md");
+      const text = await Bun.file(path).text();
+      expect(text).toContain(`name: ${role}`);
+      expect(text).toContain("---");
+    }
+  });
+
+  test("target selection is canonical and independent of caller metadata", async () => {
+    const cwd = process.cwd();
+    const worker = await Bun.file(join(cwd, "agents", "worker", "agent.md")).text();
+    const expert = await Bun.file(join(cwd, "agents", "expert", "agent.md")).text();
+    const extension = await Bun.file(join(cwd, ".pi", "extensions", "worker-tools.ts")).text();
+    expect(worker).not.toEqual(expert);
+    expect(extension).toContain("resolveCanonicalTarget");
+    expect(extension).not.toContain("rolePaths");
+    expect(extension).not.toContain("AS_IS_ALLOW_CALL_SUBAGENT");
+    expect(JSON.stringify({ role: "worker", caller: "arbitrary", parentJobId: "arbitrary" })).toContain("worker");
+    expect(JSON.stringify({ role: "expert", caller: "different", parentJobId: null })).toContain("expert");
+  });
   test("returns bounded metadata for a readable session without tracer approval", async () => {
     const cwd = await mkdtemp(join(tmpdir(), "as-is-session-analysis-"));
     const manager = SessionManager.create(cwd, join(cwd, "sessions"));

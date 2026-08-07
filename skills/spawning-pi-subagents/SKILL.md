@@ -57,9 +57,13 @@ system prompt. For ordinary roles, the agent file's `tools:` front matter is
 the authoritative capability declaration: caller `--tools` and `--no-tools`
 overrides are rejected, missing declarations produce no implicit tool set, and
 unsupported declarations fail before Pi starts. The launcher does not add tools
-because of an agent identity. The `expert` validation role is the sole
-launcher-owned exception and always receives the fixed read-only
-`read,grep,find,ls,git_inspect` profile. Model policy is resolved from the root
+because of an agent identity. Delegation is capability-based and no-holds-barred:
+any agent that declares `call_subagent` may target any canonical
+`agents/<role>/agent.md`; caller name, parent job ID, target identity, and runtime
+lineage are diagnostic metadata rather than authorization gates. Target
+contracts and host safety profiles still apply. The `expert` validation role is
+the sole launcher-owned capability exception and always receives the fixed
+read-only `read,grep,find,ls,git_inspect` profile. Model policy is resolved from the root
 `as-is.md` `config.agents` section: `defaultModel`, `provider`, and the named
 `models` map. Supported project presets are `small`, `medium`, `large`, and
 `xlarge`; the resulting model value and provider are passed explicitly to Pi.
@@ -230,15 +234,13 @@ contacts a provider.
   authorizes independent siblings.
 - Resolve the agent file and component record before launch; do not substitute
   `general`, `explore`, or a direct worker when the configured role is missing.
-  A builder-owned read-only `expert` validation is authorized only when the
-  caller is `component-builder` and the propagated job id is present; direct
-  user/as-is expert launches remain rejected. The launcher owns an expert
-  capability profile: it ignores caller tool/approval/session/extension
-  overrides, forces same-worktree and ephemeral session mode, disables
-  extensions except the bundled inspection extension, and exposes only
-  `read,grep,find,ls,git_inspect`. `git_inspect` permits only bounded status,
-  scoped diff, diff-check, and HEAD-summary operations; it has no shell or
-  write path.
+  The launcher owns an expert capability profile: it ignores caller
+  tool/approval/session/extension overrides, forces same-worktree and
+  ephemeral session mode, disables extensions except the bundled inspection
+  extension, and exposes only `read,grep,find,ls,git_inspect`. `git_inspect`
+  permits only bounded status, scoped diff, diff-check, and HEAD-summary
+  operations; it has no shell or write path. Caller and parent metadata are
+  diagnostic only and do not authorize or reject the target.
 - Pass the child only its role contract, task-specific direction, named
   dependencies, and centrally supplied repository context. Do not copy an
   unrelated root record or private runtime state into the prompt.

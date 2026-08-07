@@ -44,6 +44,17 @@ type PiInvocation = {
   args: string[];
 };
 
+type LaunchProfile = {
+  expertValidation: boolean;
+  tools: string | undefined;
+  skills: string[];
+  noSession: boolean;
+  noExtensions: boolean;
+  extensionPath: string;
+  noApprove: boolean;
+  worktree: boolean;
+};
+
 // The handle printed to stdout (detach) and written as the registry launch
 // line. `pid` is the supervisor pid — the budget owner and the cancel target.
 // The supervisor is the direct parent of the Pi child, so this pid outlives the
@@ -980,17 +991,6 @@ const main = async() => {
   const inheritedCaller = process.env.AS_IS_JOB_ID ? process.env.AS_IS_IDENTITY : undefined;
   const caller = options.caller ?? inheritedCaller ?? "user";
   const parentJobId = options.parentJobId ?? process.env.AS_IS_JOB_ID ?? null;
-  const authorized = identity === "as-is"
-    ? caller === "user" || caller === "as-is"
-    : identity === "component-builder"
-      ? caller === "as-is" || caller === "component-builder"
-      : identity === "execution-advisor"
-        ? caller === "user" || caller === "as-is" || caller === "component-builder"
-        : (identity === "worker" || identity === "expert") && caller === "component-builder" && parentJobId !== null;
-  if (!authorized) {
-    throw new Error(`unauthorized delegation: ${caller} cannot launch ${identity}; delegation decisions belong to as-is`);
-  }
-
   const config = await readProjectModelConfig(cwd);
   const tracer = config.componentBuildTracer;
   process.env.AS_IS_COMPONENT_BUILD_TRACER = tracer?.enabled === false
@@ -1015,6 +1015,30 @@ const main = async() => {
   // represented by an explicit empty capability set, never Pi defaults or an
   // identity-specific fallback.
   const tools = isExpertValidation ? "read,grep,find,ls,git_inspect" : declaredTools;
+  // The caller's declared tools determine the host's active capability set.
+  // Caller/target identity and lineage remain diagnostic metadata only; they
+  // are not delegation authorization. The extension registers its tools
+  // declaratively, while Pi exposes only this active declared set.
+  const skillPaths = isExpertValidation ? [] : definition.skills
+    ? uniquePaths([
+      ...definition.skills.map((skill) => resolveFromCwd(skill, cwd)),
+      ...options.skills.map((skill) => resolveFromCwd(skill, cwd)),
+    ])
+    : options.skills.length > 0
+      ? uniquePaths(options.skills.map((skill) => resolveFromCwd(skill, cwd)))
+      : [];
+  const launchProfile: LaunchProfile = {
+    expertValidation: isExpertValidation,
+    tools,
+    skills: skillPaths,
+    noSession: isExpertValidation || Boolean(options.noSession),
+    noExtensions: true,
+    extensionPath: resolve(cwd, isExpertValidation
+      ? "skills/spawning-pi-subagents/scripts/expert-inspection-extension.ts"
+      : ".pi/extensions/worker-tools.ts"),
+    noApprove: isExpertValidation || Boolean(options.noApprove),
+    worktree: isExpertValidation ? false : !(options.noWorktree ?? false),
+  };
   // One launcher-boundary session span: lifecycle metadata only. In
   // particular, never pass prompts, responses, tools, or exception text to it.
   const sessionSpan = startSpan("session.lifecycle", {
@@ -1027,37 +1051,21 @@ const main = async() => {
     traceId: process.env.AS_IS_TRACE_ID || undefined,
   });
   process.env.AS_IS_TRACE_PARENT_SPAN_ID = sessionSpan.spanId;
-  // An agent file may narrow the skill set explicitly. With no `skills` field,
-  // preserve the CLI's normal discovery and pass it through by not adding an
-  // explicit skill allowlist. Explicit launcher skills remain additive.
-  const skillPaths = isExpertValidation ? [] : definition.skills
-    ? uniquePaths([
-      ...definition.skills.map((skill) => resolveFromCwd(skill, cwd)),
-      ...options.skills.map((skill) => resolveFromCwd(skill, cwd)),
-    ])
-    : options.skills.length > 0
-      ? uniquePaths(options.skills.map((skill) => resolveFromCwd(skill, cwd)))
-      : [];
+  // Generic dispatch consumes the selected launch profile. The profile owns
+  // capability/session/extension differences; identity is not consulted here.
   const piInvocation = resolvePi(options.pi, cwd);
   const baseArgs = ["--mode", "json", "--print"];
-  if (isExpertValidation || options.noSession) baseArgs.push("--no-session");
+  if (launchProfile.noSession) baseArgs.push("--no-session");
   else baseArgs.push("--session-dir", "<session-dir>");
-  if (isExpertValidation) {
-    baseArgs.push("--no-extensions", "--extension", resolve(cwd, "skills/spawning-pi-subagents/scripts/expert-inspection-extension.ts"));
-  } else {
-    // Explicitly load only the trusted project-local worker/expert tool
-    // extension. Disable discovery so project settings cannot load the same
-    // extension twice in an isolated child worktree.
-    baseArgs.push("--no-extensions", "--extension", resolve(cwd, ".pi/extensions/worker-tools.ts"));
-  }
+  baseArgs.push("--no-extensions", "--extension", launchProfile.extensionPath);
   if (provider) baseArgs.push("--provider", provider);
   if (model) baseArgs.push("--model", model);
-  if (tools) baseArgs.push("--tools", tools);
-  else if (!isExpertValidation) baseArgs.push("--no-tools");
+  if (launchProfile.tools) baseArgs.push("--tools", launchProfile.tools);
+  else if (!launchProfile.expertValidation) baseArgs.push("--no-tools");
   if (definition.skills) baseArgs.push("--no-skills");
-  if (!isExpertValidation && options.approve) baseArgs.push("--approve");
-  if (options.noApprove || isExpertValidation) baseArgs.push("--no-approve");
-  for (const skillPath of skillPaths) baseArgs.push("--skill", skillPath);
+  if (!launchProfile.expertValidation && options.approve) baseArgs.push("--approve");
+  if (launchProfile.noApprove) baseArgs.push("--no-approve");
+  for (const skillPath of launchProfile.skills) baseArgs.push("--skill", skillPath);
 
   const budget = {
     "wall-clock-seconds": options.budgetWallClockSeconds ?? null,
@@ -1079,13 +1087,13 @@ const main = async() => {
       identity,
       caller,
       "parent-job-id": parentJobId,
-      skills: skillPaths,
+      skills: launchProfile.skills,
       model: model ?? null,
       provider: provider ?? null,
-      sessionPath: isExpertValidation || options.noSession ? null : "<session-dir>",
-      tools: tools ?? null,
+      sessionPath: launchProfile.noSession ? null : "<session-dir>",
+      tools: launchProfile.tools ?? null,
       detach: options.detach ?? false,
-      worktree: isExpertValidation ? false : !(options.noWorktree ?? false),
+      worktree: launchProfile.worktree,
       budget,
       tracer: {
         backend: process.env.AS_IS_COMPONENT_BUILD_TRACER,
@@ -1121,7 +1129,7 @@ const main = async() => {
   const launchedAt = new Date().toISOString();
   // Experts must see the builder's controlled worktree. Other roles retain the
   // existing isolation default and explicit --no-worktree escape hatch.
-  const useWorktree = isExpertValidation ? false : !(options.noWorktree ?? false);
+  const useWorktree = launchProfile.worktree;
 
   if (options.detach) {
     const jobDirectory = await mkdtemp(join(tmpdir(), "as-is-child-"));

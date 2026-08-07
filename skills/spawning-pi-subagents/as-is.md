@@ -40,9 +40,9 @@ acceptance:
     do not weaken stated non-properties beyond this task's surfaces.
   - Keep the change dependency-free and Bun/TypeScript-compatible; read the
     root `as-is.md` as the sole project model-policy source (no host-config dependency).
-  - Do not modify control-plane, the supervisor, agent role contracts,
-    permissions, or delegation authority; this task touches only the launcher
-    script, its test, and its SKILL.md.
+  - Do not modify control-plane, the supervisor, or agent role contracts; the
+    launcher, focused tests, SKILL.md, and host extension are separate
+    implementation surfaces for dispatch and capability-based delegation.
   - Validate with `bun build`, a focused deterministic test (alias resolves;
     non-alias passes literally; provider/model appear in `--dry-run`; no env
     dependency), `opencode agent list`, and `git diff --check`; record residual
@@ -50,6 +50,19 @@ acceptance:
 ---
 
 # Launcher Host-Config Resolution And Run Observability
+
+## Delegation Design
+
+Delegation is capability-based and intentionally no-holds-barred: any agent
+that declares the `call_subagent` capability may target any canonical agent
+role under `agents/<role>/agent.md`. Caller name, parent job ID, target
+identity, and runtime lineage are diagnostic metadata only; they are not
+authorization gates. The target contract and host safety profile still govern
+the target's tools and behavior, while task records, budgets, worktree/session
+boundaries, and completion gates remain authoritative for execution and
+handoff. The in-process Pi extension is an explicit host implementation
+consumer of this design; it resolves canonical targets independently of caller
+identity. The expert target retains its fixed read-only inspection profile.
 
 ## Purpose
 

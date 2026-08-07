@@ -1,5 +1,5 @@
-import { readFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { readFile, readdir } from "node:fs/promises";
+import { join } from "node:path";
 import { createHash, randomUUID } from "node:crypto";
 import {
   createAgentSession,
@@ -16,11 +16,15 @@ import {
   type SessionReference,
 } from "../../components/observability/tracer.ts";
 
-const rolePaths = {
-  worker: "agents/worker/agent.md",
-  expert: "agents/expert/agent.md",
-} as const;
 const maxResultCharacters = 100_000;
+const canonicalRoleName = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
+const defaultReadOnlyTools = ["read", "grep", "find", "ls"];
+const supportedTargetTools = new Set([
+  "read", "write", "edit", "bash", "grep", "find", "ls", "webfetch", "websearch",
+  "call_subagent", "git_inspect", "search_traces", "get_trace", "summarize_trace",
+  "compare_traces", "analyze_session",
+]);
+const builtinTools = new Set(["read", "write", "edit", "bash", "grep", "find", "ls", "webfetch", "websearch"]);
 const defaultTimeoutMs = 60_000;
 const maximumTimeoutMs = 900_000;
 
@@ -357,6 +361,38 @@ export function currentSessionReference(ctx: { sessionManager?: { getSessionId?:
   }
 }
 
+type TargetDefinition = { body: string; tools: string[] };
+
+async function resolveCanonicalTarget(cwd: string, role: string): Promise<TargetDefinition> {
+  if (!canonicalRoleName.test(role)) throw new Error(`invalid canonical agent role: ${role}`);
+  const agentsDirectory = join(cwd, "agents");
+  const entries = await readdir(agentsDirectory, { withFileTypes: true });
+  const matches = entries.filter((entry) => entry.isDirectory() && entry.name === role);
+  if (matches.length !== 1) throw new Error(`canonical agent role not found: ${role}`);
+  const path = join(agentsDirectory, role, "agent.md");
+  const raw = await readFile(path, "utf8");
+  const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
+  if (!match) throw new Error(`canonical agent has no front matter: ${role}`);
+  const toolsLine = match[1].match(/^tools:\s*(.*)$/m)?.[1]?.trim() ?? "";
+  const tools = toolsLine ? toolsLine.split(",").map((tool) => tool.trim()).filter(Boolean) : [];
+  const unsupported = tools.filter((tool) => !supportedTargetTools.has(tool));
+  if (unsupported.length > 0) throw new Error(`canonical agent declares unsupported tools: ${unsupported.join(", ")}`);
+  return { body: raw, tools: [...new Set(tools)] };
+}
+
+function toolsForTarget(role: string, declared: string[]): { tools: string[]; customTools: ToolDefinition[] } {
+  if (role === "expert") return { tools: [...defaultReadOnlyTools, "git_inspect"], customTools: [gitInspectTool] };
+  const tools = declared.filter((tool) => builtinTools.has(tool));
+  const customTools: ToolDefinition[] = [];
+  if (declared.includes("analyze_session")) customTools.push(createSessionAnalysisTool());
+  if (declared.includes("search_traces")) customTools.push(traceQueryTools[0]);
+  if (declared.includes("get_trace")) customTools.push(traceQueryTools[1]);
+  if (declared.includes("summarize_trace")) customTools.push(traceQueryTools[2]);
+  if (declared.includes("compare_traces")) customTools.push(traceQueryTools[3]);
+  if (declared.includes("call_subagent")) customTools.push(callSubagent);
+  return { tools, customTools };
+}
+
 function createWorkerLoader(role: string): ResourceLoader {
   return {
     getExtensions: () => ({ extensions: [], errors: [], runtime: createExtensionRuntime() }),
@@ -395,8 +431,8 @@ const callSubagent: ToolDefinition = {
   label: "Call read-only worker",
   description: "Ask a bounded read-only worker agent a question without spawning a subprocess.",
   parameters: Type.Object({
-    role: Type.Optional(Type.Union([Type.Literal("worker"), Type.Literal("expert")])),
-    task: Type.String({ description: "One bounded read-only question or investigation." }),
+    role: Type.Optional(Type.String({ description: "Canonical agent role under agents/<role>/agent.md." })),
+    task: Type.String({ description: "One bounded request for the selected canonical agent." }),
     timeoutMs: Type.Optional(Type.Integer({ minimum: 1_000, maximum: maximumTimeoutMs })),
     traceId: Type.Optional(Type.String()),
     runId: Type.Optional(Type.String()),
@@ -409,7 +445,7 @@ const callSubagent: ToolDefinition = {
     const cwd = ctx.cwd;
     const timeoutMs = params.timeoutMs ?? defaultTimeoutMs;
     const roleName = params.role ?? "worker";
-    const rolePath = join(cwd, rolePaths[roleName]);
+    const target = await resolveCanonicalTarget(cwd, roleName);
     const sessionReference = currentSessionReference(ctx);
 
     await recordTrace({
@@ -426,24 +462,20 @@ const callSubagent: ToolDefinition = {
       },
     }, cwd);
 
-    const role = await readFile(rolePath, "utf8");
     const controller = new AbortController();
     const abortFromParent = () => controller.abort(signal?.reason);
     signal?.addEventListener("abort", abortFromParent, { once: true });
 
     let worker;
     try {
+      const profile = toolsForTarget(roleName, target.tools);
       const result = await createAgentSession({
         cwd,
         model: ctx.model,
-        resourceLoader: createWorkerLoader(role),
-        tools: roleName === "expert"
-          ? ["read", "grep", "find", "ls", "git_inspect"]
-          : ["read", "grep", "find", "ls"],
+        resourceLoader: createWorkerLoader(target.body),
+        tools: profile.tools,
         sessionManager: SessionManager.inMemory(cwd),
-        customTools: roleName === "expert"
-          ? [gitInspectTool]
-          : [...traceQueryTools.filter((tool) => tool.name !== "analyze_session"), createSessionAnalysisTool(ctx.sessionManager)],
+        customTools: profile.customTools,
       });
       worker = result.session;
 
@@ -506,6 +538,9 @@ const callSubagent: ToolDefinition = {
 };
 
 export default function workerTools(pi: ExtensionAPI): void {
+  // Registration is declarative. Pi's active tool set controls whether the
+  // caller can invoke `call_subagent`; no process-global authorization flag or
+  // caller/target identity check is used here.
   pi.registerTool(callSubagent);
   pi.registerTool(sessionAnalysisTool);
   for (const tool of traceQueryTools) pi.registerTool(tool);
