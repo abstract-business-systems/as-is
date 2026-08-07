@@ -1,5 +1,21 @@
 # Changelog
 
+- 2026-08-07: Completed the next skills/agents separation extraction for
+  `execution-advisor`. Reduced `agent.md` from 105 lines / 5,413 bytes to 73
+  lines / 3,810 bytes by delegating reusable selector-driven trace and session
+  investigation to the existing `exploring-execution-evidence` skill. Retained
+  role-owned focused task/scope and exact-selector requirements, read-only
+  evidence boundaries, recommendation-only budget extensions with
+  `approvalRequired`, structured report output, and no edit/delegation/launch/
+  commit/external-contact/completion claims. Front matter remained
+  byte-identical. The live suite passed 3 tests with 36 assertions; focused
+  deterministic checks passed 31 tests with 213 assertions, with 2 live tests
+  skipped; transpilation and `git diff --check` passed. Final read-only expert
+  validation judged the change safe to commit. No descendants were authorized;
+  closure was vacuously terminal. Residual risk: the provider-backed behavior
+  remains model-dependent, and the local `@earendil-works/pi-coding-agent`
+  package is unavailable for the worker-tools extension test.
+
 - 2026-08-06: Completed `independent-behavior-contract`. Made the role
   contract and live harness independent of fixed caller, delegation-chain, and
   downstream role behavior. Launcher caller and parent values are documented
