@@ -2,6 +2,20 @@
 
 # Changelog
 
+- 2026-08-14: Completed Phase 0 skills/agents separation inventory and
+  pre-extraction baseline. Enumerated five canonical agent roles, 11 reusable
+  skills, launcher/host projections, and role/delegation references; classified
+  every component-builder prompt span and recorded reusable-flow candidates,
+  retained authority, observations, and unresolved launcher/host skill
+  ownership. Baseline captured component-builder at 89 lines / 7,263 bytes;
+  focused deterministic checks passed (67 tests, 450 assertions, 2 live-gated
+  skips), the static skill-authority scan and `git diff --check` passed, and the
+  unavailable local `@earendil-works/pi-coding-agent` dependency remains
+  residual risk. No runtime, agent front-matter, launcher, or skill behavior
+  changed. Final read-only expert review passed and judged the scoped handoff
+  safe to commit. Next action is a new bounded component-builder extraction
+  task; no extraction is authorized by this record.
+
 - 2026-08-14: Recorded the clarified skills/agents separation direction.
   Skills are globally available reusable procedures rather than agent-front-
   matter-selected capabilities; current launcher/front-matter forwarding is
