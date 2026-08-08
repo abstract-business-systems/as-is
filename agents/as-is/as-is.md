@@ -52,25 +52,28 @@ implementation, review, or downstream role. Provider response wording and
 latency remain model-dependent residual risks.
 ```mermaid
 flowchart TD
-    U[User request] --> R[as-is router]
+    U[User request] --> R[as-is front-face router]
     R --> O[orient.ts\nrepository snapshot]
-    O --> T{Active or recoverable\ntask?}
-    T -- Yes --> REC[Read task record\nand recover next action]
-    T -- No --> TYPE{Request type?}
+    O --> T{Current task authority\nrequires action?}
+    T -- Yes --> REC[Read applicable task record\nand recover next action]
+    T -- No --> TYPE{Request type and\nadmitted capability?}
     TYPE -- What's next? --> BACK[Inspect open backlog items]
     BACK --> RECO[Recommendation only\nstartsWork: false]
-    TYPE -- Small mechanical change --> DIRECT[Focused direct command\n30-second limit]
-    TYPE -- Substantive or\nmulti-source work --> BUILDER[Delegate to\ncomponent-builder]
-    REC --> BUILDER
-    BUILDER --> RESULT[Read durable component\nrecord and validation]
+    TYPE -- Small direct request --> DIRECT[Give bounded direct response\nor focused action]
+    TYPE -- Sizable/substantive --> TARGET[Select optimal admitted\nagent and applicable skill]
+    REC --> TARGET
+    TARGET --> CONTRACT[Target owns its own\nrecord, lifecycle, validation,\nand handoff]
+    CONTRACT --> RESULT[Read durable target result]
     DIRECT --> RESULT
     RESULT --> REPORT[Report result, blockers,\nrisk, and next action]
 ```
 
 The router keeps conversation handling lightweight: durable task records are
-used for current state, `orient.ts` supplies a compact snapshot, and only
-substantive work is handed to `component-builder`. A backlog lookup can inform
-the user, but it cannot authorize or start work.
+used for current state, `orient.ts` supplies a compact snapshot, and sizable
+work is routed to the best admitted agent rather than a universal fixed
+`component-builder` chain. The selected target's own contract determines its
+skills, task record, delegation, validation, and handoff. A backlog lookup can
+inform the user, but it cannot authorize or start work.
 
 ## Boundary
 
