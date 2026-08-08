@@ -48,7 +48,10 @@ writes the parent summary only after child closure and parent integration.
 8. Only after acceptance validation passes and descendant closure is verified,
    mark the task `completed`, write its concise summary to `changelog.md`, and
    invoke `committing-completed-work` to remove `tasks.md` and create the scoped
-   durable handoff. Changelog writing and task-record removal are completion
+   durable handoff. The completion procedure then performs backlog reconciliation
+   for the exact selected `component:id`; it removes that row only after the
+   durable handoff is verified and the owning changelog contains the exact ID
+   with completion evidence. Changelog writing and task-record removal are completion
    steps, never progress steps.
 
 ## Boundaries
@@ -56,6 +59,23 @@ writes the parent summary only after child closure and parent integration.
 Do not put transient task status, runtime details, or active backlog items in
 `as-is.md`. Do not edit parent or sibling component state. Do not infer
 completion from process exit or a private runtime artifact.
+
+## Backlog Completion Handoff
+
+A selected backlog row is not cleared by changing its status or by process
+exit. After the task record is terminal and the durable handoff is complete,
+task management invokes the deterministic cleanup in the owning repository:
+
+```bash
+bun skills/managing-backlog/scripts/query.ts --cleanup .
+```
+
+The cleanup result must be checked against the exact selected `component:id`.
+The owning changelog must name that ID on a completion-evidence line. Failed,
+blocked, cancelled, or otherwise unreconciled work receives no completion
+changelog evidence and remains in its backlog. If cleanup reports additional
+rows, task management must review them separately rather than attributing them
+to the current task.
 
 ## Quality Checks
 

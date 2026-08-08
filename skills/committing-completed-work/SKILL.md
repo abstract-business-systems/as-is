@@ -37,7 +37,14 @@ unrelated, or unvalidated work.
    evidence or commit message and record the resulting integration SHA in the
    durable parent task/changelog evidence after the commit exists; never attempt
    self-referential inclusion of the new commit's own SHA.
-6. Reinspect `git status` and report the commit identifier, staged scope,
+6. After the durable handoff exists, reconcile the exact selected backlog item
+   through the owning backlog procedure. Run
+   `bun skills/managing-backlog/scripts/query.ts --cleanup .`, verify that the
+   result names the selected `component:id`, and leave failed, blocked, or
+   otherwise unreconciled rows untouched. Review any additional reported rows
+   separately; cleanup is evidence-gated and is not authorization to infer
+   completion.
+7. Reinspect `git status` and report the commit identifier, staged scope,
    validation evidence, and any unrelated work left untouched.
 
 ## Boundaries

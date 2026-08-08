@@ -140,7 +140,12 @@ Run the deterministic cleanup with `cleanupCompletedBacklogs` via:
 bun skills/managing-backlog/scripts/query.ts --cleanup .
 ```
 
-The command reports each removed `component:id` and its changelog evidence. Use
+Task management invokes cleanup only after the selected task's acceptance,
+terminal descendant closure, changelog handoff, and scoped durable handoff have
+all been verified. It must compare the output with the exact selected
+`component:id`; any additional reported rows require separate review. The
+deterministic `cleanupCompletedBacklogs` operation reports each removed
+`component:id` and its changelog evidence. Use
 version control or a focused diff to review the removal before handoff; the
 cleaned item's concise history remains in the owning changelog.
 
