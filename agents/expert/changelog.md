@@ -1,5 +1,15 @@
 # Changelog
 
+- 2026-08-14: Completed `live-behavioral-baseline`. The opt-in expert live
+  validation in `live-behavioral.test.ts` passed 4 tests with 71 assertions,
+  covering bounded controlled-worktree validation, evidence-backed safe and
+  unsafe findings, insufficient evidence, residual-risk reporting, and
+  read-only/no-commit/no-delegation behavior. The launcher safety suite passed
+  29 tests with 212 assertions, `git diff --check` passed, and final read-only
+  validation confirmed the baseline evidence was safe to retain. No active task
+  record or implementation descendants were present; closure was terminal.
+  Residual risk: provider-backed wording and latency remain model-dependent.
+
 - 2026-08-07: Completed the expert-role migration assessment with no
   extraction. The 20-line / 1,618-byte contract is already compact, and its
   remaining procedure is inseparable from role-specific fixed read-only

@@ -1,5 +1,16 @@
 # Changelog
 
+- 2026-08-14: Completed `live-behavioral-baseline`. The opt-in worker live
+  validation in `live-behavioral.test.ts` passed 5 tests with 153 assertions,
+  covering bounded reporting, differing upstream narratives, refusal of
+  delegation and subprocess pressure, incomplete validation, residual-risk
+  reporting, and read-only/no-commit/no-mutation behavior. The launcher safety
+  suite passed 29 tests with 212 assertions, `git diff --check` passed, and
+  final read-only validation confirmed the baseline evidence was safe to
+  retain. No active task record or implementation descendants were present;
+  closure was terminal. Residual risk: provider-backed wording and latency
+  remain model-dependent.
+
 - 2026-08-07: Completed the worker-role migration assessment with no
   extraction. The 28-line / 1,273-byte contract is already compact, and its
   remaining procedure is inseparable from role-specific assigned-scope,
