@@ -47,8 +47,8 @@ flowchart TD
     S --> PRIV[Check scope, approval,\nand privacy boundary]
     PRIV -- Not authorized --> STOP[Stop and report blocker]
     PRIV -- Authorized --> KIND{Evidence source?}
-    KIND -- Local trace --> TRACE[Query summaries,\nevents, and metadata]
-    KIND -- Pi session --> SESSION[Metadata-only session analysis\nby exact reference]
+    KIND -- Local trace --> TRACE[Query local trace summaries\nand events]
+    KIND -- Readable Pi session --> SESSION[Analyze selected session\nmetadata and permitted detail]
     TRACE --> LABEL[Label observations,\ninferences, unknowns]
     SESSION --> LABEL
     LABEL --> REPORT[Decision-ready report\nrecommendations and residual risk]
@@ -56,10 +56,10 @@ flowchart TD
 ```
 
 The skill is a read-only evidence path: it begins with an explicit trace or
-session reference, checks authorization, gathers bounded metadata, and reports
-what is observed separately from what is inferred. It never reads raw session
-content, captures new runtime data, or changes task, budget, completion, or
-recovery authority.
+session reference, checks authorization and filesystem ownership, gathers only
+permitted local evidence, and reports observations separately from inferences.
+It does not add runtime capture, expose more than an external session ID,
+or change task, budget, completion, or recovery authority.
 
 ## Boundaries
 
