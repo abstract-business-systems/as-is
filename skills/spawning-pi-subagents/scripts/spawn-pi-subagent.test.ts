@@ -520,11 +520,9 @@ test("child commit handoff is explicitly pending parent integration", async () =
     const stubPi = join(dir, "pi-commit-stub.sh");
     writeFileSync(stubPi, [
       "#!/usr/bin/env bash",
-      "git config user.email test@example.invalid",
-      "git config user.name test",
       "printf '\\n// handoff fixture\\n' >> skills/as-is/scripts/orient.ts",
       "git add skills/as-is/scripts/orient.ts",
-      "git commit --allow-empty -m 'test: child handoff' >/dev/null",
+      "git -c user.email=test@example.invalid -c user.name=test commit --allow-empty -m 'test: child handoff' >/dev/null",
       "exit 0",
       "",
     ].join("\n"), { mode: 0o755 });
@@ -619,9 +617,7 @@ test("budget stop remains authoritative when a child outlives the deadline", asy
       "while [ $SECONDS -lt $end ]; do :; done",
       "printf 'late child marker\\n' >> budget-marker.txt",
       "git add budget-marker.txt",
-      "git config user.email test@example.invalid",
-      "git config user.name test",
-      "git commit --quiet -m 'test: late child result'",
+      "git -c user.email=test@example.invalid -c user.name=test commit --quiet -m 'test: late child result'",
       "exit 0",
       "",
     ].join("\\n"), { mode: 0o755 });
@@ -713,11 +709,9 @@ test("integration status distinguishes an unreachable child commit", () => {
   const git = (args: string[]) => spawnSync("git", args, { cwd: dir, encoding: "utf8" });
   try {
     expect(git(["init", "-q"]).status).toBe(0);
-    git(["config", "user.email", "test@example.invalid"]);
-    git(["config", "user.name", "test"]);
     writeFileSync(join(dir, "base.txt"), "base\n");
     expect(git(["add", "."]).status).toBe(0);
-    expect(git(["commit", "-qm", "base"]).status).toBe(0);
+    expect(git(["-c", "user.email=test@example.invalid", "-c", "user.name=test", "commit", "-qm", "base"]).status).toBe(0);
     const unreachableSha = "0".repeat(40);
     expect(spawnSync(Bun.which("bun") ?? "bun", ["-e", `import { integrationStatusFor } from ${JSON.stringify(join(process.cwd(), "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts"))}; console.log(integrationStatusFor(${JSON.stringify(unreachableSha)}, ${JSON.stringify(dir)}));`], { encoding: "utf8" }).stdout.trim()).toBe("unreachable");
   } finally { rmSync(dir, { recursive: true, force: true }); }
@@ -937,8 +931,7 @@ test("caller-worktree ancestry distinguishes pending integration from integrated
   const git = (args: string[]) => spawnSync("git", args, { cwd: dir, encoding: "utf8" });
   try {
     expect(git(["init", "-q"]).status).toBe(0);
-    git(["config", "user.email", "test@example.invalid"]); git(["config", "user.name", "test"]);
-    writeFileSync(join(dir, "base.txt"), "base\n"); git(["add", "."]); git(["commit", "-qm", "base"]);
+    writeFileSync(join(dir, "base.txt"), "base\n"); git(["add", "."]); git(["-c", "user.email=test@example.invalid", "-c", "user.name=test", "commit", "-qm", "base"]);
     writeFileSync(join(dir, "child.txt"), "child\n"); git(["add", "."]); git(["commit", "-qm", "child"]);
     const childSha = git(["rev-parse", "HEAD"]).stdout.trim();
     const callerSha = git(["rev-parse", "HEAD~1"]).stdout.trim();

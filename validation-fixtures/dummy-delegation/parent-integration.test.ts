@@ -22,12 +22,10 @@ test("parent consolidates a scoped child commit without unrelated changes", () =
   const repo = mkdtempSync(join(tmpdir(), "dummy-parent-integration-"));
   try {
     git(repo, "init", "--quiet");
-    git(repo, "config", "user.email", "test@example.invalid");
-    git(repo, "config", "user.name", "dummy-test");
     writeFileSync(join(repo, "fixture.txt"), "base\n");
     writeFileSync(join(repo, "unrelated.txt"), "preserve\n");
     git(repo, "add", ".");
-    git(repo, "commit", "--quiet", "-m", "base");
+    git(repo, "-c", "user.email=test@example.invalid", "-c", "user.name=dummy-test", "commit", "--quiet", "-m", "base");
     const parentBase = git(repo, "rev-parse", "HEAD");
 
     // Simulate the isolated child's scoped work and commit.
