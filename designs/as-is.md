@@ -35,7 +35,8 @@ Resolve the independent-delegation design's remaining budget-holder decision.
 The per-child detached supervisor is authoritative for wall-clock enforcement
 and budget-stop ownership; update the subject design and any directly stale
 design cross-references without implementing runtime behavior. Preserve the
-design component's grouping and authority rules.
+design documents' grouping and authority rules. Backlog planning remains at
+ the repository root; this folder does not own a separate backlog.
 
 ## Plan
 1. Inspect the independent-delegation open decision and related execution
@@ -74,12 +75,18 @@ built component should be relocated only through a bounded maintenance record.
 - `execution-accounting-design.md` — execution accounting design.
 - `orchestration-design.md` — orchestration design.
 - `independent-delegation.md` — independent delegation design.
+- `model-simplicity-guidance.md` — guidance for model-assisted coding to
+  prefer simple central ownership over duplicated local solutions. Its open
+  implementation item is recorded in the root [`backlog.md`](../backlog.md).
 
 ## Next Action
-None within this component; the resolved design is ready for root integration.
+The model-simplicity guidance is ready for a bounded implementation task at the
+responsible component; no implementation is authorized by this design record.
 
 ## Changelog
 
+- 2026-08-02: added `model-simplicity-guidance.md`; its bounded implementation
+  item is recorded and linked in the root `backlog.md`.
 - 2026-08-02: merged the completed execution-accounting design task into this
   design-component record; the design remains under `designs/` until its
   implementation is authorized.
