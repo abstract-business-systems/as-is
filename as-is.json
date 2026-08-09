@@ -25,13 +25,11 @@
     },
     "agents": {
       "defaultRole": "as-is",
-      "defaultModel": "small",
+      "defaultModel": "medium",
       "provider": "openrouter",
       "models": {
-        "small": "@preset/abs-small",
         "medium": "@preset/abs-medium",
-        "large": "@preset/abs-large",
-        "xlarge": "@preset/abs-xlarge"
+        "large": "@preset/abs-large"
       }
     },
     "technology-preferences": {

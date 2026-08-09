@@ -81,7 +81,7 @@ test("project context follows the launching cwd when target cwd is a component",
   mkdirSync(target, { recursive: true });
   mkdirSync(join(bundle, "agents", "fixture"), { recursive: true });
   writeFileSync(join(launchRoot, "as-is.md"), "# Root\n");
-  writeFileSync(join(launchRoot, "as-is.json"), JSON.stringify({ configuration: { agents: { defaultModel: "small" } } }));
+  writeFileSync(join(launchRoot, "as-is.json"), JSON.stringify({ configuration: { agents: { defaultModel: "medium", models: { medium: "@preset/abs-medium" } } } }));
   writeFileSync(join(launchRoot, "AGENTS.md"), "launch-root instruction");
   writeFileSync(join(target, "AGENTS.md"), "component instruction");
   writeFileSync(join(bundle, "agents", "fixture", "agent.md"), "---\nname: fixture\nmode: subagent\ntools: read\n---\nFixture agent.");
@@ -93,7 +93,7 @@ test("project context follows the launching cwd when target cwd is a component",
   ], process.env, launchRoot);
   if (result.exitCode !== 0) throw new Error(`${result.stderr}\n${result.stdout}`);
   const parsed = JSON.parse(result.stdout);
-  expect(parsed.model).toBe("small");
+  expect(parsed.model).toBe("@preset/abs-medium");
   rmSync(launchRoot, { recursive: true, force: true });
 });
 
