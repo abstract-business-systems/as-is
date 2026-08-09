@@ -4,6 +4,14 @@
 ## Purpose
 Maintain the durable organization and authority context for reusable skills.
 
+
+## Diagram
+
+```mermaid
+flowchart TD
+    A["Reusable procedure need"] --> B["Skill catalog"]
+    B --> C["Applicable skill contract"]
+```
 ## Links
 - `../agent-skills.md` — concise capability catalog.
 - `context-building/SKILL.md` — high-priority context-building contract.
