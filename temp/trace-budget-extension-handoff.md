@@ -2,8 +2,8 @@
 
 ## Status and scope
 
-This is a temporary, non-authoritative handoff document. It records the next
-bounded planning items for budget-extension decisions and trace safety. It does
+This is a temporary, non-authoritative handoff document. It records the
+implemented bounded budget/trace work and the remaining planning items. It does
 not authorize implementation, budget allocation, trace mutation, or task-state
 changes.
 
@@ -122,19 +122,23 @@ extension review is useful. It should not begin with a generalized budget
 architecture, a universal budget envelope, detailed budget fields in every
 trace, automatic adaptive reallocation, or historical trace migration.
 
-The proposed first flow is:
+The implemented first flow is:
 
 ```text
 component receives an initial budget
-→ component approaches or reaches the limit
-→ component preserves a durable checkpoint
-→ parent requests a bounded extension review
-→ reviewer examines durable records, the caller's request, and bounded
-  read-only session evidence
-→ reviewer returns approve, reject, or insufficient-evidence
-→ parent/control plane authorizes or rejects the recommendation
-→ supervisor enforces an approved bounded continuation budget
+→ supervisor stops it at the wall-clock boundary
+→ component records a durable budget blocker/request in its own record
+→ parent later reconciles the child record
+→ authorized parent/control plane reviews and admits an extension
+→ component allocation is increased and reactivated
+→ supervisor enforces the approved continuation budget
 ```
+
+The control plane and supervisor continuation path have live tests. A separate
+live parent-worker communication channel is not required: the durable child
+record is the recovery handoff. A child component must never edit a parent
+record, parent budget, or parent status. Parent reconciliation owns those
+changes; human review is used when evidence or available budget is insufficient.
 
 The reviewer answers whether more budget appears justified; it does not own or
 mutate the allocation. The parent or control plane remains the authority, and
@@ -142,22 +146,19 @@ the supervisor enforces only the approved continuation. If the review itself is
 model-assisted, it should be a separate bounded action rather than an
 unbounded operation inside the expiring component process.
 
-### Concurrency assumption
+### Ownership and concurrency assumption
 
-At most one process may work on a given component at any time. The component
-record and path therefore identify the active work for the initial design; no
-parallel-attempt identifier, lease hierarchy, or separate checkpoint identity
-is required merely to distinguish continuations of that component.
+At most one process may work on a given component at any time. A child owns
+only its own files and task record. On exhaustion it records a bounded request
+or blocker locally and stops; it does not edit parent files or allocations.
+The parent later reconciles descendant records and is the authority for
+parent-level allocation, status, and continuation decisions.
 
-Parallel work on different components remains allowed. Their independent
-component records identify their work, but they can still compete for a shared
-parent budget. Parent extension admission must therefore read the current
-parent record, check the aggregate remaining cost and wall-clock budget while
-protecting the parent reserve, and record the decision atomically. A per-file
-atomic replacement alone is not sufficient if two processes can approve
-extensions against the same stale parent snapshot; use an existing lock or
-optimistic revision check if the current control-plane write path permits such
-concurrency.
+Parallel work on different components remains allowed. No separate live
+child-to-parent channel is required for recovery, and no separate lock/channel
+task is retained in the backlog under this ownership model. The existing
+control-plane lock remains an internal defensive guard for direct concurrent
+parent-record mutations, not a worker coordination feature.
 
 The single-process rule must be enforced by the control plane or launcher, not
 only by agent guidance. An exhausted component should move to a recoverable
@@ -340,9 +341,29 @@ A bounded implementation of this item should prove that:
   with the requirement to preserve evidence.
 - No extension decision should be inferred from the current historical traces.
 
-## Safe next action
+## Current status and remaining work
 
-Review this handoff with the owning observability and control-plane components,
-then authorize two independent bounded tasks: one for append-only trace safety,
-and one for evidence-backed budget extension. Do not modify `.as-is/tracing.jsonl`
-while performing either task.
+Implemented and validated:
+
+- append-only trace documentation and regression coverage;
+- proportionate-solution guidance;
+- shared budget arithmetic;
+- parent-authorized component extension admission;
+- live CLI launch admission and extension tests;
+- live supervisor budget exhaustion and continuation;
+- launcher wall-clock enforcement;
+- normalized `ControlPlane.admitLaunch()` output;
+- in-process timeout capping.
+
+Remaining bounded work, if separately authorized:
+
+- integrate budget-blocked child reconciliation into the existing parent recovery
+  procedure rather than creating a new recovery subsystem;
+- adopt `admitLaunch()` in remaining production launch callers;
+- decide who records cumulative `call_subagent` elapsed time and add focused
+  accounting coverage;
+- complete final repository-wide validation and task/changelog closure.
+
+The parent-worker channel/lock replacement is not pending and should not be
+implemented without a new concrete requirement. Do not modify
+`.as-is/tracing.jsonl` while performing any remaining work.
