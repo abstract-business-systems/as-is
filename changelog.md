@@ -22,6 +22,24 @@
 
 # Changelog
 
+- 2026-08-15: Completed the repository-wide JSON companion-record migration.
+  All durable `as-is.md` records and configured task narratives are
+  front-matter-free; `as-is.json.configuration` and local `as-is.json.task` are
+  the sole machine configuration/task authorities. The control plane,
+  subprocess supervisor, launcher status join, worker-tools budget gate, task
+  validator, and repository-owned fixtures now use JSON companions. Legacy YAML
+  task records are rejected rather than parsed. Completed transient sections
+  were removed from durable component records after concise results and
+  validation evidence were retained in colocated changelogs. Partial
+  companion/narrative writes use a documented fail-closed recovery rule and are
+  not represented as crash-atomic. Final first-party validation passed: 141 Bun
+  tests passed, 21 provider-backed tests were explicitly skipped, 0 failed, and
+  734 assertions ran; all 6 Python validator tests passed; repository task-tree
+  validation returned `VALID`; control-plane and supervisor builds passed; and
+  inventory and whitespace scans passed. No implementation descendants were
+  authorized; closure was vacuously terminal. Residual risk: provider-backed
+  behavioral tests were not rerun during final deterministic validation.
+
 - 2026-08-15: Completed the root JSON companion-record foundation. Root
   `as-is.json.configuration` now owns project machine configuration and local
   `as-is.json.task` owns transient machine task metadata; root `as-is.md` and

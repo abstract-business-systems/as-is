@@ -55,8 +55,10 @@ private handle.
 
 ## Change-Log Summary
 
-The current root `as-is.md` carries the concise root history notes because this repository treats that file as the smallest coherent authoritative home for the root task context.
-Its front matter contains the current cumulative summary with these meanings:
+The root `changelog.md` carries concise history. Any machine-readable cumulative
+accounting summary belongs in `as-is.json` under an explicitly defined durable
+configuration/data contract, never in Markdown front matter. Such a summary uses
+these meanings:
 
 - `cost.value` is cumulative canonical cost and carries an explicit currency
   (currently USD) and source. It is numeric only when every included canonical
@@ -87,8 +89,8 @@ updates the existing identity and supersedes its prior value. It does not add a
 second entry to the cumulative total. An entry that lacks a retained revision
 or attempt remains a historical fact but is excluded from the deduplicated
 aggregate until its identity can be established; it is never guessed or
-retroactively remeasured. This is why the current front-matter summary is
-explicitly incomplete while the historical measured values remain visible.
+retroactively remeasured. An explicitly stored cumulative summary therefore
+remains incomplete while the historical measured values remain visible.
 
 ## Private Supervisor Job Map
 

@@ -54,21 +54,5 @@
         "local-directory": ".as-is/tracing.jsonl"
       }
     }
-  },
-  "task": {
-    "status": "active",
-    "worker": "as-is",
-    "updated": "2026-08-15T00:00:00Z",
-    "constraints": {
-      "cost": { "currency": "USD", "allocated": 0.5, "spent": 0, "reserve": 0.1, "source": "host-reported", "fallback-metric": "validation elapsed-seconds" },
-      "delegation": { "maximum-depth": 0, "maximum-children": 0 },
-      "execution": { "wall-clock": { "allocated-seconds": 3600, "spent-seconds": 0, "reserve-seconds": 300, "source": "host-reported" } },
-      "external-effects": "prohibited"
-    },
-    "acceptance": [
-      "Migrate every remaining YAML-front-matter as-is.md inventory entry to the approved JSON companion architecture or a front-matter-free fixture equivalent.",
-      "Remove YAML-front-matter runtime compatibility only after the legacy inventory is empty and relevant deterministic validation passes.",
-      "Record concise completion evidence and residual recovery risk before removing the root transient task state."
-    ]
   }
 }

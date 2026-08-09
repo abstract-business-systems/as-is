@@ -114,8 +114,9 @@ See `agent-skills.md` for the current taxonomy and definitions.
 ### Accounting And Runtime Identity
 
 The change log is the concise cumulative functional and non-functional history
-overview. Its front matter carries cost with currency/source, wall-clock with
-unit/source, build count, and failure count. The summary is cumulative only over
+overview. Machine-readable accounting belongs in an explicitly defined JSON
+data surface, not changelog front matter; it carries cost with currency/source,
+wall-clock with unit/source, build count, and failure count. The summary is cumulative only over
 finalized, canonical `worker-subtree` observations keyed by
 `component-path/task-revision/attempt`; repeated observations update one key and
 corrections supersede one key. An individual unavailable value remains
@@ -460,8 +461,9 @@ not begin a later increment until the preceding increment meets its stated
 acceptance conditions.
 
 1. **Define the durable task-record protocol.** Completed. The protocol defines
-   filesystem-derived placement and parentage, strict front matter, Markdown
-   sections, status values, configured-worker recovery routing, host-reported
+   filesystem-derived placement and parentage, strict `as-is.json.task`
+   metadata plus front-matter-free Markdown narrative sections, status values,
+   configured-worker recovery routing, host-reported
    component cost, child-record handoffs, pre-handoff validation, and safe
    sibling parallelism.
 2. **Define inheritance, delegation, and the minimal dogfood path.** Specify how
