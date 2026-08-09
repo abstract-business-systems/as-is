@@ -12,6 +12,7 @@ import {
 import { Type } from "../../skills/spawning-pi-subagents/node_modules/typebox";
 import { readFileSync } from "node:fs";
 import { boundedLimit } from "../../components/budget-control/budget.ts";
+import { resolveLocalLinkedContext } from "../../components/linked-context/resolver.ts";
 import {
   emitTrace,
   serializeSessionReference,
@@ -22,7 +23,7 @@ const maxResultCharacters = 100_000;
 const canonicalRoleName = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
 const defaultReadOnlyTools = ["read", "grep", "find", "ls"];
 const supportedTargetTools = new Set([
-  "read", "write", "edit", "bash", "grep", "find", "ls", "webfetch", "websearch",
+  "read", "write", "edit", "bash", "grep", "find", "ls", "webfetch", "websearch", "resolve_component_context",
   "call_subagent", "git_inspect", "search_traces", "get_trace", "summarize_trace",
   "compare_traces", "analyze_session",
 ]);
@@ -405,6 +406,7 @@ function toolsForTarget(role: string, declared: string[]): { tools: string[]; cu
   if (declared.includes("summarize_trace")) customTools.push(traceQueryTools[2]);
   if (declared.includes("compare_traces")) customTools.push(traceQueryTools[3]);
   if (declared.includes("call_subagent")) customTools.push(callSubagent);
+  if (declared.includes("resolve_component_context")) customTools.push(componentContextTool);
   return { tools, customTools };
 }
 
@@ -440,6 +442,22 @@ function extractWorkerText(session: { messages: Array<{ role?: string; content?:
   }
   return "Worker completed without a text report.";
 }
+
+const componentContextTool: ToolDefinition = {
+  name: "resolve_component_context",
+  label: "Resolve exposed component context",
+  description: "Resolve one file or directory explicitly exposed by the assigned component's as-is.md record.",
+  parameters: Type.Object({ reference: Type.String({ minLength: 1 }) }),
+  async execute(_toolCallId, params) {
+    const projectRoot = process.env.AS_IS_COMPONENT_CONTEXT_PROJECT_ROOT;
+    const component = process.env.AS_IS_COMPONENT_CONTEXT_COMPONENT;
+    if (!projectRoot || !component) {
+      return { content: [{ type: "text", text: JSON.stringify({ complete: false, diagnostics: [{ code: "component-context-unavailable", message: "The host did not supply component context authority." }] }) }] };
+    }
+    const result = await resolveLocalLinkedContext(projectRoot, join(component, "as-is.md"), params.reference);
+    return { content: [{ type: "text", text: boundedJson(result) }], details: { complete: result.complete, kind: result.kind } };
+  },
+};
 
 const callSubagent: ToolDefinition = {
   name: "call_subagent",

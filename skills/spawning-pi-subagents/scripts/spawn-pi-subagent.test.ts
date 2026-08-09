@@ -124,8 +124,8 @@ test("component-builder launches use its declared tools without identity injecti
   const parsed = JSON.parse(result.stdout);
   expect(parsed.args).toContain("--no-extensions");
   expect(parsed.args).toContain("--extension");
-  expect(parsed.tools).toBe("read,grep,find,ls,bash,edit,write,call_subagent");
-  expect(parsed.args.join(" ")).toContain("read,grep,find,ls,bash,edit,write,call_subagent");
+  expect(parsed.tools).toBe("read,grep,find,ls,bash,edit,write,call_subagent,resolve_component_context");
+  expect(parsed.args.join(" ")).toContain("read,grep,find,ls,bash,edit,write,call_subagent,resolve_component_context");
 });
 
 test("as-is launches use its declared tools without caller overrides", async () => {
@@ -137,8 +137,8 @@ test("as-is launches use its declared tools without caller overrides", async () 
   ]);
   expect(result.exitCode).toBe(0);
   const parsed = JSON.parse(result.stdout);
-  expect(parsed.tools).toBe("read,grep,find,ls,bash,edit,write");
-  expect(parsed.args.join(" ")).toContain("read,grep,find,ls,bash,edit,write");
+  expect(parsed.tools).toBe("read,grep,find,ls,bash,edit,write,resolve_component_context");
+  expect(parsed.args.join(" ")).toContain("read,grep,find,ls,bash,edit,write,resolve_component_context");
 });
 
 test("normal component-builder launches forward the bounded in-process gate budget", async () => {
@@ -153,8 +153,8 @@ test("normal component-builder launches forward the bounded in-process gate budg
   expect(result.exitCode).toBe(0);
   const parsed = JSON.parse(result.stdout);
   expect(parsed.args).toContain(`${process.cwd()}/.pi/extensions/worker-tools.ts`);
-  expect(parsed.tools).toBe("read,grep,find,ls,bash,edit,write,call_subagent");
-  expect(parsed.args).toContain("read,grep,find,ls,bash,edit,write,call_subagent");
+  expect(parsed.tools).toBe("read,grep,find,ls,bash,edit,write,call_subagent,resolve_component_context");
+  expect(parsed.args).toContain("read,grep,find,ls,bash,edit,write,call_subagent,resolve_component_context");
   expect(parsed.budget["wall-clock-seconds"]).toBe(900);
 });
 
@@ -250,8 +250,8 @@ test("execution advisor launches use its frontmatter tool set and skills", async
   expect(result.exitCode).toBe(0);
   const parsed = JSON.parse(result.stdout);
   expect(parsed.identity).toBe("execution-advisor");
-  expect(parsed.tools).toBe("read,grep,find,ls,search_traces,get_trace,summarize_trace,compare_traces,analyze_session");
-  expect(parsed.args).toContain("read,grep,find,ls,search_traces,get_trace,summarize_trace,compare_traces,analyze_session");
+  expect(parsed.tools).toBe("read,grep,find,ls,search_traces,get_trace,summarize_trace,compare_traces,analyze_session,resolve_component_context");
+  expect(parsed.args).toContain("read,grep,find,ls,search_traces,get_trace,summarize_trace,compare_traces,analyze_session,resolve_component_context");
   expect(parsed.skills).toContain(`${process.cwd()}/skills/exploring-execution-evidence`);
   expect(parsed.skills).toContain(`${process.cwd()}/skills/context-building`);
 });
@@ -661,7 +661,7 @@ test("--jobs reports an exit-0 job as incomplete without handoff evidence", asyn
       ["--agent", AGENT, "--task", "Jobs status task.", "--cwd", process.cwd(), "--pi", stubPi, "--detach", "--record", recordPath],
       env,
     );
-    expect(launched.exitCode).toBe(0);
+    if (launched.exitCode !== 0) throw new Error(`${launched.stderr}\n${launched.stdout}`);
     const handle = JSON.parse(launched.stdout);
     const supervisorDone = await pidGone(handle.pid, 5000);
     expect(supervisorDone).toBe(true);

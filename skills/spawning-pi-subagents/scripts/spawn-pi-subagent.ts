@@ -2,7 +2,7 @@ import { spawn, spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { appendFile, mkdtemp, open, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { boundedLimit } from "../../../components/budget-control/budget.ts";
 import { emitTrace, startSpan, serializeSessionReference, type SessionReference } from "../../../components/observability/tracer.ts";
 import { evaluateHandoffEligibility, type HandoffFacts } from "./handoff-eligibility.ts";
@@ -81,6 +81,9 @@ type Handle = {
 
 type SuperviseConfig = {
   command: string;
+  contextProjectRoot?: string | null;
+  contextProjectRelativeToGitRoot?: string | null;
+  contextComponentRelativeToProject?: string | null;
   args: string[];
   callerCwd: string;
   worktreePath: string | null;
@@ -440,10 +443,15 @@ const resolvePi = (requested: string | undefined, cwd: string): PiInvocation => 
 };
 
 const uniquePaths = (paths: string[]): string[] => [...new Set(paths.map((path) => resolve(path)))];
+const uniqueStrings = (values: string[]): string[] => [...new Set(values.filter(Boolean))];
+const withinProject = (root: string, candidate: string): boolean => {
+  const path = resolve(candidate);
+  return path === root || path.startsWith(`${root}${sep}`);
+};
 
 const supportedToolNames = new Set([
   "read", "write", "edit", "bash", "grep", "find", "ls", "webfetch", "websearch",
-  "call_subagent", "git_inspect", "search_traces", "get_trace", "summarize_trace",
+  "call_subagent", "resolve_component_context", "git_inspect", "search_traces", "get_trace", "summarize_trace",
   "compare_traces", "analyze_session",
 ]);
 
@@ -608,8 +616,13 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     cwd: process.env.PI_SESSION_FILE ? config.callerCwd : undefined,
     directory: process.env.PI_SESSION_FILE ? dirname(process.env.PI_SESSION_FILE) : undefined,
   };
+  const contextProjectRoot = typeof config.contextProjectRelativeToGitRoot === "string"
+    ? resolve(childCwd, config.contextProjectRelativeToGitRoot)
+    : config.contextProjectRoot ?? undefined;
   const childEnv = {
     ...process.env,
+    ...(contextProjectRoot ? { AS_IS_COMPONENT_CONTEXT_PROJECT_ROOT: contextProjectRoot } : {}),
+    ...(config.contextComponentRelativeToProject ? { AS_IS_COMPONENT_CONTEXT_COMPONENT: config.contextComponentRelativeToProject } : {}),
     // Preserve the delegating session's readable store scope when the child
     // runs in a worktree or detached supervisor directory. This is a data
     // ownership reference, not an authorization token or session payload.
@@ -1159,6 +1172,15 @@ const main = async() => {
     `Task:\n${task}`,
   ];
 
+  const componentPath = options.record ? dirname(resolve(options.record)) : cwd;
+  const componentRelativeToProject = projectRoot && withinProject(projectRoot, componentPath)
+    ? relative(projectRoot, componentPath) || "."
+    : null;
+  const gitRoot = projectRoot ? await gitIn(projectRoot, ["rev-parse", "--show-toplevel"]) : null;
+  const contextProjectRelativeToGitRoot = projectRoot && gitRoot
+    ? relative(gitRoot.trim(), projectRoot) || "."
+    : null;
+  const contextProjectRoot = contextProjectRelativeToGitRoot ? null : projectRoot ?? null;
   const bunBin = Bun.which("bun") ?? "bun";
   const jobId = newJobId();
   const launchedAt = new Date().toISOString();
@@ -1180,6 +1202,9 @@ const main = async() => {
     await logHandle.close();
     const config: SuperviseConfig = {
       command: piInvocation.command,
+      contextProjectRoot,
+      contextProjectRelativeToGitRoot,
+      contextComponentRelativeToProject: componentRelativeToProject,
       args: childArgs.map((arg) => arg === "<prompt-path>" ? promptPath : arg === "<session-dir>" ? sessionPath! : arg),
       callerCwd: cwd,
       worktreePath,
@@ -1245,6 +1270,9 @@ const main = async() => {
     await writeFile(promptPath, prompt, { encoding: "utf8", mode: 0o600 });
     const config: SuperviseConfig = {
       command: piInvocation.command,
+      contextProjectRoot,
+      contextProjectRelativeToGitRoot,
+      contextComponentRelativeToProject: componentRelativeToProject,
       args: childArgs.map((arg) => arg === "<prompt-path>" ? promptPath : arg === "<session-dir>" ? sessionPath! : arg),
       callerCwd: cwd,
       worktreePath,

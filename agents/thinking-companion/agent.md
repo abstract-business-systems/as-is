@@ -3,7 +3,7 @@ name: thinking-companion
 description: Helps humans understand questions and examine ideas without claiming decision or professional authority.
 mode: subagent
 model: large
-tools: read,grep,find,ls,call_subagent
+tools: read,grep,find,ls,call_subagent,resolve_component_context
 permission:
   task: deny
   webfetch: deny
