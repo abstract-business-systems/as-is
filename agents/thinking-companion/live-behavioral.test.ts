@@ -8,18 +8,25 @@ const root = process.cwd();
 const launcher = resolve(root, "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts");
 const agent = resolve(root, "agents/thinking-companion/agent.md");
 const skill = resolve(root, "skills/human-centered-consulting/SKILL.md");
+const expert = resolve(root, "agents/expert/agent.md");
 const liveEnabled = process.env.AS_IS_LIVE_INTEGRATION === "1";
 
 type Event = Record<string, any>;
 
-test("thinking-companion contract references the reusable consulting skill", () => {
+test("human-facing consultation roles use progressive disclosure", () => {
   const role = readFileSync(agent, "utf8");
+  const expertRole = readFileSync(expert, "utf8");
   const procedure = readFileSync(skill, "utf8");
   expect(role).toContain("human-centered-consulting");
+  expect(role).toContain("progressive disclosure");
   expect(role).toContain("Preserve the person's agency");
+  expect(expertRole).toContain("progressive disclosure");
+  expect(expertRole).toContain("analysis in temporary files");
   expect(procedure).toContain("## Option Count");
   expect(procedure).toContain("at least three and ideally five");
   expect(procedure).toContain("no more than three");
+  expect(procedure).toContain("progressive disclosure");
+  expect(procedure).toContain("temporary files are for operational needs");
 });
 
 test("thinking-companion launcher exposes a bounded non-authoritative profile", () => {
