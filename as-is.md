@@ -56,9 +56,12 @@ write their concise completed summary to `changelog.md`.
 
 ## Design
 
-The repository is composed of filesystem components. Record filenames are
-configured centrally under `config.records.filenames`; the defaults are
-`backlog.md`, `changelog.md`, and `tasks.md` and components may not silently
+The repository is composed of filesystem components. Human attention should
+remain focused on component architecture and interactions; agents choose
+unspecified implementation details within their applicable instructions,
+authority boundaries, safety constraints, and acceptance conditions. Record
+filenames are configured centrally under `config.records.filenames`; the defaults
+are `backlog.md`, `changelog.md`, and `tasks.md` and components may not silently
 invent alternate names. A directory with
 `as-is.md`, including descendants without their own `as-is.md`, forms one
 component boundary. Components link to relevant files and folders from their

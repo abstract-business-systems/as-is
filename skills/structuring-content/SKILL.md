@@ -8,6 +8,9 @@ description: Structures repository content as a durable, discoverable knowledge-
 Structure repository content as durable, discoverable knowledge work without
 creating structure that duplicates, obscures, or outlives its value. Folders,
 files, and Markdown sections are all levels of the same conceptual hierarchy.
+Machine-readable structures such as JSON objects and keys may also participate
+in that larger conceptual tree, even when they are not part of the same
+implementation or authority boundary.
 
 ## Method
 
@@ -28,6 +31,15 @@ files, and Markdown sections are all levels of the same conceptual hierarchy.
    state.
 7. Review for discoverability, semantic grouping, replacement paths, accuracy,
    and stale or superseded content.
+
+## Conceptual Tree
+
+The larger conceptual tree is a way to understand context, not a requirement to
+combine artifacts or implement a universal context graph. Directories, files,
+Markdown sections, JSON objects, JSON keys, and links may represent related
+nodes at different levels. Preserve each artifact's own audience, authority,
+ownership, and lifecycle; use links and explicit relationships rather than
+forcing unlike representations into one schema.
 
 ## Representation Rules
 

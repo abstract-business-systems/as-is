@@ -32,13 +32,32 @@ flow. Parallel repository work and complex snapshot coordination are out of
 scope for this first slice. If source-state consistency becomes a problem, it
 will be addressed with evidence rather than assumed in advance.
 
-### Linked context
+### Linked context and machine-readable companion data
 
-A future bounded linked-resource/context reader may allow a component builder
-to read explicitly linked files and context outside its current component.
-The initial design should remain simple and avoid a generalized recursive
-context graph. Child `as-is.md` is the durable entry point for child context;
-explicit contracts and designs may be linked when required.
+A future bounded tool may read machine-readable companion data from
+`as-is.json`. The companion file is related to `as-is.md` but is not a JSON
+replacement for the human-facing context document. `as-is.json` is an
+extensible data holder; it does not require fixed top-level keys. The tool may
+classify data into views such as configuration and state when useful, while
+preserving unclassified data.
+
+Configuration is the first explicitly cascading category. State is normally
+component-local, and unknown data is not automatically cascaded. Task
+authority remains in task records. Ordinary file tools are sufficient for
+reading `as-is.md`; a separate context reader is not currently required.
+
+The initial resolution direction is to traverse the relevant distributed
+`as-is.json` files during preparation/build time, produce an effective view for
+the target component, and never copy inherited values back into source files.
+The result may initially be in memory; a temporary derived artifact remains an
+option if retries or independently launched workers need to reuse the exact
+resolution. Provenance, source revision or digest, diagnostics, and
+completeness should accompany a reusable derived result.
+
+The larger-tree view of directories, files, Markdown sections, JSON objects,
+JSON keys, and links is philosophical context for understanding relationships,
+not a current implementation requirement. Do not build a generalized recursive
+context graph for this work.
 
 ### `as-is.md` miscellaneous content
 
@@ -49,11 +68,11 @@ configuration, task records, backlogs, or changelogs.
 
 ## Deferred follow-up work
 
-1. Separate project/component configuration from `as-is.md` without replacing
-   agent files or merging `as-is.md` content into `AGENTS.md`.
-2. Define and implement a simple bounded tool for reading explicitly linked
-   context/resources, with enough provenance and failure reporting for safe
-   use.
+1. Define the preparation-time resolver and focused tool for effective
+   `as-is.json` data, including configuration cascading, local state,
+   unclassified data, provenance, diagnostics, and stale-result handling.
+2. Decide whether the first result is in memory or a temporary derived artifact;
+   do not copy inherited values into source files.
 3. Review and revise the `as-is.md` structure, including parent/child context
    links and the `Miscellaneous` section.
 4. Revisit mechanical boundary enforcement only if complete component checkout

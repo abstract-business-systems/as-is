@@ -49,6 +49,12 @@ this repository.
 - Validate a changed behavior with the smallest relevant existing automation or
   check before reporting completion. State the validation performed and any
   residual risk.
+- Keep human attention focused on architecture, component boundaries, and
+  interactions. When an applicable agent instruction does not prescribe a
+  detail, the assigned agent may choose the smallest reasonable implementation
+  that preserves the stated purpose, authority boundaries, safety constraints,
+  and acceptance conditions. Record material assumptions and escalate genuine
+  ambiguity; discretion is not permission to expand scope or weaken controls.
 
 ## Agents And Skills
 
