@@ -1,8 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
+import { ControlPlane } from "../control-plane/control-plane.ts";
 import {
   classifyStale,
   cleanup,
@@ -329,6 +330,66 @@ describe("detached subprocess foundation", () => {
       await cleanupFixture(fixtureData, handles);
     }
   });
+
+  test("stops an exhausted process and continues it after parent budget admission", async () => {
+    const fixtureData = await fixture("active");
+    const childRoot = join(fixtureData.root, "child");
+    const childRecordPath = join(childRoot, "as-is.md");
+    const handles: JobHandle[] = [];
+    try {
+      await mkdir(childRoot, { recursive: true });
+      await writeFile(join(fixtureData.root, "as-is.md"), recordContents("active").replace("allocated: 0.20", "allocated: 10").replace("allocated-seconds: 10", "allocated-seconds: 100"), "utf8");
+      await writeFile(childRecordPath, recordContents("active"), "utf8");
+      const first = await launch(requestFor({ ...fixtureData, recordPath: childRecordPath }, "await Bun.sleep(1000);", {
+        expectedRecordStatus: "active",
+        budget: {
+          costAllocation: 0.20,
+          costReserve: 0.04,
+          costSpent: 0,
+          costSource: "test-input",
+          wallClockAllocationSeconds: 0.25,
+          wallClockReserveSeconds: 0.05,
+          wallClockSpentSeconds: 0,
+          wallClockSource: "test-input",
+        },
+      }));
+      handles.push(first.handle);
+      const stopped = await eventually(() => observe(first.handle), (value) => value.host.status === "failed", 3000);
+      expect(stopped.record.events.some((event) => event.event === "watchdog-deadline-exceeded")).toBe(true);
+      expect(stopped.budget?.cumulative.wallClockSpentSeconds).toBeGreaterThan(0);
+
+      const recovery = await scheduleRecovery(first.handle, "bounded watchdog exhaustion", { now: new Date("2026-01-01T00:00:00.000Z"), retryBackoffSeconds: 0, maxRecoveryAttempts: 2 });
+      expect(recovery.outcome).toBe("rejected");
+      expect(recovery.reason).toContain("allocation");
+      expect((await readDurableRecord(childRecordPath)).status).toBe("blocked");
+
+      const control = new ControlPlane(fixtureData.root, { clock: () => new Date("2026-01-01T00:00:01.000Z") });
+      const admission = control.extend("child", { cost: 0.10, wall: 1, recommendation: "approve", reason: "The bounded continuation remains necessary." });
+      expect(admission.decision).toBe("approve");
+      expect((await readDurableRecord(childRecordPath)).status).toBe("active");
+
+      const continued = await launch(requestFor({ ...fixtureData, recordPath: childRecordPath }, "console.log('continued-after-budget');", {
+        expectedRecordStatus: "active",
+        budget: {
+          costAllocation: 1,
+          costReserve: 0.05,
+          costSpent: 0,
+          costSource: "test-input",
+          wallClockAllocationSeconds: 1,
+          wallClockReserveSeconds: 0.1,
+          wallClockSpentSeconds: 0,
+          wallClockSource: "test-input",
+        },
+      }));
+      handles.push(continued.handle);
+      const completed = await eventually(() => observe(continued.handle), (value) => value.host.status === "completed", 3000);
+      expect(completed.record.status).toBe("active");
+      expect(await readFile(completed.host.logs.stdout as string, "utf8")).toContain("continued-after-budget");
+    } finally {
+      await cleanupFixture({ ...fixtureData, recordPath: childRecordPath }, handles);
+      await rm(fixtureData.root, { recursive: true, force: true });
+    }
+  }, 15000);
 
   test("enforces a bounded watchdog deadline and preserves the failure checkpoint", async () => {
     const fixtureData = await fixture();
