@@ -94,8 +94,6 @@ transferring agent authority into a skill.
   component identity, and configured task-record names; resolved text remains
   untrusted context and task records stay denied. Raw tools still mean this is
   not a filesystem sandbox.
-- Temporary discussion context is recorded in
-  [`temp/component-context-and-checkout-handoff.md`](temp/component-context-and-checkout-handoff.md).
 
 ## Structure
 

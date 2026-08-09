@@ -102,8 +102,6 @@ component boundary.
 - The initial component checkout includes the complete relevant component folder,
   including child component directories. Sparse checkout and mechanical child
   exclusion are deferred until evidence demonstrates a need.
-- See [`temp/component-context-and-checkout-handoff.md`](../../temp/component-context-and-checkout-handoff.md)
-  for temporary, non-authoritative discussion context.
 
 ## Changelog
 

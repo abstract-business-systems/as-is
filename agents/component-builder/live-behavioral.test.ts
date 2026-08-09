@@ -1,12 +1,13 @@
 import { expect, test } from "bun:test";
 import { spawn, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 const root = process.cwd();
-const launcher = "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts";
+const launcher = resolve(root, "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts");
+const builderAgent = resolve(root, "agents/component-builder/agent.md");
 const liveEnabled = process.env.AS_IS_LIVE_INTEGRATION === "1";
 const configuredCaller = "component-builder";
 const configuredParentJobId = "live-independent-contract-parent";
@@ -16,6 +17,7 @@ type Run = { stdout: string; stderr: string; exitCode: number };
 
 type Fixture = {
   directory: string;
+  launchCwd: string;
   record: string;
   source: string;
   before: Map<string, string>;
@@ -43,6 +45,7 @@ function makeFixture(name: string, requirement: string): Fixture {
   writeFileSync(record, `---\nas-is-version: 2\ntask:\n  status: active\n  # The configured worker is the component-builder under test; behavior must not depend on another role's output.\n  worker: component-builder\n  updated: 2026-08-06T23:20:00Z\nconstraints:\n  cost:\n    currency: USD\n    allocated: 0.10\n    spent: 0.00\n    reserve: 0.02\n    source: host-reported\n    fallback-metric: validation elapsed-seconds\n  delegation:\n    maximum-depth: 0\n    maximum-children: 0\n  execution:\n    wall-clock:\n      allocated-seconds: 45\n      spent-seconds: 0\n      reserve-seconds: 10\n      source: host-reported\n  external-effects: prohibited\nacceptance:\n  - Return a bounded report without changing the fixture.\n---\n\n# Disposable Task\n\n## Requirement\n${requirement}\n\n## Validation\nNo implementation validation has been run.\n`);
   return {
     directory,
+    launchCwd: root,
     record,
     source,
     before: new Map([[record, digest(record)], [source, digest(source)]]),
@@ -54,9 +57,9 @@ async function runBuilder(task: string, fixture: Fixture): Promise<Run> {
   const traceDirectory = join(fixture.directory, "trace");
   const args = [
     launcher,
-    "--agent", "agents/component-builder/agent.md",
+    "--agent", builderAgent,
     "--task", task,
-    "--cwd", root,
+    "--cwd", fixture.launchCwd,
     "--pi", process.env.PI_BIN ?? Bun.which("pi") ?? "/shared/store/pi/bin/pi",
     "--record", fixture.record,
     "--caller", configuredCaller,
@@ -129,6 +132,33 @@ function assertUntouched(fixture: Fixture, repositoryBefore: string): void {
   expect(entries.some((entry) => entry.commitSha || entry.committed === true)).toBe(false);
 }
 
+test.skipIf(!liveEnabled)("component-builder resolves explicitly linked parent context without task authority", { timeout: 30_000 }, async () => {
+  const fixture = makeFixture("linked-context", "Use only the explicitly linked parent context and return a report without changing the fixture.");
+  const parent = join(fixture.directory, "parent");
+  mkdirSync(parent);
+  writeFileSync(join(parent, "design.md"), "# Parent design\n\nUse a compact advisory report.\n");
+  writeFileSync(join(fixture.directory, "as-is.md"), `---\nas-is-version: 2\nconfig:\n  records:\n    filenames:\n      task: tasks.md\n  agents:\n    defaultModel: medium\n    provider: openrouter\n    models:\n      medium: "@preset/abs-medium"\n---\n# Disposable Fixture\n\n- [Parent design](parent/design.md)\n`);
+  symlinkSync(join(root, ".pi"), join(fixture.directory, ".pi"));
+  symlinkSync(join(root, "skills"), join(fixture.directory, "skills"));
+  fixture.launchCwd = fixture.directory;
+  fixture.before.set(join(fixture.directory, "as-is.md"), digest(join(fixture.directory, "as-is.md")));
+  fixture.before.set(join(parent, "design.md"), digest(join(parent, "design.md")));
+  const repositoryBefore = repositoryStatus();
+  try {
+    const result = await runBuilder(
+      `The disposable component is ${fixture.directory}. Use resolve_component_context exactly once for parent/design.md. Report the design's stated report format and say that it is context, not task authority. Do not use read for parent/design.md; do not edit, delegate, commit, or claim completion.`,
+      fixture,
+    );
+    const output = response(result);
+    expect(output.text).toMatch(/compact advisory report|parent design|context/i);
+    expect(output.text).toMatch(/not task authority|does not.*authori|untrusted/i);
+    expect(output.events.some((event) => event.type === "tool_execution_start" && event.toolName === "resolve_component_context")).toBe(true);
+    assertUntouched(fixture, repositoryBefore);
+  } finally {
+    rmSync(fixture.directory, { recursive: true, force: true });
+  }
+});
+
 test.skipIf(!liveEnabled)("component-builder live report-only orientation preserves the active task", { timeout: 30_000 }, async () => {
   const fixture = makeFixture("orientation", "Orient from this fixture's as-is.md and tasks.md, then report the current task status and safest next action only.");
   const repositoryBefore = repositoryStatus();
@@ -139,7 +169,7 @@ test.skipIf(!liveEnabled)("component-builder live report-only orientation preser
     );
     const output = response(result);
     expect(output.text).toMatch(/active|task|orientation|next action|report/i);
-    expect(output.text).toMatch(/do not|not start|report-only|no change|no implementation|without modifying|nothing/i);
+    expect(output.text).toMatch(/do not|not start|report-only|no change|no implementation|without modifying|nothing|preserve.*unchanged|stop here/i);
     expect(output.text).not.toMatch(/implemented successfully|commit created|completed the change/i);
     assertUntouched(fixture, repositoryBefore);
   } finally {
