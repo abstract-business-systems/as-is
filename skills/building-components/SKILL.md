@@ -38,7 +38,10 @@ budget observations remain authoritative in the component task record.
    boundary and delegate through the configured component-builder role. Verify
    the child record revision, available budget, and absence of an active
    attempt before launch; forward approved budgets and preserve the child
-   handoff. Skills provide no delegation authority.
+   handoff. A child owns only its own component files and record: it must not
+   edit parent records, parent budgets, or parent status. Budget exhaustion is
+   recorded as a child request/blocker for parent reconciliation. Skills
+   provide no delegation authority.
 5. Select and run the smallest relevant checks using
    `verification-discipline`. Record commands, observed results, acceptance
    mapping, residual risk, cumulative cost and wall-clock observations, and
@@ -77,6 +80,7 @@ for incomplete work.
 | Validation selection and evidence | `verification-discipline` |
 | Scoped durable commit | `committing-completed-work` |
 | Agent identity, launch, approval, and delegation | configured agent contract |
+| Parent/child record and budget ownership | owning parent/child component contract; child cannot mutate parent |
 
 The procedure preserves `component-builder` as the role boundary. It does not
 merge agent identity into reusable skill logic, create runtime state, broaden

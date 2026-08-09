@@ -113,9 +113,17 @@ lifecycle integration, and final repository-wide validation/handoff cleanup.
 ## Blockers And Escalations
 
 The parent-worker communication-channel alternative was investigated and
-found not to exist in the current runtime. The filesystem lock is therefore
-retained as a defensive coordination mechanism and the channel replacement is
-moved to the deferred root backlog item `parent-worker-budget-channel`.
+found not to exist in the current runtime. Under the clarified ownership model,
+a separate lock/channel task is unnecessary: each child owns only its own
+record and records an exhaustion request/blocker there; the parent reconciles
+descendants and alone authorizes parent-level allocation or status changes. The
+current durable record handoff is sufficient for recovery, so no channel task
+is retained.
+
+The child-to-parent record ownership boundary is now explicit in `AGENTS.md`,
+`agents/component-builder/agent.md`, and `skills/building-components/SKILL.md`.
+A child must not edit parent files, records, budgets, or status; it records its
+own budget request/blocker for parent reconciliation.
 
 The minimal extension path is implemented. A first consolidation slice now
 lives in `components/budget-control/budget.ts`: shared remaining-budget,
@@ -149,6 +157,6 @@ and the control-plane tests. Keep any intermediate commits scoped and do not ame
 ## Next Action
 
 Adopt `ControlPlane.admitLaunch()` in the remaining authorized launch callers,
-then run final repository-wide validation and complete the task handoff. Do not
-implement the deferred parent-worker channel without a concrete channel
-requirement and a new bounded task.
+then run final repository-wide validation and complete the task handoff. Do not implement a parent-worker channel or lock replacement unless a
+concrete live-communication requirement appears and a new bounded task is
+authorized.

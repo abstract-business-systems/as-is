@@ -28,6 +28,11 @@ this repository.
   scoped evidence commit; do not imply byte-for-byte recovery when none exists.
 - Keep changes scoped and surgical. If evidence requires work beyond the stated
   scope, stop and request direction rather than expanding autonomously.
+- A child component owns and may update only its own component files and task
+  record. It must not edit a parent component's records, budget allocation,
+  status, or other parent-owned files. Record a bounded request or blocker in
+  the child record and let the parent reconcile and authorize any parent-level
+  change. This boundary also applies during budget exhaustion and recovery.
 - When evidence supports departing from an applicable non-fixed instruction,
   present the proposed deviation, alternatives, reasons, and material effects to
   the user or delegating agent. Do not weaken a higher-authority constraint.

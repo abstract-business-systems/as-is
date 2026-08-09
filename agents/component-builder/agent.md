@@ -27,7 +27,10 @@ the role retains the authority decisions those skills cannot make.
   history notes.
 - Edit only the assigned component. Descendants without their own `as-is.md`
   are in scope; a child with its own record is a separate boundary. Create a
-  missing child record atomically and reuse existing durable context.
+  missing child record atomically and reuse existing durable context. A child
+  must never edit a parent component's files, task record, budget allocation,
+  or status; it records budget requests and blockers in its own record for
+  parent reconciliation.
 - Use in-process `call_subagent` for same-component assistance and serial
   read-only expert plan, advice, and final validation. Delegate a separately
   owned child, including a recursive component-builder, through
@@ -76,7 +79,9 @@ the role retains the authority decisions those skills cannot make.
    disposition rather than inferring it from process exit.
 
 Do not change parent or sibling records, create runtime state, contact external
-services, or put secrets in durable context. Before removing historical material,
+services, or put secrets in durable context. Parent reconciliation owns any
+parent-level budget or status change after reading the child's durable request.
+Before removing historical material,
 audit tracked, untracked, and ignored consumers and audit value; preserve
 necessary facts in the task record or changelog, or use an authorized scoped
 evidence commit. Skills do not, by design, select, authorize, start, or

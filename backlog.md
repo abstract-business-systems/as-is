@@ -13,9 +13,12 @@ root `as-is.md`; this repository uses `backlog.md`, `changelog.md`, and
 
 ### Deferred budget coordination
 
-| id | status | user preference | system preference | purpose | description | dependencies | acceptance | notes |
-| --- | --- | ---: | ---: | --- | --- | --- | --- | --- |
-| parent-worker-budget-channel | deferred | 2 | 2 | Coordinate sibling budget-extension requests through the owning parent worker | Replace the current defensive parent-record lock only if a reliable parent-worker request/response channel is introduced and all budget mutations are routed through one serialized parent owner. Until then, retain the lock and its fail-fast behavior. | A bounded parent-worker channel with durable-write-before-approval semantics | Requests are bounded and serialized; parent records remain authoritative; parent failure does not grant budget; direct callers cannot bypass coordination; focused contention and recovery tests pass. | Deferred because repository inspection found no existing parent-worker IPC, mailbox, queue, or RPC channel to reuse. This backlog item is planning only and does not authorize a channel implementation. |
+No separate lock/channel task is required under the current ownership model.
+Each child owns only its own record and records an exhaustion request/blocker
+there. The parent reconciles descendants and is the only authority that may
+change parent-level allocation or status. A future channel would be redundant
+unless a concrete live-communication requirement appears; the current durable
+record handoff is sufficient for recovery.
 
 The following items are now owned by component backlogs and are intentionally
 not repeated here:
