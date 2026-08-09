@@ -22,6 +22,24 @@
 
 # Changelog
 
+- 2026-08-12: Completed the bounded trace-safety and budget-extension task.
+  The control plane admits bounded parent-authorized extensions, the supervisor
+  and launcher enforce normalized wall-clock limits, in-process worker calls are
+  timeout-capped, and child ownership is explicit: children record budget
+  blockers in their own records and never edit parent files, budgets, or status.
+  No parent-worker channel or lock-replacement task is required under the
+  durable-record reconciliation model. Repository-wide validation passed: 120
+  tests passed, 18 provider-gated tests skipped, 0 failed, and 657 expectations;
+  control-plane, worker-tools, supervisor, and launcher no-bundle builds passed;
+  `git diff --check` passed; and the untracked historical trace file's
+  before/after SHA-256 remained
+  `49b015180af643be3ae141c3433f6a5459419b9b3c6f7d26e1fde2db20f06554`.
+  Production launch-caller review found no remaining bypass of
+  `ControlPlane.admitLaunch()`. Cumulative `call_subagent` accounting remains
+  intentionally caller-owned and requires a new bounded task if durable
+  recording is later needed. No descendants were authorized; closure was
+  terminal.
+
 - 2026-08-14: Completed Phase 0 skills/agents separation inventory and
   pre-extraction baseline. Enumerated five canonical agent roles, 11 reusable
   skills, launcher/host projections, and role/delegation references; classified
