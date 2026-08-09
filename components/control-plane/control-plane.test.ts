@@ -205,6 +205,38 @@ test("rejects an extension that would consume the parent reserve", () => {
   }
 });
 
+async function runControlPlane(root: string, command: string, ...args: string[]): Promise<{ exitCode: number; stdout: string; stderr: string }> {
+  const process = Bun.spawn(["bun", join(import.meta.dir, "control-plane.ts"), command, root, ...args], { stdout: "pipe", stderr: "pipe" });
+  const [stdout, stderr] = await Promise.all([new Response(process.stdout).text(), new Response(process.stderr).text()]);
+  return { exitCode: await process.exited, stdout, stderr };
+}
+
+test("runs the CLI extension flow against live component records", async () => {
+  const fixtureRoot = fixture();
+  try {
+    const delegated = await runControlPlane(fixtureRoot.root, "delegate", ".", "child-a", "--requirement", "Continue the child.", "--acceptance", "The child completes.", "--cost", "3", "--cost-reserve", "1", "--wall-clock", "30", "--wall-clock-reserve", "10");
+    expect(delegated.exitCode).toBe(0);
+    expect(JSON.parse(delegated.stdout).status).toBe("ready");
+
+    const activated = await runControlPlane(fixtureRoot.root, "activate", "child-a");
+    expect(activated.exitCode).toBe(0);
+    expect(JSON.parse(activated.stdout).status).toBe("active");
+
+    const question = await runControlPlane(fixtureRoot.root, "question", "child-a", "Request bounded continuation budget");
+    expect(question.exitCode).toBe(0);
+    expect(JSON.parse(question.stdout).status).toBe("blocked");
+
+    const extended = await runControlPlane(fixtureRoot.root, "extend", "child-a", "--cost", "2", "--wall-clock", "20", "--recommendation", "approve", "--reason", "The remaining acceptance work is bounded.");
+    expect(extended.exitCode).toBe(0);
+    const result = JSON.parse(extended.stdout);
+    expect(result.decision).toBe("approve");
+    expect(readFileSync(join(fixtureRoot.root, "child-a", "as-is.md"), "utf8")).toContain("allocated: 5");
+    expect((new ControlPlane(fixtureRoot.root) as any).recordFor("child-a").status).toBe("active");
+  } finally {
+    fixtureRoot.cleanup();
+  }
+});
+
 test("parent delegation is durable queued work and closes descendants", () => {
   const fixtureRoot = fixture();
   try {
