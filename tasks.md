@@ -60,16 +60,25 @@ The budget-extension workflow was inspected against the existing control-plane
 owner. The intended initial model assumes that at most one process works on a
 given component at a time; separate components may run in parallel. A separate
 attempt/lease hierarchy is therefore not required for the first implementation.
-The remaining safe successor boundary is a bounded extension operation that
-preserves that single-process invariant, atomically checks shared parent budget
-and reserve, cumulatively updates the component allocation, and reactivates one
-continuation. Mutating allocation without those checks would create an unsafe
-budget authority, so the extension contract remains a separate bounded
-successor task rather than being simulated here.
+The remaining safe successor boundary was implemented in
+`components/control-plane/control-plane.ts`: `extend()` accepts a bounded
+review recommendation, rejects non-approval decisions without reactivation,
+atomically locks the parent and component records, checks cumulative cost and
+wall-clock allocation against the parent reserve, records the decision in the
+parent and component records, updates the component allocation, and reactivates
+one continuation. The control plane rejects root extensions because there is no
+parent ceiling for them. The operation preserves the one-process-per-component
+model; separate components can still compete through the parent admission
+check.
 
 ## Validation
 
 Passed:
+
+- `bun test components/control-plane/control-plane.test.ts` — 7 passed, 40 expectations, including approval within reserve and reserve rejection.
+- `bun test components/observability/tracer.test.ts components/observability/lifecycle-hierarchy.test.ts` — 9 passed, 46 expectations.
+- `bun build components/control-plane/control-plane.ts --target bun --outfile /tmp/as-is-control-plane-build.js` — successful.
+- `git diff --check` — passed.
 
 - `bun test components/observability/tracer.test.ts components/observability/lifecycle-hierarchy.test.ts` — 9 passed, 46 expectations.
 - `bun test components/control-plane/control-plane.test.ts` — 5 passed, 31 expectations.
@@ -85,10 +94,11 @@ Not yet available.
 
 ## Blockers And Escalations
 
-The budget-extension runtime remains blocked for this task by missing durable
-attempt/lease and parent-ceiling semantics. Do not add allocation mutation or
-claim extension enforcement without those authority records. Preserve the
-simplified reviewer flow as a successor task in the control-plane backlog.
+The minimal extension path is implemented. Residual risk: the directory lock
+is a small-process lock and reports busy rather than waiting; it protects the
+parent/component update pair only when all writers use this control-plane path.
+Provider monetary cost remains unavailable and is not hard-enforced. Root tasks
+cannot request an extension through this child-budget operation.
 
 ## Recovery
 

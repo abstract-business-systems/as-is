@@ -284,6 +284,17 @@ function timestamp(value: string): Date {
   return parsed;
 }
 
+function replaceBudgetScalars(front: string, cost: number, wall: number): string {
+  const costMatch = /^    allocated: [^\n]+$/m.exec(front);
+  const wallMatch = /^      allocated-seconds: [^\n]+$/m.exec(front);
+  if (!costMatch || !wallMatch) throw new ControlPlaneError("task budget allocation fields are missing");
+  let result = front.slice(0, costMatch.index) + `    allocated: ${cost}` + front.slice(costMatch.index + costMatch[0].length);
+  const nextWallMatch = /^      allocated-seconds: [^\n]+$/m.exec(result);
+  if (!nextWallMatch) throw new ControlPlaneError("task wall-clock allocation field is missing");
+  result = result.slice(0, nextWallMatch.index) + `      allocated-seconds: ${wall}` + result.slice(nextWallMatch.index + nextWallMatch[0].length);
+  return result;
+}
+
 function replaceTaskScalars(front: string, status: string | null, updated: string | null): string {
   let result = front;
   if (status !== null) {
@@ -299,11 +310,28 @@ function replaceTaskScalars(front: string, status: string | null, updated: strin
   return result;
 }
 
-function renderRecord(record: DurableRecord, body: string, status: string | null, updated: string | null): string {
+function renderRecord(record: DurableRecord, body: string, status: string | null, updated: string | null, budget?: { cost: number; wall: number }): string {
   const end = record.text.indexOf("\n---\n", 4);
   if (end < 0) throw new ControlPlaneError("record lost its front matter delimiter");
-  const front = replaceTaskScalars(record.text.slice(4, end), status, updated);
+  let front = record.text.slice(4, end);
+  if (budget) front = replaceBudgetScalars(front, budget.cost, budget.wall);
+  front = replaceTaskScalars(front, status, updated);
   return `---\n${front}\n---\n${body}`;
+}
+
+function withDirectoryLock<T>(path: string, action: () => T): T {
+  const lock = `${path}.control-plane-lock`;
+  let acquired = false;
+  try {
+    mkdirSync(lock);
+    acquired = true;
+    return action();
+  } catch (error: any) {
+    if (error?.code === "EEXIST") throw new ControlPlaneError(`control-plane record is busy: ${path}`);
+    throw error;
+  } finally {
+    if (acquired) rmdirSync(lock);
+  }
 }
 
 function atomicWrite(path: string, text: string): void {
@@ -769,6 +797,74 @@ export class ControlPlane {
     this.transition(record, "active");
   }
 
+  /**
+   * Admit one bounded continuation for an exhausted component. The reviewer
+   * supplies evidence and a recommendation; this method is the authoritative
+   * parent-budget check and durable allocation update.
+   */
+  extend(component: string, options: {
+    cost: number;
+    wall: number;
+    recommendation: "approve" | "reject" | "insufficient-evidence";
+    reason: string;
+  }): UnknownRecord {
+    if (!Number.isFinite(options.cost) || options.cost <= 0) throw new ControlPlaneError("extension cost must be positive");
+    if (!Number.isInteger(options.wall) || options.wall <= 0) throw new ControlPlaneError("extension wall-clock must be a positive integer");
+    if (!options.reason.trim()) throw new ControlPlaneError("extension reason must not be empty");
+    let target = this.recordFor(component);
+    if (!["blocked", "awaiting-approval"].includes(target.status)) {
+      throw new ControlPlaneError("only a blocked or awaiting-approval component can request an extension");
+    }
+    if (options.recommendation !== "approve") {
+      this.writeEvent(target, { event: "budget-extension-decision", decision: options.recommendation, reason: options.reason });
+      return { decision: options.recommendation, component };
+    }
+
+    if (target.directory === this.root) throw new ControlPlaneError("root task has no parent budget ceiling for an extension");
+    const parentPath = dirname(target.directory) === this.root
+      ? this.rootRecordPath ?? join(this.root, "as-is.md")
+      : join(dirname(target.directory), "as-is.md");
+    if (!existsSync(parentPath)) throw new ControlPlaneError(`parent task record does not exist: ${parentPath}`);
+    const parent = loadRecord(parentPath);
+    if (parent.path === target.path) {
+      return withDirectoryLock(parent.path, () => this.admitExtension(target, parent, options));
+    }
+    return withDirectoryLock(parent.path, () => withDirectoryLock(target.path, () => {
+      target = this.recordFor(component);
+      const currentParent = loadRecord(parent.path);
+      return this.admitExtension(target, currentParent, options);
+    }));
+  }
+
+  private admitExtension(target: DurableRecord, parent: DurableRecord, options: { cost: number; wall: number; recommendation: "approve" | "reject" | "insufficient-evidence"; reason: string }): UnknownRecord {
+    if (!["blocked", "awaiting-approval"].includes(target.status)) throw new ControlPlaneError("component changed before extension admission");
+    const children = this.directChildren(parent, this.records()).filter((child) => child.path !== target.path);
+    const parentCost = resource(constraints(parent), "cost");
+    const parentExecution = resource(constraints(parent), "execution");
+    const parentWall = resource(parentExecution, "wall-clock");
+    const remainingCost = Number(parentCost.allocated ?? 0) - Number(parentCost.spent ?? 0) - Number(parentCost.reserve ?? 0);
+    const remainingWall = Number(parentWall["allocated-seconds"] ?? 0) - Number(parentWall["spent-seconds"] ?? 0) - Number(parentWall["reserve-seconds"] ?? 0);
+    const committedCost = children.reduce((sum, item) => sum + Number(resource(constraints(item), "cost").allocated ?? 0), 0);
+    const committedWall = children.reduce((sum, item) => sum + Number(resource(resource(constraints(item), "execution"), "wall-clock")["allocated-seconds"] ?? 0), 0);
+    const targetIsParent = target.path === parent.path;
+    const currentTargetCost = Number(resource(constraints(target), "cost").allocated ?? 0);
+    const currentTargetWall = Number(resource(resource(constraints(target), "execution"), "wall-clock")["allocated-seconds"] ?? 0);
+    const committedTargetCost = targetIsParent ? 0 : currentTargetCost;
+    const committedTargetWall = targetIsParent ? 0 : currentTargetWall;
+    if (committedCost + committedTargetCost + options.cost > remainingCost) throw new ControlPlaneError("extension cost exceeds parent remaining budget");
+    if (committedWall + committedTargetWall + options.wall > remainingWall) throw new ControlPlaneError("extension wall-clock exceeds parent remaining budget");
+    const targetCost = resource(constraints(target), "cost");
+    const targetWall = resource(resource(constraints(target), "execution"), "wall-clock");
+    const nextCost = Number(targetCost.allocated ?? 0) + options.cost;
+    const nextWall = Number(targetWall["allocated-seconds"] ?? 0) + options.wall;
+    const decision = { event: "budget-extension-decision", decision: "approve", reason: options.reason, "cost-added": options.cost, "wall-clock-added": options.wall };
+    const nextParent = targetIsParent ? parent : this.writeEvent(parent, { ...decision, component: relative(parent.directory, target.directory).split(sep).join("/") });
+    target = this.recordFor(relative(this.root, target.directory).split(sep).join("/"));
+    const body = appendEvent(target.body, decision);
+    atomicWrite(target.path, renderRecord(target, body, "active", this.now(), { cost: nextCost, wall: nextWall }));
+    return { decision: "approve", component: relative(this.root, target.directory).split(sep).join("/"), "parent-updated": nextParent.path, "allocated-cost": nextCost, "allocated-wall-clock": nextWall };
+  }
+
   canComplete(component: string): UnknownRecord {
     const parent = this.recordFor(component);
     const descendants = this.descendants(parent);
@@ -1066,6 +1162,15 @@ export function main(argv: string[] = process.argv.slice(2)): number {
       if (command === "answer") control.answerQuestion(positional[1] ?? "", positional[2] ?? "", positional[3] ?? "", { direction: parsed.flags.has("direction"), proposedConstraints: proposal });
       else control.approve(positional[1] ?? "", positional[2] ?? "", positional[3] ?? "", { proposedConstraints: proposal });
       jsonPrint({ status: "active", component: positional[1] });
+    } else if (command === "extend") {
+      const recommendation = parsed.values.get("recommendation")?.[0] as "approve" | "reject" | "insufficient-evidence";
+      if (!["approve", "reject", "insufficient-evidence"].includes(recommendation)) throw new ControlPlaneError("--recommendation must be approve, reject, or insufficient-evidence");
+      jsonPrint(control.extend(positional[1] ?? "", {
+        cost: Number(parsed.values.get("cost")?.[0]),
+        wall: Number(parsed.values.get("wall-clock")?.[0]),
+        recommendation,
+        reason: parsed.values.get("reason")?.[0] ?? "",
+      }));
     } else if (command === "activate") {
       control.activate(positional[1] ?? "");
       jsonPrint({ status: "active", component: positional[1] });

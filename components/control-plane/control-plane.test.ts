@@ -156,6 +156,55 @@ test("questions, answers, approvals, and constraint rejection are durable", () =
   }
 });
 
+test("admits one component budget extension within the parent reserve", () => {
+  const fixtureRoot = fixture();
+  try {
+    const control = new ControlPlane(fixtureRoot.root, { clock: () => new Date("2026-07-26T17:05:00Z") });
+    const child = control.delegate(".", "child-a", {
+      requirement: "Continue the bounded child task.",
+      acceptance: ["The child has a durable result."],
+      allocatedCost: 3,
+      costReserve: 1,
+      allocatedWall: 30,
+      wallReserve: 10,
+    });
+    control.activate("child-a");
+    const questionId = control.recordQuestion("child-a", "Request more bounded budget");
+    expect(questionId).toMatch(/^q-/);
+    const result = control.extend("child-a", { cost: 2, wall: 20, recommendation: "approve", reason: "Remaining acceptance work is bounded." });
+    expect(result.decision).toBe("approve");
+    const text = readFileSync(join(child, "as-is.md"), "utf8");
+    expect(text).toContain("allocated: 5");
+    expect(text).toContain("allocated-seconds: 50");
+    expect(text).toContain('"decision":"approve"');
+    expect((control as any).recordFor("child-a").status).toBe("active");
+    expect(readFileSync(join(fixtureRoot.root, "as-is.md"), "utf8")).toContain('"event":"budget-extension-decision"');
+  } finally {
+    fixtureRoot.cleanup();
+  }
+});
+
+test("rejects an extension that would consume the parent reserve", () => {
+  const fixtureRoot = fixture();
+  try {
+    const control = new ControlPlane(fixtureRoot.root, { clock: () => new Date("2026-07-26T17:05:00Z") });
+    control.delegate(".", "child-a", {
+      requirement: "Continue the bounded child task.",
+      acceptance: ["The child has a durable result."],
+      allocatedCost: 3,
+      costReserve: 1,
+      allocatedWall: 30,
+      wallReserve: 10,
+    });
+    control.activate("child-a");
+    control.recordQuestion("child-a", "Request more bounded budget");
+    expect(() => control.extend("child-a", { cost: 6, wall: 1, recommendation: "approve", reason: "Too much." })).toThrow(/cost exceeds parent/);
+    expect((control as any).recordFor("child-a").status).toBe("blocked");
+  } finally {
+    fixtureRoot.cleanup();
+  }
+});
+
 test("parent delegation is durable queued work and closes descendants", () => {
   const fixtureRoot = fixture();
   try {
