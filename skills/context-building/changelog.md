@@ -1,5 +1,12 @@
 # Changelog
 
+- 2026-08-15: Completed backlog item `canonical-skill-name`. Retained
+  `context-building` as the canonical skill name, preserved the concise
+  `agent-skills.md` catalog link, and confirmed `.agents/skills/context-building`
+  is only a symlink to the owning component rather than duplicate skill
+  authority. Validation covered canonical front matter, catalog and component
+  links, configured skill resolution, and `git diff --check`.
+
 ## 2026-08-15 — Legacy record migration
 
 - **Component:** Context Building.
