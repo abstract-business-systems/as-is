@@ -2,8 +2,10 @@
 
 ## Purpose
 
-Resolve one explicitly linked local context file without turning a component
-record into a general filesystem reader.
+Provide the simple host tool that lets an agent consume one explicitly linked
+local context resource without turning an `as-is.md` record into a general
+filesystem reader. The implementation lives here, but the agent-facing concept
+is the bounded `resolve_component_context` tool.
 
 ## Design
 
@@ -24,6 +26,10 @@ instructions or task authority. The resolver follows no further links and
 performs no network access. The launcher passes configured task-record names to
 the host tool, so task-record denial follows project configuration rather than
 only the resolver fallback.
+
+Record-structuring skills declare links; component-building skills decide what
+explicitly linked context is needed and consume it. This implementation does
+not own record structure, builder authority, or a recursive context graph.
 
 ## Follow-up
 
