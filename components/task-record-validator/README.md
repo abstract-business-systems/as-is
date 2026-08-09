@@ -1,8 +1,10 @@
 # Task-Record Validator
 
 `task_record_validator.py` is a dependency-free, deterministic validator for a
-version 2 `as-is.md` component tree. It reads the root record and every
-descendant `as-is.md`; directory placement determines parentage.
+version 2 JSON-companion task tree. It finds local `as-is.json.task` objects,
+reads their configured front-matter-free task narratives, and uses directory
+placement to determine parentage. Durable `as-is.md` files provide component
+context but are not task metadata.
 
 ## Run
 
@@ -21,8 +23,10 @@ python3 -m unittest -v test_task_record_validator.py
 
 ## Enforced Version 2 Invariants
 
-- strict core front matter, supported statuses, non-negative resource values,
-  RFC 3339 UTC checkpoints, and required durable body sections;
+- strict `as-is.json.task` core fields, supported statuses, non-negative
+  resource values, RFC 3339 UTC checkpoints, and required narrative sections;
+- a safe root-configured task-narrative basename and a narrative beside every
+  discovered task companion;
 - authority inheritance: a child cannot relax its parent external-effect policy
   (`prohibited` is stricter than
   `require-current-turn-user-approval`) or delegation depth/child limits;
@@ -32,6 +36,4 @@ python3 -m unittest -v test_task_record_validator.py
   descendant must be explicitly named by its relative directory path in the
   completed ancestor's `## Result` section.
 
-The YAML reader intentionally supports only the protocol's mapping, scalar-list,
-plain scalar, quoted-string, and space-indentation forms. Unsupported YAML
-features fail rather than being interpreted ambiguously.
+Legacy YAML-front-matter task records are unsupported and are not interpreted.

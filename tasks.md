@@ -28,13 +28,34 @@ empty.
 
 ## Progress
 
-Active repository-wide migration authorized by the user. The root JSON
-foundation is complete in `5e2ee52`; observability completed its owner-scoped
-migration in `1853e0f`.
+Completed the repository-wide migration. All durable `as-is.md` records and
+configured task narratives are front-matter-free; runtime task authority is in
+`as-is.json.task`; the control plane, supervisor, launcher status join, task
+validator, and repository-owned fixtures use the JSON companion contract.
+Legacy YAML task inputs are rejected rather than interpreted.
 
 ## Validation
 
-Pending final inventory-empty scan and full relevant regression suite.
+- All 162 first-party Bun tests ran: 141 passed, 21 provider-backed live tests
+  were explicitly skipped, and 0 failed (734 assertions).
+- `python3 -m unittest -v components/task-record-validator/test_task_record_validator.py`
+  passed all 6 tests.
+- `python3 components/task-record-validator/task_record_validator.py .` returned
+  `VALID` against the active repository task tree.
+- Bun no-output builds passed for the control plane and subprocess supervisor.
+- Inventory scans found no YAML delimiter in `as-is.md` or task narratives and
+  no remaining `as-is-version: 2` fixture literal outside deliberate rejection
+  coverage. `git diff --check` passed.
+- Provider-backed behavioral tests remain opt-in and were not run in the final
+  deterministic suite; their fixture construction was compiled and exercised
+  by Bun test discovery.
+
+## Result
+
+The approved companion-record migration is complete. JSON is the sole machine
+task/configuration authority, durable Markdown contains component context only,
+completed transient narratives were summarized in colocated changelogs, and
+partial companion/narrative writes have a documented fail-closed recovery rule.
 
 ## Blockers And Escalations
 
@@ -49,4 +70,5 @@ inventory entries and their test fixtures are migrated.
 
 ## Next Action
 
-Classify and migrate the remaining legacy records and their direct consumers.
+Record the completion summary, remove this transient task narrative and local
+`as-is.json.task`, and commit the validated migration handoff.

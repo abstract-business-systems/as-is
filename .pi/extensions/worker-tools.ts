@@ -10,7 +10,6 @@ import {
   type ExtensionAPI,
 } from "../../skills/spawning-pi-subagents/node_modules/@earendil-works/pi-coding-agent";
 import { Type } from "../../skills/spawning-pi-subagents/node_modules/typebox";
-import { readFileSync } from "node:fs";
 import { boundedLimit } from "../../components/budget-control/budget.ts";
 import { readAsIsJson } from "../../components/as-is-data/resolver.ts";
 import { resolveLocalLinkedContext } from "../../components/linked-context/resolver.ts";
@@ -42,16 +41,7 @@ function taskWallClockRemaining(cwd: string): number | undefined {
     if (typeof values?.["allocated-seconds"] === "number" && typeof values?.["spent-seconds"] === "number" && typeof values?.["reserve-seconds"] === "number") {
       return Math.max(0, values["allocated-seconds"] - values["spent-seconds"] - values["reserve-seconds"]) * 1000;
     }
-  } catch { /* legacy records use the YAML fallback below */ }
-  for (const name of ["tasks.md", "task.md", "as-is.md"]) {
-    try {
-      const text = readFileSync(join(cwd, name), "utf8");
-      const allocated = /^      allocated-seconds: (\d+(?:\.\d+)?)$/m.exec(text)?.[1];
-      const spent = /^      spent-seconds: (\d+(?:\.\d+)?)$/m.exec(text)?.[1];
-      const reserve = /^      reserve-seconds: (\d+(?:\.\d+)?)$/m.exec(text)?.[1];
-      if (allocated && spent && reserve) return Math.max(0, Number(allocated) - Number(spent) - Number(reserve)) * 1000;
-    } catch { /* child may not have a task record */ }
-  }
+  } catch { /* a child may have no local JSON task metadata */ }
   return undefined;
 }
 
