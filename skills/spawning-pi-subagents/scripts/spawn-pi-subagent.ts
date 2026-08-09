@@ -369,9 +369,7 @@ const readProjectModelConfig = async (projectRoot: string): Promise<ProjectModel
   const records = object(object(config.records).filenames);
   const tracing = object(object(config.observability).tracing);
   const models: Record<string, string> = {};
-  for (const [name, value] of Object.entries(object(agents.models))) {
-    if (typeof value === "string") models[name] = value;
-  }
+  for (const [name, value] of Object.entries(object(agents.models))) if (typeof value === "string") models[name] = value;
   if (records.task !== undefined && !isTaskNarrativeFilename(records.task)) {
     throw new Error("configuration.records.filenames.task must be a safe task narrative filename");
   }
@@ -391,7 +389,6 @@ const readProjectModelConfig = async (projectRoot: string): Promise<ProjectModel
 const resolveModel = (value: string | undefined, config: ProjectModelConfig): { model?: string; provider?: string } => {
   const selected = value ?? config.defaultModel;
   if (!selected) return {};
-  if (selected === "small" || selected === "xlarge") throw new Error(`Unsupported project model preset: ${selected}`);
   return { model: config.models[selected] ?? selected, provider: config.provider };
 };
 

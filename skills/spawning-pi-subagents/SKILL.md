@@ -67,10 +67,8 @@ contracts and host safety profiles still apply. The `expert` validation role is
 the sole launcher-owned capability exception and always receives the fixed
 read-only `read,grep,find,ls,git_inspect` profile. Model policy is resolved from root
 `as-is.json` `configuration.agents`: `defaultModel`, `provider`, and the named
-`models` map. Supported project presets are `medium` and `large`; `medium` is the repository
-baseline and `large` is reserved for roles that need deeper analysis. The
-resulting model value and provider are passed explicitly to Pi. Other preset
-names are not supported project presets.
+`models` map. Supported project presets are `small`, `medium`, `large`, and
+`xlarge`; the resulting model value and provider are passed explicitly to Pi.
 The launcher does not read model or provider policy from OpenCode configuration
 or environment variables; those are not system configuration sources.
 OpenCode-specific front matter such as `permission:` is not a Pi permission
