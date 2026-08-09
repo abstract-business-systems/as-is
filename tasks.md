@@ -51,11 +51,29 @@ to grant budget directly.
 
 ## Progress
 
-Task record created before implementation. No historical trace file is to be edited.
+Intermediate commit `fe2b643` added repository guidance favoring the smallest
+working understandable solution, documented the observability trace-safety
+boundary, and added an append-prefix regression test. No historical trace file
+was edited.
+
+The budget-extension workflow was inspected against the existing control-plane
+owner. A safe runtime continuation cannot be added as a small documentation-only
+slice: the current control plane has no durable attempt/lease model or parent
+extension ceiling, and mutating allocation without those checks would create a
+second or unsafe budget authority. The extension contract therefore remains a
+separate bounded successor task rather than being simulated here.
 
 ## Validation
 
-Not yet run.
+Passed:
+
+- `bun test components/observability/tracer.test.ts components/observability/lifecycle-hierarchy.test.ts` — 9 passed, 46 expectations.
+- `bun test components/control-plane/control-plane.test.ts` — 5 passed, 31 expectations.
+- `git diff --check` passed before the intermediate commit.
+- The append-only test confirms that a later event preserves the exact bytes of
+  the existing prefix.
+
+Not yet run: final repository-wide checks and historical trace byte comparison.
 
 ## Result
 
@@ -63,7 +81,10 @@ Not yet available.
 
 ## Blockers And Escalations
 
-None.
+The budget-extension runtime remains blocked for this task by missing durable
+attempt/lease and parent-ceiling semantics. Do not add allocation mutation or
+claim extension enforcement without those authority records. Preserve the
+simplified reviewer flow as a successor task in the control-plane backlog.
 
 ## Recovery
 
