@@ -34,6 +34,13 @@ this repository.
 - Before introducing a material abstraction, configuration surface, artifact, or
   execution path, inspect the applicable local pattern and prefer the smallest
   reuse that satisfies the need.
+- Prefer the smallest working, understandable solution that satisfies the
+  acceptance conditions. Do not introduce sophisticated or enterprise-grade
+  interfaces, abstractions, configuration, or operational machinery unless the
+  requirement or evidence demonstrates that they are necessary. If a more
+  complex design is proposed, state the concrete requirement, evidence, and
+  material trade-off that justify it. This does not weaken safety, security,
+  reliability, recovery, validation, or authority constraints.
 - Validate a changed behavior with the smallest relevant existing automation or
   check before reporting completion. State the validation performed and any
   residual risk.

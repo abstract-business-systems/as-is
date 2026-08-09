@@ -47,6 +47,22 @@ backlog items. It does not own task-record semantics or durable task authority.
 - [`tracer.test.ts`](tracer.test.ts) — focused tracer checks.
 - [`backlog.md`](backlog.md) — open and deferred observability planning.
 
+## Trace Safety Policy
+
+Trace records are supplementary observations, never task, budget, recovery,
+validation, or completion authority. New local records are append-only: the
+writer may append within configured limits, or perform explicitly configured
+retention cleanup, but it must not rewrite or correct an existing event. Trace
+failures, malformed events, unavailable sinks, and size-limit decisions must
+not change execution or durable task decisions. Historical `.as-is/tracing.jsonl`
+files are preserved as audit evidence and are not migrated or rewritten by new
+trace behavior.
+
+Budget extensions are evaluated from durable task records and bounded
+read-only execution evidence. A trace may correlate an already-authorized
+request or decision, but a trace event cannot allocate, approve, extend, stop,
+resume, or complete a task.
+
 ## Capture Policy
 The tracer captures key execution events and metadata, including
 subprocess delegation lifecycle, worker outcomes, supervisor phases, handoffs,

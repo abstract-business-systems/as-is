@@ -50,6 +50,17 @@ describe("universal local tracer", () => {
     expect(local).not.toContain("raw prompt");
   });
 
+  test("appends without modifying existing trace bytes", async () => {
+    const cwd = await mkdtemp(join(tmpdir(), "as-is-trace-append-"));
+    const path = join(cwd, ".as-is", "tracing.jsonl");
+    await emitTrace({ name: "first", traceId: "trace-1", spanId: "span-1", attributes: {} }, cwd, { backend: "file" });
+    const before = await readFile(path);
+    await emitTrace({ name: "second", traceId: "trace-2", spanId: "span-2", attributes: {} }, cwd, { backend: "file" });
+    const after = await readFile(path);
+    expect(after.subarray(0, before.length)).toEqual(before);
+    expect(after.toString()).toContain('"name":"second"');
+  });
+
   test("writes to the configured file for any runtime event", async () => {
     const cwd = await mkdtemp(join(tmpdir(), "as-is-trace-"));
     await writeFile(join(cwd, "as-is.md"), `config:\n  observability:\n    tracing:\n      backend: file\n      enabled: true\n      local-directory: .as-is/tracing.jsonl\n`);
