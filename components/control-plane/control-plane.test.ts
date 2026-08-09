@@ -4,42 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { ControlPlane, ControlPlaneError } from "./control-plane.ts";
 
-const record = (status = "active", maximumDepth = 2, maximumChildren = 2, updated = "2026-07-26T17:00:00Z") => `---
-as-is-version: 2
-config:
-  scheduling:
-    checkInSeconds: 300
-    maxConcurrentTasks: 1
-task:
-  status: ${status}
-  worker: component-builder
-  updated: ${updated}
-constraints:
-  cost:
-    currency: USD
-    allocated: 10
-    spent: 1
-    reserve: 1
-    source: unavailable
-    fallback-metric: unavailable
-  delegation:
-    maximum-depth: ${maximumDepth}
-    maximum-children: ${maximumChildren}
-  execution:
-    wall-clock:
-      allocated-seconds: 100
-      spent-seconds: 10
-      reserve-seconds: 10
-      source: unavailable
-  external-effects: require-current-turn-user-approval
-acceptance:
-  - A durable control-plane result.
----
-# Root
-
-## Purpose
-
-Test root.
+const record = () => `# Task
 
 ## Requirement
 
@@ -74,9 +39,27 @@ Recover from the record.
 Continue.
 `;
 
+function taskData(status = "active", maximumDepth = 2, maximumChildren = 2, updated = "2026-07-26T17:00:00Z") {
+  return {
+    status, worker: "component-builder", updated,
+    constraints: {
+      cost: { currency: "USD", allocated: 10, spent: 1, reserve: 1, source: "unavailable", "fallback-metric": "unavailable" },
+      delegation: { "maximum-depth": maximumDepth, "maximum-children": maximumChildren },
+      execution: { "wall-clock": { "allocated-seconds": 100, "spent-seconds": 10, "reserve-seconds": 10, source: "unavailable" } },
+      "external-effects": "require-current-turn-user-approval",
+    },
+    acceptance: ["A durable control-plane result."],
+  };
+}
+
 function fixture(): { root: string; cleanup: () => void } {
   const root = mkdtempSync(join(tmpdir(), "control-plane-"));
-  writeFileSync(join(root, "as-is.md"), record(), "utf8");
+  writeFileSync(join(root, "as-is.md"), "# Root\n", "utf8");
+  writeFileSync(join(root, "tasks.md"), record(), "utf8");
+  writeFileSync(join(root, "as-is.json"), JSON.stringify({
+    configuration: { records: { filenames: { task: "tasks.md" } }, scheduling: { maxConcurrentTasks: 1, checkInSeconds: 300 } },
+    task: taskData(),
+  }), "utf8");
   return { root, cleanup: () => rmSync(root, { recursive: true, force: true }) };
 }
 
@@ -108,15 +91,13 @@ test("reads root task metadata from its JSON companion and a front-matter-free n
   }
 });
 
-test("rejects competing configured and legacy task narratives", () => {
-  const root = mkdtempSync(join(tmpdir(), "control-plane-competing-narratives-"));
+test("rejects a legacy YAML task narrative", () => {
+  const root = mkdtempSync(join(tmpdir(), "control-plane-legacy-task-"));
   try {
     writeFileSync(join(root, "as-is.md"), "# Root\n", "utf8");
-    writeFileSync(join(root, "as-is.json"), JSON.stringify({ configuration: { records: { filenames: { task: "work.md" } } } }), "utf8");
-    writeFileSync(join(root, "work.md"), record(), "utf8");
-    writeFileSync(join(root, "tasks.md"), record(), "utf8");
-    const control = new ControlPlane(root);
-    expect(() => control.status()).toThrow("multiple task narratives");
+    writeFileSync(join(root, "as-is.json"), JSON.stringify({ configuration: { records: { filenames: { task: "work.md" } } }, task: taskData() }), "utf8");
+    writeFileSync(join(root, "work.md"), `---\ntask: {}\n---\n${record()}`, "utf8");
+    expect(() => new ControlPlane(root)).toThrow("legacy YAML task records are unsupported");
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -163,7 +144,10 @@ test("rejects an unsafe configured task filename", () => {
 test("root activation resolves the existing transient root task record", () => {
   const fixtureRoot = fixture();
   try {
-    writeFileSync(join(fixtureRoot.root, "tasks.md"), record("ready").replace("maxConcurrentTasks: 1", "maxConcurrentTasks: 2"), "utf8");
+    const companion = JSON.parse(readFileSync(join(fixtureRoot.root, "as-is.json"), "utf8"));
+    companion.task = taskData("ready");
+    companion.configuration.scheduling.maxConcurrentTasks = 2;
+    writeFileSync(join(fixtureRoot.root, "as-is.json"), JSON.stringify(companion), "utf8");
     const control = new ControlPlane(fixtureRoot.root);
     control.activate(".");
     expect((control as any).recordFor(".").status).toBe("active");
@@ -176,10 +160,13 @@ test("root orientation accepts an absent transient root task record", () => {
   const fixtureRoot = fixture();
   try {
     const taskPath = join(fixtureRoot.root, "tasks.md");
+    const companionPath = join(fixtureRoot.root, "as-is.json");
+    const companion = JSON.parse(readFileSync(companionPath, "utf8"));
+    delete companion.task;
+    writeFileSync(companionPath, JSON.stringify(companion), "utf8");
     rmSync(taskPath, { force: true });
     const control = new ControlPlane(fixtureRoot.root);
-    expect((control.status() as any).tasks[0].path).toBe(".");
-    expect((control.status() as any).tasks[0].status).toBe("active");
+    expect((control.status() as any).tasks).toEqual([]);
   } finally {
     fixtureRoot.cleanup();
   }
@@ -226,11 +213,11 @@ test("questions, answers, approvals, and constraint rejection are durable", () =
     control.approve(".", approvalId, "Approved for this recorded effect", { proposedConstraints: { "external-effects": "prohibited" } });
     control.cancel(".", "User cancelled after the approval checkpoint");
 
-    const content = readFileSync(join(fixtureRoot.root, "as-is.md"), "utf8");
+    const content = readFileSync(join(fixtureRoot.root, "tasks.md"), "utf8");
     const durableEvents = content.split("\n").filter((line) => line.startsWith("- control-plane: ")).map((line) => JSON.parse(line.slice("- control-plane: ".length)));
     expect(durableEvents.map((event) => event.event)).toEqual(["question", "direction", "question", "approval", "cancellation"]);
     expect(content).toContain("User cancelled after the approval checkpoint");
-    expect(content).toContain("status: cancelled");
+    expect(JSON.parse(readFileSync(join(fixtureRoot.root, "as-is.json"), "utf8")).task.status).toBe("cancelled");
   } finally {
     fixtureRoot.cleanup();
   }
@@ -250,7 +237,9 @@ test("rejects launch admission when the retained reserve is exhausted", () => {
   const fixtureRoot = fixture();
   try {
     const control = new ControlPlane(fixtureRoot.root);
-    writeFileSync(join(fixtureRoot.root, "as-is.md"), record().replace("spent-seconds: 10", "spent-seconds: 90"), "utf8");
+    const companion = JSON.parse(readFileSync(join(fixtureRoot.root, "as-is.json"), "utf8"));
+    companion.task.constraints.execution["wall-clock"]["spent-seconds"] = 90;
+    writeFileSync(join(fixtureRoot.root, "as-is.json"), JSON.stringify(companion), "utf8");
     expect(() => control.admitLaunch(".", 10)).toThrow(/exhausted/);
   } finally {
     fixtureRoot.cleanup();
@@ -280,7 +269,7 @@ test("admits one component budget extension within the parent reserve", () => {
     expect(data.task.constraints.execution["wall-clock"]["allocated-seconds"]).toBe(50);
     expect(readFileSync(join(child, "tasks.md"), "utf8")).toContain('"decision":"approve"');
     expect((control as any).recordFor("child-a").status).toBe("active");
-    expect(readFileSync(join(fixtureRoot.root, "as-is.md"), "utf8")).toContain('"event":"budget-extension-decision"');
+    expect(readFileSync(join(fixtureRoot.root, "tasks.md"), "utf8")).toContain('"event":"budget-extension-decision"');
   } finally {
     fixtureRoot.cleanup();
   }
@@ -388,7 +377,7 @@ test("parent delegation is durable queued work and closes descendants", () => {
 
     expect((control as any).recordFor(".").status).toBe("completed");
     expect((control as any).rootMaxConcurrent()).toBe(1);
-    expect(readFileSync(join(fixtureRoot.root, "as-is.md"), "utf8")).toContain("child-b was cancelled and is accounted for.");
+    expect(readFileSync(join(fixtureRoot.root, "tasks.md"), "utf8")).toContain("child-b was cancelled and is accounted for.");
   } finally {
     fixtureRoot.cleanup();
   }

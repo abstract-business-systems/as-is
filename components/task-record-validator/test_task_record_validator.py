@@ -1,3 +1,4 @@
+import json
 import shutil
 import subprocess
 import tempfile
@@ -9,37 +10,24 @@ HERE = Path(__file__).parent
 VALIDATOR = HERE / "task_record_validator.py"
 
 
-def record(status="active", *, cost=6, wall=60, depth=1, children=2, effects="require-current-turn-user-approval", result="- Pending."):
-    return f'''---
-as-is-version: 2
-task:
-  status: {status}
-  worker: implementer
-  updated: 2026-07-26T14:00:00Z
-constraints:
-  cost:
-    currency: USD
-    allocated: {cost}
-    spent: 1
-    reserve: 1
-    source: unavailable
-    fallback-metric: unavailable
-  delegation:
-    maximum-depth: {depth}
-    maximum-children: {children}
-  execution:
-    wall-clock:
-      allocated-seconds: {wall}
-      spent-seconds: 10
-      reserve-seconds: 10
-      source: unavailable
-  external-effects: {effects}
-acceptance:
-  - A bounded result.
----
-# Test
-## Purpose
-Text.
+def record(status="active", *, cost=6, wall=60, depth=1, children=2,
+           effects="require-current-turn-user-approval", result="- Pending."):
+    return {
+        "task": {
+            "status": status,
+            "worker": "implementer",
+            "updated": "2026-07-26T14:00:00Z",
+            "constraints": {
+                "cost": {"currency": "USD", "allocated": cost, "spent": 1, "reserve": 1,
+                         "source": "unavailable", "fallback-metric": "unavailable"},
+                "delegation": {"maximum-depth": depth, "maximum-children": children},
+                "execution": {"wall-clock": {"allocated-seconds": wall, "spent-seconds": 10,
+                                                "reserve-seconds": 10, "source": "unavailable"}},
+                "external-effects": effects,
+            },
+            "acceptance": ["A bounded result."],
+        },
+        "narrative": f"""# Task
 ## Requirement
 Text.
 ## Plan
@@ -56,7 +44,8 @@ Text.
 Text.
 ## Next Action
 Text.
-'''
+""",
+    }
 
 
 class TaskRecordValidatorTests(unittest.TestCase):
@@ -65,9 +54,14 @@ class TaskRecordValidatorTests(unittest.TestCase):
         self.addCleanup(shutil.rmtree, self.temp)
 
     def write(self, relative, contents):
-        path = self.temp / relative / "as-is.md"
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(contents)
+        directory = self.temp / relative
+        directory.mkdir(parents=True, exist_ok=True)
+        (directory / "as-is.md").write_text("# Test\n")
+        companion = {"task": contents["task"]}
+        if relative == ".":
+            companion["configuration"] = {"records": {"filenames": {"task": "tasks.md"}}}
+        (directory / "as-is.json").write_text(json.dumps(companion))
+        (directory / "tasks.md").write_text(contents["narrative"])
 
     def run_validator(self):
         return subprocess.run(["python3", str(VALIDATOR), str(self.temp)], text=True, capture_output=True)

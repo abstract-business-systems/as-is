@@ -171,10 +171,8 @@ Current task authority remains in the root or component configured task-record
 file (default `tasks.md`). Historical
 task recovery uses Git history plus the repository's concise history entries;
 it does not use a `task-archives/` directory, a second task tree, or a separate
-host-specific recovery path. Legacy YAML-front-matter task records remain
-read-compatible only until their owning components complete the documented JSON
-companion migration; newly created records use JSON metadata and front-matter-free
-Markdown. Historical notes are succinct by default and use the canonical `Changelog`
+host-specific recovery path. Legacy YAML-front-matter task records are unsupported. Every task uses JSON
+metadata and a front-matter-free Markdown narrative. Historical notes are succinct by default and use the canonical `Changelog`
 heading. A small retained `Changelog` may live in `as-is.md` when that record
 is the smallest coherent authoritative home; it is never a parallel task
 authority. Project-specific verbosity configuration, such as
@@ -203,6 +201,18 @@ authorized bounded task based on current policy and Git evidence.
 
 The durable `as-is.md` body describes the component's purpose, design, links, and
 concise `Changelog`; it does not contain transient task state or YAML front matter.
+
+## Companion/Narrative Recovery
+
+Companion JSON and the configured task narrative are individually atomic writes,
+not one crash-atomic transaction. A present `as-is.json.task` without its
+configured narrative is an invalid blocked state: task execution must stop until
+the narrative is restored from Git/history or a newly authorized task replaces
+both artifacts. A narrative without `task` has no task authority and must not
+be executed. Completion follows the same rule: do not claim completion after
+only one artifact is removed; restore the missing counterpart or finish the
+paired cleanup before handoff. This rule makes partial writes visible and
+recoverable without pretending they are atomic.
 
 ## Transient Task Body
 

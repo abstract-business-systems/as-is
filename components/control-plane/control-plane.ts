@@ -60,107 +60,6 @@ function isMapping(value: unknown): value is UnknownRecord {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-function scalar(value: string): unknown {
-  const trimmed = value.trim();
-  if (!trimmed) return "";
-  if (trimmed.startsWith('"')) {
-    try {
-      return JSON.parse(trimmed);
-    } catch (error) {
-      throw new ControlPlaneError(`invalid quoted YAML scalar: ${trimmed}`);
-    }
-  }
-  if (trimmed === "true" || trimmed === "false") return trimmed === "true";
-  if (trimmed === "null" || trimmed === "~") return null;
-  if (/^-?(?:0|[1-9]\d*)(?:\.\d+)?$/.test(trimmed)) {
-    return trimmed.includes(".") ? Number.parseFloat(trimmed) : Number.parseInt(trimmed, 10);
-  }
-  return trimmed;
-}
-
-function indentation(line: string): number {
-  return line.length - line.trimStart().length;
-}
-
-/** Parse the small mapping/list YAML subset used by as-is.md records. */
-function parseYamlSubset(text: string): UnknownRecord {
-  const rawLines = text
-    .split("\n")
-    .map((line) => line.replace(/\r$/, ""))
-    .filter((line) => line.trim() && !line.trimStart().startsWith("#"));
-
-  function block(index: number, level: number): [unknown, number] {
-    if (index >= rawLines.length || indentation(rawLines[index]) !== level) {
-      throw new ControlPlaneError("invalid YAML indentation");
-    }
-    const isList = rawLines[index].slice(level).startsWith("- ");
-    const result: UnknownRecord | unknown[] = isList ? [] : {};
-
-    while (index < rawLines.length) {
-      const line = rawLines[index];
-      const current = indentation(line);
-      if (current < level) break;
-      if (current !== level) throw new ControlPlaneError(`unexpected YAML indentation: ${line}`);
-      const content = line.slice(level);
-
-      if (isList) {
-        if (!content.startsWith("- ")) throw new ControlPlaneError("mixed YAML list and mapping");
-        const value = content.slice(2).trim();
-        if (!value) {
-          if (index + 1 >= rawLines.length || indentation(rawLines[index + 1]) <= level) {
-            throw new ControlPlaneError("empty YAML list item");
-          }
-          const [item, next] = block(index + 1, indentation(rawLines[index + 1]));
-          (result as unknown[]).push(item);
-          index = next;
-          continue;
-        }
-        const pieces = [value];
-        index += 1;
-        while (index < rawLines.length && indentation(rawLines[index]) > level) {
-          pieces.push(rawLines[index].trim());
-          index += 1;
-        }
-        (result as unknown[]).push(scalar(pieces.join(" ")));
-        continue;
-      }
-
-      const separator = content.indexOf(":");
-      if (separator < 0) throw new ControlPlaneError(`expected YAML mapping entry: ${line}`);
-      const key = content.slice(0, separator);
-      if (!key || key.trim() !== key || Object.hasOwn(result, key)) {
-        throw new ControlPlaneError(`invalid or duplicate YAML key: ${JSON.stringify(key)}`);
-      }
-      const value = content.slice(separator + 1).trim();
-      if (value) {
-        (result as UnknownRecord)[key] = scalar(value);
-        index += 1;
-      } else {
-        if (index + 1 >= rawLines.length || indentation(rawLines[index + 1]) <= level) {
-          throw new ControlPlaneError(`missing nested YAML value for ${key}`);
-        }
-        const [nested, next] = block(index + 1, indentation(rawLines[index + 1]));
-        (result as UnknownRecord)[key] = nested;
-        index = next;
-      }
-    }
-    return [result, index];
-  }
-
-  if (!rawLines.length) throw new ControlPlaneError("empty front matter");
-  const [parsed, index] = block(0, 0);
-  if (index !== rawLines.length || !isMapping(parsed)) {
-    throw new ControlPlaneError("front matter must be a mapping");
-  }
-  return parsed;
-}
-
-function frontMatter(text: string): [UnknownRecord, string] {
-  if (!text.startsWith("---\n")) throw new ControlPlaneError("missing opening front-matter delimiter");
-  const end = text.indexOf("\n---\n", 4);
-  if (end < 0) throw new ControlPlaneError("missing closing front-matter delimiter");
-  return [parseYamlSubset(text.slice(4, end)), text.slice(end + 5)];
-}
 
 export class DurableRecord {
   constructor(
@@ -196,8 +95,7 @@ function loadRecord(path: string): DurableRecord {
     throw new ControlPlaneError(`cannot read ${path}: ${String(error)}`);
   }
   if (text.startsWith("---\n")) {
-    const [data, body] = frontMatter(text);
-    return new DurableRecord(path, text, data, body);
+    throw new ControlPlaneError(`legacy YAML task records are unsupported: ${path}`);
   }
   const companionPath = join(dirname(path), "as-is.json");
   if (basename(path) === "as-is.md") {
@@ -307,41 +205,6 @@ function timestamp(value: string): Date {
   return parsed;
 }
 
-function replaceBudgetScalars(front: string, cost: number, wall: number): string {
-  const costMatch = /^    allocated: [^\n]+$/m.exec(front);
-  const wallMatch = /^      allocated-seconds: [^\n]+$/m.exec(front);
-  if (!costMatch || !wallMatch) throw new ControlPlaneError("task budget allocation fields are missing");
-  let result = front.slice(0, costMatch.index) + `    allocated: ${cost}` + front.slice(costMatch.index + costMatch[0].length);
-  const nextWallMatch = /^      allocated-seconds: [^\n]+$/m.exec(result);
-  if (!nextWallMatch) throw new ControlPlaneError("task wall-clock allocation field is missing");
-  result = result.slice(0, nextWallMatch.index) + `      allocated-seconds: ${wall}` + result.slice(nextWallMatch.index + nextWallMatch[0].length);
-  return result;
-}
-
-function replaceTaskScalars(front: string, status: string | null, updated: string | null): string {
-  let result = front;
-  if (status !== null) {
-    const match = /^  status: [^\n]*$/m.exec(result);
-    if (!match) throw new ControlPlaneError("task status field is missing");
-    result = result.slice(0, match.index) + `  status: ${status}` + result.slice(match.index + match[0].length);
-  }
-  if (updated !== null) {
-    const match = /^  updated: [^\n]*$/m.exec(result);
-    if (!match) throw new ControlPlaneError("task updated field is missing");
-    result = result.slice(0, match.index) + `  updated: ${updated}` + result.slice(match.index + match[0].length);
-  }
-  return result;
-}
-
-function renderRecord(record: DurableRecord, body: string, status: string | null, updated: string | null, budget?: { cost: number; wall: number }): string {
-  if (record.companionPath) return body;
-  const end = record.text.indexOf("\n---\n", 4);
-  if (end < 0) throw new ControlPlaneError("record lost its front matter delimiter");
-  let front = record.text.slice(4, end);
-  if (budget) front = replaceBudgetScalars(front, budget.cost, budget.wall);
-  front = replaceTaskScalars(front, status, updated);
-  return `---\n${front}\n---\n${body}`;
-}
 
 function withDirectoryLock<T>(path: string, action: () => T): T {
   const lock = `${path}.control-plane-lock`;
@@ -384,10 +247,7 @@ function atomicWrite(path: string, text: string): void {
 }
 
 function persistRecord(record: DurableRecord, body: string, status: string | null, updated: string | null, budget?: { cost: number; wall: number }): void {
-  if (!record.companionPath) {
-    atomicWrite(record.path, renderRecord(record, body, status, updated, budget));
-    return;
-  }
+  if (!record.companionPath) throw new ControlPlaneError(`task companion is missing: ${record.path}`);
   const companion = readAsIsJson(record.companionPath);
   const task = isMapping(companion.task) ? companion.task : {};
   const nextTask: UnknownRecord = { ...task };
@@ -507,7 +367,6 @@ function walkRecords(root: string, taskRecordNames: readonly string[]): string[]
     }
     const selectedTask = taskNarratives[0];
     if (selectedTask) found.push(join(directory, selectedTask));
-    else if (names.has("as-is.md") && !existsSync(join(directory, "as-is.json"))) found.push(join(directory, "as-is.md"));
     for (const entry of entries) if (entry.isDirectory()) visit(join(directory, entry.name));
   }
   visit(root);
@@ -546,7 +405,7 @@ export class ControlPlane {
       configuredTaskName = isTaskNarrativeFilename(filenames.task) ? filenames.task : undefined;
     } catch (error) {
       if (existsSync(companionPath)) throw error;
-      // Legacy projects use the default record names below.
+      throw new ControlPlaneError(`root companion is required: ${companionPath}`);
     }
     this.taskRecordNames = [...new Set([configuredTaskName, "tasks.md", "task.md"].filter((name): name is string => Boolean(name)))];
     this.rootRecordPath = configuredTaskName && existsSync(join(this.root, configuredTaskName))
@@ -558,18 +417,11 @@ export class ControlPlane {
           : null;
     this.clock = options.clock ?? (() => new Date());
     if (!existsSync(durableRoot)) throw new ControlPlaneError(`root durable record does not exist: ${durableRoot}`);
-    if (existsSync(companionPath)) {
-      try {
-        const rootCompanion = readAsIsJson(companionPath);
-        if (!isMapping(rootCompanion.configuration)) throw new ControlPlaneError(`root companion has no configuration: ${companionPath}`);
-      } catch (error) {
-        throw new ControlPlaneError(`root companion is invalid: ${String(error)}`);
-      }
-    } else {
-      const rootRecord = loadRecord(durableRoot);
-      if (rootRecord.data["as-is-version"] !== 1 && rootRecord.data["as-is-version"] !== 2) {
-        throw new ControlPlaneError(`root durable record has unsupported as-is-version: ${durableRoot}`);
-      }
+    try {
+      const rootCompanion = readAsIsJson(companionPath);
+      if (!isMapping(rootCompanion.configuration)) throw new ControlPlaneError(`root companion has no configuration: ${companionPath}`);
+    } catch (error) {
+      throw new ControlPlaneError(`root companion is invalid: ${String(error)}`);
     }
     if (existsSync(this.rootRecordPath) && !isTaskRecord(loadRecord(this.rootRecordPath))) {
       throw new ControlPlaneError(`root task record is invalid: ${this.rootRecordPath}`);
@@ -579,20 +431,12 @@ export class ControlPlane {
   private records(): DurableRecord[] {
     const records: DurableRecord[] = [];
     for (const path of walkRecords(this.root, this.taskRecordNames)) {
-      if (basename(path) === "as-is.md" && this.taskRecordNames.some((name) => existsSync(join(dirname(path), name)))) continue;
       try {
         const record = loadRecord(path);
-        if (isTaskRecord(record) && (path === this.rootRecordPath || this.taskRecordNames.some((name) => path.endsWith(`/${name}`) || path.endsWith(`\\${name}`)) || path.endsWith("/as-is.md") || path.endsWith("\\as-is.md"))) records.push(record);
+        if (isTaskRecord(record)) records.push(record);
       } catch (error) {
         if (path === this.rootRecordPath) throw error;
-        let raw = "";
-        try {
-          raw = readFileSync(path, "utf8");
-        } catch {
-          throw error;
-        }
-        if (/^as-is-version:\s*/m.test(raw)) throw error;
-        // Agent definitions and other Markdown files may use the same filename.
+        throw error;
       }
     }
     return records;
@@ -631,8 +475,7 @@ export class ControlPlane {
       const configuration = readAsIsJson(companionPath).configuration;
       return isMapping(configuration) ? configuration : {};
     }
-    const legacy = loadRecord(this.rootRecordPath ?? join(this.root, "as-is.md")).data.config;
-    return isMapping(legacy) ? legacy : {};
+    throw new ControlPlaneError(`root companion is required: ${companionPath}`);
   }
 
   private now(): string {

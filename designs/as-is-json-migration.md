@@ -27,22 +27,25 @@ The root companion is now the project configuration authority. The shared
 objects. The resolver cascades only `configuration`; task metadata remains
 local. The launcher resolves root project context, model policy, configured
 task name, and tracing data from root `as-is.json`. The tracer reads JSON
-configuration. The control plane reads a root JSON-backed task with a
-front-matter-free narrative while retaining legacy YAML task-record compatibility
-for unmigrated components.
+configuration. The control plane and task-record validator read JSON-backed tasks with a
+front-matter-free narrative. Legacy YAML task records are rejected rather than
+silently interpreted.
 
-A JSON-backed task update writes its companion and narrative separately. This
-is recoverable because the companion is authoritative metadata and the
-narrative is explicit durable evidence, but it is not a multi-file atomic
-transaction. A later completion/migration task must add a bounded recovery rule
-or transactional protocol before claiming crash-atomic task cleanup.
+A JSON-backed task update writes its companion and narrative separately. The
+companion is authoritative machine metadata and the narrative is explicit
+human evidence, but this remains a recoverable—not crash-atomic—multi-file
+operation. A missing narrative with a present `task` is an invalid task state
+that blocks control-plane execution until a worker restores the narrative from
+Git/history or records a new bounded task; a narrative without `task` is
+non-authoritative stray text and must not be executed. Completion cleanup has
+the same recovery rule in reverse: retain the companion/task or restore the
+narrative before claiming completion. No implementation claims multi-file
+atomic cleanup.
 
 ## Migration Completion Gate
 
-All repository durable `as-is.md` records are now front-matter-free. Remaining
-migration work is limited to runtime and test-fixture compatibility: replace
-legacy YAML task fixtures and their consumers with `as-is.json.task` plus
-front-matter-free configured narratives, then remove YAML task-record parsing
-from the control plane and validator. That retirement must preserve deterministic
-fixture coverage and define the bounded recovery behavior for separate companion
-and narrative writes before claiming crash-atomic cleanup.
+All repository durable `as-is.md` records are front-matter-free, and central
+runtime consumers reject legacy YAML task records. Remaining work is to migrate
+legacy YAML literals in behavioral and integration test fixtures, plus the
+tracked dummy-delegation fixture, to JSON-companion fixture helpers before
+claiming the repository contains no legacy task representation.

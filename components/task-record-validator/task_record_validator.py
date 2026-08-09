@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministically validate version 2 component task-record trees.
-
-The parser deliberately accepts only the small YAML subset used by the task
-record protocol, keeping the validator local and dependency-free.
-"""
+"""Deterministically validate JSON-companion component task-record trees."""
 
 from __future__ import annotations
 
@@ -20,7 +16,7 @@ from typing import Any
 STATUSES = {"ready", "active", "blocked", "awaiting-approval", "completed", "failed", "cancelled"}
 TERMINAL = {"completed", "failed", "cancelled"}
 EFFECT_RANK = {"prohibited": 0, "require-current-turn-user-approval": 1}
-SECTIONS = ("Purpose", "Requirement", "Plan", "Progress", "Validation", "Result", "Blockers And Escalations", "Recovery", "Next Action")
+SECTIONS = ("Requirement", "Plan", "Progress", "Validation", "Result", "Blockers And Escalations", "Recovery", "Next Action")
 
 
 class ValidationError(Exception):
@@ -38,96 +34,28 @@ class Record:
         return self.directory.as_posix()
 
 
-def scalar(value: str) -> Any:
-    value = value.strip()
-    if not value:
-        return ""
-    if value.startswith('"'):
-        try:
-            return json.loads(value)
-        except json.JSONDecodeError as error:
-            raise ValidationError(f"invalid quoted scalar: {value}") from error
-    if value in {"true", "false"}:
-        return value == "true"
-    if value in {"null", "~"}:
-        return None
-    if re.fullmatch(r"-?(?:0|[1-9]\d*)(?:\.\d+)?", value):
-        return float(value) if "." in value else int(value)
-    return value
-
-
-def indentation(line: str) -> int:
-    return len(line) - len(line.lstrip(" "))
-
-
-def parse_yaml_subset(text: str) -> dict[str, Any]:
-    """Parse mappings and scalar lists with space indentation, rejecting YAML extras."""
-    raw_lines = [line.rstrip() for line in text.splitlines() if line.strip() and not line.lstrip().startswith("#")]
-
-    def block(index: int, level: int) -> tuple[Any, int]:
-        if index >= len(raw_lines) or indentation(raw_lines[index]) != level:
-            raise ValidationError("invalid indentation")
-        is_list = raw_lines[index][level:].startswith("- ")
-        result: Any = [] if is_list else {}
-        while index < len(raw_lines):
-            line = raw_lines[index]
-            current = indentation(line)
-            if current < level:
-                break
-            if current != level:
-                raise ValidationError(f"unexpected indentation: {line}")
-            content = line[level:]
-            if is_list:
-                if not content.startswith("- "):
-                    raise ValidationError("mixed list and mapping")
-                value = content[2:].strip()
-                if not value:
-                    if index + 1 >= len(raw_lines) or indentation(raw_lines[index + 1]) <= level:
-                        raise ValidationError("empty list item")
-                    item, index = block(index + 1, indentation(raw_lines[index + 1]))
-                    result.append(item)
-                    continue
-                # Wrapped plain list scalars are part of the preceding item.
-                pieces = [value]
-                index += 1
-                while index < len(raw_lines) and indentation(raw_lines[index]) > level:
-                    pieces.append(raw_lines[index].strip())
-                    index += 1
-                result.append(scalar(" ".join(pieces)))
-                continue
-            if ":" not in content:
-                raise ValidationError(f"expected mapping entry: {line}")
-            key, value = content.split(":", 1)
-            if not key or key.strip() != key or key in result:
-                raise ValidationError(f"invalid or duplicate key: {key!r}")
-            value = value.strip()
-            if value:
-                result[key] = scalar(value)
-                index += 1
-            else:
-                if index + 1 >= len(raw_lines) or indentation(raw_lines[index + 1]) <= level:
-                    raise ValidationError(f"missing nested value for {key}")
-                result[key], index = block(index + 1, indentation(raw_lines[index + 1]))
-        return result, index
-
-    parsed, index = block(0, 0)
-    if index != len(raw_lines) or not isinstance(parsed, dict):
-        raise ValidationError("front matter must be a mapping")
-    return parsed
-
-
-def load_record(directory: Path) -> Record:
-    path = directory / "as-is.md"
+def load_record(directory: Path, task_name: str) -> Record:
+    companion_path = directory / "as-is.json"
+    narrative_path = directory / task_name
     try:
-        text = path.read_text(encoding="utf-8")
+        companion = json.loads(companion_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise ValidationError(f"{companion_path}: invalid or unreadable JSON companion: {error}") from error
+    if not isinstance(companion, dict) or not isinstance(companion.get("task"), dict):
+        raise ValidationError(f"{companion_path}: task must be an object")
+    try:
+        body = narrative_path.read_text(encoding="utf-8")
     except OSError as error:
-        raise ValidationError(f"{path}: cannot read: {error}") from error
-    if not text.startswith("---\n"):
-        raise ValidationError(f"{path}: missing opening front-matter delimiter")
-    end = text.find("\n---\n", 4)
-    if end == -1:
-        raise ValidationError(f"{path}: missing closing front-matter delimiter")
-    return Record(directory, parse_yaml_subset(text[4:end]), text[end + 5:])
+        raise ValidationError(f"{narrative_path}: cannot read: {error}") from error
+    if body.startswith("---\n"):
+        raise ValidationError(f"{narrative_path}: legacy YAML task narrative is unsupported")
+    task = companion["task"]
+    return Record(directory, {
+        "as-is-version": 2,
+        "task": {key: task[key] for key in ("status", "worker", "updated") if key in task},
+        "constraints": task.get("constraints"),
+        "acceptance": task.get("acceptance"),
+    }, body)
 
 
 def require_keys(where: str, value: Any, expected: set[str], errors: list[str]) -> bool:
@@ -206,9 +134,24 @@ def result_section(body: str) -> str:
 
 
 def validate_tree(root: Path) -> list[str]:
-    records = {path.parent: load_record(path.parent) for path in sorted(root.rglob("as-is.md"))}
+    root_companion = root / "as-is.json"
+    try:
+        root_data = json.loads(root_companion.read_text(encoding="utf-8"))
+        task_name = root_data.get("configuration", {}).get("records", {}).get("filenames", {}).get("task", "tasks.md")
+    except (OSError, json.JSONDecodeError, AttributeError) as error:
+        return [f"{root_companion}: invalid or unreadable root companion: {error}"]
+    if not isinstance(task_name, str) or not task_name or "/" in task_name or "\\" in task_name or task_name == "as-is.md":
+        return [f"{root_companion}: configured task filename is unsafe"]
+    records = {}
+    for path in sorted(root.rglob("as-is.json")):
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as error:
+            return [f"{path}: invalid or unreadable JSON companion: {error}"]
+        if isinstance(data, dict) and "task" in data:
+            records[path.parent] = load_record(path.parent, task_name)
     if root not in records:
-        return [f"{root}: no root as-is.md record"]
+        return [f"{root}: no root JSON task record"]
     errors: list[str] = []
     for record in records.values():
         validate_shape(record, errors)
