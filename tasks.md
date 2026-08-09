@@ -81,6 +81,9 @@ Passed:
 - `git diff --check` — passed.
 - `bun test components/budget-control/budget.test.ts components/control-plane/control-plane.test.ts components/subprocess-execution-foundation/supervisor.test.ts` — 23 passed, 175 expectations.
 - `bun build components/budget-control/budget.ts --target bun --outfile /tmp/as-is-budget-build.js` — successful.
+- `bun test components/budget-control/budget.test.ts components/control-plane/control-plane.test.ts components/subprocess-execution-foundation/supervisor.test.ts skills/spawning-pi-subagents/scripts/spawn-pi-subagent.test.ts` — 52 passed, 387 expectations.
+- `bun build .pi/extensions/worker-tools.ts --target bun --outfile /tmp/as-is-worker-tools-build.js` — successful.
+- `bun build skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts --target bun --outfile /tmp/as-is-launcher-build.js` — successful.
 
 - `bun test components/observability/tracer.test.ts components/observability/lifecycle-hierarchy.test.ts` — 9 passed, 46 expectations.
 - `bun test components/control-plane/control-plane.test.ts` — 5 passed, 31 expectations.
@@ -101,6 +104,13 @@ lives in `components/budget-control/budget.ts`: shared remaining-budget,
 exhaustion, and admission arithmetic is used by both control-plane delegation/
 extension and supervisor exhaustion checks. It is an arithmetic helper only;
 task records remain authoritative and unknown provider cost remains unknown.
+
+The launcher now imports the same bounded-limit helper at the supervisor timer
+boundary, and in-process `call_subagent` now caps requested timeouts by the
+component record's remaining wall-clock allocation after reserve. Calls below
+the 1-second minimum are rejected rather than silently consuming an exhausted
+budget. The launcher still receives explicit effective limits from its caller;
+record-to-launcher budget loading is not yet automatic.
 
 Residual risk: the directory lock
 is a small-process lock and reports busy rather than waiting; it protects the

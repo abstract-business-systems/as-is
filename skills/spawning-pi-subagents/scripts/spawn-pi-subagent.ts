@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { appendFile, mkdtemp, open, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
+import { boundedLimit } from "../../../components/budget-control/budget.ts";
 import { emitTrace, startSpan, serializeSessionReference, type SessionReference } from "../../../components/observability/tracer.ts";
 import { evaluateHandoffEligibility, type HandoffFacts } from "./handoff-eligibility.ts";
 
@@ -643,6 +644,9 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     }
   };
 
+  const effectiveWallClockSeconds = config.budgetWallClockSeconds === null
+    ? null
+    : boundedLimit(config.budgetWallClockSeconds, config.budgetWallClockSeconds, config.budgetWallClockSeconds);
   let budgetStopped = false;
   let budgetStopElapsedMs: number | null = null;
   let budgetTimer: NodeJS.Timeout | undefined;
@@ -654,14 +658,14 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     killTimer = undefined;
   };
 
-  if (config.budgetWallClockSeconds && config.budgetWallClockSeconds > 0) {
+  if (effectiveWallClockSeconds && effectiveWallClockSeconds > 0) {
     budgetTimer = setTimeout(() => {
       budgetStopped = true;
       budgetStopElapsedMs = Date.now() - startedMonotonic;
       phaseTimings["budget-stop"] = budgetStopElapsedMs;
       signalGroup("SIGTERM");
       killTimer = setTimeout(() => signalGroup("SIGKILL"), BUDGET_KILL_GRACE_SECONDS * 1000);
-    }, config.budgetWallClockSeconds * 1000);
+    }, effectiveWallClockSeconds * 1000);
   }
 
   const onTerm = () => signalGroup("SIGTERM");

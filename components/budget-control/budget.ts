@@ -34,6 +34,11 @@ export function admits(available: BudgetEnvelope, committed: number, requested: 
 }
 
 export function continuationLimit(budget: BudgetEnvelope): number | "unavailable" {
-  const remaining = remainingBudget(budget);
-  return remaining === "unavailable" ? remaining : remaining;
+  return remainingBudget(budget);
+}
+
+export function boundedLimit(requested: number, available: number | "unavailable", maximum: number): number {
+  if (!Number.isFinite(requested) || requested < 0) throw new Error("requested budget must be finite and non-negative");
+  if (!Number.isFinite(maximum) || maximum < 0) throw new Error("maximum budget must be finite and non-negative");
+  return Math.min(requested, maximum, available === "unavailable" ? maximum : Math.max(0, available));
 }

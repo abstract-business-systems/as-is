@@ -10,6 +10,8 @@ import {
   type ExtensionAPI,
 } from "../../skills/spawning-pi-subagents/node_modules/@earendil-works/pi-coding-agent";
 import { Type } from "../../skills/spawning-pi-subagents/node_modules/typebox";
+import { readFileSync } from "node:fs";
+import { boundedLimit } from "../../components/budget-control/budget.ts";
 import {
   emitTrace,
   serializeSessionReference,
@@ -27,6 +29,19 @@ const supportedTargetTools = new Set([
 const builtinTools = new Set(["read", "write", "edit", "bash", "grep", "find", "ls", "webfetch", "websearch"]);
 const defaultTimeoutMs = 60_000;
 const maximumTimeoutMs = 900_000;
+
+function taskWallClockRemaining(cwd: string): number | undefined {
+  for (const name of ["tasks.md", "task.md", "as-is.md"]) {
+    try {
+      const text = readFileSync(join(cwd, name), "utf8");
+      const allocated = /^      allocated-seconds: (\d+(?:\.\d+)?)$/m.exec(text)?.[1];
+      const spent = /^      spent-seconds: (\d+(?:\.\d+)?)$/m.exec(text)?.[1];
+      const reserve = /^      reserve-seconds: (\d+(?:\.\d+)?)$/m.exec(text)?.[1];
+      if (allocated && spent && reserve) return Math.max(0, Number(allocated) - Number(spent) - Number(reserve)) * 1000;
+    } catch { /* child may not have a task record */ }
+  }
+  return undefined;
+}
 
 type TraceContext = {
   traceId?: string;
@@ -443,7 +458,12 @@ const callSubagent: ToolDefinition = {
     const spanId = newId();
     const started = Date.now();
     const cwd = ctx.cwd;
-    const timeoutMs = params.timeoutMs ?? defaultTimeoutMs;
+    const requestedTimeoutMs = params.timeoutMs ?? defaultTimeoutMs;
+    const remainingMs = taskWallClockRemaining(cwd);
+    const timeoutMs = remainingMs === undefined
+      ? Math.min(requestedTimeoutMs, maximumTimeoutMs)
+      : boundedLimit(requestedTimeoutMs, remainingMs, maximumTimeoutMs);
+    if (timeoutMs < 1_000) throw new Error("worker call rejected: task wall-clock budget is exhausted or below the minimum call timeout");
     const roleName = params.role ?? "worker";
     const target = await resolveCanonicalTarget(cwd, roleName);
     const sessionReference = currentSessionReference(ctx);
