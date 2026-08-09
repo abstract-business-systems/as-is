@@ -1,5 +1,10 @@
 # Changelog
 
+- 2026-08-09 reconciliation: removed the completed `host-wiring-adapters`
+  planning row after verifying implementation `008accc` is in history and its
+  adapter-separation evidence satisfies the row's acceptance. Retained the
+  dependent collision/recovery and host-discovery-validation rows as open.
+
 - Added explicit Pi, OpenCode, and generic-agent wiring plans. Pi now projects
   only skills and its prompt alias, OpenCode validates existing JSON before
   updating its skill path and projects skills and agents through `.opencode`,
