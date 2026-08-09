@@ -5,6 +5,14 @@
 
 Provide the reusable implementation procedure for one bounded component task.
 
+
+## Diagram
+
+```mermaid
+flowchart TD
+    A["Selected backlog item"] --> B["Component task lifecycle"]
+    B --> C["Validated durable handoff"]
+```
 ## Design
 
 This skill owns transient task creation, scoped implementation, child-boundary

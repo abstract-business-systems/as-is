@@ -17,6 +17,14 @@ based on their descriptions and current task authority. It does not assume a
 fixed delegation chain, own another agent's lifecycle, or implement component
 work.
 
+
+## Diagram
+
+```mermaid
+flowchart TD
+    A["User request"] --> B["as-is front-face router"]
+    B --> C["Admitted agent and applicable skill"]
+```
 ## Design
 
 The router may use current durable repository context for status and routing,

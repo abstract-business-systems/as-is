@@ -7,6 +7,14 @@ Own the cross-cutting, host-neutral launch foundation that submits a bounded
 worker attempt without making the submitting as-is/OpenCode/orchestrator turn
 wait for worker completion.
 
+
+## Diagram
+
+```mermaid
+flowchart TD
+    A["Bounded worker attempt"] --> B["Detached launch foundation"]
+    B --> C["Lifecycle and host-neutral boundary"]
+```
 ## Changelog
 
 - The historical Pi delegation investigation found that synchronous nested

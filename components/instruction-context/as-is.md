@@ -6,6 +6,14 @@ Resolve the applicable repository `AGENTS.md` instruction files for a target
 component without treating the component working directory as a security
 sandbox or exposing unrelated repository content.
 
+
+## Diagram
+
+```mermaid
+flowchart TD
+    A["Target component"] --> B["Instruction resolver"]
+    B --> C["Ancestor AGENTS.md context"]
+```
 ## Design
 
 The resolver accepts an authorized project root and logical target directory.

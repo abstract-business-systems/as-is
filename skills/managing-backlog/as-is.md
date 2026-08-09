@@ -6,6 +6,14 @@
 Maintain and prioritize bounded work proposals separately from active component
 tasks, using durable recording tables and a deterministic query-time display.
 
+
+## Diagram
+
+```mermaid
+flowchart TD
+    A["Backlog entries"] --> B["Deterministic prioritization"]
+    B --> C["Selected task input"]
+```
 ## Design
 
 The backlog is a planning index, not task authority. Each component backlog uses

@@ -4,6 +4,14 @@
 Provide a harmless, deterministic component for rehearsing as-is delegation,
 budget bubbling, child commit handoff, parent integration, and cleanup.
 
+
+## Diagram
+
+```mermaid
+flowchart TD
+    A["Delegation rehearsal"] --> B["Deterministic fixture"]
+    B --> C["Local validation and handoff"]
+```
 ## Design
 The fixture contains only a task record, a test, and this durable context. It
 must not contact providers or modify product components. Its task record uses a

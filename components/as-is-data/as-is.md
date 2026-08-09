@@ -6,6 +6,14 @@ Provide preparation-time resolution for distributed `as-is.json` data, including
 root configuration and local transient task metadata, without replacing
 human-facing Markdown context.
 
+
+## Diagram
+
+```mermaid
+flowchart TD
+    A["Root-to-target path"] --> B["as-is.json resolver"]
+    B --> C["Effective configuration and local task data"]
+```
 ## Design
 
 The resolver accepts a repository root and logical target component directory,

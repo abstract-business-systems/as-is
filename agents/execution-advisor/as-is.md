@@ -8,6 +8,14 @@ execution issues, process-improvement opportunities, and justified time or
 money budget-extension requests when an otherwise sound direction is blocked
 by its current budget.
 
+
+## Diagram
+
+```mermaid
+flowchart TD
+    A["Trace or session selector"] --> B["Read-only evidence analysis"]
+    B --> C["Decision-ready findings or budget request"]
+```
 ## Design
 
 The role composes the globally available `exploring-execution-evidence`

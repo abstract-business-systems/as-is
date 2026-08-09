@@ -7,6 +7,14 @@ configuration and exposes the as-is bundle's canonical skills and agents to
 that client without copying resources or discovering them from unrelated
 locations.
 
+
+## Diagram
+
+```mermaid
+flowchart TD
+    A["Persisted client configuration"] --> B["Setup adapter plan"]
+    B --> C["Client-specific canonical resources"]
+```
 ## Design
 
 `setup.ts` is the executable boundary. It treats `skills/` and

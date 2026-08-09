@@ -24,6 +24,14 @@ the launch path is not portable to a host without those env vars set. This task
 makes the launcher resolve model presets and the provider from the repository's
 root `as-is.md` and makes child runs observable by default.
 
+
+## Diagram
+
+```mermaid
+flowchart TD
+    A["Delegation request"] --> B["Pi subprocess launcher"]
+    B --> C["Detached child and observation"]
+```
 ## Links
 
 - `SKILL.md` — authoritative procedure and contract.

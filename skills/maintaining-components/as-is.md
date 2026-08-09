@@ -7,6 +7,14 @@ Maintain the reusable `maintaining-components` skill as the durable backlog and
 handoff record for evidence-based housekeeping work. This record captures the
 current maintenance assignment without executing the audit itself.
 
+
+## Diagram
+
+```mermaid
+flowchart TD
+    A["Maintenance evidence"] --> B["Maintenance procedure"]
+    B --> C["Bounded backlog or handoff"]
+```
 ## Links
 
 - `SKILL.md` — authoritative procedure and contract.

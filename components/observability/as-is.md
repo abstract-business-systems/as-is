@@ -4,6 +4,14 @@
 
 Provide supplementary execution telemetry and trace query support without becoming task, job, validation, recovery, or completion authority.
 
+
+## Diagram
+
+```mermaid
+flowchart TD
+    A["Execution and session events"] --> B["Trace and query surfaces"]
+    B --> C["Supplementary evidence"]
+```
 ## Design
 
 The component uses the repository tracer configuration and local JSONL sink,

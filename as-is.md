@@ -7,6 +7,14 @@ links to relevant project artifacts. The root `as-is.md` is durable component
 context, not a transient task record. Root changes use a transient `tasks.md` and
 write their concise completed summary to `changelog.md`.
 
+
+## Diagram
+
+```mermaid
+flowchart TD
+    A["Repository request"] --> B["Root as-is architecture"]
+    B --> C["Agents, skills, components, docs"]
+```
 ## Design
 
 The repository is composed of filesystem components. Human attention should

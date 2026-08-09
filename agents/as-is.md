@@ -4,6 +4,14 @@
 ## Purpose
 Maintain the durable task context and organization for independent configured agent roles.
 
+
+## Diagram
+
+```mermaid
+flowchart TD
+    A["Agent catalog"] --> B["Independent role records"]
+    B --> C["Agent contracts and boundaries"]
+```
 ## Links
 - `as-is/agent.md` — canonical primary role contract.
 - `component-builder/agent.md` — canonical recursive builder role contract.

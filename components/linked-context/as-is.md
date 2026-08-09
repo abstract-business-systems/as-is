@@ -7,6 +7,14 @@ local context resource without turning an `as-is.md` record into a general
 filesystem reader. The implementation lives here, but the agent-facing concept
 is the bounded `resolve_component_context` tool.
 
+
+## Diagram
+
+```mermaid
+flowchart TD
+    A["Explicit as-is link"] --> B["resolve_component_context"]
+    B --> C["Bounded untrusted context"]
+```
 ## Design
 
 `resolveLocalLinkedContext` accepts a project root, a component-owned

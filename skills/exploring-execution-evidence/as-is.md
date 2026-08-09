@@ -8,6 +8,14 @@ session-analysis tools to investigate a user-mentioned execution context and
 produce decision-ready evidence for debugging, process improvement, or budget
 analysis.
 
+
+## Diagram
+
+```mermaid
+flowchart TD
+    A["Trace or session evidence"] --> B["Evidence exploration procedure"]
+    B --> C["Source-labelled report"]
+```
 ## Design
 
 The skill starts from a supplied trace or session selector, progressively

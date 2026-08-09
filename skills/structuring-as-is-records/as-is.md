@@ -7,6 +7,14 @@ architecture records. The skill defines record structure, authority separation,
 link declaration, diagram decisions, and explicit parent-to-child context
 handoff. It does not own component task state or agent authority.
 
+
+## Diagram
+
+```mermaid
+flowchart TD
+    A["Record maintenance"] --> B["Record structure and links"]
+    B --> C["Navigable durable context"]
+```
 ## Design
 
 Record authors describe the overall flow at the nearest useful parent level and

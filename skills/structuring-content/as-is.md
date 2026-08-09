@@ -9,6 +9,14 @@ extends its creation-time rule to explicitly cover authorized maintenance-time
 restructuring. The task is scoped to the skill component and its durable handoff
 record; it does not physically move existing fixtures.
 
+
+## Diagram
+
+```mermaid
+flowchart TD
+    A["Repository concept"] --> B["Content-structuring procedure"]
+    B --> C["Discoverable authoritative artifact"]
+```
 ## Links
 
 - `SKILL.md` — authoritative procedure and contract.

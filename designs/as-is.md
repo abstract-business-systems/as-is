@@ -5,6 +5,14 @@
 Provide a discoverable component for enduring architecture, protocol, and
 execution design documents.
 
+
+## Diagram
+
+```mermaid
+flowchart TD
+    A["Design question"] --> B["Design document collection"]
+    B --> C["Focused architecture decisions"]
+```
 ## Links
 - `execution-accounting-design.md` — execution accounting design.
 - `orchestration-design.md` — orchestration design.
