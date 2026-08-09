@@ -61,6 +61,14 @@ describe("universal local tracer", () => {
     expect(after.toString()).toContain('"name":"second"');
   });
 
+  test("reads tracing configuration only from the JSON companion", async () => {
+    const cwd = await mkdtemp(join(tmpdir(), "as-is-trace-json-authority-"));
+    await writeFile(join(cwd, "as-is.md"), "---\nconfig:\n  observability:\n    tracing:\n      enabled: false\n---\n# Context\n");
+    await writeFile(join(cwd, "as-is.json"), JSON.stringify({ configuration: { observability: { tracing: { backend: "file", enabled: true, "local-directory": ".as-is/json-authority.jsonl" } } } }));
+    await emitTrace({ name: "json-authority", traceId: "trace", spanId: "span", attributes: {} }, cwd);
+    await expect(readFile(join(cwd, ".as-is", "json-authority.jsonl"), "utf8")).resolves.toContain('"name":"json-authority"');
+  });
+
   test("writes to the configured file for any runtime event", async () => {
     const cwd = await mkdtemp(join(tmpdir(), "as-is-trace-"));
     await writeFile(join(cwd, "as-is.json"), JSON.stringify({ configuration: { observability: { tracing: { backend: "file", enabled: true, "local-directory": ".as-is/tracing.jsonl" } } } }));

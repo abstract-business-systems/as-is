@@ -46,7 +46,6 @@ foundation task:
 - `agents/as-is.md`, `agents/component-builder/as-is.md`,
   `agents/execution-advisor/as-is.md`, and `agents/worker/as-is.md`.
 - `components/budget-control/as-is.md`, `components/control-plane/as-is.md`,
-  `components/observability/as-is.md`,
   `components/subprocess-execution-foundation/as-is.md`, and
   `components/task-record-validator/as-is.md`.
 - `designs/as-is.md` and `.pi/prompts/as-is.md`.

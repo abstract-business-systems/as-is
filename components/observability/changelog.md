@@ -1,5 +1,15 @@
 # Changelog
 
+- 2026-08-15: Migrated the component durable record to front-matter-free
+  `as-is.md`. No active task existed, so no `as-is.json.task` or transient
+  narrative was created. The former record's purpose, design, boundaries,
+  capture policy, and links remain in Markdown; its historical validation,
+  requirements, plans, progress, result, blockers, recovery, and next-action
+  task narrative were retired from durable context because their completed
+  evidence is retained here. Validation: focused tracer tests and a no-bundle
+  Bun build passed; `git diff --check` passed. Residual risk: no live
+  Jaeger/OTLP endpoint test.
+
 - 2026-08-12: Replaced tracer raw-payload and per-session approval assumptions with ownership-based local session analysis and session-ID-only external correlation. The tracer now accepts only opaque session IDs, exports them as `session.id`, and retains execution-event telemetry—including subprocess delegation—without dereferencing Pi session stores. Focused tracer tests passed; session-analysis tests require the host's Pi dependency in this checkout. Residual risk: no live Jaeger endpoint test and future event-producer coverage remains incomplete.
 
 - 2026-08-06: Closed `trace-e2e` after integrating deterministic session-reference producer-boundary coverage for `call_subagent` and `worker.result`. Validated success/failure relationships, valid/missing/invalid references, explicit absent-reference omission, raw-content/path/URL/secret exclusion, local JSONL and OTLP behavior, and legacy sink compatibility. Validation: 9 tests passed, 75 expectations; Bun tracer build and `git diff --check` passed. Residual risk remains no live Jaeger/OTLP endpoint test.
