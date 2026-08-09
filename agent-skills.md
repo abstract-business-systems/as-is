@@ -97,6 +97,9 @@ that govern this catalog and its implementation.
   decision-relevant details or provenance.
 - **Knowledge structuring:** Convert facts into inventories, maps, timelines,
   tables, dependency graphs, and other useful representations.
+- **Durable record structuring:** Create and maintain `as-is.md` architecture
+  records with stable sections, explicit links, diagrams, and parent-to-child
+  context handoff. See [`skills/structuring-as-is-records/SKILL.md`](skills/structuring-as-is-records/SKILL.md).
 - **Assumption tracking:** Make uncertainty explicit and validate consequential
   assumptions.
 - **System modeling:** Map data flow, state, control flow, ownership, and

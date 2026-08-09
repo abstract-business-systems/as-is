@@ -40,20 +40,18 @@ A record may use front matter only for durable component configuration that the
 repository contract explicitly assigns there. It must not put transient task
 state into that front matter.
 
-## Optional Sections
+## Required structural decisions
 
-| Section | Use when | Rule |
+| Section or decision | Use when | Rule |
 | --- | --- | --- |
 | **Relationships** | parent, child, or peer relationships materially affect understanding | describe ownership and dependency direction; do not imply ambient parent access |
-| **Diagram** | a small topology, lifecycle, or dependency view is clearer than prose | use a valid, readable Mermaid diagram with labels matching linked artifacts; prose remains authoritative if they diverge |
-| **Changelog** | the record is the smallest coherent home for concise historical context | retain only recovery-relevant summaries; prefer the separate `changelog.md` when it exists |
-| **Miscellaneous** | a durable fact is useful but has no stable section yet | state the fact concisely and move it to a named section when its category becomes clear |
+| **Diagram** | every maintained record | include a bounded, valid Mermaid diagram when it reduces interpretation cost; otherwise state why no diagram adds value |
+| **Changelog** | concise historical context is needed | retain only recovery-relevant summaries; prefer the separate `changelog.md` when it exists |
 | **Follow-up** | an architectural limitation needs durable visibility but is not active work | link to the backlog or design; never express it as current task status |
 
-`Miscellaneous` is a temporary classification holding section, not a second
-backlog, task record, changelog, or catch-all archive. Repeated unrelated
-content is evidence to introduce a named section or move the material to its
-proper authority.
+`Miscellaneous` is not a required section and must not become a permanent
+catch-all. Move facts to Relationships, Boundary, Design, Follow-up, or
+`changelog.md` as soon as their authority is clear.
 
 ## Links And Context Handoff
 

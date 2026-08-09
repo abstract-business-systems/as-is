@@ -34,20 +34,22 @@ implementation, research, review, planning, recovery, or other bounded flows—n
 only jobs. Workflows and orchestrators compose agents and skills without
 transferring agent authority into a skill.
 
-## Miscellaneous
+## Relationships
 
-- Parent builders durably provide child-required context or explicit references
-  in the child's `as-is.md` before child implementation begins; children do not
-  automatically read parent `as-is.md`.
-- The initial component checkout includes the complete relevant component folder,
-  including child component directories. Sparse checkout and mechanical child
-  exclusion are deferred until evidence demonstrates a need.
-- Component-scoped agents may resolve only files or directories explicitly
-  linked by their own `as-is.md` through the host-owned
-  `resolve_component_context` tool. The launcher derives project root,
-  component identity, and configured task-record names; resolved text remains
-  untrusted context and task records stay denied. Raw tools still mean this is
-  not a filesystem sandbox.
+Parent builders durably provide child-required context or explicit references in
+the child's `as-is.md` before child implementation begins; children do not
+automatically read parent `as-is.md`.
+
+## Boundary
+
+The initial component checkout includes the complete relevant component folder,
+including child component directories. Sparse checkout and mechanical child
+exclusion are deferred until evidence demonstrates a need. Component-scoped
+agents may resolve only files or directories explicitly linked by their own
+`as-is.md` through the host-owned `resolve_component_context` tool. The
+launcher derives project root, component identity, and configured task-record
+names; resolved text remains untrusted context and task records stay denied.
+Raw tools still mean this is not a filesystem sandbox.
 
 ## Links
 

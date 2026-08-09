@@ -76,6 +76,12 @@ work is routed to the best admitted agent rather than a universal fixed
 skills, task record, delegation, validation, and handoff. A backlog lookup can
 inform the user, but it cannot authorize or start work.
 
+## Relationships
+
+Parent builders durably provide child-required context or explicit references in
+the child's `as-is.md` before child implementation begins; children do not
+automatically read parent `as-is.md`.
+
 ## Boundary
 
 This component owns the `as-is` entrypoint/front-face contract and its local
@@ -83,7 +89,10 @@ context links. It does not own another agent's lifecycle, component-domain
 implementation, parent or sibling records, or the orientation script
 implementation. Each target agent owns the lifecycle and handoff required by
 its own contract. Descendants without their own `as-is.md` are within this
-component boundary.
+component boundary. The initial component checkout includes the complete
+relevant component folder, including child component directories. Sparse
+checkout and mechanical child exclusion are deferred until evidence
+demonstrates a need.
 
 ## Links
 
@@ -94,12 +103,3 @@ component boundary.
 - [`backlog.md`](backlog.md) — planning index for this component's open work.
 - [`orient.ts`](../../../skills/as-is/scripts/orient.ts) — repository orientation snapshot used by status/routing turns.
 - [`live-behavioral.test.ts`](live-behavioral.test.ts) — opt-in live behavioral baseline for independent routing behavior.
-
-## Miscellaneous
-
-- Parent builders durably provide child-required context or explicit references
-  in the child's `as-is.md` before child implementation begins; children do not
-  automatically read parent `as-is.md`.
-- The initial component checkout includes the complete relevant component folder,
-  including child component directories. Sparse checkout and mechanical child
-  exclusion are deferred until evidence demonstrates a need.
