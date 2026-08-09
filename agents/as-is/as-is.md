@@ -94,6 +94,17 @@ component boundary.
 - [`orient.ts`](../../../skills/as-is/scripts/orient.ts) — repository orientation snapshot used by status/routing turns.
 - [`live-behavioral.test.ts`](live-behavioral.test.ts) — opt-in live behavioral baseline for independent routing behavior.
 
+## Miscellaneous
+
+- Parent builders durably provide child-required context or explicit references
+  in the child's `as-is.md` before child implementation begins; children do not
+  automatically read parent `as-is.md`.
+- The initial component checkout includes the complete relevant component folder,
+  including child component directories. Sparse checkout and mechanical child
+  exclusion are deferred until evidence demonstrates a need.
+- See [`temp/component-context-and-checkout-handoff.md`](../../temp/component-context-and-checkout-handoff.md)
+  for temporary, non-authoritative discussion context.
+
 ## Changelog
 
 The historical task-form content previously embedded in this file was migrated

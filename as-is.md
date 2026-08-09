@@ -77,6 +77,17 @@ implementation, research, review, planning, recovery, or other bounded flows—n
 only jobs. Workflows and orchestrators compose agents and skills without
 transferring agent authority into a skill.
 
+## Miscellaneous
+
+- Parent builders durably provide child-required context or explicit references
+  in the child's `as-is.md` before child implementation begins; children do not
+  automatically read parent `as-is.md`.
+- The initial component checkout includes the complete relevant component folder,
+  including child component directories. Sparse checkout and mechanical child
+  exclusion are deferred until evidence demonstrates a need.
+- Temporary discussion context is recorded in
+  [`temp/component-context-and-checkout-handoff.md`](temp/component-context-and-checkout-handoff.md).
+
 ## Structure
 
 - `components/` — implemented project components.
