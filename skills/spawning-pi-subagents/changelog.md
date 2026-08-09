@@ -1,5 +1,15 @@
 # Changelog
 
+- 2026-08-15: Completed `agent-agnostic-launcher-dispatch` reconciliation. The
+  launcher continues to derive ordinary role capabilities from declarative
+  agent front matter without per-agent admission branches; the
+  `evidence-validator` identity branch remains a fixed read-only host safety
+  cap. Added a bounded table-driven dispatch test matrix covering declared
+  tools and skills, caller metadata separation, missing and invalid
+  declarations, and session/worktree defaults. Focused validation passed: 42
+  tests, 268 assertions, and `git diff --check`. No production launcher
+  behavior changed.
+
 - 2026-08-07: Restored focused worker-tools extension coverage by adding a
   skill-owned private package manifest and offline Bun lockfile with
   `@earendil-works/pi-coding-agent@0.84.0` and `typebox@1.3.7`. The existing

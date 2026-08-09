@@ -240,6 +240,91 @@ test("ordinary fixture roles ignore caller metadata without changing dispatch", 
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
+type DeclarativeDispatchScenario = {
+  name: string;
+  frontMatter: string[];
+  expectedTools?: string | null;
+  expectedSkills?: string[];
+  expectedWorktree?: boolean;
+  expectedSessionPath?: string | null;
+  expectedError?: string;
+  caller?: string;
+};
+
+const declarativeDispatchScenarios: DeclarativeDispatchScenario[] = [
+  {
+    name: "forwards declared tools and skills with normal session isolation",
+    frontMatter: [
+      "name: fixture-role",
+      "mode: subagent",
+      "tools: read,grep,call_subagent",
+      "skills:",
+      "  - skills/context-building",
+    ],
+    expectedTools: "read,grep,call_subagent",
+    expectedSkills: [`${process.cwd()}/skills/context-building`],
+    expectedWorktree: true,
+    expectedSessionPath: "<session-dir>",
+  },
+  {
+    name: "keeps caller metadata separate from declared admission",
+    frontMatter: ["name: fixture-role", "mode: subagent", "tools: read"],
+    expectedTools: "read",
+    expectedWorktree: true,
+    expectedSessionPath: "<session-dir>",
+    caller: "untrusted-role",
+  },
+  {
+    name: "represents a missing declaration as an explicit empty set",
+    frontMatter: ["name: fixture-role", "mode: subagent"],
+    expectedTools: null,
+    expectedWorktree: true,
+    expectedSessionPath: "<session-dir>",
+  },
+  {
+    name: "rejects unsupported declarations before launch",
+    frontMatter: ["name: fixture-role", "mode: subagent", "tools: read,unknown_tool"],
+    expectedError: "unsupported tools unknown_tool",
+  },
+  {
+    name: "rejects empty declarations before launch",
+    frontMatter: ["name: fixture-role", "mode: subagent", "tools: []"],
+    expectedError: "tools declaration is empty",
+  },
+];
+
+for (const scenario of declarativeDispatchScenarios) {
+  test(`declarative dispatch matrix: ${scenario.name}`, async () => {
+    const dir = mkdtempSync(join(tmpdir(), "as-is-declarative-dispatch-matrix-"));
+    try {
+      const agent = join(dir, "fixture-agent.md");
+      writeFileSync(agent, ["---", ...scenario.frontMatter, "---", "Return the bounded fixture report."].join("\n"));
+      const result = await runLauncher([
+        "--agent", agent,
+        "--task", "Declarative dispatch matrix.",
+        "--cwd", process.cwd(),
+        "--caller", scenario.caller ?? "user",
+        "--dry-run",
+      ]);
+      if (scenario.expectedError) {
+        expect(result.exitCode).toBe(1);
+        expect(result.stderr).toContain(scenario.expectedError);
+        return;
+      }
+      expect(result.exitCode).toBe(0);
+      const parsed = JSON.parse(result.stdout);
+      expect(parsed.identity).toBe("fixture-role");
+      expect(parsed.tools).toBe(scenario.expectedTools);
+      expect(parsed.worktree).toBe(scenario.expectedWorktree);
+      expect(parsed.sessionPath).toBe(scenario.expectedSessionPath);
+      if (scenario.expectedSkills) expect(parsed.skills).toEqual(scenario.expectedSkills);
+      if (scenario.caller) expect(parsed.caller).toBe(scenario.caller);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+}
+
 test("execution advisor launches use its frontmatter tool set and skills", async () => {
   const result = await runLauncher([
     "--agent", "agents/execution-advisor/agent.md",
