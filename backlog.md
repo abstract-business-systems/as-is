@@ -25,7 +25,7 @@ The following items are now owned by component backlogs and are intentionally
 not repeated here:
 
 - Skills: `skills/backlog.md` (`deterministic-skills`, `presentation-guidance`,
-  `building-components`, `as-is-routed-current-session-delegation`).
+  `building-components`).
 - Task-record validator: `components/task-record-validator/backlog.md`
   (`task-record-validator-bun`).
 - Observability: `components/observability/backlog.md` (Jaeger, tracing,
@@ -35,7 +35,7 @@ Remaining root-owned planning items:
 
 | id | status | user preference | system preference | purpose | description | dependencies | acceptance | notes |
 | --- | --- | ---: | ---: | --- | --- | --- | --- | --- |
-| skills-agents-separation-migration | deferred | 2 | 2 | Establish the approved separation of reusable skills and authority-bearing agents | Implement the approved separation in bounded descendant tasks only after the planning record establishes contracts, dependencies, and acceptance evidence. Approach: Depends on `skills-agents-separation-plan`; requires explicit activation in a new root task record and component-owned child records. | - |  |  |
+
 | public-repository-readiness-audit | open | 1 | 1 | Prepare the repository for public release without exposing sensitive data or misleading authorship | Audit tracked content, relevant history, refs, generated artifacts, and repository configuration for secrets, private data, and incorrect author or committer attribution; remove or remediate confirmed exposure and document the evidence before any public release. | - | A bounded release-readiness report identifies checked scopes and findings; confirmed sensitive data is removed or safely remediated with any required credential rotation; publishable history and current metadata use approved author attribution; repository-local identity overrides and other private release blockers are absent; focused scans and attribution checks pass; no publication or push occurs without explicit authorization. | Lower-priority follow-up requested before making the repository public. Treat history rewriting, secret rotation, and removal of private artifacts as separately reviewed operations; do not record secrets or private values in this backlog. |
 | model-simplicity-central-ownership | open | 2 | 2 | Make model-assisted coding prefer simple central ownership over duplicated local solutions | Implement and validate the guidance in [`designs/model-simplicity-guidance.md`](designs/model-simplicity-guidance.md) across the applicable model prompts, agent instructions, or review checks, without creating a parallel authority or generic maintenance framework. | - | The canonical owner is identified before implementation; credible design alternatives and complexity additions are recorded; model guidance explicitly prefers extending cohesive owners; focused validation checks for unnecessary duplication or indirection pass; the implemented guidance is linked from the responsible component record. | The design is the authoritative proposal. Future implementation requires a bounded task at the responsible component and must preserve component boundaries. |
 

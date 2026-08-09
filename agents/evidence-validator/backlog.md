@@ -1,4 +1,4 @@
-# Expert Backlog
+# Evidence-Validator Backlog
 
 Planning index for the `agents/evidence-validator` role. Active work belongs to its
 configured caller task record; completed items are removed after their summary

@@ -10,6 +10,15 @@ Backlog files use one stable recording table per component. A query may derive a
 separate prioritization view; derived values are not written back to backlog
 files.
 
+When adding or reconciling work, first identify the correct owning component
+from its `as-is.md` purpose and boundary. If an item spans components, place
+coordination or architectural policy at the nearest common ancestor and place
+bounded implementation follow-ups in the owning child backlogs. Before adding
+an item, search child and ancestor backlogs for an existing equivalent. An
+existing item may be split, moved, or combined only with explicit rationale,
+preserved identity/history where needed, and updated dependencies, notes, and
+links; do not leave competing parent and child entries for the same work.
+
 ## Backlog Item Schema
 
 Each backlog item is one row in this table:
