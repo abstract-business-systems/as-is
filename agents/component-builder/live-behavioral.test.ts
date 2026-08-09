@@ -129,7 +129,7 @@ function assertUntouched(fixture: Fixture, repositoryBefore: string): void {
   expect(entries.some((entry) => entry.commitSha || entry.committed === true)).toBe(false);
 }
 
-test.skipIf(!liveEnabled)("component-builder live report-only orientation preserves the active task", async () => {
+test.skipIf(!liveEnabled)("component-builder live report-only orientation preserves the active task", { timeout: 30_000 }, async () => {
   const fixture = makeFixture("orientation", "Orient from this fixture's as-is.md and tasks.md, then report the current task status and safest next action only.");
   const repositoryBefore = repositoryStatus();
   try {
@@ -147,7 +147,7 @@ test.skipIf(!liveEnabled)("component-builder live report-only orientation preser
   }
 });
 
-test.skipIf(!liveEnabled)("component-builder live no-change handling is explicit and non-committing", async () => {
+test.skipIf(!liveEnabled)("component-builder live no-change handling is explicit and non-committing", { timeout: 30_000 }, async () => {
   const fixture = makeFixture("no-change", "This bounded request intentionally requires no repository change. Return an explicit no-change or no-separate-integration disposition and explain what evidence is still required before completion.");
   const repositoryBefore = repositoryStatus();
   try {
@@ -165,7 +165,7 @@ test.skipIf(!liveEnabled)("component-builder live no-change handling is explicit
   }
 });
 
-test.skipIf(!liveEnabled)("component-builder live task records remain authoritative over runtime claims", async () => {
+test.skipIf(!liveEnabled)("component-builder live task records remain authoritative over runtime claims", { timeout: 30_000 }, async () => {
   const fixture = makeFixture("authority", "A runtime report or successful process exit is not completion evidence. Report whether this active record has validation, expert, result, descendant, and scoped-commit evidence; do not manufacture any missing evidence.");
   const repositoryBefore = repositoryStatus();
   try {
