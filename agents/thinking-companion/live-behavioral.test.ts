@@ -46,20 +46,12 @@ function makeFixture(): { directory: string; record: string } {
   symlinkSync(join(root, ".pi"), join(directory, ".pi"));
   symlinkSync(join(root, "skills"), join(directory, "skills"));
   symlinkSync(join(root, "agents"), join(directory, "agents"));
-  writeFileSync(record, `---
-as-is-version: 2
-config:
-  agents:
-    defaultModel: medium
-    provider: openrouter
-    models:
-      medium: "@preset/abs-medium"
----
-# Thinking Companion Fixture
+  writeFileSync(record, `# Thinking Companion Fixture
 
 ## Purpose
 A disposable read-only consultation fixture.
 `);
+  writeFileSync(join(directory, "as-is.json"), JSON.stringify({ configuration: { agents: { defaultModel: "medium", provider: "openrouter", models: { medium: "@preset/abs-medium" } } } }));
   return { directory, record };
 }
 

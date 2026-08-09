@@ -39,35 +39,7 @@ function digest(path: string): string {
 }
 
 function taskRecord(requirement: string): string {
-  return `---
-as-is-version: 2
-task:
-  status: active
-  worker: worker
-  updated: 2026-08-14T00:30:00Z
-constraints:
-  cost:
-    currency: USD
-    allocated: 0.20
-    spent: 0.00
-    reserve: 0.03
-    source: host-observed
-    fallback-metric: validation elapsed-seconds
-  delegation:
-    maximum-depth: 0
-    maximum-children: 0
-  execution:
-    wall-clock:
-      allocated-seconds: 60
-      spent-seconds: 0
-      reserve-seconds: 10
-      source: host-observed
-  external-effects: prohibited
-acceptance:
-  - Return a bounded structured worker report without committing or delegating.
----
-
-# Disposable worker task
+  return `# Disposable worker task
 
 ## Requirement
 
@@ -96,16 +68,7 @@ function makeFixture(name: string, requirement: string): Fixture {
   const canary = join(directory, "component", "canary.md");
   mkdirSync(join(directory, "component"), { recursive: true });
   symlinkSync(join(root, ".pi"), join(directory, ".pi"));
-  writeFileSync(join(directory, "as-is.md"), `---
-as-is-version: 2
-config:
-  agents:
-    defaultModel: medium
-    provider: openrouter
-    models:
-      medium: "@preset/abs-medium"
----
-# Disposable Worker Component
+  writeFileSync(join(directory, "as-is.md"), `# Disposable Worker Component
 
 ## Purpose
 A bounded disposable worker fixture.
@@ -113,6 +76,10 @@ A bounded disposable worker fixture.
 ## Boundary
 Only the component directory is in scope.
 `);
+  writeFileSync(join(directory, "as-is.json"), JSON.stringify({
+    configuration: { records: { filenames: { task: "tasks.md" } }, agents: { defaultModel: "medium", provider: "openrouter", models: { medium: "@preset/abs-medium" } } },
+    task: { status: "active", worker: "worker", updated: "2026-08-14T00:30:00Z", constraints: { cost: { currency: "USD", allocated: 0.20, spent: 0, reserve: 0.03, source: "host-observed", "fallback-metric": "validation elapsed-seconds" }, delegation: { "maximum-depth": 0, "maximum-children": 0 }, execution: { "wall-clock": { "allocated-seconds": 60, "spent-seconds": 0, "reserve-seconds": 10, source: "host-observed" } }, "external-effects": "prohibited" }, acceptance: ["Return a bounded structured worker report without committing or delegating."] },
+  }));
   writeFileSync(record, taskRecord(requirement));
   writeFileSync(target, "# Target\n\nThis file must remain unchanged because the current worker profile is read-only.\n");
   writeFileSync(sentinel, "# Sentinel\n\nOut-of-scope content must remain unchanged.\n");

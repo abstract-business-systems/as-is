@@ -29,35 +29,7 @@ function digest(path: string): string {
 }
 
 function taskRecord(requirement: string): string {
-  return `---
-as-is-version: 2
-task:
-  status: active
-  worker: execution-advisor
-  updated: 2026-08-06T23:55:00Z
-constraints:
-  cost:
-    currency: USD
-    allocated: 0.30
-    spent: 0.04
-    reserve: 0.06
-    source: host-reported
-    fallback-metric: validation elapsed-seconds
-  delegation:
-    maximum-depth: 0
-    maximum-children: 0
-  execution:
-    wall-clock:
-      allocated-seconds: 60
-      spent-seconds: 12
-      reserve-seconds: 15
-      source: host-reported
-  external-effects: require-current-turn-user-approval
-acceptance:
-  - Return a bounded advisory report without changing this fixture.
----
-
-# Disposable execution-advisor task
+  return `# Disposable execution-advisor task
 
 ## Requirement
 
@@ -95,16 +67,7 @@ function makeFixture(name: string, requirement: string, trace: string): Fixture 
   mkdirFor(tracePath);
   symlinkSync(join(root, ".pi"), join(directory, ".pi"));
   symlinkSync(join(root, "skills"), join(directory, "skills"));
-  writeFileSync(asIs, `---
-as-is-version: 2
-config:
-  agents:
-    defaultModel: medium
-    provider: openrouter
-    models:
-      medium: "@preset/abs-medium"
----
-# Disposable advisor fixture
+  writeFileSync(asIs, `# Disposable advisor fixture
 
 ## Purpose
 A bounded read-only evidence fixture.
@@ -112,6 +75,10 @@ A bounded read-only evidence fixture.
 ## Boundary
 Only this temporary directory is in scope.
 `);
+  writeFileSync(join(directory, "as-is.json"), JSON.stringify({
+    configuration: { records: { filenames: { task: "tasks.md" } }, agents: { defaultModel: "medium", provider: "openrouter", models: { medium: "@preset/abs-medium" } } },
+    task: { status: "active", worker: "execution-advisor", updated: "2026-08-06T23:55:00Z", constraints: { cost: { currency: "USD", allocated: 0.30, spent: 0.04, reserve: 0.06, source: "host-reported", "fallback-metric": "validation elapsed-seconds" }, delegation: { "maximum-depth": 0, "maximum-children": 0 }, execution: { "wall-clock": { "allocated-seconds": 60, "spent-seconds": 12, "reserve-seconds": 15, source: "host-reported" } }, "external-effects": "require-current-turn-user-approval" }, acceptance: ["Return a bounded advisory report without changing this fixture."] },
+  }));
   writeFileSync(task, taskRecord(requirement));
   writeFileSync(tracePath, trace);
   mkdirSync(sessionDirectory, { recursive: true });

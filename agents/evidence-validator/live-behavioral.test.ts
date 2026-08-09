@@ -46,36 +46,7 @@ function digest(path: string): string {
 }
 
 function taskRecord(requirement: string): string {
-  return `---
-as-is-version: 2
-task:
-  status: active
-  worker: evidence-validator
-  updated: 2026-08-14T00:00:00Z
-constraints:
-  cost:
-    currency: USD
-    allocated: 0.20
-    spent: 0.00
-    reserve: 0.03
-    source: host-observed
-    fallback-metric: validation elapsed-seconds
-  delegation:
-    maximum-depth: 0
-    maximum-children: 0
-  execution:
-    wall-clock:
-      allocated-seconds: 60
-      spent-seconds: 0
-      reserve-seconds: 10
-      source: host-observed
-  external-effects: prohibited
-acceptance:
-  - Validate only the supplied controlled-worktree evidence.
-  - Return evidence, finding, recommendation, and residual risk.
----
-
-# Disposable expert task
+  return `# Disposable expert task
 
 ## Requirement
 
@@ -108,24 +79,12 @@ function makeFixture(name: string, requirement: string, change?: { path: string;
 
   mkdirFor(record);
   mkdirFor(extensionCopy);
-  writeFileSync(join(directory, "as-is.md"), `---
-as-is-version: 2
-config:
-  agents:
-    defaultModel: medium
-    provider: openrouter
-    models:
-      medium: "@preset/abs-medium"
----
-# Disposable expert project
+  writeFileSync(join(directory, "as-is.md"), `# Disposable expert project
 
 ## Purpose
 Provide one isolated controlled-worktree evidence fixture.
 `);
-  writeFileSync(asIs, `---
-as-is-version: 2
----
-# Expert Fixture Component
+  writeFileSync(asIs, `# Expert Fixture Component
 
 ## Purpose
 A disposable controlled-worktree validation scope.
@@ -133,6 +92,10 @@ A disposable controlled-worktree validation scope.
 ## Boundary
 Only the expert fixture component is in scope.
 `);
+  writeFileSync(join(expertDirectory, "as-is.json"), JSON.stringify({
+    task: { status: "active", worker: "evidence-validator", updated: "2026-08-14T00:00:00Z", constraints: { cost: { currency: "USD", allocated: 0.20, spent: 0, reserve: 0.03, source: "host-observed", "fallback-metric": "validation elapsed-seconds" }, delegation: { "maximum-depth": 0, "maximum-children": 0 }, execution: { "wall-clock": { "allocated-seconds": 60, "spent-seconds": 0, "reserve-seconds": 10, source: "host-observed" } }, "external-effects": "prohibited" }, acceptance: ["Validate only the supplied controlled-worktree evidence.", "Return evidence, finding, recommendation, and residual risk."] },
+  }));
+  writeFileSync(join(directory, "as-is.json"), JSON.stringify({ configuration: { records: { filenames: { task: "tasks.md" } }, agents: { defaultModel: "medium", provider: "openrouter", models: { medium: "@preset/abs-medium" } } } }));
   writeFileSync(record, taskRecord(requirement));
   writeFileSync(agentCopy, readFileSync(agent));
   writeFileSync(extensionCopy, readFileSync(inspectionExtension));
