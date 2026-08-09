@@ -8,6 +8,10 @@ type Availability = {
 
 type Request = {
   withinCapabilities: boolean;
+  componentWork?: boolean;
+  reportOnlyWorkerAdvice?: boolean;
+  durableHandoff?: boolean;
+  receivingIntegrationOwner?: string;
   specializedSkill: boolean;
   anotherAuthority: boolean;
   substantive: boolean;
@@ -20,10 +24,15 @@ type Request = {
   requiredRoleUtility?: string;
 };
 
-type Route = "direct" | "admitted-authority" | "analysis" | "reject-self" | "blocked";
+type Route = "direct" | "component-builder" | "worker-advice" | "admitted-authority" | "analysis" | "reject-self" | "blocked";
 
 function route(request: Request, availability: Availability): Route {
   if (request.target === "as-is" || request.resolvedTarget === "agents/as-is/agent.md") return "reject-self";
+  if (request.componentWork) {
+    return request.durableHandoff && request.receivingIntegrationOwner === "component-builder"
+      ? "component-builder" : "blocked";
+  }
+  if (request.reportOnlyWorkerAdvice) return "worker-advice";
   const direct = request.withinCapabilities &&
     !request.specializedSkill &&
     !request.anotherAuthority &&
@@ -80,6 +89,31 @@ const direct = {
   multiSource: false,
   ambiguous: false,
 };
+
+test("component work routes to component-builder with durable integration ownership", () => {
+  const componentRequest = {
+    ...direct,
+    componentWork: true,
+    substantive: true,
+    durableHandoff: true,
+    receivingIntegrationOwner: "component-builder",
+  };
+  expect(route(componentRequest, available)).toBe("component-builder");
+  expect(route({ ...componentRequest, receivingIntegrationOwner: "worker" }, available)).toBe("blocked");
+  expect(route({ ...componentRequest, durableHandoff: false }, available)).toBe("blocked");
+});
+
+test("non-component worker assistance remains report-only", () => {
+  expect(route({ ...direct, reportOnlyWorkerAdvice: true }, available)).toBe("worker-advice");
+  expect(route({ ...direct, reportOnlyWorkerAdvice: true, componentWork: true, durableHandoff: true, receivingIntegrationOwner: "component-builder" }, available)).toBe("component-builder");
+});
+
+test("the contract records the receiving owner and handoff evidence model", () => {
+  expect(contract).toContain("component-builder");
+  expect(contract).toContain("receiving integration owner");
+  expect(contract).toContain("source/result scope and ancestry evidence");
+  expect(contract).toContain("report-only advice");
+});
 
 test("directly handles only fully capable, non-substantive requests", () => {
   expect(route(direct, available)).toBe("direct");

@@ -28,7 +28,13 @@ intent.
 
 For sizable, substantive, ambiguous, multi-source, cross-component,
 implementation, or validation work, route to the optimal admitted agent and
-preserve its authority. Never delegate to yourself. Never silently substitute or
+preserve its authority. Component work routes to an admitted component-builder;
+the receiving component-builder owns validation and integration. Every
+durable delegated result names that receiving integration owner and preserves
+source/result scope and ancestry evidence. A bounded non-component request may
+use an admitted worker for report-only advice; it does not start or integrate
+work.
+Never delegate to yourself. Never silently substitute or
 retry a target; record a durable blocker and preserve the checkpoint. Do not
-invent task authority for a lightweight query or bypass the selected target's
-procedure.
+invent task authority for
+a lightweight query or bypass the selected target's procedure.

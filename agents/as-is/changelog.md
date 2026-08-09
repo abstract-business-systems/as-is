@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-08-15: Implemented the approved delegation/integration routing model. Component work routes to an admitted `component-builder`, which owns validation and semantic integration; durable delegated results name the receiving integration owner and preserve source/result scope and ancestry evidence. Bounded non-component worker assistance is explicitly report-only. Repository-authored routing tests cover general routing, component-builder routing, receiving ownership, durable handoff evidence, and worker advice; focused validation passed (9 tests, 36 assertions) with `git diff --check` clean.
+
 - 2026-08-15: Completed `revise-as-is-component-record-structure` as a
   planning-only contract. Added `as-is-record-structure.md`, defining compact
   required/optional durable-record sections, authority separation, explicit
