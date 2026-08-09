@@ -4,6 +4,12 @@
 ## Purpose
 Maintain the durable task context and organization for independent configured agent roles.
 
+## Capability contract
+Canonical role files declare ordinary Pi tools in front matter. Launcher
+admission validates and forwards those declarations without injecting tools by
+agent identity; the owning Pi host/package supplies executable implementations.
+Unsupported, unavailable, or unauthorized tools fail closed before launch.
+Read-only roles may still receive explicit host safety caps.
 
 ## Components
 
@@ -21,3 +27,4 @@ Maintain the durable task context and organization for independent configured ag
 - [expert/agent.md](expert/agent.md) — canonical read-only general consultation contract.
 - [evidence-validator/agent.md](evidence-validator/agent.md) — canonical read-only repository evidence validator contract.
 - [worker/agent.md](worker/agent.md) — canonical bounded implementation contract.
+- [spawning-pi-subagents](../skills/spawning-pi-subagents/SKILL.md) — host/package admission contract.

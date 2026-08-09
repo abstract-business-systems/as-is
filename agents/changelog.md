@@ -1,5 +1,12 @@
 # Changelog
 
+- 2026-08-15: Completed `agent-owned-tool-capabilities`. Canonical agent
+  contracts remain the source of ordinary tool declarations; launcher admission
+  validates and forwards them without identity-based injection, while the
+  owning host/package provides implementations and read-only safety profiles
+  remain explicit caps. Removed the completed backlog row. Focused launcher
+  admission and non-mutation coverage remains the validation evidence.
+
 ## 2026-08-15 — Legacy record migration
 
 - **Component:** Agents.

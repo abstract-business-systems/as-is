@@ -43,7 +43,12 @@ the role retains the authority decisions those skills cannot make.
 - The receiving builder owns child-result review, descendant disposition, and
   semantic integration at the nearest common ancestor. The launcher only
   observes mechanical handoff and ancestry; it does not merge, cherry-pick,
-  resolve conflicts, or decide integration.
+  resolve conflicts, or decide integration. An isolated child commit therefore
+  remains pending until this builder integrates it and caller ancestry proves
+  reachability. For parent-owned worktree changes, same-component in-process
+  assistance, or no-change work, this builder records an explicit
+  `no-separate-integration` disposition rather than inferring one from exit
+  status; validation, descendant closure, and scoped-commit gates still apply.
 
 ## Required flow
 

@@ -17,8 +17,28 @@ identity. The expert target retains its fixed read-only inspection profile.
 ## Purpose
 
 The `spawning-pi-subagents` launcher is the repository's bridge between an agent
-file and a Pi child process. It currently passes the agent's `model:` value
-literally to pi and relies on inherited `PI_PROVIDER`/`PI_MODEL` environment
+file and a Pi child process. Agent contracts own ordinary capability
+declarations; this package owns admission, validation, and forwarding of those
+declarations, while the Pi host/package owns tool implementations. No launcher
+branch may silently inject ordinary tools because of role identity. Unsupported
+or unavailable declarations fail closed, with stricter read-only safety
+profiles remaining explicit host caps.
+
+### Parent integration ownership
+
+The receiving `component-builder` owns semantic child-result review and
+nearest-common-ancestor integration. This launcher performs only mechanical
+handoff, durable evidence collection, and caller-HEAD ancestry observation; it
+never merges, cherry-picks, resolves conflicts, or decides integration.
+
+An isolated child commit is `pending-parent-integration` until the receiving
+builder integrates it and ancestry proves it reachable from caller `HEAD`.
+Parent-owned worktree changes, same-component in-process assistance, and
+no-change work have no separate child merge; the parent must record an explicit
+`no-separate-integration` disposition and still satisfy validation, descendant
+closure, and scoped-commit gates.
+
+The launcher currently passes the agent's `model:` value literally to pi and relies on inherited `PI_PROVIDER`/`PI_MODEL` environment
 variables for the provider, so an agent cannot name a fast model by alias and
 the launch path is not portable to a host without those env vars set. This task
 makes the launcher resolve model presets and the provider from the repository's

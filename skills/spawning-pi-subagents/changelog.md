@@ -1,5 +1,13 @@
 # Changelog
 
+- 2026-08-15: Completed `parent-integration-ownership`. Contracts now make the
+  receiving component-builder responsible for semantic handoff review and
+  nearest-common-ancestor integration; the launcher only performs mechanical
+  handoff and ancestry observation. Isolated commits remain pending until
+  integrated, while parent-owned, in-process, and no-change work requires an
+  explicit no-separate-integration disposition. Removed the completed backlog
+  row. Focused contract and launcher checks remain the validation evidence.
+
 - 2026-08-15: Completed `agent-agnostic-launcher-dispatch` reconciliation. The
   launcher continues to derive ordinary role capabilities from declarative
   agent front matter without per-agent admission branches; the
