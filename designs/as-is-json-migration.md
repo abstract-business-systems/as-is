@@ -37,37 +37,12 @@ narrative is explicit durable evidence, but it is not a multi-file atomic
 transaction. A later completion/migration task must add a bounded recovery rule
 or transactional protocol before claiming crash-atomic task cleanup.
 
-## Remaining Legacy Inventory
+## Migration Completion Gate
 
-The following records still begin with YAML front matter and require migration
-by their owning components; they are not authorized for bulk editing by the root
-foundation task:
-
-- `agents/as-is.md`, `agents/component-builder/as-is.md`,
-  `agents/execution-advisor/as-is.md`, and `agents/worker/as-is.md`.
-- `components/budget-control/as-is.md`, `components/control-plane/as-is.md`,
-  `components/subprocess-execution-foundation/as-is.md`, and
-  `components/task-record-validator/as-is.md`.
-- `designs/as-is.md` and `.pi/prompts/as-is.md`.
-- `skills/as-is.md`, `skills/context-building/as-is.md`,
-  `skills/exploring-execution-evidence/as-is.md`,
-  `skills/implementing-component-tasks/as-is.md`,
-  `skills/maintaining-components/as-is.md`, `skills/managing-backlog/as-is.md`,
-  `skills/spawning-pi-subagents/as-is.md`,
-  `skills/structuring-content/as-is.md`, and
-  `skills/verification-discipline/as-is.md`.
-- `validation-fixtures/dummy-delegation/as-is.md`,
-  `validation-fixtures/increment-5-dogfood/as-is.md`,
-  `validation-fixtures/increment-6-recovery-fixture/as-is.md`, and
-  `validation-fixtures/opencode-mediation-dogfood/as-is.md`.
-
-Each listed record is a known legacy compatibility source, not an exception to
-the root JSON authority. Its legacy prose or front matter may still describe
-former `as-is.md` configuration/task behavior until its owning component
-migrates it; central consumers must not use those claims as current project
-configuration authority. Each migration must preserve only active task machine
-metadata in its local companion, move completed facts to its changelog, remove
-front matter from Markdown, update its fixture/test expectations, and retain
-independent component ownership. After this inventory is exhausted, a separately
-authorized retirement task may remove YAML compatibility from the control plane
-and validator.
+All repository durable `as-is.md` records are now front-matter-free. Remaining
+migration work is limited to runtime and test-fixture compatibility: replace
+legacy YAML task fixtures and their consumers with `as-is.json.task` plus
+front-matter-free configured narratives, then remove YAML task-record parsing
+from the control plane and validator. That retirement must preserve deterministic
+fixture coverage and define the bounded recovery behavior for separate companion
+and narrative writes before claiming crash-atomic cleanup.

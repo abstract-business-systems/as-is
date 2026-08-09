@@ -1,25 +1,3 @@
----
-as-is-version: 2
-constraints:
-  cost:
-    currency: USD
-    allocated: 0.10
-    spent: 0.00
-    reserve: 0.02
-    source: unavailable
-  delegation:
-    maximum-depth: 0
-    maximum-children: 0
-  execution:
-    wall-clock:
-      allocated-seconds: 120
-      spent-seconds: 0
-      reserve-seconds: 30
-      source: unavailable
-  external-effects: require-current-turn-user-approval
-acceptance:
-  - Define backlog ownership and prioritization without making it task authority.
----
 
 # Managing Backlog
 

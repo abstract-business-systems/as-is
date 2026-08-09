@@ -1,28 +1,3 @@
----
-as-is-version: 2
-constraints:
-  cost:
-    currency: USD
-    allocated: 0.30
-    spent: 0.00
-    reserve: 0.06
-    source: host-reported
-    fallback-metric: validation elapsed-seconds
-  delegation:
-    maximum-depth: 0
-    maximum-children: 0
-  execution:
-    wall-clock:
-      allocated-seconds: 240
-      spent-seconds: 0
-      reserve-seconds: 40
-      source: host-reported
-  external-effects: require-current-turn-user-approval
-acceptance:
-  - Define a discoverable read-only execution-advisor role with trace and readable session analysis.
-  - Permit diagnosis and structured budget-extension recommendations without allowing direct task, session, trace, runtime, or budget mutation.
-  - Preserve durable task-record, control-plane, user-approval, and supervisor lifecycle authority.
----
 
 # Execution Advisor
 

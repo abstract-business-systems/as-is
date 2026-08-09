@@ -1,27 +1,3 @@
----
-as-is-version: 2
-constraints:
-  cost:
-    currency: USD
-    allocated: 0.10
-    spent: 0.00
-    reserve: 0.02
-    source: unavailable
-    fallback-metric: unavailable
-  delegation:
-    maximum-depth: 0
-    maximum-children: 0
-  execution:
-    wall-clock:
-      allocated-seconds: 120
-      spent-seconds: 0
-      reserve-seconds: 30
-      source: unavailable
-  external-effects: require-current-turn-user-approval
-acceptance:
-  - Add the correctly named high-priority context-building skill and durable record.
-  - Keep the procedure concise and documentation-only.
----
 
 # Context Building
 

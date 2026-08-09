@@ -1,32 +1,3 @@
----
-as-is-version: 1
-constraints:
-  cost:
-    currency: USD
-    allocated: 0.20
-    spent: 0.00
-    reserve: 0.04
-    source: unavailable
-    fallback-metric: elapsed-seconds
-  delegation:
-    maximum-depth: 0
-    maximum-children: 0
-  boundaries:
-    files:
-      - SKILL.md
-      - as-is.md
-    inputs:
-      - ../../AGENTS.md
-      - ../../agent-skills.md
-      - ../../docs/component-task-record-protocol.md
-      - ../../docs/design-principles.md
-  external-effects: require-current-turn-user-approval
-acceptance:
-  - Add a discoverable verification-discipline skill with matching directory,
-    front matter, and heading.
-  - Define reusable evidence and residual-risk guidance without duplicating
-    specialist procedures or changing files outside this component.
----
 
 # Verification Discipline
 

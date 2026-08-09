@@ -1,30 +1,3 @@
----
-as-is-version: 2
-constraints:
-  cost:
-    currency: USD
-    allocated: 0.20
-    spent: 0.00
-    reserve: 0.04
-    source: unavailable
-    fallback-metric: unavailable
-  delegation:
-    maximum-depth: 0
-    maximum-children: 0
-  execution:
-    wall-clock:
-      allocated-seconds: 300
-      spent-seconds: 0
-      reserve-seconds: 60
-      source: unavailable
-  external-effects: require-current-turn-user-approval
-acceptance:
-  - Add the missing durable task record for the existing `maintaining-components` skill.
-  - Record the first concrete backlog: audit a user-specified component, or the full component set if later directed, for misalignments against repository-prescribed structure and conventions, then fix the confirmed misalignments.
-  - Preserve separate Backlog and Changelog sections in this record.
-  - Do not implement the audit or fixes in this turn.
-  - Validate the new record and its internal links with the task-record validator and a diff check.
----
 
 # Maintaining Components
 

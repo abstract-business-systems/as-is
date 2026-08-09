@@ -1,6 +1,3 @@
----
-as-is-version: 2
----
 # Dummy Delegation Fixture
 
 ## Purpose

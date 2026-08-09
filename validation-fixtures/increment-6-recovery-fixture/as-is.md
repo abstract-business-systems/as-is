@@ -1,30 +1,3 @@
----
-as-is-version: 2
-constraints:
-  cost:
-    currency: USD
-    allocated: 0.08
-    spent: 0.00
-    reserve: 0.02
-    source: unavailable
-    fallback-metric: unavailable
-  delegation:
-    maximum-depth: 0
-    maximum-children: 0
-  execution:
-    wall-clock:
-      allocated-seconds: 30
-      spent-seconds: 0.141520954
-      reserve-seconds: 5
-      source: local monotonic fixture wrapper
-  external-effects: prohibited
-acceptance:
-  - Provide a harmless local interrupted-child fixture for Increment 6 recovery
-    validation.
-  - Preserve cumulative attempt history and cost and wall-clock observations;
-    do not infer completion from process exit or private runtime state.
-  - Retain no private runtime artifact after validation.
----
 
 # Increment 6 Recovery Fixture
 

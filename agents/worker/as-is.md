@@ -1,33 +1,3 @@
----
-as-is-version: 2
-constraints:
-  cost:
-    currency: USD
-    allocated: 0.50
-    spent: 0.00
-    reserve: 0.05
-    source: unavailable
-  delegation:
-    maximum-depth: 0
-    maximum-children: 0
-  execution:
-    wall-clock:
-      allocated-seconds: 300
-      spent-seconds: 0
-      reserve-seconds: 60
-      source: unavailable
-  external-effects: require-current-turn-user-approval
-acceptance:
-  - Define a bounded read-only worker role for in-process agent communication.
-  - Provide a blocking call_subagent tool using an in-memory Pi SDK session.
-  - Keep worker calls non-mutating and non-delegating by default.
-  - Add best-effort local trace events without making telemetry authoritative.
-  - Add bounded local trace search, retrieval, summary, and comparison tools.
-  - Add backend-neutral file/OTLP tracer support with Jaeger/Phoenix-compatible configuration.
-  - Make the shared tracer and trace-query tools use the same sink and base project configuration.
-  - Record subprocess launch, exit, and handoff trace events without changing durable execution semantics.
-  - Instrument supervisor delegation, watchdog, worker, completion, recovery, checkpoint, and validation-handoff spans.
----
 
 # Worker Agent
 

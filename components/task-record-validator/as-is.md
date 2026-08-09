@@ -1,30 +1,3 @@
----
-as-is-version: 2
-constraints:
-  cost:
-    currency: USD
-    allocated: 0.20
-    spent: 0.00
-    reserve: 0.04
-    source: unavailable
-    fallback-metric: unavailable
-  delegation:
-    maximum-depth: 0
-    maximum-children: 0
-  execution:
-    wall-clock:
-      allocated-seconds: 300
-      spent-seconds: 0
-      reserve-seconds: 60
-      source: unavailable
-  external-effects: require-current-turn-user-approval
-acceptance:
-  - Provide a deterministic local validator for version 2 component task records
-    and their directory-derived task tree.
-  - Reject weakened higher-authority constraints, exhausted child budgets, and
-    incomplete descendant closure.
-  - Include focused tests and local run documentation.
----
 
 # Task-Record Validator
 

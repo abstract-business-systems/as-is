@@ -1,29 +1,3 @@
----
-as-is-version: 2
-constraints:
-  cost:
-    currency: USD
-    allocated: 0.20
-    spent: 0.0525789
-    reserve: 0.04
-    source: sum of OpenCode session.cost values for the complete fresh mediated invocation (model-token-derived; not provider billing)
-    fallback-metric: unavailable
-  delegation:
-    maximum-depth: 0
-    maximum-children: 0
-  execution:
-    wall-clock:
-      allocated-seconds: 120
-      spent-seconds: 50.502114668
-      reserve-seconds: 30
-      source: parent monotonic timer around the complete fresh mediated invocation (includes orchestration overhead; not automatic cumulative enforcement)
-  external-effects: prohibited
-acceptance:
-  - Add a harmless local README identifying this directory as an OpenCode
-    mediation validation fixture.
-  - Keep changes inside this component and do not create runtime state.
-  - Record validation and host observations only when directly available.
----
 
 # OpenCode Mediation Dogfood
 

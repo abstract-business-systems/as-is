@@ -1,29 +1,3 @@
----
-as-is-version: 2
-constraints:
-  cost:
-    currency: USD
-    allocated: 0.10
-    spent: 0.00
-    reserve: 0.02
-    source: unavailable
-    fallback-metric: unavailable
-  delegation:
-    maximum-depth: 0
-    maximum-children: 0
-  execution:
-    wall-clock:
-      allocated-seconds: 120
-      spent-seconds: 0
-      reserve-seconds: 30
-      source: unavailable
-  external-effects: prohibited
-acceptance:
-  - Add a harmless local README documenting this Increment 5 OpenCode adapter
-    dogfood fixture.
-  - Keep changes inside this component and do not create runtime state.
-  - Validate the README and durable task record before handoff.
----
 
 # Increment 5 Dogfood
 

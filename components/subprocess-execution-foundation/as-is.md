@@ -1,35 +1,3 @@
----
-as-is-version: 2
-constraints:
-  cost:
-    currency: USD
-    allocated: 0.20
-    spent: 0.00
-    reserve: 0.04
-    source: unavailable
-    fallback-metric: validation elapsed-seconds (not monetary cost)
-  delegation:
-    maximum-depth: 0
-    maximum-children: 0
-  execution:
-    wall-clock:
-      allocated-seconds: 120
-      spent-seconds: 7.879676
-      reserve-seconds: 30
-      source: host monotonic timer around focused supervisor validation; prior recovery attempts unavailable
-  external-effects: require-current-turn-user-approval
-acceptance:
-  - Implement the dependency-free supervisor-owned detached subprocess boundary
-    without waiting for worker completion in the submitting turn.
-  - Preserve component-record authority, configured
-    as-is -> orchestrator -> implementer attribution, durable lifecycle evidence,
-    cancellation, stale detection, bounded recovery, accounting, and cleanup.
-  - Validate the lifecycle, permission, attribution, and cleanup boundaries with
-    harmless local evidence and record source-labelled cost, wall-clock, and risk.
-  - Keep historical recovery in Git and concise `Changelog` entries; do not depend
-    on an archive folder or a separate retired-systemd recovery path.
-  - Complete only this component's scoped handoff and account for descendants.
----
 
 # Subprocess Execution Foundation
 

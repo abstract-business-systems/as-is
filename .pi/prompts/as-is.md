@@ -1,7 +1,3 @@
----
-description: Start the repository as-is agent for the current request.
-argument-hint: "[request]"
----
 
 Route this request to the repository's canonical `as-is` agent. Do not handle
 the request in this host session and do not infer a different role. Launch the

@@ -1,34 +1,3 @@
----
-as-is-version: 2
-constraints:
-  cost:
-    currency: USD
-    allocated: 0.20
-    spent: 0.00
-    reserve: 0.04
-    source: unavailable
-    fallback-metric: unavailable
-  delegation:
-    maximum-depth: 0
-    maximum-children: 0
-  execution:
-    wall-clock:
-      allocated-seconds: 300
-      spent-seconds: 0
-      reserve-seconds: 60
-      source: unavailable
-  external-effects: require-current-turn-user-approval
-acceptance:
-  - Distinguish creation-time organization from maintenance-time restructuring in this component's SKILL.md.
-  - State that an explicit restructuring request or an evidence-based maintenance signal authorizes evaluation of existing items, so creation-time policy is not a blanket exemption for legacy content.
-  - Require a bounded maintenance task record before moving or reparenting existing items, including the maintenance signal, target grouping or parent concept, ownership/authority/lifecycle checks, affected consumers and references, entry point, migration or replacement path, acceptance conditions, and audit/lineage considerations.
-  - Require the smallest safe retroactive grouping when acceptance conditions justify it, or a recorded reason for retaining existing paths; do not silently leave known similar items ungrouped merely because they predate the rule.
-  - Preserve exceptions for cross-component or cross-authority boundaries, destructive or irreversible migration without authorization, speculative or generic buckets, and migration cost or risk outweighing demonstrated navigation or cognitive benefit.
-  - State that directory moves change component/task lineage and require explicit scope, reference updates, and validation.
-  - Distinguish rule placement: the skill owns the reusable procedure and decision criteria; design principles own broad cross-project values; task records own current-task evidence and decisions; agent-skills.md remains only the capability catalog.
-  - Do not physically move existing fixtures in this task; update only the reusable rule for a future explicitly authorized assessment.
-  - Validate the changed skill and this task record with focused content assertions, the applicable task-record validator, and git diff --check.
----
 
 # Structuring Content
 

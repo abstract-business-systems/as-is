@@ -1,28 +1,3 @@
----
-as-is-version: 2
-constraints:
-  cost:
-    currency: USD
-    allocated: 0.20
-    spent: 0.00
-    reserve: 0.04
-    source: host-reported
-    fallback-metric: validation elapsed-seconds
-  delegation:
-    maximum-depth: 0
-    maximum-children: 0
-  execution:
-    wall-clock:
-      allocated-seconds: 180
-      spent-seconds: 0
-      reserve-seconds: 30
-      source: host-reported
-  external-effects: require-current-turn-user-approval
-acceptance:
-  - Provide a discoverable bounded procedure for exploring local trace evidence and readable Pi session metadata.
-  - Support debugging, process-improvement, and budget-analysis questions without granting task, job, validation, recovery, completion, or budget-allocation authority.
-  - Preserve session-ID correlation, filesystem ownership, external ID-only export, and distinguish observations, inferences, unknowns, recommendations, and residual risk.
----
 
 # Exploring Execution Evidence
 

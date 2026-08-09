@@ -1,27 +1,3 @@
----
-as-is-version: 2
-constraints:
-  cost:
-    currency: USD
-    allocated: 0.20
-    spent: 0.00
-    reserve: 0.04
-    source: unavailable
-    fallback-metric: unavailable
-  delegation:
-    maximum-depth: 0
-    maximum-children: 0
-  execution:
-    wall-clock:
-      allocated-seconds: 180
-      spent-seconds: 0
-      reserve-seconds: 30
-      source: unavailable
-  external-effects: require-current-turn-user-approval
-acceptance:
-  - Maintain durable skills-scope task context and links.
-  - Record skill catalog and entry-point authority rules.
----
 
 # Skills
 
