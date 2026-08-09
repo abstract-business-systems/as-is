@@ -5,6 +5,7 @@ import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { emitTrace, startSpan, type TracerConfig, type SpanLifecycle } from "../observability/tracer.ts";
 import { isExhausted } from "../budget-control/budget.ts";
+import { parseAsIsJson } from "../as-is-data/resolver.ts";
 
 /**
  * A small, host-neutral execution boundary.
@@ -287,8 +288,6 @@ export type StaleObservation =
 
 const CHECKPOINT_BEGIN = "<!-- subprocess-execution-foundation:begin -->";
 const CHECKPOINT_END = "<!-- subprocess-execution-foundation:end -->";
-const RECORD_STATUS = /^  status: ([^\r\n]+)$/m;
-const RECORD_UPDATED = /^  updated: ([^\r\n]+)$/m;
 const encoder = new TextEncoder();
 
 function isoNow(): string {
@@ -440,10 +439,8 @@ function validateRequest(request: LaunchRequest): void {
   }
 }
 
-function parseRecord(raw: string, path: string): DurableRecordObservation {
-  const statusMatch = raw.match(RECORD_STATUS);
-  const updatedMatch = raw.match(RECORD_UPDATED);
-  const status = statusMatch?.[1] as DurableTaskStatus | undefined;
+function parseRecord(raw: string, path: string, task: Record<string, unknown>): DurableRecordObservation {
+  const status = typeof task.status === "string" ? task.status as DurableTaskStatus : undefined;
   const events: DurableCheckpoint[] = [];
   const begin = raw.indexOf(CHECKPOINT_BEGIN);
   const end = raw.indexOf(CHECKPOINT_END);
@@ -464,14 +461,19 @@ function parseRecord(raw: string, path: string): DurableRecordObservation {
   return {
     path,
     status: status ?? "unknown",
-    updated: updatedMatch?.[1]?.trim() ?? null,
+    updated: typeof task.updated === "string" ? task.updated : null,
     events,
     raw,
   };
 }
 
 export async function readDurableRecord(recordPath: string): Promise<DurableRecordObservation> {
-  return parseRecord(await readFile(recordPath, "utf8"), recordPath);
+  const companionPath = join(dirname(recordPath), "as-is.json");
+  const companion = parseAsIsJson(await readFile(companionPath, "utf8"), companionPath);
+  if (!companion.task || typeof companion.task !== "object" || Array.isArray(companion.task)) {
+    throw new Error("durable record blocker: companion task is missing");
+  }
+  return parseRecord(await readFile(recordPath, "utf8"), recordPath, companion.task as Record<string, unknown>);
 }
 
 async function checkpointRecord(
@@ -482,14 +484,15 @@ async function checkpointRecord(
 ): Promise<void> {
   const raw = await readFile(recordPath, "utf8");
   let next = raw;
-  if (status) {
-    if (!RECORD_STATUS.test(next)) throw new Error("durable record blocker: task.status is not parseable");
-    next = next.replace(RECORD_STATUS, `  status: ${status}`);
+  const companionPath = join(dirname(recordPath), "as-is.json");
+  const companion = parseAsIsJson(await readFile(companionPath, "utf8"), companionPath);
+  if (!companion.task || typeof companion.task !== "object" || Array.isArray(companion.task)) {
+    throw new Error("durable record blocker: companion task is missing");
   }
-  if (updateUpdated) {
-    if (!RECORD_UPDATED.test(next)) throw new Error("durable record blocker: task.updated is not parseable");
-    next = next.replace(RECORD_UPDATED, `  updated: ${checkpoint.observedAt}`);
-  }
+  const task = { ...(companion.task as Record<string, unknown>) };
+  if (status) task.status = status;
+  if (updateUpdated) task.updated = checkpoint.observedAt;
+  companion.task = task;
   const line = JSON.stringify(checkpoint);
   const begin = next.indexOf(CHECKPOINT_BEGIN);
   const end = next.indexOf(CHECKPOINT_END);
@@ -498,6 +501,7 @@ async function checkpointRecord(
   } else {
     next = `${next.trimEnd()}\n\n## Execution Foundation Checkpoints\n\n${CHECKPOINT_BEGIN}\n${line}\n${CHECKPOINT_END}\n`;
   }
+  await atomicWrite(companionPath, `${JSON.stringify(companion, null, 2)}\n`);
   await atomicWrite(recordPath, next);
 }
 

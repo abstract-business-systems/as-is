@@ -34,40 +34,25 @@ const roleChain: RoleChain = {
 const sleep = (milliseconds: number) => new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
 const monotonicSeconds = () => Number(process.hrtime.bigint()) / 1_000_000_000;
 
-function recordContents(status: "ready" | "active" = "ready", updated = new Date().toISOString()): string {
-  return `---
-as-is-version: 2
-task:
-  status: ${status}
-  worker: implementer
-  updated: ${updated}
-constraints:
-  cost:
-    currency: USD
-    allocated: 0.20
-    spent: 0.00
-    reserve: 0.04
-    source: unavailable
-    fallback-metric: validation elapsed-seconds
-  delegation:
-    maximum-depth: 0
-    maximum-children: 0
-  execution:
-    wall-clock:
-      allocated-seconds: 10
-      spent-seconds: 0
-      reserve-seconds: 1
-      source: unavailable
-acceptance:
-  - harmless deterministic supervisor fixture
----
-
-# Fixture
+function recordContents(): string {
+  return `# Fixture Task
 
 ## Progress
 
 The fixture is controlled only by the focused supervisor test.
 `;
+}
+
+function taskData(status: "ready" | "active" = "ready", updated = new Date().toISOString(), allocatedCost = 0.20, allocatedWall = 10) {
+  return { status, worker: "implementer", updated, constraints: { cost: { currency: "USD", allocated: allocatedCost, spent: 0, reserve: 0.04, source: "unavailable", "fallback-metric": "validation elapsed-seconds" }, delegation: { "maximum-depth": 0, "maximum-children": 0 }, execution: { "wall-clock": { "allocated-seconds": allocatedWall, "spent-seconds": 0, "reserve-seconds": 1, source: "unavailable" } }, "external-effects": "prohibited" }, acceptance: ["harmless deterministic supervisor fixture"] };
+}
+
+async function writeTask(directory: string, status: "ready" | "active" = "ready", updated?: string, allocatedCost = 0.20, allocatedWall = 10): Promise<string> {
+  await mkdir(directory, { recursive: true });
+  await writeFile(join(directory, "as-is.md"), "# Fixture\n", "utf8");
+  await writeFile(join(directory, "tasks.md"), recordContents(), "utf8");
+  await writeFile(join(directory, "as-is.json"), JSON.stringify({ configuration: { records: { filenames: { task: "tasks.md" } }, scheduling: { maxConcurrentTasks: 1, checkInSeconds: 300 } }, task: taskData(status, updated, allocatedCost, allocatedWall) }), "utf8");
+  return join(directory, "tasks.md");
 }
 
 interface Fixture {
@@ -78,8 +63,7 @@ interface Fixture {
 
 async function fixture(status: "ready" | "active" = "ready", updated?: string): Promise<Fixture> {
   const root = await mkdtemp(join(tmpdir(), "as-is-supervisor-test-"));
-  const recordPath = join(root, "as-is.md");
-  await writeFile(recordPath, recordContents(status, updated), "utf8");
+  const recordPath = await writeTask(root, status, updated);
   return { root, recordPath, projectRoot: root };
 }
 
@@ -334,12 +318,11 @@ describe("detached subprocess foundation", () => {
   test("stops an exhausted process and continues it after parent budget admission", async () => {
     const fixtureData = await fixture("active");
     const childRoot = join(fixtureData.root, "child");
-    const childRecordPath = join(childRoot, "as-is.md");
+    const childRecordPath = join(childRoot, "tasks.md");
     const handles: JobHandle[] = [];
     try {
-      await mkdir(childRoot, { recursive: true });
-      await writeFile(join(fixtureData.root, "as-is.md"), recordContents("active").replace("allocated: 0.20", "allocated: 10").replace("allocated-seconds: 10", "allocated-seconds: 100"), "utf8");
-      await writeFile(childRecordPath, recordContents("active"), "utf8");
+      await writeTask(fixtureData.root, "active", undefined, 10, 100);
+      await writeTask(childRoot, "active");
       const first = await launch(requestFor({ ...fixtureData, recordPath: childRecordPath }, "await Bun.sleep(1000);", {
         expectedRecordStatus: "active",
         budget: {
