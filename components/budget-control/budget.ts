@@ -8,6 +8,12 @@
 
 export type BudgetValue = number | "unavailable";
 
+export interface EffectiveLaunchBudget {
+  wallClockSeconds: number;
+  costUsd: number | "unavailable";
+  source: "control-plane";
+}
+
 export interface BudgetEnvelope {
   allocation: BudgetValue;
   spent: BudgetValue;
@@ -35,6 +41,20 @@ export function admits(available: BudgetEnvelope, committed: number, requested: 
 
 export function continuationLimit(budget: BudgetEnvelope): number | "unavailable" {
   return remainingBudget(budget);
+}
+
+export function effectiveLaunchBudget(input: {
+  requestedWallClockSeconds: number;
+  remainingWallClockSeconds: number | "unavailable";
+  requestedCostUsd?: number;
+}): EffectiveLaunchBudget {
+  const wallClockSeconds = boundedLimit(input.requestedWallClockSeconds, input.remainingWallClockSeconds, input.requestedWallClockSeconds);
+  if (wallClockSeconds <= 0) throw new Error("launch budget is exhausted");
+  return {
+    wallClockSeconds,
+    costUsd: typeof input.requestedCostUsd === "number" ? input.requestedCostUsd : "unavailable",
+    source: "control-plane",
+  };
 }
 
 export function boundedLimit(requested: number, available: number | "unavailable", maximum: number): number {

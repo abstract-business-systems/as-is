@@ -84,6 +84,8 @@ Passed:
 - `bun test components/budget-control/budget.test.ts components/control-plane/control-plane.test.ts components/subprocess-execution-foundation/supervisor.test.ts skills/spawning-pi-subagents/scripts/spawn-pi-subagent.test.ts` — 52 passed, 387 expectations.
 - `bun build .pi/extensions/worker-tools.ts --target bun --outfile /tmp/as-is-worker-tools-build.js` — successful.
 - `bun build skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts --target bun --outfile /tmp/as-is-launcher-build.js` — successful.
+- `bun test components/budget-control/budget.test.ts components/control-plane/control-plane.test.ts components/subprocess-execution-foundation/supervisor.test.ts skills/spawning-pi-subagents/scripts/spawn-pi-subagent.test.ts` — 54 passed, 389 expectations.
+- `bun build components/control-plane/control-plane.ts --target bun --outfile /tmp/as-is-control-plane-build.js` — successful.
 
 - `bun test components/observability/tracer.test.ts components/observability/lifecycle-hierarchy.test.ts` — 9 passed, 46 expectations.
 - `bun test components/control-plane/control-plane.test.ts` — 5 passed, 31 expectations.
@@ -110,7 +112,11 @@ boundary, and in-process `call_subagent` now caps requested timeouts by the
 component record's remaining wall-clock allocation after reserve. Calls below
 the 1-second minimum are rejected rather than silently consuming an exhausted
 budget. The launcher still receives explicit effective limits from its caller;
-record-to-launcher budget loading is not yet automatic.
+record-to-launcher budget loading is not automatic by design. The control plane
+now exposes `admitLaunch()`, which returns a normalized
+`EffectiveLaunchBudget` without exposing task-record parsing to the launcher.
+The generic launcher can consume the returned wall-clock value and remains
+unaware of component records.
 
 Residual risk: the directory lock
 is a small-process lock and reports busy rather than waiting; it protects the

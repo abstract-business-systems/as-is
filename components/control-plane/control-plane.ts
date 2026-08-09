@@ -27,7 +27,7 @@ import {
 } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { createHash, randomBytes } from "node:crypto";
-import { admits, remainingBudget } from "../budget-control/budget.ts";
+import { admits, effectiveLaunchBudget, remainingBudget, type EffectiveLaunchBudget } from "../budget-control/budget.ts";
 
 export const STATUSES = new Set([
   "ready",
@@ -796,6 +796,22 @@ export class ControlPlane {
     }
     this.checkLeafSlot(record);
     this.transition(record, "active");
+  }
+
+  admitLaunch(component: string, requestedWallClockSeconds: number, requestedCostUsd?: number): EffectiveLaunchBudget {
+    const record = this.recordFor(component);
+    if (!['ready', 'active'].includes(record.status)) throw new ControlPlaneError(`component is not launchable from ${JSON.stringify(record.status)}`);
+    const [, wall] = recordBudget(record);
+    const remaining = remainingBudget({
+      allocation: Number(wall['allocated-seconds']),
+      spent: Number(wall['spent-seconds']),
+      reserve: Number(wall['reserve-seconds']),
+    });
+    try {
+      return effectiveLaunchBudget({ requestedWallClockSeconds, remainingWallClockSeconds: remaining, requestedCostUsd });
+    } catch (error) {
+      throw new ControlPlaneError(String(error).replace(/^Error: /, ''));
+    }
   }
 
   /**

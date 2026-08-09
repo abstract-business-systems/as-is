@@ -156,6 +156,27 @@ test("questions, answers, approvals, and constraint rejection are durable", () =
   }
 });
 
+test("derives an effective launch budget without exposing task-record parsing", () => {
+  const fixtureRoot = fixture();
+  try {
+    const control = new ControlPlane(fixtureRoot.root);
+    expect(control.admitLaunch(".", 900, 0.5)).toEqual({ wallClockSeconds: 80, costUsd: 0.5, source: "control-plane" });
+  } finally {
+    fixtureRoot.cleanup();
+  }
+});
+
+test("rejects launch admission when the retained reserve is exhausted", () => {
+  const fixtureRoot = fixture();
+  try {
+    const control = new ControlPlane(fixtureRoot.root);
+    writeFileSync(join(fixtureRoot.root, "as-is.md"), record().replace("spent-seconds: 10", "spent-seconds: 90"), "utf8");
+    expect(() => control.admitLaunch(".", 10)).toThrow(/exhausted/);
+  } finally {
+    fixtureRoot.cleanup();
+  }
+});
+
 test("admits one component budget extension within the parent reserve", () => {
   const fixtureRoot = fixture();
   try {
