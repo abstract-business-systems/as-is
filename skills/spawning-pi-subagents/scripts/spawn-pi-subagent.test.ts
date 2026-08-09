@@ -80,7 +80,8 @@ test("project context follows the launching cwd when target cwd is a component",
   const bundle = join(launchRoot, "bundle");
   mkdirSync(target, { recursive: true });
   mkdirSync(join(bundle, "agents", "fixture"), { recursive: true });
-  writeFileSync(join(launchRoot, "as-is.md"), "---\nconfig:\n  agents:\n    defaultModel: small\n---\n");
+  writeFileSync(join(launchRoot, "as-is.md"), "# Root\n");
+  writeFileSync(join(launchRoot, "as-is.json"), JSON.stringify({ configuration: { agents: { defaultModel: "small" } } }));
   writeFileSync(join(launchRoot, "AGENTS.md"), "launch-root instruction");
   writeFileSync(join(target, "AGENTS.md"), "component instruction");
   writeFileSync(join(bundle, "agents", "fixture", "agent.md"), "---\nname: fixture\nmode: subagent\ntools: read\n---\nFixture agent.");

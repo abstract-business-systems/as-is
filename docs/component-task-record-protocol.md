@@ -2,12 +2,14 @@
 
 ## Purpose
 
-This permanent specification defines the durable `as-is.md` component record
-and the transient task record used to change a component. An `as-is.md` describes
-the component's purpose, design, boundary, and related artifacts. A component-level
-`tasks.md` records one active bounded change and is removed by task management
-after completion; its concise summary is retained in `changelog.md`. The filename
-is configurable through `config.records.filenames.task`; `tasks.md` is the
+This permanent specification defines the durable human `as-is.md` component
+record and the split transient task record used to change a component. An
+`as-is.md` describes the component's purpose, design, boundary, and related
+artifacts. Local `as-is.json.task` holds one active task's machine metadata and
+the configured Markdown task file holds its human narrative; both are removed
+by task management after completion and its concise summary is retained in
+`changelog.md`. The task filename is configurable through
+`configuration.records.filenames.task` in root `as-is.json`; `tasks.md` is the
 repository default.
 
 ## Placement And Hierarchy
@@ -18,9 +20,9 @@ files and folders. The directory containing `as-is.md`, together with descendant
 that do not contain their own `as-is.md`, is one component boundary. The directory
 path is authoritative for the component's scope and parent relationship.
 
-A component change is recorded in a transient `tasks.md` beside `as-is.md` by
-default. If
-work must cross into a subcomponent with its own `as-is.md`, the component builder
+A component change is recorded through local `as-is.json.task` and its
+transient configured Markdown narrative beside `as-is.md` by default. If work
+must cross into a subcomponent with its own `as-is.md`, the component builder
 delegates a new component-builder task for that subcomponent rather than editing
 across the boundary.
 
@@ -32,11 +34,11 @@ without duplicating the extracted content.
 
 ## Creation And Maintenance
 
-The root and component `as-is.md` files are durable component context. They
-describe purpose, design, boundaries, and links; they do not contain the current
-task's transient status, budget, plan, or recovery state. When work starts, task
-management creates the configured task-record filename atomically in the target
-component directory. When the orchestrator delegates
+The root and component `as-is.md` files are durable human component context.
+They describe purpose, design, boundaries, and links; they do not contain the
+current task's transient status, budget, plan, or recovery state. When work
+starts, task management creates the configured Markdown task narrative and its
+local `as-is.json.task` metadata in the target component directory. When the orchestrator delegates
 work to a component directory that has no task record, it generates that
 component's `as-is.md` atomically from this protocol before launching the worker.
 It supplies the bounded requirement, effective constraints, cost allocation,
@@ -49,50 +51,36 @@ task or recovery and does not overwrite its durable progress. After launch, the
 assigned worker maintains its component record; the orchestrator creates or
 updates only the delegation information it is responsible for.
 
-## Task Front Matter
+## Task Metadata
 
-The transient configured task-record file (default `tasks.md`) front matter is
-strict and machine-validatable:
+The local `as-is.json.task` object is strict and machine-validatable:
 
-```yaml
----
-as-is-version: 2
-task:
-  status: ready
-  worker: implementer
-  updated: 2026-07-26T00:00:00Z
-constraints:
-  cost:
-    currency: USD
-    allocated: 0.20
-    spent: 0.00
-    reserve: 0.04
-    source: host-reported
-  delegation:
-    maximum-depth: 2
-    maximum-children: 3
-  execution:
-    wall-clock:
-      allocated-seconds: 300
-      spent-seconds: 0
-      reserve-seconds: 60
-      source: host-reported
-  external-effects: require-current-turn-user-approval
-acceptance:
-  - Implement the bounded component result.
----
+```json
+{
+  "task": {
+    "status": "ready",
+    "worker": "implementer",
+    "updated": "2026-07-26T00:00:00Z",
+    "constraints": {
+      "cost": { "currency": "USD", "allocated": 0.2, "spent": 0, "reserve": 0.04, "source": "host-reported" },
+      "delegation": { "maximum-depth": 2, "maximum-children": 3 },
+      "execution": { "wall-clock": { "allocated-seconds": 300, "spent-seconds": 0, "reserve-seconds": 60, "source": "host-reported" } },
+      "external-effects": "require-current-turn-user-approval"
+    },
+    "acceptance": ["Implement the bounded component result."]
+  }
+}
 ```
 
-- `as-is-version`, `task.status`, `task.worker`, `task.updated`, `constraints`,
-  and `acceptance` are required. Unknown core front-matter fields fail
-  validation.
+- `task.status`, `task.worker`, `task.updated`, `task.constraints`, and
+  `task.acceptance` are required. Unknown core task fields fail validation.
 - `task.status` is one of `ready`, `active`, `blocked`,
   `awaiting-approval`, `completed`, `failed`, or `cancelled`.
 - A permission gate uses the schema-compatible `awaiting-approval` status and
   records the exact durable permission state `awaiting-user-approval` in its
   execution checkpoint, together with the structured `permission-needed` event,
   approval scope, and user-visible escalation evidence. This preserves strict
-  front-matter validation while distinguishing a permission decision from a
+  task-metadata validation while distinguishing a permission decision from a
   generic question. A transient prompt or host reply is not a durable answer.
 - A new task begins as `ready`; a worker advances it to `active`; active work may
   become blocked, await approval, complete, fail, or be cancelled; blocked,
@@ -183,7 +171,10 @@ Current task authority remains in the root or component configured task-record
 file (default `tasks.md`). Historical
 task recovery uses Git history plus the repository's concise history entries;
 it does not use a `task-archives/` directory, a second task tree, or a separate
-host-specific recovery path. Historical notes are succinct by default and use the canonical `Changelog`
+host-specific recovery path. Legacy YAML-front-matter task records remain
+read-compatible only until their owning components complete the documented JSON
+companion migration; newly created records use JSON metadata and front-matter-free
+Markdown. Historical notes are succinct by default and use the canonical `Changelog`
 heading. A small retained `Changelog` may live in `as-is.md` when that record
 is the smallest coherent authoritative home; it is never a parallel task
 authority. Project-specific verbosity configuration, such as
@@ -211,11 +202,11 @@ authorized bounded task based on current policy and Git evidence.
 ## Component Record Body
 
 The durable `as-is.md` body describes the component's purpose, design, links, and
-concise `Changelog`; it does not contain transient task state.
+concise `Changelog`; it does not contain transient task state or YAML front matter.
 
 ## Transient Task Body
 
-The transient configured task-record body is human-readable current task context and contains these sections:
+The transient configured Markdown task narrative is human-readable current task context and contains these sections:
 
 ```md
 # Task

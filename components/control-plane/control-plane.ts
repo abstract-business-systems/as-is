@@ -25,9 +25,10 @@ import {
   unlinkSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, join, relative, resolve, sep } from "node:path";
+import { basename, dirname, join, relative, resolve, sep } from "node:path";
 import { createHash, randomBytes } from "node:crypto";
 import { admits, effectiveLaunchBudget, remainingBudget, type EffectiveLaunchBudget } from "../budget-control/budget.ts";
+import { isTaskNarrativeFilename, readAsIsJson } from "../as-is-data/resolver.ts";
 
 export const STATUSES = new Set([
   "ready",
@@ -167,6 +168,7 @@ export class DurableRecord {
     readonly text: string,
     readonly data: UnknownRecord,
     readonly body: string,
+    readonly companionPath?: string,
   ) {}
 
   get directory(): string {
@@ -193,8 +195,28 @@ function loadRecord(path: string): DurableRecord {
   } catch (error) {
     throw new ControlPlaneError(`cannot read ${path}: ${String(error)}`);
   }
-  const [data, body] = frontMatter(text);
-  return new DurableRecord(path, text, data, body);
+  if (text.startsWith("---\n")) {
+    const [data, body] = frontMatter(text);
+    return new DurableRecord(path, text, data, body);
+  }
+  const companionPath = join(dirname(path), "as-is.json");
+  if (basename(path) === "as-is.md") {
+    throw new ControlPlaneError(`JSON-backed task is missing its configured Markdown narrative: ${dirname(path)}`);
+  }
+  try {
+    const companion = readAsIsJson(companionPath);
+    if (isMapping(companion.task)) {
+      const task = companion.task;
+      const data: UnknownRecord = {
+        "as-is-version": 2,
+        task: { status: task.status, worker: task.worker, updated: task.updated },
+        constraints: task.constraints,
+        acceptance: task.acceptance,
+      };
+      return new DurableRecord(path, text, data, text, companionPath);
+    }
+  } catch { /* legacy non-task Markdown remains non-record context */ }
+  throw new ControlPlaneError(`not a task record: ${path}`);
 }
 
 function isTaskRecord(record: DurableRecord): boolean {
@@ -312,6 +334,7 @@ function replaceTaskScalars(front: string, status: string | null, updated: strin
 }
 
 function renderRecord(record: DurableRecord, body: string, status: string | null, updated: string | null, budget?: { cost: number; wall: number }): string {
+  if (record.companionPath) return body;
   const end = record.text.indexOf("\n---\n", 4);
   if (end < 0) throw new ControlPlaneError("record lost its front matter delimiter");
   let front = record.text.slice(4, end);
@@ -358,6 +381,30 @@ function atomicWrite(path: string, text: string): void {
     if (descriptor !== undefined) closeSync(descriptor);
     if (temporary && existsSync(temporary)) unlinkSync(temporary);
   }
+}
+
+function persistRecord(record: DurableRecord, body: string, status: string | null, updated: string | null, budget?: { cost: number; wall: number }): void {
+  if (!record.companionPath) {
+    atomicWrite(record.path, renderRecord(record, body, status, updated, budget));
+    return;
+  }
+  const companion = readAsIsJson(record.companionPath);
+  const task = isMapping(companion.task) ? companion.task : {};
+  const nextTask: UnknownRecord = { ...task };
+  if (status !== null) nextTask.status = status;
+  if (updated !== null) nextTask.updated = updated;
+  if (budget) {
+    const nextConstraints = structuredClone(task.constraints ?? {}) as UnknownRecord;
+    const cost = isMapping(nextConstraints.cost) ? nextConstraints.cost : {};
+    const execution = isMapping(nextConstraints.execution) ? nextConstraints.execution : {};
+    const wall = isMapping(execution["wall-clock"]) ? execution["wall-clock"] : {};
+    nextConstraints.cost = { ...cost, allocated: budget.cost };
+    nextConstraints.execution = { ...execution, "wall-clock": { ...wall, "allocated-seconds": budget.wall } };
+    nextTask.constraints = nextConstraints;
+  }
+  companion.task = nextTask;
+  atomicWrite(record.companionPath, `${JSON.stringify(companion, null, 2)}\n`);
+  atomicWrite(record.path, body);
 }
 
 function constraints(record: DurableRecord): UnknownRecord {
@@ -448,16 +495,20 @@ function pathExistsAsDirectory(path: string): boolean {
   }
 }
 
-function walkRecords(root: string): string[] {
+function walkRecords(root: string, taskRecordNames: readonly string[]): string[] {
   const found: string[] = [];
   function visit(directory: string): void {
     let entries;
     try { entries = readdirSync(directory, { withFileTypes: true }); } catch { return; }
-    for (const entry of entries) {
-      const path = join(directory, entry.name);
-      if (entry.isDirectory()) visit(path);
-      else if (entry.name === "tasks.md" || entry.name === "task.md" || entry.name === "as-is.md") found.push(path);
+    const names = new Set(entries.filter((entry) => entry.isFile()).map((entry) => entry.name));
+    const taskNarratives = taskRecordNames.filter((name) => names.has(name));
+    if (taskNarratives.length > 1) {
+      throw new ControlPlaneError(`multiple task narratives exist in one component: ${directory}`);
     }
+    const selectedTask = taskNarratives[0];
+    if (selectedTask) found.push(join(directory, selectedTask));
+    else if (names.has("as-is.md") && !existsSync(join(directory, "as-is.json"))) found.push(join(directory, "as-is.md"));
+    for (const entry of entries) if (entry.isDirectory()) visit(join(directory, entry.name));
   }
   visit(root);
   return found.sort();
@@ -477,21 +528,48 @@ export interface TaskSnapshot {
 export class ControlPlane {
   readonly root: string;
   readonly rootRecordPath: string | null;
+  readonly taskRecordNames: string[];
   readonly clock: Clock;
 
   constructor(root: string, options: { clock?: Clock } = {}) {
     this.root = resolve(root);
     const durableRoot = join(this.root, "as-is.md");
-    this.rootRecordPath = existsSync(join(this.root, "tasks.md"))
-      ? join(this.root, "tasks.md")
-      : existsSync(join(this.root, "task.md"))
-        ? join(this.root, "task.md")
-        : null;
+    const companionPath = join(this.root, "as-is.json");
+    let configuredTaskName: string | undefined;
+    try {
+      const configuration = readAsIsJson(companionPath).configuration;
+      const filenames = isMapping(configuration) && isMapping(configuration.records) && isMapping(configuration.records.filenames)
+        ? configuration.records.filenames : {};
+      if (filenames.task !== undefined && !isTaskNarrativeFilename(filenames.task)) {
+        throw new ControlPlaneError("configuration.records.filenames.task must be a safe basename");
+      }
+      configuredTaskName = isTaskNarrativeFilename(filenames.task) ? filenames.task : undefined;
+    } catch (error) {
+      if (existsSync(companionPath)) throw error;
+      // Legacy projects use the default record names below.
+    }
+    this.taskRecordNames = [...new Set([configuredTaskName, "tasks.md", "task.md"].filter((name): name is string => Boolean(name)))];
+    this.rootRecordPath = configuredTaskName && existsSync(join(this.root, configuredTaskName))
+      ? join(this.root, configuredTaskName)
+      : existsSync(join(this.root, "tasks.md"))
+        ? join(this.root, "tasks.md")
+        : existsSync(join(this.root, "task.md"))
+          ? join(this.root, "task.md")
+          : null;
     this.clock = options.clock ?? (() => new Date());
     if (!existsSync(durableRoot)) throw new ControlPlaneError(`root durable record does not exist: ${durableRoot}`);
-    const rootRecord = loadRecord(durableRoot);
-    if (rootRecord.data["as-is-version"] !== 1 && rootRecord.data["as-is-version"] !== 2) {
-      throw new ControlPlaneError(`root durable record has unsupported as-is-version: ${durableRoot}`);
+    if (existsSync(companionPath)) {
+      try {
+        const rootCompanion = readAsIsJson(companionPath);
+        if (!isMapping(rootCompanion.configuration)) throw new ControlPlaneError(`root companion has no configuration: ${companionPath}`);
+      } catch (error) {
+        throw new ControlPlaneError(`root companion is invalid: ${String(error)}`);
+      }
+    } else {
+      const rootRecord = loadRecord(durableRoot);
+      if (rootRecord.data["as-is-version"] !== 1 && rootRecord.data["as-is-version"] !== 2) {
+        throw new ControlPlaneError(`root durable record has unsupported as-is-version: ${durableRoot}`);
+      }
     }
     if (existsSync(this.rootRecordPath) && !isTaskRecord(loadRecord(this.rootRecordPath))) {
       throw new ControlPlaneError(`root task record is invalid: ${this.rootRecordPath}`);
@@ -500,10 +578,11 @@ export class ControlPlane {
 
   private records(): DurableRecord[] {
     const records: DurableRecord[] = [];
-    for (const path of walkRecords(this.root)) {
+    for (const path of walkRecords(this.root, this.taskRecordNames)) {
+      if (basename(path) === "as-is.md" && this.taskRecordNames.some((name) => existsSync(join(dirname(path), name)))) continue;
       try {
         const record = loadRecord(path);
-        if (isTaskRecord(record) && (path === this.rootRecordPath || path.endsWith("/tasks.md") || path.endsWith("\\tasks.md") || path.endsWith("/task.md") || path.endsWith("\\task.md") || path.endsWith("/as-is.md") || path.endsWith("\\as-is.md"))) records.push(record);
+        if (isTaskRecord(record) && (path === this.rootRecordPath || this.taskRecordNames.some((name) => path.endsWith(`/${name}`) || path.endsWith(`\\${name}`)) || path.endsWith("/as-is.md") || path.endsWith("\\as-is.md"))) records.push(record);
       } catch (error) {
         if (path === this.rootRecordPath) throw error;
         let raw = "";
@@ -522,7 +601,13 @@ export class ControlPlane {
   private recordFor(component: string): DurableRecord {
     let candidate = resolve(this.root, component);
     if (candidate === this.root && this.rootRecordPath) candidate = this.rootRecordPath;
-    else if (pathExistsAsDirectory(candidate)) candidate = join(candidate, "as-is.md");
+    else if (pathExistsAsDirectory(candidate)) {
+      const configured = join(candidate, this.taskRecordNames[0]);
+      if (existsSync(configured)) candidate = configured;
+      else if (existsSync(join(candidate, "as-is.json"))) {
+        throw new ControlPlaneError(`JSON-backed task is missing its configured Markdown narrative: ${candidate}`);
+      } else candidate = join(candidate, "as-is.md");
+    }
     const outside = relative(this.root, candidate);
     if (outside === ".." || outside.startsWith(`..${sep}`) || outside.startsWith(sep)) {
       throw new ControlPlaneError("component is outside the root task scope");
@@ -536,7 +621,18 @@ export class ControlPlane {
   }
 
   private rootRecord(): DurableRecord {
-    return loadRecord(this.rootRecordPath ?? join(this.root, "as-is.md"));
+    if (this.rootRecordPath) return loadRecord(this.rootRecordPath);
+    return loadRecord(join(this.root, "tasks.md"));
+  }
+
+  private rootConfiguration(): UnknownRecord {
+    const companionPath = join(this.root, "as-is.json");
+    if (existsSync(companionPath)) {
+      const configuration = readAsIsJson(companionPath).configuration;
+      return isMapping(configuration) ? configuration : {};
+    }
+    const legacy = loadRecord(this.rootRecordPath ?? join(this.root, "as-is.md")).data.config;
+    return isMapping(legacy) ? legacy : {};
   }
 
   private now(): string {
@@ -547,7 +643,7 @@ export class ControlPlane {
     const checkpoint = { ...event };
     checkpoint.checkpoint ??= this.now();
     const body = appendEvent(record.body, checkpoint);
-    atomicWrite(record.path, renderRecord(record, body, null, checkpoint.checkpoint));
+    persistRecord(record, body, null, checkpoint.checkpoint);
     return loadRecord(record.path);
   }
 
@@ -567,7 +663,7 @@ export class ControlPlane {
       throw new ControlPlaneError(`cannot transition ${JSON.stringify(record.status)} to ${JSON.stringify(status)}`);
     }
     const checkpoint = this.now();
-    atomicWrite(record.path, renderRecord(record, record.body, status, checkpoint));
+    persistRecord(record, record.body, status, checkpoint);
     return loadRecord(record.path);
   }
 
@@ -586,8 +682,7 @@ export class ControlPlane {
   }
 
   private rootMaxConcurrent(): number {
-    const config = this.rootRecord().data.config;
-    const configMap = isMapping(config) ? config : {};
+    const configMap = this.rootConfiguration();
     const scheduling = isMapping(configMap.scheduling) ? configMap.scheduling :
       (isMapping(configMap.tasks) && isMapping(configMap.tasks.scheduling) ? configMap.tasks.scheduling : {});
     const value = scheduling.maxConcurrentTasks;
@@ -638,9 +733,7 @@ export class ControlPlane {
 
   status(): UnknownRecord {
     const records = this.records();
-    const root = loadRecord(join(this.root, "as-is.md"));
-    const config = root.data.config;
-    const configMap = isMapping(config) ? config : {};
+    const configMap = this.rootConfiguration();
     const scheduling = isMapping(configMap.scheduling) ? configMap.scheduling :
       (isMapping(configMap.tasks) && isMapping(configMap.tasks.scheduling) ? configMap.tasks.scheduling : {});
     const configuredInterval = scheduling.checkInSeconds ?? (isMapping(configMap.tasks) && isMapping(configMap.tasks.scheduling) ? configMap.tasks.scheduling.checkInSeconds : undefined);
@@ -840,7 +933,10 @@ export class ControlPlane {
     if (target.directory === this.root) throw new ControlPlaneError("root task has no parent budget ceiling for an extension");
     const parentPath = dirname(target.directory) === this.root
       ? this.rootRecordPath ?? join(this.root, "as-is.md")
-      : join(dirname(target.directory), "as-is.md");
+      : (() => {
+        const configured = join(dirname(target.directory), this.taskRecordNames[0]);
+        return existsSync(configured) ? configured : join(dirname(target.directory), "as-is.md");
+      })();
     if (!existsSync(parentPath)) throw new ControlPlaneError(`parent task record does not exist: ${parentPath}`);
     const parent = loadRecord(parentPath);
     if (parent.path === target.path) {
@@ -877,7 +973,7 @@ export class ControlPlane {
     const nextParent = targetIsParent ? parent : this.writeEvent(parent, { ...decision, component: relative(parent.directory, target.directory).split(sep).join("/") });
     target = this.recordFor(relative(this.root, target.directory).split(sep).join("/"));
     const body = appendEvent(target.body, decision);
-    atomicWrite(target.path, renderRecord(target, body, "active", this.now(), { cost: nextCost, wall: nextWall }));
+    persistRecord(target, body, "active", this.now(), { cost: nextCost, wall: nextWall });
     return { decision: "approve", component: relative(this.root, target.directory).split(sep).join("/"), "parent-updated": nextParent.path, "allocated-cost": nextCost, "allocated-wall-clock": nextWall };
   }
 
@@ -915,8 +1011,39 @@ export class ControlPlane {
     record = this.writeEvent(record, { event: "completion-result", result });
     record = this.recordFor(component);
     const body = appendResult(record.body, result);
-    atomicWrite(record.path, renderRecord(record, body, null, this.now()));
+    persistRecord(record, body, null, this.now());
     this.transition(this.recordFor(component), "completed");
+  }
+
+  private childTaskData(options: {
+    childName: string;
+    worker: string;
+    updated: string;
+    allocatedCost: number;
+    costReserve: number;
+    allocatedWall: number;
+    wallReserve: number;
+    maximumDepth: number;
+    maximumChildren: number;
+    externalEffects: string;
+    requirement: string;
+    acceptance: string[];
+    parent: string;
+  }): UnknownRecord {
+    return {
+      task: {
+        status: "ready",
+        worker: options.worker,
+        updated: options.updated,
+        constraints: {
+          cost: { currency: "USD", allocated: options.allocatedCost, spent: 0, reserve: options.costReserve, source: "unavailable", "fallback-metric": "unavailable" },
+          delegation: { "maximum-depth": options.maximumDepth, "maximum-children": options.maximumChildren },
+          execution: { "wall-clock": { "allocated-seconds": options.allocatedWall, "spent-seconds": 0, "reserve-seconds": options.wallReserve, source: "unavailable" } },
+          "external-effects": options.externalEffects,
+        },
+        acceptance: options.acceptance,
+      },
+    };
   }
 
   private childRecordText(options: {
@@ -934,7 +1061,6 @@ export class ControlPlane {
     acceptance: string[];
     parent: string;
   }): string {
-    const acceptanceLines = options.acceptance.map((item) => `  - ${yamlQuote(item)}`).join("\n");
     const delegated = eventLine({
       event: "delegated",
       by: "parent-builder",
@@ -942,34 +1068,7 @@ export class ControlPlane {
       execution: "queued",
       maxConcurrentTasks: 1,
     });
-    return `---
-as-is-version: 2
-task:
-  status: ready
-  worker: ${yamlQuote(options.worker)}
-  updated: ${options.updated}
-constraints:
-  cost:
-    currency: USD
-    allocated: ${options.allocatedCost}
-    spent: 0
-    reserve: ${options.costReserve}
-    source: unavailable
-    fallback-metric: unavailable
-  delegation:
-    maximum-depth: ${options.maximumDepth}
-    maximum-children: ${options.maximumChildren}
-  execution:
-    wall-clock:
-      allocated-seconds: ${options.allocatedWall}
-      spent-seconds: 0
-      reserve-seconds: ${options.wallReserve}
-      source: unavailable
-  external-effects: ${options.externalEffects}
-acceptance:
-${acceptanceLines}
----
-# ${options.childName}
+    return `# ${options.childName}
 
 ## Purpose
 
@@ -1089,7 +1188,7 @@ configured leaf slot is available.
     try {
       mkdirSync(childDir);
       createdDir = true;
-      atomicWrite(join(childDir, "as-is.md"), this.childRecordText({
+      const childOptions = {
         childName: childDir.split(sep).pop()!,
         worker,
         updated: this.now(),
@@ -1103,7 +1202,10 @@ configured leaf slot is available.
         requirement: options.requirement,
         acceptance: options.acceptance,
         parent: relative(this.root, parentRecord.directory).split(sep).join("/") || ".",
-      }));
+      };
+      atomicWrite(join(childDir, "as-is.md"), `# ${childOptions.childName}\n\n## Purpose\n\nProvide a bounded child component for parent-builder delegation.\n`);
+      atomicWrite(join(childDir, "as-is.json"), `${JSON.stringify(this.childTaskData(childOptions), null, 2)}\n`);
+      atomicWrite(join(childDir, this.taskRecordNames[0]), this.childRecordText(childOptions));
     } catch (error) {
       if (createdDir) {
         try {

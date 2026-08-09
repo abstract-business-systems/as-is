@@ -1,62 +1,62 @@
-# Root `as-is.md` Configuration
+# Root `as-is.json` Configuration
 
-The root `as-is.md` front matter is the project configuration entry point. This
-document explains its structure and semantics; it does not hold a second copy of
-project configuration values. The active values belong in the root `as-is.md`.
+The root `as-is.json` companion is the project machine-configuration entry
+point. This document explains its structure and semantics; it does not hold a
+second copy of project configuration values. The active values belong in the
+root `as-is.json`. `as-is.md` remains the human-facing durable component map.
 
 ## Boundaries
 
 | Boundary | Location | Contents |
 | --- | --- | --- |
 | Bundle | Installed as-is distribution | Agents, skills, references, schemas, extensions, and host adapters. |
-| Project | Repository root `as-is.md` | Project configuration and durable root component context. |
-| Component | Component `as-is.md` | Durable component purpose, design, links, and changelog. |
-| Task | Component configured task-record filename (default `tasks.md`) | Transient active task state. |
+| Project configuration | Repository root `as-is.json` | Project machine configuration under `configuration`. |
+| Component context | Component `as-is.md` | Durable human purpose, design, boundaries, and links. |
+| Task metadata | Component `as-is.json` | Local transient task metadata under `task`; never cascades. |
+| Task narrative | Component configured task-record filename (default `tasks.md`) | Human-readable transient task context. |
 | Runtime | Private user or temporary state | Resolved runtime metadata, handles, logs, and disposable artifacts. |
 
 Runtime metadata is subordinate to repository records. It must not become a
 second configuration source, backlog, task tree, history, approval store, or
 completion authority.
 
-## Front Matter Structure
+## JSON Structure
 
-The root front matter contains repository configuration under `config`:
+The root companion contains repository configuration under `configuration`:
 
-```yaml
----
-as-is-version: 2
-config:
-  records:
-    filenames:
-      backlog: backlog.md
-      changelog: changelog.md
-      task: tasks.md
-  tasks: {}
-  scheduling: {}
-  notifications: {}
-  agents: {}
-  technology-preferences: {}
-  hitl: {}
-  logging: {}
-  observability: {}
----
+```json
+{
+  "configuration": {
+    "records": { "filenames": { "backlog": "backlog.md", "changelog": "changelog.md", "task": "tasks.md" } },
+    "tasks": {},
+    "scheduling": {},
+    "notifications": {},
+    "agents": {},
+    "technology-preferences": {},
+    "hitl": {},
+    "logging": {},
+    "observability": {}
+  },
+  "task": {}
+}
 ```
 
-`as-is-version` selects the task-record and front-matter schema. `config` holds
-the effective project settings. The current root record is the authoritative
-source for the values; this document describes their meaning only.
+`configuration` holds effective project settings. `task`, when present, is
+local transient metadata and is never inherited by descendants. The root
+companion is authoritative for machine-readable values; this document describes
+their meaning only.
 
 ## Configuration Areas
 
-- `config.records.filenames` — configurable component record filenames; defaults are `backlog.md`, `changelog.md`, and `tasks.md`.
-- `config.tasks` — default task-unit budgets and task execution limits.
-- `config.scheduling` — wake, check-in, concurrency, retry, and recovery policy.
-- `config.notifications` — material event notification behavior.
-- `config.agents` — default role, model presets, provider, and agent selection.
-- `config.technology-preferences` — preferred runtime and package manager.
-- `config.hitl` — conditions requiring human direction or approval.
-- `config.logging` — concise history verbosity and retention policy.
-- `config.observability` — tracing backend, enablement, and local fallback.
+- `configuration.records.filenames` — configurable component record filenames; defaults are `backlog.md`, `changelog.md`, and `tasks.md`.
+- `configuration.tasks` — default task-unit budgets and task execution limits.
+- `configuration.scheduling` — wake, check-in, concurrency, retry, and recovery policy.
+- `configuration.notifications` — material event notification behavior.
+- `configuration.agents` — default role, model presets, provider, and agent selection.
+- `configuration.technology-preferences` — preferred runtime and package manager.
+- `configuration.hitl` — conditions requiring human direction or approval.
+- `configuration.logging` — concise history verbosity and retention policy.
+- `configuration.observability` — tracing backend, enablement, and local fallback.
 
 Task records may carry task-specific constraints and permitted scoped narrowing,
 but they do not introduce another project configuration entry point. Component
@@ -71,23 +71,22 @@ defaults where the schema permits an override. A lower-authority setting cannot
 weaken a higher-authority constraint.
 
 Unknown or malformed core configuration fields must fail validation rather than
-silently changing behavior. Configuration changes must preserve the declared
-front-matter schema, remain in the root `as-is.md`, and be validated before an
-attempt uses them.
+silently changing behavior. Configuration changes must preserve the declared JSON shape, remain in the
+root `as-is.json`, and be validated before an attempt uses them.
 
 ## Runtime Resolution
 
 A host may derive an immutable resolved configuration for one bounded attempt and
 pass it to a detached worker. That copy is execution input, not policy authority.
 Environment variables may provide secrets or process facts, but do not override
-project policy. Secrets must not appear in front matter, task records, logs, or
+project policy. Secrets must not appear in JSON companion data, task narratives, logs, or
 other tracked artifacts.
 
 ### Global test and host environment variables
 
 These variables are process or host controls, not project configuration. They
 may be set in a user's global shell/profile or CI environment when appropriate;
-they should not be added to `as-is.md` or task records:
+they should not be added to `as-is.json`, `as-is.md`, or task records:
 
 | Variable | Effect | Default |
 | --- | --- | --- |

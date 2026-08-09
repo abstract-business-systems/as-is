@@ -169,7 +169,7 @@ test.skipIf(!liveEnabled)("component-builder live report-only orientation preser
     );
     const output = response(result);
     expect(output.text).toMatch(/active|task|orientation|next action|report/i);
-    expect(output.text).toMatch(/do not|not start|report-only|no change|no implementation|without modifying|nothing|preserve.*unchanged|stop here/i);
+    expect(output.text).toMatch(/do not|not start|report-only|no change|no implementation|without modifying|nothing/i);
     expect(output.text).not.toMatch(/implemented successfully|commit created|completed the change/i);
     assertUntouched(fixture, repositoryBefore);
   } finally {

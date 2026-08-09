@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { realpathSync } from "node:fs";
+import { readFileSync, realpathSync } from "node:fs";
 import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
 
 type JsonObject = Record<string, unknown>;
@@ -26,6 +26,10 @@ export type AsIsDataResult = {
   complete: boolean;
 };
 
+export function isTaskNarrativeFilename(value: unknown): value is string {
+  return typeof value === "string" && value.length > 0 && value === value.split("/").at(-1) && !value.includes("\\") && value !== "." && value !== ".." && value !== "as-is.md";
+}
+
 function isObject(value: unknown): value is JsonObject {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
@@ -48,8 +52,28 @@ function mergeConfiguration(target: JsonObject, source: JsonObject, sourceInfo: 
   }
 }
 
-async function readJson(path: string): Promise<unknown> {
-  return JSON.parse(await readFile(path, "utf8"));
+export function parseAsIsJson(text: string, path = "as-is.json"): JsonObject {
+  let value: unknown;
+  try {
+    value = JSON.parse(text);
+  } catch (error) {
+    throw new Error(`${path}: invalid JSON: ${error instanceof Error ? error.message : "unable to parse"}`);
+  }
+  if (!isObject(value)) throw new Error(`${path}: as-is.json must contain a JSON object.`);
+  for (const key of ["configuration", "task"]) {
+    if (value[key] !== undefined && !isObject(value[key])) {
+      throw new Error(`${path}: ${key} must be an object when present.`);
+    }
+  }
+  return value;
+}
+
+export function readAsIsJson(path: string): JsonObject {
+  return parseAsIsJson(readFileSync(path, "utf8"), path);
+}
+
+async function readJson(path: string): Promise<JsonObject> {
+  return parseAsIsJson(await readFile(path, "utf8"), path);
 }
 
 export async function resolveAsIsData(repositoryRoot: string, targetComponent: string): Promise<AsIsDataResult> {
@@ -88,10 +112,6 @@ export async function resolveAsIsData(repositoryRoot: string, targetComponent: s
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === "ENOENT") continue;
       diagnostics.push({ severity: "error", code: "invalid-json", path, message: error instanceof Error ? error.message : "Unable to read as-is.json." });
-      continue;
-    }
-    if (!isObject(value)) {
-      diagnostics.push({ severity: "error", code: "invalid-root", path, message: "as-is.json must contain a JSON object." });
       continue;
     }
     const sourceInfo: DataSource = { path, scope: directory === root ? "repository" : "component" };

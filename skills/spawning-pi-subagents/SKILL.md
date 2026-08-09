@@ -65,8 +65,8 @@ any agent that declares `call_subagent` may target any canonical
 lineage are diagnostic metadata rather than authorization gates. Target
 contracts and host safety profiles still apply. The `expert` validation role is
 the sole launcher-owned capability exception and always receives the fixed
-read-only `read,grep,find,ls,git_inspect` profile. Model policy is resolved from the root
-`as-is.md` `config.agents` section: `defaultModel`, `provider`, and the named
+read-only `read,grep,find,ls,git_inspect` profile. Model policy is resolved from root
+`as-is.json` `configuration.agents`: `defaultModel`, `provider`, and the named
 `models` map. Supported project presets are `small`, `medium`, `large`, and
 `xlarge`; the resulting model value and provider are passed explicitly to Pi.
 The launcher does not read model or provider policy from OpenCode configuration
@@ -252,7 +252,7 @@ contacts a provider.
 - Use `--approve` only when project-local files are explicitly trusted for that
   attempt. Do not place credentials or tokens in task arguments, task files, or
   output.
-- The launcher uses `--mode json` and `--print`; sessions are durable by default under the supervisor job directory, with `--no-session` providing ephemeral runs. The owning skill package supplies its Pi extension and dependencies through the supported package mechanism. The current adapter forwards explicit and agent-front-matter skill paths as a compatibility surface; the migration target is global skill availability, with no agent-front-matter selection or allowlist. The `analyze_session` tool uses the effective user's readable project-local session store, including the forwarded store scope for isolated children; it remains exact-ID, bounded, read-only metadata inspection and does not require tracer approval. It resolves model presets and providers from root `as-is.md`, passing explicit `--provider` and `--model`, and uses a shell-free child
+- The launcher uses `--mode json` and `--print`; sessions are durable by default under the supervisor job directory, with `--no-session` providing ephemeral runs. The owning skill package supplies its Pi extension and dependencies through the supported package mechanism. The current adapter forwards explicit and agent-front-matter skill paths as a compatibility surface; the migration target is global skill availability, with no agent-front-matter selection or allowlist. The `analyze_session` tool uses the effective user's readable project-local session store, including the forwarded store scope for isolated children; it remains exact-ID, bounded, read-only metadata inspection and does not require tracer approval. It resolves model presets and providers from root `as-is.json`, passing explicit `--provider` and `--model`, and uses a shell-free child
   process, and a private temporary system-prompt file. In both blocking and
   detach modes the child runs under a detached bounded job runner that is the
   child's direct parent, in an isolated git worktree pruned from the caller's

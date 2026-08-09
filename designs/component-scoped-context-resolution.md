@@ -85,10 +85,10 @@ recursive traversal deferred.
 ## Preparation-time `as-is.json` data
 
 `as-is.json` is an extensible machine-readable data holder paired with
-`as-is.md`; it is not required to have a fixed top-level schema. The first
-resolver slice is additive: the existing YAML front matter in the root
-`as-is.md` remains the authoritative project configuration source, and this
-resolver does not migrate or reinterpret it.
+`as-is.md`. Root `as-is.json.configuration` is the authoritative project
+machine-configuration source; `as-is.md` remains human-facing architecture and
+link context. `as-is.json.task`, when present, is local transient task metadata
+and is never part of inherited effective configuration.
 
 During preparation, the resolver may traverse the relevant repository-to-target
 component chain and read each available `as-is.json`. It produces an in-memory
@@ -104,7 +104,8 @@ The initial behavior is intentionally narrow:
 - unclassified data is preserved locally and is not automatically cascaded;
 - malformed applicable JSON produces an incomplete or failed result;
 - provenance and diagnostics accompany the result;
-- task records remain the authority for active task state;
+- local `as-is.json.task` metadata and the configured Markdown task narrative
+  together represent active task state; task metadata never cascades;
 - source files are never rewritten by resolution.
 
 The preparation result is execution input, not policy authority. A temporary

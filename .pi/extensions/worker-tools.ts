@@ -12,6 +12,7 @@ import {
 import { Type } from "../../skills/spawning-pi-subagents/node_modules/typebox";
 import { readFileSync } from "node:fs";
 import { boundedLimit } from "../../components/budget-control/budget.ts";
+import { readAsIsJson } from "../../components/as-is-data/resolver.ts";
 import { resolveLocalLinkedContext } from "../../components/linked-context/resolver.ts";
 import {
   emitTrace,
@@ -32,6 +33,16 @@ const defaultTimeoutMs = 60_000;
 const maximumTimeoutMs = 900_000;
 
 function taskWallClockRemaining(cwd: string): number | undefined {
+  try {
+    const task = readAsIsJson(join(cwd, "as-is.json")).task as Record<string, unknown> | undefined;
+    const wall = task?.constraints && typeof task.constraints === "object"
+      ? (task.constraints as Record<string, unknown>).execution as Record<string, unknown> | undefined
+      : undefined;
+    const values = wall?.["wall-clock"] as Record<string, unknown> | undefined;
+    if (typeof values?.["allocated-seconds"] === "number" && typeof values?.["spent-seconds"] === "number" && typeof values?.["reserve-seconds"] === "number") {
+      return Math.max(0, values["allocated-seconds"] - values["spent-seconds"] - values["reserve-seconds"]) * 1000;
+    }
+  } catch { /* legacy records use the YAML fallback below */ }
   for (const name of ["tasks.md", "task.md", "as-is.md"]) {
     try {
       const text = readFileSync(join(cwd, name), "utf8");

@@ -22,6 +22,22 @@
 
 # Changelog
 
+- 2026-08-15: Completed the root JSON companion-record foundation. Root
+  `as-is.json.configuration` now owns project machine configuration and local
+  `as-is.json.task` owns transient machine task metadata; root `as-is.md` and
+  `tasks.md` are front-matter-free human Markdown. The control plane, launcher,
+  tracer, orientation snapshot, and worker budget lookup consume the JSON path;
+  configured task filenames are honored for discovery, child creation,
+  orientation, and launcher handoff. New delegated children use JSON metadata
+  plus a configured Markdown narrative, while legacy YAML task records remain
+  read-compatible pending the owner-scoped inventory in
+  `designs/as-is-json-migration.md`. Focused deterministic validation passed
+  (67 pass, 0 fail, 368 assertions), three no-bundle builds passed, diff-check
+  passed, and the component-builder live suite passed (4 pass). Residual risk:
+  companion and narrative writes are not a crash-atomic multi-file transition;
+  a later task must define recovery or transactional cleanup before retiring
+  compatibility.
+
 - 2026-08-12: Completed the bounded trace-safety and budget-extension task.
   The control plane admits bounded parent-authorized extensions, the supervisor
   and launcher enforce normalized wall-clock limits, in-process worker calls are

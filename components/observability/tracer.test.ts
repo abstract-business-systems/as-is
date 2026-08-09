@@ -63,7 +63,7 @@ describe("universal local tracer", () => {
 
   test("writes to the configured file for any runtime event", async () => {
     const cwd = await mkdtemp(join(tmpdir(), "as-is-trace-"));
-    await writeFile(join(cwd, "as-is.md"), `config:\n  observability:\n    tracing:\n      backend: file\n      enabled: true\n      local-directory: .as-is/tracing.jsonl\n`);
+    await writeFile(join(cwd, "as-is.json"), JSON.stringify({ configuration: { observability: { tracing: { backend: "file", enabled: true, "local-directory": ".as-is/tracing.jsonl" } } } }));
     await emitTrace({ name: "control-plane.delegate", traceId: "trace-1", spanId: "span-1", attributes: { outcome: "success", secret: undefined } }, cwd);
     const lines = await readFile(join(cwd, ".as-is", "tracing.jsonl"), "utf8");
     expect(lines).toContain('"name":"control-plane.delegate"');

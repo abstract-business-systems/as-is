@@ -4,6 +4,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync, readdirSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { ControlPlane, type TaskSnapshot } from "../../../components/control-plane/control-plane";
+import { isTaskNarrativeFilename, readAsIsJson } from "../../../components/as-is-data/resolver";
 
 export type OrientationSnapshot = {
   root: { status: string; nextAction: string };
@@ -28,7 +29,15 @@ const walk = (root: string): string[] => {
 };
 
 const nextAction = (root: string): string => {
-  const taskPath = join(root, "tasks.md");
+  let taskName = "tasks.md";
+  try {
+    const configuration = readAsIsJson(join(root, "as-is.json")).configuration as Record<string, unknown>;
+    const records = configuration.records as Record<string, unknown> | undefined;
+    const filenames = records?.filenames as Record<string, unknown> | undefined;
+    if (filenames?.task !== undefined && !isTaskNarrativeFilename(filenames.task)) return "invalid configured task filename";
+    if (isTaskNarrativeFilename(filenames?.task)) taskName = filenames.task;
+  } catch { /* legacy projects use the default */ }
+  const taskPath = join(root, taskName);
   let text: string;
   try {
     text = readFileSync(taskPath, "utf8");

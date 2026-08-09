@@ -2,16 +2,22 @@
 
 ## Purpose
 
-Provide preparation-time resolution for distributed `as-is.json` data without
-replacing the existing YAML configuration authority in the root `as-is.md`.
+Provide preparation-time resolution for distributed `as-is.json` data, including
+root configuration and local transient task metadata, without replacing
+human-facing Markdown context.
 
 ## Design
 
 The resolver accepts a repository root and logical target component directory,
 then reads `as-is.json` files on the root-to-target directory chain. It produces
-an in-memory effective view. The `configuration` object cascades; other data
-remains local unless explicitly classified by a later policy. Source files are
-never rewritten and inherited values are never copied into them.
+an in-memory effective view. The `configuration` object cascades; `task` and
+other data remain local unless explicitly classified by a later policy. Source
+files are never rewritten and inherited values are never copied into them.
+
+`parseAsIsJson` and `readAsIsJson` provide the shared strict companion parser
+for central consumers. A present `configuration` or `task` value must be an
+object. `task` is local transient machine metadata; it is never an inherited
+configuration view.
 
 Malformed applicable JSON, unsafe target paths, and invalid configuration
 objects are reported through diagnostics and make the result incomplete.

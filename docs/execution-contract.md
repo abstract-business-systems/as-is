@@ -17,12 +17,12 @@ does not redefine the contract.
   The requested component `cwd` identifies the worker's target and default
   relative execution context; it does not redefine the project root or act as a
   security sandbox. Git metadata is not required for project-context discovery.
-- The root or component `as-is.md` record is the sole authoritative task state
-  and the authoritative input/output for its bounded task. No runtime index or
-  other backlog is a second authority. The orchestrator
-  supplies the worker that record plus the
-  centrally supplied repository instructions, applicable design principles,
-  and permitted skills.
+- A component task's authoritative state is its local `as-is.json.task` machine
+  metadata plus its configured front-matter-free Markdown task narrative. Root
+  and component `as-is.md` records remain durable human context. No runtime
+  index or backlog is a second authority. The orchestrator supplies the worker
+  those task artifacts plus centrally supplied repository instructions,
+  applicable design principles, and permitted skills.
 - The worker receives the component record, not a copied root record, a
   repository-wide prompt, or a private runtime snapshot. The record's
   `Requirement` names any necessary external dependency explicitly.
@@ -103,7 +103,7 @@ the attempt. It is private to the run, has restrictive permissions (normally
 workspace exposed to the worker. The supervisor records the workspace class,
 ownership, permission mode, and component/attempt association in a durable
 checkpoint. A workspace handle or private state remains supplementary evidence;
-the component record remains task authority. The worker must not silently widen
+the component task artifacts remain task authority. The worker must not silently widen
 the approved path or use an unrecorded workspace.
 
 The worker receives no hidden interactive prompt. The adapter closes or safely

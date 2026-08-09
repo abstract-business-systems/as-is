@@ -27,6 +27,16 @@ test("cascades configuration without copying inherited values", async () => {
   rmSync(root, { recursive: true, force: true });
 });
 
+test("keeps task local while cascading only configuration", async () => {
+  const root = fixture();
+  writeJson(join(root, "as-is.json"), { configuration: { agents: { defaultModel: "small" } }, task: { status: "active" } });
+  writeJson(join(root, "components", "child", "as-is.json"), { task: { status: "ready" } });
+  const result = await resolveAsIsData(root, "components/child");
+  expect(result.effective).toEqual({ configuration: { agents: { defaultModel: "small" } } });
+  expect(result.local.task).toEqual({ status: "ready" });
+  rmSync(root, { recursive: true, force: true });
+});
+
 test("keeps missing optional files valid and reports malformed applicable data", async () => {
   const root = fixture();
   writeFileSync(join(root, "as-is.json"), "not json");

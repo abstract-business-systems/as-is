@@ -7,6 +7,7 @@ import { boundedLimit } from "../../../components/budget-control/budget.ts";
 import { emitTrace, startSpan, serializeSessionReference, type SessionReference } from "../../../components/observability/tracer.ts";
 import { evaluateHandoffEligibility, type HandoffFacts } from "./handoff-eligibility.ts";
 import { resolveInstructionContext } from "../../../components/instruction-context/resolver.ts";
+import { isTaskNarrativeFilename, parseAsIsJson } from "../../../components/as-is-data/resolver.ts";
 
 type Options = {
   agent?: string;
@@ -343,15 +344,17 @@ type ProjectModelConfig = {
   };
 };
 
-// The launching client's cwd is the project-context origin. Walk upward to
-// the root record rather than requiring Git metadata or treating the target
-// component cwd as the project root.
-const isProjectRecord = (text: string): boolean => /^---\r?\n[\s\S]*^config:\r?\n/m.test(text);
+const object = (value: unknown): Record<string, unknown> =>
+  value !== null && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+const string = (value: unknown): string | undefined => typeof value === "string" ? value : undefined;
+
+// The launching client's cwd is the project-context origin. A project root is
+// the nearest ancestor whose companion data declares a configuration object.
 const findProjectRoot = async (clientCwd: string): Promise<string | undefined> => {
   let current = resolve(clientCwd);
   while (true) {
     try {
-      if (isProjectRecord(await readFile(join(current, "as-is.md"), "utf8"))) return current;
+      if (object(parseAsIsJson(await readFile(join(current, "as-is.json"), "utf8"), join(current, "as-is.json")).configuration)) return current;
     } catch { /* continue upward */ }
     const parent = dirname(current);
     if (parent === current) return undefined;
@@ -359,61 +362,29 @@ const findProjectRoot = async (clientCwd: string): Promise<string | undefined> =
   }
 };
 
-// Model policy belongs to the as-is system, not to a development host such as
-// OpenCode. Read only the root record supplied by the launching client.
-// The deliberately small parser covers the authored YAML configuration without
-// adding a YAML dependency to the launcher.
 const readProjectModelConfig = async (projectRoot: string): Promise<ProjectModelConfig> => {
-  const cwd = projectRoot;
-  let current = cwd;
-  while (true) {
-    try {
-      const text = await readFile(join(current, "as-is.md"), "utf8");
-      const config = text.match(/^config:\r?\n([\s\S]*?)(?=^task:|^---$)/m)?.[1] ?? "";
-      const configLines = config.split(/\r?\n/);
-      const agentStart = configLines.findIndex((line) => line === "  agents:");
-      const agentLines: string[] = [];
-      if (agentStart >= 0) {
-        for (const line of configLines.slice(agentStart + 1)) {
-          if (/^  [a-zA-Z][a-zA-Z-]*:/.test(line)) break;
-          agentLines.push(line);
-        }
-      }
-      const agents = agentLines.join("\n");
-      const defaultModel = agents.match(/^    defaultModel:\s*["']?([^"'\s#]+)["']?\s*$/m)?.[1];
-      const provider = agents.match(/^    provider:\s*["']?([^"'\s#]+)["']?\s*$/m)?.[1];
-      const modelsBlock = agents.match(/^    models:\r?\n((?:^      [^\r\n]+\r?\n?)+)/m)?.[1] ?? "";
-      const models: Record<string, string> = {};
-      for (const line of modelsBlock.split(/\r?\n/)) {
-        const match = line.match(/^      ([a-zA-Z0-9_-]+):\s*["']?(.+?)["']?\s*(?:#.*)?$/);
-        if (match) models[match[1]] = match[2].trim();
-      }
-      const recordNamesBlock = config.match(/^  records:\r?\n(?:^    filenames:\r?\n((?:^      [^\r\n]+\r?\n?)+))?/m)?.[1] ?? "";
-      const taskRecordNames = recordNamesBlock.split(/\r?\n/)
-        .map((line) => line.match(/^      task:\s*["']?([^"'\s#]+)["']?\s*$/)?.[1])
-        .filter((name): name is string => Boolean(name));
-      const tracer = config.match(/tracing:\r?\n((?:      [^\r\n]+\r?\n?)+)/m)?.[1] ?? "";
-      const backend = tracer.match(/^      backend:\s*["']?([^"'\s#]+)["']?\s*$/m)?.[1];
-      const enabledValue = tracer.match(/^      enabled:\s*(true|false)\s*$/m)?.[1];
-      const endpoint = tracer.match(/^      endpoint:\s*["']?([^"'\n]+?)["']?\s*$/m)?.[1];
-      const directory = tracer.match(/^      local-directory:\s*["']?([^"'\n]+?)["']?\s*$/m)?.[1];
-      return {
-        defaultModel,
-        models,
-        provider,
-        taskRecordNames,
-        componentBuildTracer: {
-          backend,
-          enabled: enabledValue === undefined ? undefined : enabledValue === "true",
-          endpoint,
-          directory,
-        },
-      };
-    } catch { /* continue upward */ }
-    const parent = dirname(current);
-    if (parent === current) return { models: {} };
-    current = parent;
+  const data = parseAsIsJson(await readFile(join(projectRoot, "as-is.json"), "utf8"), join(projectRoot, "as-is.json"));
+  const config = object(data.configuration);
+  const agents = object(config.agents);
+  const records = object(object(config.records).filenames);
+  const tracing = object(object(config.observability).tracing);
+  const models: Record<string, string> = {};
+  for (const [name, value] of Object.entries(object(agents.models))) if (typeof value === "string") models[name] = value;
+  if (records.task !== undefined && !isTaskNarrativeFilename(records.task)) {
+    throw new Error("configuration.records.filenames.task must be a safe task narrative filename");
   }
+  return {
+    defaultModel: string(agents.defaultModel),
+    models,
+    provider: string(agents.provider),
+    taskRecordNames: isTaskNarrativeFilename(records.task) ? [records.task] : undefined,
+    componentBuildTracer: {
+      backend: string(tracing.backend),
+      enabled: typeof tracing.enabled === "boolean" ? tracing.enabled : undefined,
+      endpoint: string(tracing.endpoint),
+      directory: string(tracing["local-directory"]),
+    },
+  };
 };
 const resolveModel = (value: string | undefined, config: ProjectModelConfig): { model?: string; provider?: string } => {
   const selected = value ?? config.defaultModel;
@@ -540,7 +511,8 @@ const removeWorktree = async (callerCwd: string, worktreePath: string): Promise<
   await gitIn(callerCwd, ["worktree", "remove", "--force", worktreePath]);
 };
 
-const taskRecordPathFor = (recordPath: string): string => join(dirname(recordPath), "tasks.md");
+const taskRecordPathFor = (recordPath: string, taskRecordNames?: readonly string[]): string =>
+  join(dirname(recordPath), taskRecordNames?.[0] ?? "tasks.md");
 const gitPathFor = (path: string, cwd: string): string => isAbsolute(path) ? relative(cwd, path) : path.replace(/^\.\//, "");
 
 const recordEvidenceFromText = (taskRaw: string | null, historyRaw: string | null): HandoffFacts["record"] & HandoffFacts["descendants"] => {
@@ -750,7 +722,7 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
   // `as-is.md` path identifies the component; `tasks.md` owns current task
   // status and handoff evidence. A disk copy or exit code is not durable
   // handoff evidence and must not make a result eligible.
-  const taskRecordPath = config.recordPath ? taskRecordPathFor(config.recordPath) : null;
+  const taskRecordPath = config.recordPath ? taskRecordPathFor(config.recordPath, config.contextTaskRecordNames) : null;
   const componentDirectory = config.recordPath ? dirname(config.recordPath) : null;
   const changelogPath = componentDirectory ? join(componentDirectory, "changelog.md") : null;
   const taskRaw = committed && taskRecordPath

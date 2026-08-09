@@ -80,6 +80,86 @@ function fixture(): { root: string; cleanup: () => void } {
   return { root, cleanup: () => rmSync(root, { recursive: true, force: true }) };
 }
 
+test("reads root task metadata from its JSON companion and a front-matter-free narrative", () => {
+  const root = mkdtempSync(join(tmpdir(), "control-plane-json-"));
+  try {
+    writeFileSync(join(root, "as-is.md"), "# Root\n", "utf8");
+    writeFileSync(join(root, "work.md"), "# Task\n\n## Purpose\nTest.\n\n## Requirement\nTest.\n\n## Plan\nTest.\n\n## Progress\nTest.\n\n## Validation\nTest.\n\n## Result\nTest.\n\n## Blockers And Escalations\nNone.\n\n## Recovery\nTest.\n\n## Next Action\nTest.\n", "utf8");
+    writeFileSync(join(root, "as-is.json"), JSON.stringify({
+      configuration: { records: { filenames: { task: "work.md" } }, scheduling: { maxConcurrentTasks: 1, checkInSeconds: 300 } },
+      task: {
+        status: "ready", worker: "component-builder", updated: "2026-07-26T17:00:00Z",
+        constraints: {
+          cost: { currency: "USD", allocated: 10, spent: 1, reserve: 1, source: "unavailable", "fallback-metric": "unavailable" },
+          delegation: { "maximum-depth": 0, "maximum-children": 0 },
+          execution: { "wall-clock": { "allocated-seconds": 100, "spent-seconds": 10, "reserve-seconds": 10, source: "unavailable" } },
+          "external-effects": "prohibited",
+        },
+        acceptance: ["A durable control-plane result."],
+      },
+    }), "utf8");
+    const control = new ControlPlane(root);
+    control.activate(".");
+    expect((control as any).recordFor(".").status).toBe("active");
+    expect(JSON.parse(readFileSync(join(root, "as-is.json"), "utf8")).task.status).toBe("active");
+    expect(readFileSync(join(root, "work.md"), "utf8")).not.toContain("---");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("rejects competing configured and legacy task narratives", () => {
+  const root = mkdtempSync(join(tmpdir(), "control-plane-competing-narratives-"));
+  try {
+    writeFileSync(join(root, "as-is.md"), "# Root\n", "utf8");
+    writeFileSync(join(root, "as-is.json"), JSON.stringify({ configuration: { records: { filenames: { task: "work.md" } } } }), "utf8");
+    writeFileSync(join(root, "work.md"), record(), "utf8");
+    writeFileSync(join(root, "tasks.md"), record(), "utf8");
+    const control = new ControlPlane(root);
+    expect(() => control.status()).toThrow("multiple task narratives");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("rejects JSON task metadata without its configured narrative", () => {
+  const root = mkdtempSync(join(tmpdir(), "control-plane-missing-narrative-"));
+  try {
+    writeFileSync(join(root, "as-is.md"), "# Root\n", "utf8");
+    writeFileSync(join(root, "as-is.json"), JSON.stringify({
+      configuration: { records: { filenames: { task: "work.md" } } },
+      task: { status: "ready", worker: "component-builder", updated: "2026-07-26T17:00:00Z", constraints: {}, acceptance: ["Test."] },
+    }), "utf8");
+    const control = new ControlPlane(root);
+    expect(() => control.activate(".")).toThrow("missing its configured Markdown narrative");
+    expect(readFileSync(join(root, "as-is.md"), "utf8")).toBe("# Root\n");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("rejects as-is.md as a task narrative filename", () => {
+  const root = mkdtempSync(join(tmpdir(), "control-plane-context-name-"));
+  try {
+    writeFileSync(join(root, "as-is.md"), "# Root\n", "utf8");
+    writeFileSync(join(root, "as-is.json"), JSON.stringify({ configuration: { records: { filenames: { task: "as-is.md" } } } }), "utf8");
+    expect(() => new ControlPlane(root)).toThrow("safe basename");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("rejects an unsafe configured task filename", () => {
+  const root = mkdtempSync(join(tmpdir(), "control-plane-unsafe-name-"));
+  try {
+    writeFileSync(join(root, "as-is.md"), "# Root\n", "utf8");
+    writeFileSync(join(root, "as-is.json"), JSON.stringify({ configuration: { records: { filenames: { task: "../escape.md" } } } }), "utf8");
+    expect(() => new ControlPlane(root)).toThrow("safe basename");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test("root activation resolves the existing transient root task record", () => {
   const fixtureRoot = fixture();
   try {
@@ -190,14 +270,15 @@ test("admits one component budget extension within the parent reserve", () => {
       wallReserve: 10,
     });
     control.activate("child-a");
+    expect((control.status() as { tasks: { path: string }[] }).tasks.filter((task) => task.path === "child-a")).toHaveLength(1);
     const questionId = control.recordQuestion("child-a", "Request more bounded budget");
     expect(questionId).toMatch(/^q-/);
     const result = control.extend("child-a", { cost: 2, wall: 20, recommendation: "approve", reason: "Remaining acceptance work is bounded." });
     expect(result.decision).toBe("approve");
-    const text = readFileSync(join(child, "as-is.md"), "utf8");
-    expect(text).toContain("allocated: 5");
-    expect(text).toContain("allocated-seconds: 50");
-    expect(text).toContain('"decision":"approve"');
+    const data = JSON.parse(readFileSync(join(child, "as-is.json"), "utf8"));
+    expect(data.task.constraints.cost.allocated).toBe(5);
+    expect(data.task.constraints.execution["wall-clock"]["allocated-seconds"]).toBe(50);
+    expect(readFileSync(join(child, "tasks.md"), "utf8")).toContain('"decision":"approve"');
     expect((control as any).recordFor("child-a").status).toBe("active");
     expect(readFileSync(join(fixtureRoot.root, "as-is.md"), "utf8")).toContain('"event":"budget-extension-decision"');
   } finally {
@@ -264,7 +345,7 @@ test("runs the CLI extension flow against live component records", async () => {
     expect(extended.exitCode).toBe(0);
     const result = JSON.parse(extended.stdout);
     expect(result.decision).toBe("approve");
-    expect(readFileSync(join(fixtureRoot.root, "child-a", "as-is.md"), "utf8")).toContain("allocated: 5");
+    expect(JSON.parse(readFileSync(join(fixtureRoot.root, "child-a", "as-is.json"), "utf8")).task.constraints.cost.allocated).toBe(5);
     expect((new ControlPlane(fixtureRoot.root) as any).recordFor("child-a").status).toBe("active");
   } finally {
     fixtureRoot.cleanup();

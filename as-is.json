@@ -1,0 +1,58 @@
+{
+  "configuration": {
+    "records": {
+      "filenames": {
+        "backlog": "backlog.md",
+        "changelog": "changelog.md",
+        "task": "tasks.md"
+      }
+    },
+    "tasks": {
+      "unitBudget": {
+        "wallClockSeconds": 300,
+        "costUsd": 0.5
+      }
+    },
+    "scheduling": {
+      "wakeSeconds": 60,
+      "checkInSeconds": 300,
+      "maxConcurrentTasks": 1,
+      "retryBackoffSeconds": 300,
+      "maxRecoveryAttempts": 2
+    },
+    "notifications": {
+      "materialEvents": true
+    },
+    "agents": {
+      "defaultRole": "as-is",
+      "defaultModel": "small",
+      "provider": "openrouter",
+      "models": {
+        "small": "@preset/abs-small",
+        "medium": "@preset/abs-medium",
+        "large": "@preset/abs-large",
+        "xlarge": "@preset/abs-xlarge"
+      }
+    },
+    "technology-preferences": {
+      "runtime": "bun",
+      "package-manager": "bun"
+    },
+    "hitl": {
+      "onBlocked": true,
+      "onBudgetExceeded": true,
+      "onExternalEffect": true
+    },
+    "logging": {
+      "level": "info",
+      "retainDays": 30
+    },
+    "observability": {
+      "tracing": {
+        "backend": "file",
+        "enabled": true,
+        "local-directory": ".as-is/tracing.jsonl"
+      }
+    }
+  }
+}

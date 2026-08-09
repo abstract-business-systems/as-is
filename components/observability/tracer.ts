@@ -104,16 +104,15 @@ export function otlpPayload(event: TraceEvent) {
 
 async function projectConfig(cwd: string): Promise<TracerConfig> {
   try {
-    const text = await Bun.file(resolve(cwd, "as-is.md")).text();
-    const block = text.match(/tracing:\r?\n((?:      [^\r\n]+\r?\n?)+)/m)?.[1] ?? "";
-    const value = (name: string) => block.match(new RegExp(`^      ${name}:\\s*[\\"']?([^\\"'\\s#]+)[\\"']?\\s*$`, "m"))?.[1];
+    const data = JSON.parse(await Bun.file(resolve(cwd, "as-is.json")).text()) as { configuration?: { observability?: { tracing?: Record<string, unknown> } } };
+    const tracing = data.configuration?.observability?.tracing ?? {};
     return {
-      backend: value("backend"),
-      enabled: value("enabled") === "true" ? true : value("enabled") === "false" ? false : undefined,
-      endpoint: value("endpoint"),
-      directory: value("local-directory"),
-      maxFileBytes: Number(value("max-file-bytes")) || undefined,
-      retentionDays: Number(value("retention-days")) || undefined,
+      backend: typeof tracing.backend === "string" ? tracing.backend : undefined,
+      enabled: typeof tracing.enabled === "boolean" ? tracing.enabled : undefined,
+      endpoint: typeof tracing.endpoint === "string" ? tracing.endpoint : undefined,
+      directory: typeof tracing["local-directory"] === "string" ? tracing["local-directory"] : undefined,
+      maxFileBytes: typeof tracing["max-file-bytes"] === "number" ? tracing["max-file-bytes"] : undefined,
+      retentionDays: typeof tracing["retention-days"] === "number" ? tracing["retention-days"] : undefined,
     };
   } catch {
     return {};
