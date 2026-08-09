@@ -36,3 +36,10 @@
 - 2026-08-13: Added a direct, explicitly authorized parent-side handoff eligibility gate. Finished launcher jobs now remain `incomplete` unless durable task completion, validation, expert/result evidence, terminal descendant closure, scoped commit, and caller-HEAD ancestry all pass; pending-parent-integration and unreachable ancestry remain blockers. Validation: focused launcher tests passed (28 tests, 197 assertions), Bun build passed, and `git diff --check` passed. Residual risk: launcher evidence extraction is bounded text evidence; full task schema and descendant validation remain owned by task management and parent procedures. No descendants were launched.
 
 - Completed backlog dependency normalization for `agent-agnostic-launcher-dispatch`, `skill-owned-package-dependencies`, `pi-version-aligned-subagent-tools`, and `package-owned-subagent-extension`; structured cells now use `component:id` or `-`, with uncertain original prose retained in notes. Validation: `bun test skills/managing-backlog/query.test.ts` (10 passed) and `git diff --check` passed. Parent integration remains pending.
+
+## 2026-08-15 — Legacy record migration
+
+- **Component:** Launcher Host-Config Resolution And Run Observability.
+- **Result:** Completed. Validation evidence: Bun build succeeded; dry-run resolved the root `small` preset with explicit provider/model args; unknown literal model values pass through; and `git diff --check` was clean.
+- **Validation retained:** - `--dry-run` shows `model` resolved from the root `small` preset and an explicit provider field. - A non-alias model value passes through literally without error. - A child launch runs with `PI_PROVIDER` and `PI_MODEL` unset in the inherited environment (provider+model come from config/agent file). - A real run writes a session file by default; `--no-session` opts out. - `bun build` and the launcher test suite pass; `opencode agent list` still…
+- **Record migration:** Removed completed transient task narrative from `as-is.md`; Git history retains the original detailed evidence.

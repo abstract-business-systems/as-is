@@ -2,8 +2,7 @@
 
 ## Purpose
 
-Provide supplementary execution telemetry and trace query support without
-becoming task, job, validation, recovery, or completion authority.
+Provide supplementary execution telemetry and trace query support without becoming task, job, validation, recovery, or completion authority.
 
 ## Design
 

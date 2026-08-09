@@ -11,6 +11,6 @@ Task records and the control plane remain budget authority. This component does
 not store allocations, approve extensions, or enforce monetary cost. Unknown
 provider observations remain unavailable/unknown.
 
-## Validation
+## Links
 
-See `budget.test.ts` and the consuming control-plane and supervisor tests.
+- `changelog.md` — concise completed-task history.

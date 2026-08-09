@@ -5,47 +5,6 @@
 Provide a discoverable component for enduring architecture, protocol, and
 execution design documents.
 
-## Requirement
-Resolve the independent-delegation design's remaining budget-holder decision.
-The per-child detached supervisor is authoritative for wall-clock enforcement
-and budget-stop ownership; update the subject design and any directly stale
-design cross-references without implementing runtime behavior. Preserve the
-design documents' grouping and authority rules. Backlog planning remains at
- the repository root; this folder does not own a separate backlog.
-
-## Plan
-1. Inspect the independent-delegation open decision and related execution
-   design language.
-2. Resolve budget ownership in the subject design and remove contradictory
-   open-decision wording.
-3. Validate references and whitespace, then commit the bounded design handoff.
-
-## Progress
-The independent-delegation specification already describes a per-child
-supervisor as the recommended budget holder and the execution-foundation
-component records detached supervisor budget observations. The remaining work
-is to promote that recommendation to the authoritative design decision and
-ensure the grouped design entry point records the resolution.
-
-## Validation
-Focused design-reference searches found no active `as-is -> orchestrator ->
-implementer` chain in the grouped designs after updating the remaining
-orchestration reference. `git diff --check` passed. No runtime files or sibling
-component records are changed.
-
-## Result
-The per-child detached supervisor is the authoritative budget holder for
-independent delegation. The prior open decision is closed, with cost
-self-limiting explicitly retained as a host-observability limitation.
-
-## Blockers And Escalations
-None. Residual risk is limited to historical prose that may require canonical
-terminology updates.
-
-## Recovery
-Use this record and the moved design documents. A design that becomes part of a
-built component should be relocated only through a bounded maintenance record.
-
 ## Links
 - `execution-accounting-design.md` — execution accounting design.
 - `orchestration-design.md` — orchestration design.
@@ -53,10 +12,6 @@ built component should be relocated only through a bounded maintenance record.
 - `model-simplicity-guidance.md` — guidance for model-assisted coding to
   prefer simple central ownership over duplicated local solutions. Its open
   implementation item is recorded in the root [`backlog.md`](../backlog.md).
-
-## Next Action
-The model-simplicity guidance is ready for a bounded implementation task at the
-responsible component; no implementation is authorized by this design record.
 
 ## Changelog
 

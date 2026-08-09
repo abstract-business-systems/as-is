@@ -44,8 +44,8 @@ atomic cleanup.
 
 ## Migration Completion Gate
 
-All repository durable `as-is.md` records are front-matter-free, and central
-runtime consumers reject legacy YAML task records. Remaining work is to migrate
-legacy YAML literals in behavioral and integration test fixtures, plus the
-tracked dummy-delegation fixture, to JSON-companion fixture helpers before
-claiming the repository contains no legacy task representation.
+All repository durable `as-is.md` records are front-matter-free. Central runtime
+consumers reject legacy YAML task records, and repository-owned behavioral,
+integration, supervisor, launcher, validator, and delegation fixtures use JSON
+companions with front-matter-free task narratives. Legacy YAML compatibility is
+retired; deliberate rejection tests remain as regression coverage.

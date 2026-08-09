@@ -72,3 +72,10 @@ integration remain the parent responsibility.
 Result: completed; no descendants. Recovery checkpoint is the scoped diff in
 `agents/component-builder/agent.md` and this changelog entry. Next action is
 scoped commit handoff.
+
+## 2026-08-15 — Legacy record migration
+
+- **Component:** component-builder Orientation.
+- **Result:** Completed the bounded orientation snapshot and contract update. No child records or descendants were created; all acceptance work is terminal.
+- **Validation retained:** - The component-builder contract file contains the orientation line and the report-only handling note. - `opencode agent list` discovers `component-builder (subagent)`. - The agent file front-matter is valid with no duplicated fragment. - `bun test skills/as-is/scripts/orient.test.ts` passed (1 test). - `bun build --no-bundle --target bun --outfile /tmp/orient.js skills/as-is/scripts/orient.ts` passed. - `git diff --check` passed.
+- **Record migration:** Removed completed transient task narrative from `as-is.md`; Git history retains the original detailed evidence.

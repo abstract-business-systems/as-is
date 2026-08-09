@@ -11,3 +11,10 @@
 - 2026-08-11: Renamed and broadened the execution-evidence skill to cover bounded trace queries and metadata-only Pi session analysis. It filters unsafe results, separates observations from inferences and sources, and preserves task/control-plane authority. Structural checks and fresh expert validation passed; no raw session content became trace payload.
 - 2026-08-04: Added the skills-component backlog and aligned the four approved root concepts—deterministic-skills, presentation-guidance, building-components, and as-is-routed-current-session-delegation—with corrected bounded outcomes, dependencies, acceptance conditions, and open status. No backlog item was implemented.
 - 2026-08-06: Added `building-components/SKILL.md`, a reusable bounded component build and handoff procedure preserving task-record authority, configured-agent delegation boundaries, expert gates, validation evidence, recovery, and scoped commits. Plan review passed; final expert review initially caught and then approved correction of the component-builder link. `git diff --check` and staged diff checks passed. Safe to commit; no runtime behavior changed.
+
+## 2026-08-15 — Legacy record migration
+
+- **Component:** Skills.
+- **Result:** Completed the skills-scope documentation record and authority rule.
+- **Validation retained:** Root integration should validate task-record structure, links, naming, and `git diff --check`. No runtime behavior is changed.
+- **Record migration:** Removed completed transient task narrative from `as-is.md`; Git history retains the original detailed evidence.
