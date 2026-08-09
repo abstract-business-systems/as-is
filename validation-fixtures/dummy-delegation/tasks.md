@@ -1,32 +1,3 @@
----
-as-is-version: 2
-task:
-  status: completed
-  worker: component-builder
-  updated: 2026-08-06T01:15:00Z
-constraints:
-  cost:
-    currency: USD
-    allocated: 0.05
-    spent: 0.00
-    reserve: 0.02
-    source: unavailable
-    fallback-metric: validation elapsed-seconds
-  delegation:
-    maximum-depth: 1
-    maximum-children: 1
-  execution:
-    wall-clock:
-      allocated-seconds: 30
-      spent-seconds: 0
-      reserve-seconds: 10
-      source: unavailable
-  external-effects: prohibited
-acceptance:
-  - The deterministic dummy delegation rehearsal has a bounded, scoped handoff.
-  - Focused validation proves an as-is caller launches exactly one component-builder attempt with caller identity, record path, budgets, and finished registry evidence.
-  - The task record remains the authoritative protocol source; process exit is not completion evidence.
----
 # Dummy Delegation Task
 
 ## Requirement

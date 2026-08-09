@@ -43,8 +43,8 @@ test("as-is delegates one bounded component-builder attempt with durable evidenc
     const child = launches.find((event) => event.identity === "component-builder");
     expect(child).toMatchObject({ identity: "component-builder", caller: "as-is", recordPath: record });
     expect(finishes.find((event) => event.jobId === child?.jobId)).toMatchObject({ exitCode: 0 });
-    // The task record, not process exit, is the durable protocol source supplied to the child.
-    expect(readFileSync(record, "utf8")).toContain("status: completed");
+    // The JSON companion, not process exit, is the durable protocol source supplied to the child.
+    expect(JSON.parse(readFileSync(resolve("validation-fixtures/dummy-delegation/as-is.json"), "utf8")).task.status).toBe("completed");
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

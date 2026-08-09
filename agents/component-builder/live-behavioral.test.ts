@@ -40,9 +40,13 @@ function makeFixture(name: string, requirement: string): Fixture {
   const directory = mkdtempSync(join(tmpdir(), `component-builder-live-${name}-`));
   const record = join(directory, "tasks.md");
   const source = join(directory, "fixture.md");
-  writeFileSync(join(directory, "as-is.md"), `---\nas-is-version: 2\n---\n# Disposable Fixture\n\n## Purpose\nA disposable component-builder behavioral fixture.\n\n## Boundary\nOnly this temporary directory is in scope.\n`);
+  writeFileSync(join(directory, "as-is.md"), "# Disposable Fixture\n\n## Purpose\nA disposable component-builder behavioral fixture.\n\n## Boundary\nOnly this temporary directory is in scope.\n");
+  writeFileSync(join(directory, "as-is.json"), JSON.stringify({
+    configuration: { records: { filenames: { task: "tasks.md" } }, agents: { defaultModel: "medium", provider: "openrouter", models: { medium: "@preset/abs-medium" } } },
+    task: { status: "active", worker: "component-builder", updated: "2026-08-06T23:20:00Z", constraints: { cost: { currency: "USD", allocated: 0.10, spent: 0, reserve: 0.02, source: "host-reported", "fallback-metric": "validation elapsed-seconds" }, delegation: { "maximum-depth": 0, "maximum-children": 0 }, execution: { "wall-clock": { "allocated-seconds": 45, "spent-seconds": 0, "reserve-seconds": 10, source: "host-reported" } }, "external-effects": "prohibited" }, acceptance: ["Return a bounded report without changing the fixture."] },
+  }));
   writeFileSync(source, "# Preserved fixture\n\nThis file must remain byte-for-byte unchanged.\n");
-  writeFileSync(record, `---\nas-is-version: 2\ntask:\n  status: active\n  # The configured worker is the component-builder under test; behavior must not depend on another role's output.\n  worker: component-builder\n  updated: 2026-08-06T23:20:00Z\nconstraints:\n  cost:\n    currency: USD\n    allocated: 0.10\n    spent: 0.00\n    reserve: 0.02\n    source: host-reported\n    fallback-metric: validation elapsed-seconds\n  delegation:\n    maximum-depth: 0\n    maximum-children: 0\n  execution:\n    wall-clock:\n      allocated-seconds: 45\n      spent-seconds: 0\n      reserve-seconds: 10\n      source: host-reported\n  external-effects: prohibited\nacceptance:\n  - Return a bounded report without changing the fixture.\n---\n\n# Disposable Task\n\n## Requirement\n${requirement}\n\n## Validation\nNo implementation validation has been run.\n`);
+  writeFileSync(record, `# Disposable Task\n\n## Requirement\n${requirement}\n\n## Validation\nNo implementation validation has been run.\n`);
   return {
     directory,
     launchCwd: root,
@@ -137,7 +141,7 @@ test.skipIf(!liveEnabled)("component-builder resolves explicitly linked parent c
   const parent = join(fixture.directory, "parent");
   mkdirSync(parent);
   writeFileSync(join(parent, "design.md"), "# Parent design\n\nUse a compact advisory report.\n");
-  writeFileSync(join(fixture.directory, "as-is.md"), `---\nas-is-version: 2\nconfig:\n  records:\n    filenames:\n      task: tasks.md\n  agents:\n    defaultModel: medium\n    provider: openrouter\n    models:\n      medium: "@preset/abs-medium"\n---\n# Disposable Fixture\n\n- [Parent design](parent/design.md)\n`);
+  writeFileSync(join(fixture.directory, "as-is.md"), "# Disposable Fixture\n\n- [Parent design](parent/design.md)\n");
   symlinkSync(join(root, ".pi"), join(fixture.directory, ".pi"));
   symlinkSync(join(root, "skills"), join(fixture.directory, "skills"));
   fixture.launchCwd = fixture.directory;
