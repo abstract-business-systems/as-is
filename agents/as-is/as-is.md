@@ -103,11 +103,3 @@ component boundary.
 - The initial component checkout includes the complete relevant component folder,
   including child component directories. Sparse checkout and mechanical child
   exclusion are deferred until evidence demonstrates a need.
-
-## Changelog
-
-The historical task-form content previously embedded in this file was migrated
-to the current component model using recovery evidence from commit `b3a86eae`
-and the available sibling worktree. Its necessary recovery facts are retained
-in `changelog.md`; the current task authority is the configured transient
-`tasks.md` record, not this durable context file.
