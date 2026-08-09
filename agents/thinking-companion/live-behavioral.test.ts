@@ -36,7 +36,7 @@ test("thinking-companion launcher exposes a bounded non-authoritative profile", 
   ], { cwd: root, encoding: "utf8" });
   expect(result.status).toBe(0);
   const parsed = JSON.parse(result.stdout);
-  expect(parsed.tools).toBe("read,grep,find,ls,call_subagent");
+  expect(parsed.tools).toBe("read,grep,find,ls,call_subagent,resolve_component_context");
   expect(parsed.worktree).toBe(true);
 });
 

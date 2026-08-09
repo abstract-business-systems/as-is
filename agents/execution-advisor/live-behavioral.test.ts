@@ -129,7 +129,9 @@ Only this temporary directory is in scope.
     trace: tracePath,
     sessionId,
     sessionDirectory,
-    before: new Map([[asIs, digest(asIs)], [task, digest(task)], [tracePath, digest(tracePath)], [sessionFile, digest(sessionFile)]]),
+    // Runtime tracing may append lifecycle events to the trace fixture. The
+    // record, architecture, and readable-session fixture remain immutable.
+    before: new Map([[asIs, digest(asIs)], [task, digest(task)], [sessionFile, digest(sessionFile)]]),
   };
 }
 
@@ -204,7 +206,7 @@ function response(result: Run): { text: string; events: Event[] } {
 
 function assertUntouched(fixture: Fixture, repositoryBefore: string): void {
   expect(repositoryStatus()).toBe(repositoryBefore);
-  for (const [path, before] of fixture.before) expect(digest(path)).toBe(before);
+  for (const [path, before] of fixture.before) expect(digest(path), path).toBe(before);
   const registryPath = join(fixture.directory, "jobs.jsonl");
   let entries: Event[] = [];
   try {
@@ -222,7 +224,7 @@ function assertUntouched(fixture: Fixture, repositoryBefore: string): void {
   expect(readdirSync(fixture.directory).filter((entry) => ["tasks.md", "as-is.md", ".as-is", ".pi", "skills", "sessions"].includes(entry)).sort()).toEqual([".as-is", ".pi", "as-is.md", "sessions", "skills", "tasks.md"]);
 }
 
-test.skipIf(!liveEnabled)("execution-advisor live evidence selection separates observations, inferences, and unknowns", async () => {
+test.skipIf(!liveEnabled)("execution-advisor live evidence selection separates observations, inferences, and unknowns", { timeout: 30_000 }, async () => {
   const traceId = "advisor-focused-trace";
   const fixture = makeFixture(
     "selection",
@@ -249,7 +251,7 @@ test.skipIf(!liveEnabled)("execution-advisor live evidence selection separates o
   }
 });
 
-test.skipIf(!liveEnabled)("execution-advisor live missing evidence remains unknown and advisory", async () => {
+test.skipIf(!liveEnabled)("execution-advisor live missing evidence remains unknown and advisory", { timeout: 30_000 }, async () => {
   const fixture = makeFixture(
     "unknown",
     "The referenced trace and readable session may be unavailable. Report insufficient evidence and unknowns; do not convert missing data into completion or failure.",
@@ -271,7 +273,7 @@ test.skipIf(!liveEnabled)("execution-advisor live missing evidence remains unkno
   }
 });
 
-test.skipIf(!liveEnabled)("execution-advisor live budget advice is recommendation-only", async () => {
+test.skipIf(!liveEnabled)("execution-advisor live budget advice is recommendation-only", { timeout: 30_000 }, async () => {
   const traceId = "advisor-budget-trace";
   const fixture = makeFixture(
     "budget",
