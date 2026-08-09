@@ -1178,6 +1178,9 @@ export function main(argv: string[] = process.argv.slice(2)): number {
       if (command === "answer") control.answerQuestion(positional[1] ?? "", positional[2] ?? "", positional[3] ?? "", { direction: parsed.flags.has("direction"), proposedConstraints: proposal });
       else control.approve(positional[1] ?? "", positional[2] ?? "", positional[3] ?? "", { proposedConstraints: proposal });
       jsonPrint({ status: "active", component: positional[1] });
+    } else if (command === "admit-launch") {
+      const budget = control.admitLaunch(positional[1] ?? "", Number(parsed.values.get("wall-clock")?.[0]), Number.isNaN(Number(parsed.values.get("cost")?.[0])) ? undefined : Number(parsed.values.get("cost")?.[0]));
+      jsonPrint(budget);
     } else if (command === "extend") {
       const recommendation = parsed.values.get("recommendation")?.[0] as "approve" | "reject" | "insufficient-evidence";
       if (!["approve", "reject", "insufficient-evidence"].includes(recommendation)) throw new ControlPlaneError("--recommendation must be approve, reject, or insufficient-evidence");

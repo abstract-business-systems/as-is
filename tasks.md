@@ -78,6 +78,8 @@ Passed:
 - `bun test components/control-plane/control-plane.test.ts` — 7 passed, 40 expectations, including approval within reserve and reserve rejection.
 - `bun test components/observability/tracer.test.ts components/observability/lifecycle-hierarchy.test.ts` — 9 passed, 46 expectations.
 - `bun build components/control-plane/control-plane.ts --target bun --outfile /tmp/as-is-control-plane-build.js` — successful.
+- `bun test components/control-plane/control-plane.test.ts components/budget-control/budget.test.ts` — 14 passed, 61 expectations.
+- `bun test components/subprocess-execution-foundation/supervisor.test.ts skills/spawning-pi-subagents/scripts/spawn-pi-subagent.test.ts` — 41 passed, 331 expectations.
 - `git diff --check` — passed.
 - `bun test components/budget-control/budget.test.ts components/control-plane/control-plane.test.ts components/subprocess-execution-foundation/supervisor.test.ts` — 23 passed, 175 expectations.
 - `bun build components/budget-control/budget.ts --target bun --outfile /tmp/as-is-budget-build.js` — successful.
@@ -116,7 +118,8 @@ record-to-launcher budget loading is not automatic by design. The control plane
 now exposes `admitLaunch()`, which returns a normalized
 `EffectiveLaunchBudget` without exposing task-record parsing to the launcher.
 The generic launcher can consume the returned wall-clock value and remains
-unaware of component records.
+unaware of component records. Component-builder guidance now requires this
+control-plane admission before forwarding a child launch limit.
 
 Residual risk: the directory lock
 is a small-process lock and reports busy rather than waiting; it protects the

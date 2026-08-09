@@ -52,9 +52,12 @@ the role retains the authority decisions those skills cannot make.
 2. Apply `building-components`, `implementing-component-tasks`, and
    `verification-discipline`. Before child launch, verify the child revision has
    no active attempt, subtract local spent/reserve from available cost and time,
-   forward approved budgets, and record any excess as a blocker or approval
-   request. Schedule siblings only when boundaries, dependencies, and budgets
-   are independent.
+   and obtain the normalized wall-clock limit from the control plane's
+   `admitLaunch()` operation. Forward that approved limit to
+   `spawn-pi-subagent.ts` as `--budget-wall-clock-seconds`; do not make the
+   generic launcher parse task records. Record any excess as a blocker or
+   approval request. Schedule siblings only when boundaries, dependencies, and
+   budgets are independent.
 3. After checks pass, obtain fresh attributable expert validation of the actual
    diff and evidence. It must explicitly say whether the change is safe to
    commit. Record validation, source-labelled cost/time observations when

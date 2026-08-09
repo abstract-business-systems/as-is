@@ -232,6 +232,19 @@ async function runControlPlane(root: string, command: string, ...args: string[])
   return { exitCode: await process.exited, stdout, stderr };
 }
 
+test("runs the CLI launch-admission flow against live component records", async () => {
+  const fixtureRoot = fixture();
+  try {
+    const process = Bun.spawn(["bun", join(import.meta.dir, "control-plane.ts"), "admit-launch", fixtureRoot.root, ".", "--wall-clock", "900", "--cost", "0.5"], { stdout: "pipe", stderr: "pipe" });
+    const [stdout, stderr] = await Promise.all([new Response(process.stdout).text(), new Response(process.stderr).text()]);
+    expect(await process.exited).toBe(0);
+    expect(stderr).toBe("");
+    expect(JSON.parse(stdout)).toEqual({ wallClockSeconds: 80, costUsd: 0.5, source: "control-plane" });
+  } finally {
+    fixtureRoot.cleanup();
+  }
+});
+
 test("runs the CLI extension flow against live component records", async () => {
   const fixtureRoot = fixture();
   try {
