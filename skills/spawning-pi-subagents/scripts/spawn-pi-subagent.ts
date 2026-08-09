@@ -957,8 +957,14 @@ const printJobs = async (): Promise<void> => {
           raw = await readFile(recordPath, "utf8");
         }
         if (raw) {
-          const match = raw.match(/^  status: (.+)$/m);
-          if (match) recordStatus = match[1].trim();
+          const companionPath = join(dirname(recordPath), "as-is.json");
+          if (existsSync(companionPath)) {
+            const companion = parseAsIsJson(await readFile(companionPath, "utf8"), companionPath);
+            if (companion.task && typeof companion.task === "object" && !Array.isArray(companion.task)) {
+              const status = (companion.task as Record<string, unknown>).status;
+              if (typeof status === "string") recordStatus = status;
+            }
+          }
         }
       } catch {
         /* leave "-" */

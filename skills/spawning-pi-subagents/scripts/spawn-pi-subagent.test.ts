@@ -646,18 +646,13 @@ test("--jobs reports an exit-0 job as incomplete without handoff evidence", asyn
     const env = { ...process.env, AS_IS_JOBS_REGISTRY: registry };
     // A hermetic temp record with a distinctive status so the record-join is
     // provably exercised (proc-status completed, record-status blocked).
-    const recordPath = join(dir, "component.as-is.md");
-    writeFileSync(recordPath, [
-      "---",
-      "as-is-version: 2",
-      "task:",
-      "  status: blocked",
-      "  worker: component-builder",
-      "  updated: 2026-07-28T02:30:00Z",
-      "---",
-      "# temp component record",
-      "",
-    ].join("\n"));
+    const recordPath = join(dir, "tasks.md");
+    writeFileSync(join(dir, "as-is.md"), "# Temp component\n");
+    writeFileSync(join(dir, "as-is.json"), JSON.stringify({
+      configuration: { records: { filenames: { task: "tasks.md" } } },
+      task: { status: "blocked", worker: "component-builder", updated: "2026-07-28T02:30:00Z", constraints: {}, acceptance: ["Fixture."] },
+    }));
+    writeFileSync(recordPath, "# Temp task\n");
     const launched = await runLauncher(
       ["--agent", AGENT, "--task", "Jobs status task.", "--cwd", process.cwd(), "--pi", stubPi, "--detach", "--record", recordPath],
       env,

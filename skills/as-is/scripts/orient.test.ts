@@ -8,7 +8,8 @@ describe("orientation snapshot", () => {
   test("accepts an absent transient root task record", () => {
     const directory = mkdtempSync(join(tmpdir(), "orient-"));
     try {
-      writeFileSync(join(directory, "as-is.md"), "---\nas-is-version: 2\n---\n# Root\n", "utf8");
+      writeFileSync(join(directory, "as-is.md"), "# Root\n", "utf8");
+      writeFileSync(join(directory, "as-is.json"), JSON.stringify({ configuration: { records: { filenames: { task: "tasks.md" } } } }), "utf8");
       writeFileSync(join(directory, "changelog.md"), "# Changelog\n", "utf8");
       const report = snapshot(directory);
       expect(report.root.status).toBe("ready");

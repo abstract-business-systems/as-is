@@ -5,11 +5,7 @@ import { join } from "node:path";
 import { SessionManager } from "@earendil-works/pi-coding-agent";
 import workerTools, { analyzeProjectSession } from "../../../.pi/extensions/worker-tools";
 
-const rootRecord = `---
-as-is-version: 2
----
-# Root
-`;
+const rootRecord = "# Root\n";
 
 function componentContextTool() {
   let registered: { name: string; execute: Function } | undefined;
