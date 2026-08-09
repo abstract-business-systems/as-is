@@ -57,11 +57,15 @@ boundary, and added an append-prefix regression test. No historical trace file
 was edited.
 
 The budget-extension workflow was inspected against the existing control-plane
-owner. A safe runtime continuation cannot be added as a small documentation-only
-slice: the current control plane has no durable attempt/lease model or parent
-extension ceiling, and mutating allocation without those checks would create a
-second or unsafe budget authority. The extension contract therefore remains a
-separate bounded successor task rather than being simulated here.
+owner. The intended initial model assumes that at most one process works on a
+given component at a time; separate components may run in parallel. A separate
+attempt/lease hierarchy is therefore not required for the first implementation.
+The remaining safe successor boundary is a bounded extension operation that
+preserves that single-process invariant, atomically checks shared parent budget
+and reserve, cumulatively updates the component allocation, and reactivates one
+continuation. Mutating allocation without those checks would create an unsafe
+budget authority, so the extension contract remains a separate bounded
+successor task rather than being simulated here.
 
 ## Validation
 
