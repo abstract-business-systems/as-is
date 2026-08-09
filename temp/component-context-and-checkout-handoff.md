@@ -3,9 +3,13 @@
 ## Status and scope
 
 This is temporary, non-authoritative planning context. It records the current
-conversation's decisions about component context, child handoff, and checkout.
-It does not authorize implementation, configuration migration, reader-tool
-creation, sparse worktrees, or removal of existing records.
+conversation's decisions about component context, child handoff, checkout, and
+the first resolver slice. It does not authorize configuration migration,
+sparse worktrees, or removal of existing records.
+
+The initial resolver implementation now lives in `components/as-is-data/` and
+is limited to preparation-time `as-is.json` resolution. It does not migrate
+current configuration or inject the result into worker execution yet.
 
 ## Decisions recorded
 

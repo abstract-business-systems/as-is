@@ -1,0 +1,47 @@
+import { expect, test } from "bun:test";
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
+import { resolveAsIsData } from "./resolver";
+
+function fixture() {
+  const root = mkdtempSync(join(tmpdir(), "as-is-data-"));
+  mkdirSync(join(root, "components", "child"), { recursive: true });
+  return root;
+}
+
+function writeJson(path: string, value: unknown) {
+  writeFileSync(path, `${JSON.stringify(value)}\n`);
+}
+
+test("cascades configuration without copying inherited values", async () => {
+  const root = fixture();
+  writeJson(join(root, "as-is.json"), { configuration: { model: "large", execution: { retries: 3 } }, state: { root: true } });
+  writeJson(join(root, "components", "child", "as-is.json"), { configuration: { execution: { retries: 1 } }, state: { local: true }, note: "child-only" });
+  const result = await resolveAsIsData(root, "components/child");
+  expect(result.complete).toBe(true);
+  expect(result.effective.configuration).toEqual({ model: "large", execution: { retries: 1 } });
+  expect(result.local).toEqual({ configuration: { execution: { retries: 1 } }, state: { local: true }, note: "child-only" });
+  expect(result.provenance["configuration.model"]?.scope).toBe("repository");
+  expect(result.provenance["configuration.execution.retries"]?.path).toBe(join(root, "components", "child", "as-is.json"));
+  rmSync(root, { recursive: true, force: true });
+});
+
+test("keeps missing optional files valid and reports malformed applicable data", async () => {
+  const root = fixture();
+  writeFileSync(join(root, "as-is.json"), "not json");
+  const result = await resolveAsIsData(root, "components/child");
+  expect(result.complete).toBe(false);
+  expect(result.diagnostics[0]?.code).toBe("invalid-json");
+  rmSync(root, { recursive: true, force: true });
+});
+
+test("rejects targets outside the repository and symlink escapes", async () => {
+  const root = fixture();
+  const outside = mkdtempSync(join(tmpdir(), "as-is-data-outside-"));
+  expect((await resolveAsIsData(root, "../outside")).complete).toBe(false);
+  symlinkSync(outside, join(root, "escape"));
+  expect((await resolveAsIsData(root, "escape")).diagnostics[0]?.code).toBe("target-symlink-escape");
+  rmSync(root, { recursive: true, force: true });
+  rmSync(outside, { recursive: true, force: true });
+});
