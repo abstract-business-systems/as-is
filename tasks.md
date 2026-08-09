@@ -99,9 +99,23 @@ Not yet run: final repository-wide checks and historical trace byte comparison.
 
 ## Result
 
-Not yet available.
+The bounded budget work is implemented. Trace safety and proportionate-solution
+agent guidance were completed in `fe2b643`; component extension admission and
+live continuation coverage were completed in `6896b25` and `9670a54`; shared
+budget arithmetic, timeout bounding, and normalized launch admission were
+completed in `b2e4d93`, `1401b91`, `7cec508`, and `64d32b0`. The parent-worker
+channel/lock replacement is explicitly deferred in the root backlog because no
+reusable worker communication channel exists in the repository.
+
+Remaining budget work is caller adoption of `admitLaunch()`, reviewer/request
+lifecycle integration, and final repository-wide validation/handoff cleanup.
 
 ## Blockers And Escalations
+
+The parent-worker communication-channel alternative was investigated and
+found not to exist in the current runtime. The filesystem lock is therefore
+retained as a defensive coordination mechanism and the channel replacement is
+moved to the deferred root backlog item `parent-worker-budget-channel`.
 
 The minimal extension path is implemented. A first consolidation slice now
 lives in `components/budget-control/budget.ts`: shared remaining-budget,
@@ -134,5 +148,7 @@ and the control-plane tests. Keep any intermediate commits scoped and do not ame
 
 ## Next Action
 
-Implement the guidance and trace-safety slice, then assess the smallest safe control-plane
-extension seam.
+Adopt `ControlPlane.admitLaunch()` in the remaining authorized launch callers,
+then run final repository-wide validation and complete the task handoff. Do not
+implement the deferred parent-worker channel without a concrete channel
+requirement and a new bounded task.
