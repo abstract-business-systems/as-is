@@ -87,6 +87,7 @@ component boundary.
 
 ## Links
 
+- [`as-is-record-structure.md`](as-is-record-structure.md) — planning contract for durable component-record structure and incremental maintenance.
 - [`agent.md`](agent.md) — user-facing routing and delegation contract.
 - [`tasks.md`](tasks.md) — transient current-task record while this component is active.
 - [`changelog.md`](changelog.md) — concise historical recovery and completion notes.

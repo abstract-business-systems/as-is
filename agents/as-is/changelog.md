@@ -1,5 +1,16 @@
 # Changelog
 
+- 2026-08-15: Completed `revise-as-is-component-record-structure` as a
+  planning-only contract. Added `as-is-record-structure.md`, defining compact
+  required/optional durable-record sections, authority separation, explicit
+  parent-to-child context handoff, link and Mermaid integrity rules, and
+  temporary `Miscellaneous` treatment. Linked it from the owning record and
+  removed the completed backlog item; no repository-wide rewrite occurred.
+  Focused content assertions and `git diff --check` passed. Residual risk: the
+  current task-record validator assumes every `as-is.md` is a strict task
+  record, so it could not validate this front-matter-free durable agent record;
+  representative-record migration remains separately authorized work.
+
 - 2026-08-06: Completed `independent-behavior-contract`. Replaced deterministic
   route labels and live assertions that required named downstream roles with
   generic admitted-authority semantics. The exact literal `What's next?` live
