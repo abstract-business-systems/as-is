@@ -1,15 +1,22 @@
 import { describe, expect, test } from "bun:test";
-import { mkdtemp, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { SessionManager } from "@earendil-works/pi-coding-agent";
-import { analyzeProjectSession } from "../../../.pi/extensions/worker-tools";
+import workerTools, { analyzeProjectSession } from "../../../.pi/extensions/worker-tools";
 
 const rootRecord = `---
 as-is-version: 2
 ---
 # Root
 `;
+
+function componentContextTool() {
+  let registered: { name: string; execute: Function } | undefined;
+  workerTools({ registerTool: (tool: { name: string; execute: Function }) => { if (tool.name === "resolve_component_context") registered = tool; } } as never);
+  if (!registered) throw new Error("resolve_component_context was not registered");
+  return registered;
+}
 describe("capability-based worker extension", () => {
   test("canonical target contracts are present and distinct", async () => {
     const cwd = process.cwd();
@@ -34,6 +41,35 @@ describe("capability-based worker extension", () => {
     expect(JSON.stringify({ role: "worker", caller: "arbitrary", parentJobId: "arbitrary" })).toContain("worker");
     expect(JSON.stringify({ role: "expert", caller: "different", parentJobId: null })).toContain("expert");
   });
+  test("resolves only launcher-owned explicitly exposed component context", async () => {
+    const root = await mkdtemp(join(tmpdir(), "as-is-component-context-"));
+    const component = join(root, "component");
+    await mkdir(component);
+    await writeFile(join(component, "guide.md"), "# Guide\n\nBounded context.\n");
+    await writeFile(join(component, "tasks.md"), "# Task\n");
+    await writeFile(join(component, "as-is.md"), "# Component\n\n- [Guide](guide.md)\n- [Task](tasks.md)\n");
+    const previousRoot = process.env.AS_IS_COMPONENT_CONTEXT_PROJECT_ROOT;
+    const previousComponent = process.env.AS_IS_COMPONENT_CONTEXT_COMPONENT;
+    const previousRecords = process.env.AS_IS_COMPONENT_CONTEXT_TASK_RECORD_NAMES;
+    process.env.AS_IS_COMPONENT_CONTEXT_PROJECT_ROOT = root;
+    process.env.AS_IS_COMPONENT_CONTEXT_COMPONENT = "component";
+    process.env.AS_IS_COMPONENT_CONTEXT_TASK_RECORD_NAMES = JSON.stringify(["tasks.md"]);
+    try {
+      const tool = componentContextTool();
+      const guide = await tool.execute("call", { reference: "guide.md" });
+      expect(JSON.parse(guide.content[0].text)).toMatchObject({ complete: true, kind: "file", content: "# Guide\n\nBounded context.\n" });
+      const task = await tool.execute("call", { reference: "tasks.md", projectRoot: root, component: "." });
+      expect(JSON.parse(task.content[0].text).diagnostics[0].code).toBe("task-record-denied");
+    } finally {
+      if (previousRoot === undefined) delete process.env.AS_IS_COMPONENT_CONTEXT_PROJECT_ROOT;
+      else process.env.AS_IS_COMPONENT_CONTEXT_PROJECT_ROOT = previousRoot;
+      if (previousComponent === undefined) delete process.env.AS_IS_COMPONENT_CONTEXT_COMPONENT;
+      else process.env.AS_IS_COMPONENT_CONTEXT_COMPONENT = previousComponent;
+      if (previousRecords === undefined) delete process.env.AS_IS_COMPONENT_CONTEXT_TASK_RECORD_NAMES;
+      else process.env.AS_IS_COMPONENT_CONTEXT_TASK_RECORD_NAMES = previousRecords;
+    }
+  });
+
   test("returns bounded metadata for a readable session without tracer approval", async () => {
     const cwd = await mkdtemp(join(tmpdir(), "as-is-session-analysis-"));
     const manager = SessionManager.create(cwd, join(cwd, "sessions"));

@@ -426,6 +426,15 @@ function createWorkerLoader(role: string): ResourceLoader {
   };
 }
 
+function componentTaskRecordNames(): string[] | undefined {
+  const raw = process.env.AS_IS_COMPONENT_CONTEXT_TASK_RECORD_NAMES;
+  if (!raw) return undefined;
+  try {
+    const names: unknown = JSON.parse(raw);
+    return Array.isArray(names) && names.every((name) => typeof name === "string") ? names : undefined;
+  } catch { return undefined; }
+}
+
 function extractWorkerText(session: { messages: Array<{ role?: string; content?: unknown }> }): string {
   const messages = [...session.messages].reverse();
   for (const message of messages) {
@@ -454,7 +463,7 @@ const componentContextTool: ToolDefinition = {
     if (!projectRoot || !component) {
       return { content: [{ type: "text", text: JSON.stringify({ complete: false, diagnostics: [{ code: "component-context-unavailable", message: "The host did not supply component context authority." }] }) }] };
     }
-    const result = await resolveLocalLinkedContext(projectRoot, join(component, "as-is.md"), params.reference);
+    const result = await resolveLocalLinkedContext(projectRoot, join(component, "as-is.md"), params.reference, { taskRecordNames: componentTaskRecordNames() });
     return { content: [{ type: "text", text: boundedJson(result) }], details: { complete: result.complete, kind: result.kind } };
   },
 };
@@ -579,6 +588,7 @@ export default function workerTools(pi: ExtensionAPI): void {
   // Registration is declarative. Pi's active tool set controls whether the
   // caller can invoke `call_subagent`; no process-global authorization flag or
   // caller/target identity check is used here.
+  pi.registerTool(componentContextTool);
   pi.registerTool(callSubagent);
   pi.registerTool(sessionAnalysisTool);
   for (const tool of traceQueryTools) pi.registerTool(tool);

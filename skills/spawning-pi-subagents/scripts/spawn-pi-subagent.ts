@@ -84,6 +84,7 @@ type SuperviseConfig = {
   contextProjectRoot?: string | null;
   contextProjectRelativeToGitRoot?: string | null;
   contextComponentRelativeToProject?: string | null;
+  contextTaskRecordNames?: string[];
   args: string[];
   callerCwd: string;
   worktreePath: string | null;
@@ -333,6 +334,7 @@ type ProjectModelConfig = {
   defaultModel?: string;
   models: Record<string, string>;
   provider?: string;
+  taskRecordNames?: string[];
   componentBuildTracer?: {
     backend?: string;
     enabled?: boolean;
@@ -386,6 +388,10 @@ const readProjectModelConfig = async (projectRoot: string): Promise<ProjectModel
         const match = line.match(/^      ([a-zA-Z0-9_-]+):\s*["']?(.+?)["']?\s*(?:#.*)?$/);
         if (match) models[match[1]] = match[2].trim();
       }
+      const recordNamesBlock = config.match(/^  records:\r?\n(?:^    filenames:\r?\n((?:^      [^\r\n]+\r?\n?)+))?/m)?.[1] ?? "";
+      const taskRecordNames = recordNamesBlock.split(/\r?\n/)
+        .map((line) => line.match(/^      task:\s*["']?([^"'\s#]+)["']?\s*$/)?.[1])
+        .filter((name): name is string => Boolean(name));
       const tracer = config.match(/tracing:\r?\n((?:      [^\r\n]+\r?\n?)+)/m)?.[1] ?? "";
       const backend = tracer.match(/^      backend:\s*["']?([^"'\s#]+)["']?\s*$/m)?.[1];
       const enabledValue = tracer.match(/^      enabled:\s*(true|false)\s*$/m)?.[1];
@@ -395,6 +401,7 @@ const readProjectModelConfig = async (projectRoot: string): Promise<ProjectModel
         defaultModel,
         models,
         provider,
+        taskRecordNames,
         componentBuildTracer: {
           backend,
           enabled: enabledValue === undefined ? undefined : enabledValue === "true",
@@ -623,6 +630,7 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     ...process.env,
     ...(contextProjectRoot ? { AS_IS_COMPONENT_CONTEXT_PROJECT_ROOT: contextProjectRoot } : {}),
     ...(config.contextComponentRelativeToProject ? { AS_IS_COMPONENT_CONTEXT_COMPONENT: config.contextComponentRelativeToProject } : {}),
+    ...(config.contextTaskRecordNames ? { AS_IS_COMPONENT_CONTEXT_TASK_RECORD_NAMES: JSON.stringify(config.contextTaskRecordNames) } : {}),
     // Preserve the delegating session's readable store scope when the child
     // runs in a worktree or detached supervisor directory. This is a data
     // ownership reference, not an authorization token or session payload.
@@ -1181,6 +1189,7 @@ const main = async() => {
     ? relative(gitRoot.trim(), projectRoot) || "."
     : null;
   const contextProjectRoot = contextProjectRelativeToGitRoot ? null : projectRoot ?? null;
+  const contextTaskRecordNames = config.taskRecordNames;
   const bunBin = Bun.which("bun") ?? "bun";
   const jobId = newJobId();
   const launchedAt = new Date().toISOString();
@@ -1205,6 +1214,7 @@ const main = async() => {
       contextProjectRoot,
       contextProjectRelativeToGitRoot,
       contextComponentRelativeToProject: componentRelativeToProject,
+      contextTaskRecordNames,
       args: childArgs.map((arg) => arg === "<prompt-path>" ? promptPath : arg === "<session-dir>" ? sessionPath! : arg),
       callerCwd: cwd,
       worktreePath,
@@ -1273,6 +1283,7 @@ const main = async() => {
       contextProjectRoot,
       contextProjectRelativeToGitRoot,
       contextComponentRelativeToProject: componentRelativeToProject,
+      contextTaskRecordNames,
       args: childArgs.map((arg) => arg === "<prompt-path>" ? promptPath : arg === "<session-dir>" ? sessionPath! : arg),
       callerCwd: cwd,
       worktreePath,

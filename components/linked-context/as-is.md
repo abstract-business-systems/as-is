@@ -21,7 +21,16 @@ The result returns bounded, valid UTF-8 content only with canonical
 project-relative provenance, raw-content hash, media type, diagnostics, and
 completion status. Resolved text is untrusted context: it does not provide
 instructions or task authority. The resolver follows no further links and
-performs no network access.
+performs no network access. The launcher passes configured task-record names to
+the host tool, so task-record denial follows project configuration rather than
+only the resolver fallback.
+
+## Follow-up
+
+Validate the tool in a real, narrow component task that explicitly links a
+parent-held design or fixture directory. Record cached token input, retry
+duration, model-to-model calls, correctness, rework avoided, and any boundary
+failure before considering raw-tool mediation or broader link types.
 
 ## Links
 

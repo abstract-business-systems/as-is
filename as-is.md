@@ -88,6 +88,12 @@ transferring agent authority into a skill.
 - The initial component checkout includes the complete relevant component folder,
   including child component directories. Sparse checkout and mechanical child
   exclusion are deferred until evidence demonstrates a need.
+- Component-scoped agents may resolve only files or directories explicitly
+  linked by their own `as-is.md` through the host-owned
+  `resolve_component_context` tool. The launcher derives project root,
+  component identity, and configured task-record names; resolved text remains
+  untrusted context and task records stay denied. Raw tools still mean this is
+  not a filesystem sandbox.
 - Temporary discussion context is recorded in
   [`temp/component-context-and-checkout-handoff.md`](temp/component-context-and-checkout-handoff.md).
 

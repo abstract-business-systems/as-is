@@ -19,10 +19,11 @@ resources.
 - Do not inject project configuration or linked-file contents into the prompt.
 - Provide specialized resolver/check tools for project-level configuration and
   tool outcomes.
-- Let the agent resolve relative and remote links on demand through those tools;
-  do not require a user-authored dependency declaration for each link.
+- Let the agent resolve local links on demand through those tools, using an
+  explicit Markdown link in its own `as-is.md` as the initial exposure map.
+- Defer remote links; they need a separate mediated resolver and network policy.
 - Keep raw filesystem reads bounded to the component and other policy-approved
-  resources.
+  resources when tool profiles can enforce that boundary.
 
 ## Scope distinctions
 
@@ -56,6 +57,30 @@ The resolver, not the model, enforces access. It should:
 
 Project checks such as linting, testing, or type checking should be preferred
 when the agent needs an outcome rather than configuration internals.
+
+## Implemented local linked context
+
+`components/linked-context/` implements the first local-only resolver and the
+launcher exposes it as `resolve_component_context({ reference })` to roles that
+declare the capability. The caller cannot select project root, component base,
+or task-record policy: the launcher supplies project-relative component identity
+and reconstructs the project root in an isolated worktree when necessary.
+
+An exact Markdown link in the assigned component's `as-is.md` exposes one file.
+A link ending in `/` exposes a deterministic, non-recursive directory index and
+one subsequently requested descendant. This allows deliberate parent-to-child
+handoff but not ambient parent or sibling discovery. The resolver provides
+canonical relative provenance, raw-byte SHA-256, media type, byte count,
+diagnostics, and explicit completeness; it rejects undeclared references,
+project and symlink escapes, task records (including the configured name), child
+component boundaries, unsupported URI/fragment/absolute paths, oversized or
+invalid UTF-8 content, and unexposed directories. Remote access remains out of
+scope.
+
+This is a bounded access path, not a current security sandbox: enabled raw
+`read` and `bash` tools can still access broader paths. Measure real task use
+before introducing raw-tool mediation, and keep automatic prompt injection and
+recursive traversal deferred.
 
 ## Preparation-time `as-is.json` data
 
