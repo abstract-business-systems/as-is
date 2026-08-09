@@ -5,27 +5,23 @@ Provide a harmless, deterministic component for rehearsing as-is delegation,
 budget bubbling, child commit handoff, parent integration, and cleanup.
 
 
-## Diagram
+## Design
+
+The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
     A["Delegation rehearsal"] --> B["Deterministic fixture"]
     B --> C["Local validation and handoff"]
 ```
-## Design
-The fixture contains only a task record, a test, and this durable context. It
-must not contact providers or modify product components. Its task record uses a
-small cost and wall-clock budget and its test uses a local stub.
 
-## Boundaries
-Changes are limited to this directory. The parent owns integration of any
-scoped child commit into the repository branch.
-
-## Constraints
-One child attempt, no nested delegation, no external effects, and no broad
-trace or privacy implementation.
+- Contain only a task record, test, and durable context.
+- Use a local stub with small cost and wall-clock budgets.
+- Rehearse delegation, budget bubbling, child handoff, parent integration, and
+  cleanup without contacting providers or modifying product components.
+- Limit the fixture to one child attempt, no nested delegation, and no broad
+  trace or privacy implementation.
 
 ## Links
-- `tasks.md` — rehearsal task record.
-- `dummy-delegation.test.ts` — deterministic launcher smoke test.
-- `README.md` — acceptance and recovery expectations.
+- [dummy-delegation.test.ts](dummy-delegation.test.ts) — deterministic launcher smoke test.
+- [README.md](README.md) — acceptance and recovery expectations.

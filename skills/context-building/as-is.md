@@ -5,14 +5,17 @@
 Provide reusable context assembly for bounded decisions and handoffs.
 
 
-## Diagram
+## Design
+
+The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
     A["Bounded decision"] --> B["Context assembly"]
     B --> C["Provenance-bearing handoff"]
 ```
+
+
 ## Links
-- `SKILL.md` — authoritative procedure and contract.
-- `backlog.md` — planning index for this skill's open work.
-- `../../agent-skills.md` — concise capability catalog entry.
+- [SKILL.md](SKILL.md) — authoritative procedure and contract.
+- [../../agent-skills.md](../../agent-skills.md) — concise capability catalog entry.

@@ -18,26 +18,23 @@ fixed delegation chain, own another agent's lifecycle, or implement component
 work.
 
 
-## Diagram
+## Design
+
+The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
     A["User request"] --> B["as-is front-face router"]
     B --> C["Admitted agent and applicable skill"]
 ```
-## Design
 
-The router may use current durable repository context for status and routing,
-including the orientation snapshot, but does not invent task authority for
-simple queries. User-intent detection and routing remain role-owned behavior;
-they are not a shared skill. Sizable implementation is routed to the best admitted agent whose role
-supports it; that target's own contract determines whether it requires a
-component task record, selects another worker, delegates, validates, or hands
-off. A durable task record remains authoritative whenever the applicable
-procedure requires one. The worker is an independent bounded implementation
-role and may receive delegations from any authorized agent; it is not a
-front-face router. The agent contract defines direct-path and contextual
-routing, not a universal mediation chain.
+- Interpret user intent and route substantive requests to the best admitted
+  agent and applicable skill.
+- Use durable repository context for orientation without inventing task
+  authority for simple queries.
+- Leave task records, implementation, delegation, validation, and completion
+  to the selected target's contract.
+- Avoid imposing a universal mediation chain.
 
 ## Observed Live Behavior
 
@@ -86,9 +83,11 @@ inform the user, but it cannot authorize or start work.
 
 ## Relationships
 
-Parent builders durably provide child-required context or explicit references in
-the child's `as-is.md` before child implementation begins; children do not
-automatically read parent `as-is.md`.
+This component is the user-facing entry point for `as-is` requests. It routes
+substantive work to an independently admitted agent and applicable skill; the
+target owns its own task, lifecycle, delegation, validation, and handoff. The
+router does not impose a fixed delegation chain or own another agent's
+component work.
 
 ## Boundary
 
@@ -106,8 +105,5 @@ demonstrates a need.
 
 - [`as-is-record-structure.md`](as-is-record-structure.md) — planning contract for durable component-record structure and incremental maintenance.
 - [`agent.md`](agent.md) — user-facing routing and delegation contract.
-- [`tasks.md`](tasks.md) — transient current-task record while this component is active.
-- [`changelog.md`](changelog.md) — concise historical recovery and completion notes.
-- [`backlog.md`](backlog.md) — planning index for this component's open work.
 - [`orient.ts`](../../../skills/as-is/scripts/orient.ts) — repository orientation snapshot used by status/routing turns.
 - [`live-behavioral.test.ts`](live-behavioral.test.ts) — opt-in live behavioral baseline for independent routing behavior.

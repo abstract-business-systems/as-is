@@ -42,6 +42,19 @@ test("validates the requested representation columns and rejects the observed fi
   expect(() => validateQueryRepresentation(observed)).toThrow("weight, component, id, status, purpose, description, dependencies, notes");
 });
 
+test("renders the top 10 by default and supports explicit view overrides", () => {
+  const items = Array.from({ length: 12 }, (_, index) => parseBacklog(
+    `| id | status | user preference | system preference | purpose | description | dependencies | acceptance | notes |\n| --- | --- | ---: | ---: | --- | --- | --- | --- | --- |\n| item-${index} | open | ${12 - index} | 0 | Purpose ${index} | Description ${index} | - | Works | - |`,
+    "skills/managing-backlog/backlog.md",
+    "skills/managing-backlog",
+  )[0]);
+  const weighted = calculateWeights(items);
+  expect(renderQuery(weighted).split("\n")).toHaveLength(12);
+  expect(renderQuery(weighted, null).split("\n")).toHaveLength(14);
+  expect(renderQuery(weighted, 3).split("\n")).toHaveLength(5);
+  expect(renderQuery(weighted)).not.toContain("| 1 | skills/managing-backlog | item-11 |");
+});
+
 test("renders the representation sorted by descending derived weight", () => {
   const items = parseBacklog(schema, "skills/managing-backlog/backlog.md", "skills/managing-backlog");
   const output = renderQuery(calculateWeights(items));

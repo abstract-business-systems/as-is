@@ -3,17 +3,19 @@
 
 ## Purpose
 
-Provide fast, reusable, read-only in-process assistance to user-facing and
-orchestrating agents without using a durable component subprocess.
+Provide fast, reusable, read-only in-process assistance to authorized agents
+without becoming a durable component subprocess or task authority.
 
 
-## Diagram
+## Design
+
+The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
     A["Bounded assistance request"] --> B["Worker assistance"]
     B --> C["Calling agent receives result"]
 ```
-## Links
 
-- `changelog.md` — concise completed-task history.
+
+## Links

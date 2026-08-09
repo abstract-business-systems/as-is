@@ -25,17 +25,20 @@ makes the launcher resolve model presets and the provider from the repository's
 root `as-is.md` and makes child runs observable by default.
 
 
-## Diagram
+## Design
+
+The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
     A["Delegation request"] --> B["Pi subprocess launcher"]
     B --> C["Detached child and observation"]
 ```
+
+
 ## Links
 
-- `SKILL.md` — authoritative procedure and contract.
-- `backlog.md` — planning index for this component's open work.
+- [SKILL.md](SKILL.md) — authoritative procedure and contract.
 
 ## Changelog
 

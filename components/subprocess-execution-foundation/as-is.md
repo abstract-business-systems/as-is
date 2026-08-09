@@ -8,24 +8,23 @@ worker attempt without making the submitting as-is/OpenCode/orchestrator turn
 wait for worker completion.
 
 
-## Diagram
+## Design
+
+The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
     A["Bounded worker attempt"] --> B["Detached launch foundation"]
     B --> C["Lifecycle and host-neutral boundary"]
 ```
-## Changelog
 
-- The historical Pi delegation investigation found that synchronous nested
-  delegation, repeated recovery, blind waiting, and missing supervisor-owned
-  enforcement materially increased elapsed time. The detached process-group
-  foundation addressed the launch/lifecycle boundary; host capability and
-  attribution limitations remain source-labelled residual risk.
-- The shared task-record protocol and host-neutral execution contract remain
-  external governing documents; this component implements only the supervisor
-  portion of those boundaries.
+- Submit a bounded worker attempt through a detached process-group foundation.
+- Preserve the non-blocking launch and lifecycle boundary for the submitting
+  agent.
+- Implement only the supervisor portion of the shared task-record and
+  host-neutral execution contracts.
+- Historical investigation found synchronous nested delegation and blind
+  waiting increased elapsed time; host capability and attribution limitations
+  remain residual risks.
 
 ## Links
-
-- `changelog.md` — concise completed-task history.

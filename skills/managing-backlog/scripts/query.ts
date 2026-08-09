@@ -161,15 +161,17 @@ export function validateQueryRepresentation(markdown: string): void {
   }
 }
 
-export function renderQuery(items: WeightedBacklogItem[]): string {
+/** Render the top ten weighted items by default; pass null for the complete view. */
+export function renderQuery(items: WeightedBacklogItem[], limit: number | null = 10): string {
   const sorted = [...items].sort((left, right) =>
     right.weight - left.weight || `${left.component}:${left.id}`.localeCompare(`${right.component}:${right.id}`));
+  const visible = limit === null ? sorted : sorted.slice(0, limit);
   const escape = (value: string) => value.replace(/\|/g, "\\|").replace(/\n/g, " ");
   const lines = [
     `| ${queryHeaders.join(" | ")} |`,
     "| ---: | --- | --- | --- | --- | --- | --- | --- |",
   ];
-  for (const item of sorted) {
+  for (const item of visible) {
     lines.push(`| ${item.weight} | ${escape(item.component)} | ${escape(item.id)} | ${item.status} | ${escape(item.purpose)} | ${escape(item.description)} | ${escape(item.dependencies.join(", ") || "-")} | ${escape(item.notes)} |`);
   }
   return lines.join("\n");
@@ -273,12 +275,15 @@ export function cleanupCompletedBacklogs(root: string): CompletedBacklogItem[] {
 }
 
 if (import.meta.main) {
-  const rootArgument = process.argv.find((argument, index) => index >= 2 && argument !== "--cleanup");
+  const rootArgument = process.argv.find((argument, index) => index >= 2 && argument !== "--cleanup" && argument !== "--all" && !argument.startsWith("--limit="));
   const root = resolve(rootArgument ?? process.cwd());
   if (process.argv.includes("--cleanup")) {
     const completed = cleanupCompletedBacklogs(root);
     console.log(completed.map((item) => `${item.component}:${item.id} — ${item.evidence}`).join("\n") || "No changelog-evidenced completed backlog items found.");
   } else {
-    console.log(renderQuery(calculateWeights(loadBacklogs(root))));
+    const limitArgument = process.argv.find((argument) => argument.startsWith("--limit="));
+    const limit = process.argv.includes("--all") ? null : limitArgument ? Number(limitArgument.slice("--limit=".length)) : 10;
+    if (limit !== null && (!Number.isInteger(limit) || limit < 1)) throw new Error("--limit must be a positive integer");
+    console.log(renderQuery(calculateWeights(loadBacklogs(root)), limit));
   }
 }

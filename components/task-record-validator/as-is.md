@@ -3,22 +3,23 @@
 
 ## Purpose
 
-Make the Increment 2 task-record invariants mechanically checkable without
-host-specific runtime enforcement.
+Make task-record invariants mechanically checkable without host-specific
+runtime enforcement.
 
 
-## Diagram
+## Design
+
+The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
     A["Task record"] --> B["Invariant validator"]
     B --> C["Mechanical validation result"]
 ```
+
+- Validate task-record invariants independently of host-specific runtime
+  enforcement.
+- Keep validation ownership here without becoming task authority or runtime
+  enforcement.
+
 ## Links
-
-- `backlog.md` — planning index for this component's open work.
-
-## Changelog
-
-- Validation ownership remains with this component; no new implementation was
-  added.

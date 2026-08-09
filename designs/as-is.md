@@ -6,18 +6,11 @@ Provide a discoverable component for enduring architecture, protocol, and
 execution design documents.
 
 
-## Diagram
-
-```mermaid
-flowchart TD
-    A["Design question"] --> B["Design document collection"]
-    B --> C["Focused architecture decisions"]
-```
 ## Links
-- `execution-accounting-design.md` — execution accounting design.
-- `orchestration-design.md` — orchestration design.
-- `independent-delegation.md` — independent delegation design.
-- `model-simplicity-guidance.md` — guidance for model-assisted coding to
+- [execution-accounting-design.md](execution-accounting-design.md) — execution accounting design.
+- [orchestration-design.md](orchestration-design.md) — orchestration design.
+- [independent-delegation.md](independent-delegation.md) — independent delegation design.
+- [model-simplicity-guidance.md](model-simplicity-guidance.md) — guidance for model-assisted coding to
   prefer simple central ownership over duplicated local solutions. Its open
   implementation item is recorded in the root [`backlog.md`](../backlog.md).
 

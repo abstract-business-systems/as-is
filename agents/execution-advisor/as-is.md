@@ -9,14 +9,15 @@ money budget-extension requests when an otherwise sound direction is blocked
 by its current budget.
 
 
-## Diagram
+## Design
+
+The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
     A["Trace or session selector"] --> B["Read-only evidence analysis"]
     B --> C["Decision-ready findings or budget request"]
 ```
-## Design
 
 The role composes the globally available `exploring-execution-evidence`
 procedure and read-only task-record context. A future extraction may package

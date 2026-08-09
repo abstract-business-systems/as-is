@@ -7,14 +7,15 @@ Maintain and prioritize bounded work proposals separately from active component
 tasks, using durable recording tables and a deterministic query-time display.
 
 
-## Diagram
+## Design
+
+The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
     A["Backlog entries"] --> B["Deterministic prioritization"]
     B --> C["Selected task input"]
 ```
-## Design
 
 The backlog is a planning index, not task authority. Each component backlog uses
 a stable table with `id`, `status`, integer `user preference`, integer `system
@@ -37,10 +38,11 @@ it gives fan-out value to prerequisites, whereas an average can hide the number
 of items unblocked. Cycles are handled deterministically.
 
 The conversational display contract is strict: for “Show me the backlog,
-please.”, the agent runs the deterministic query and returns its rendered table
-without abbreviating it. The representation columns are exactly `weight`,
-`component`, `id`, `status`, `purpose`, `description`, `dependencies`, and
-`notes`. `validateQueryRepresentation` and the focused tests protect this
+please.”, the agent runs the deterministic query and returns the top 10 weighted
+rows by default without manually abbreviating them. An explicit request may use
+a different bounded limit or the complete view. The representation columns are
+exactly `weight`, `component`, `id`, `status`, `purpose`, `description`,
+`dependencies`, and `notes`. `validateQueryRepresentation` and the focused tests protect this
 contract after a fresh Pi validation found a five-column summary that omitted
 description, dependencies, and notes.
 
@@ -53,11 +55,10 @@ review.
 
 ## Links
 
-- `SKILL.md` — authoritative backlog procedure.
-- `backlog.md` — component backlog items.
-- `scripts/query.ts` — deterministic parser, weight query, renderer, and response validator.
-- `query.test.ts` — schema, weighting, cycle, repository, and response-shape tests.
-- `../../backlog.md` — repository backlog index.
+- [SKILL.md](SKILL.md) — authoritative backlog procedure.
+- [scripts/query.ts](scripts/query.ts) — deterministic parser, weight query, renderer, and response validator.
+- [query.test.ts](query.test.ts) — schema, weighting, cycle, repository, and response-shape tests.
+- [../../backlog.md](../../backlog.md) — repository backlog index.
 
 ## Changelog
 

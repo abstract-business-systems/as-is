@@ -3,19 +3,21 @@
 
 ## Purpose
 
-Provide the first bounded child handoff for converting the initiative-1
-host-neutral control-plane implementation from its currently reported Python
-form to the repository-preferred Bun/TypeScript or Bun-compatible form without
-changing authority, task-record semantics, or the protected historical fixture.
+Convert the initiative-1 host-neutral control-plane implementation from its
+reported Python form to the repository-preferred Bun/TypeScript or compatible
+form without changing authority, task-record semantics, or the protected
+historical fixture.
 
 
-## Diagram
+## Design
+
+The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
     A["Host-neutral control-plane source"] --> B["Implementation conversion"]
     B --> C["Protected task semantics and fixture"]
 ```
-## Links
 
-- `changelog.md` — concise completed-task history.
+
+## Links

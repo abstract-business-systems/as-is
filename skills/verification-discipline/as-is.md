@@ -7,13 +7,15 @@ Provide a reusable method for establishing whether a bounded task satisfies its
 acceptance conditions using appropriate evidence.
 
 
-## Diagram
+## Design
+
+The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
     A["Acceptance conditions"] --> B["Risk-matched validation"]
     B --> C["Evidence and residual risk"]
 ```
-## Links
 
-- `changelog.md` — concise completed-task history.
+
+## Links

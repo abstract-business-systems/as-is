@@ -21,7 +21,10 @@ without transferring authority into the skill.
 
 The component directory is the default read/write boundary. Read outside it
 only for dependencies explicitly named by the requirement. Task state and
-budget observations remain authoritative in the component task record.
+budget observations remain authoritative in the component task record. The
+builder owns the operational relationship with descendants: it decides when a
+child boundary requires handoff, supplies explicit linked context, and verifies
+child closure without taking ownership of the child's files or records.
 
 ## Procedure
 
@@ -44,8 +47,10 @@ budget observations remain authoritative in the component task record.
    permission to edit another component. Do not recursively follow links;
    request only the smallest linked file or directory needed for the task.
 4. If work crosses into a descendant with its own `as-is.md`, stop at that
-   boundary and delegate through the configured component-builder role. Verify
-   the child record revision, available budget, and absence of an active
+   boundary and delegate through the configured component-builder role. Before
+   launch, record the child relationship and explicit context handoff in the
+   child record or its links; do not rely on the parent record being ambient.
+   Verify the child record revision, available budget, and absence of an active
    attempt before launch; forward approved budgets and preserve the child
    handoff. A child owns only its own component files and record: it must not
    edit parent records, parent budgets, or parent status. Budget exhaustion is
@@ -89,7 +94,7 @@ for incomplete work.
 | Validation selection and evidence | `verification-discipline` |
 | Scoped durable commit | `committing-completed-work` |
 | Agent identity, launch, approval, and delegation | configured agent contract |
-| Parent/child record and budget ownership | owning parent/child component contract; child cannot mutate parent |
+| Parent/child relationship, context handoff, and budget ownership | owning parent/child component contract and builder procedure; child cannot mutate parent |
 
 The procedure preserves `component-builder` as the role boundary. It does not
 merge agent identity into reusable skill logic, create runtime state, broaden

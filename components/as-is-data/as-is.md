@@ -7,28 +7,22 @@ root configuration and local transient task metadata, without replacing
 human-facing Markdown context.
 
 
-## Diagram
+## Design
+
+The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
     A["Root-to-target path"] --> B["as-is.json resolver"]
     B --> C["Effective configuration and local task data"]
 ```
-## Design
 
-The resolver accepts a repository root and logical target component directory,
-then reads `as-is.json` files on the root-to-target directory chain. It produces
-an in-memory effective view. The `configuration` object cascades; `task` and
-other data remain local unless explicitly classified by a later policy. Source
-files are never rewritten and inherited values are never copied into them.
-
-`parseAsIsJson` and `readAsIsJson` provide the shared strict companion parser
-for central consumers. A present `configuration` or `task` value must be an
-object. `task` is local transient machine metadata; it is never an inherited
-configuration view.
-
-Malformed applicable JSON, unsafe target paths, and invalid configuration
-objects are reported through diagnostics and make the result incomplete.
+- Read `as-is.json` files along the root-to-target directory chain.
+- Cascade `configuration`; keep `task` and other local data non-cascading.
+- Produce an in-memory effective view without rewriting source files.
+- Parse present `configuration` and `task` values strictly as objects.
+- Report malformed JSON, unsafe paths, and invalid configuration as incomplete
+  diagnostics rather than silently recovering.
 
 ## Links
 

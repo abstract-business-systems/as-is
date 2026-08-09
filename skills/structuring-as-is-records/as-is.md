@@ -8,14 +8,15 @@ link declaration, diagram decisions, and explicit parent-to-child context
 handoff. It does not own component task state or agent authority.
 
 
-## Diagram
+## Design
+
+The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
     A["Record maintenance"] --> B["Record structure and links"]
     B --> C["Navigable durable context"]
 ```
-## Design
 
 Record authors describe the overall flow at the nearest useful parent level and
 keep implementation details, invariants, and tests in the child component that

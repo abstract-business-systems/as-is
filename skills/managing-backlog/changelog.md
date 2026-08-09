@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-08-14: Default backlog queries to the top 10 weighted items, with explicit `--limit=N` and `--all` view overrides; added focused coverage.
+
 - 2026-08-13: Added evidence-gated cleanup of implemented backlog rows by exact item ID and completion language in the owning changelog. Added deterministic cleanup tests for positive, ambiguous, and cross-component cases.
 - 2026-08-13: Completion evidence for `backlog-table-schema`, `backlog-query-weighting`, and `backlog-response-shape-validation` is recorded in this changelog; these implemented planning items are eligible for cleanup.
 

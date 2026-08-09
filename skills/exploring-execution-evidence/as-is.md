@@ -9,49 +9,28 @@ produce decision-ready evidence for debugging, process improvement, or budget
 analysis.
 
 
-## Diagram
+## Design
+
+The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
     A["Trace or session evidence"] --> B["Evidence exploration procedure"]
     B --> C["Source-labelled report"]
 ```
-## Design
 
-The skill starts from a supplied trace or session selector, progressively
-queries local trace summaries, events, and selected session detail, and reports
-source-labelled observations with explicit uncertainty. It treats session IDs
-as opaque correlation metadata. It does not add runtime capture or replace
-durable task and budget records. The external trace boundary carries the
-session ID only.
-```mermaid
-flowchart TD
-    Q[User debugging, process-improvement,\nor budget-analysis question] --> S[Supplied trace or\nexact session selector]
-    S --> PRIV[Check scope, approval,\nand privacy boundary]
-    PRIV -- Not authorized --> STOP[Stop and report blocker]
-    PRIV -- Authorized --> KIND{Evidence source?}
-    KIND -- Local trace --> TRACE[Query local trace summaries\nand events]
-    KIND -- Readable Pi session --> SESSION[Analyze selected session\nmetadata and permitted detail]
-    TRACE --> LABEL[Label observations,\ninferences, unknowns]
-    SESSION --> LABEL
-    LABEL --> REPORT[Decision-ready report\nrecommendations and residual risk]
-    REPORT --> AUTH[Task records remain\nauthoritative elsewhere]
-```
+- Start from a supplied trace or session selector and progressively inspect
+  only the evidence needed for the question.
+- Report source-labelled observations with explicit uncertainty.
+- Treat session IDs as opaque correlation metadata.
+- Keep runtime capture, task status, budgets, and allocation outside this skill.
 
-The skill is a read-only evidence path: it begins with an explicit trace or
-session reference, checks authorization and filesystem ownership, gathers only
-permitted local evidence, and reports observations separately from inferences.
-It does not add runtime capture, expose more than an external session ID,
-or change task, budget, completion, or recovery authority.
+## Boundary
 
-## Boundaries
-
-This skill owns the investigation procedure and report contract. The
-observability component owns tracer implementation; the project worker
-extension owns bounded query and session-analysis tools. Task records and the
-control plane remain authoritative for status, validation, recovery, completion,
-budget limits, and allocation. Session analysis remains exact-ID, read-only,
-selector-driven, and governed by readable local Pi stores.
+This skill owns the investigation procedure and report contract. Observability
+owns tracer implementation, while the worker extension owns bounded query
+surfaces. Task records and the control plane remain authoritative for status,
+validation, recovery, completion, limits, and allocation.
 
 ## Links
 

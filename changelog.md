@@ -1,3 +1,12 @@
+- 2026-08-16: Refined durable `as-is.md` record guidance and the root record.
+  The root now describes the repository component rather than the document,
+  serves both human and agent readers, maps only immediate repository areas,
+  avoids duplicate navigation links, and keeps boundary facts concise. The
+  router record no longer carries root-level or builder-specific relationship
+  context. The record-structuring skill now treats `Components`, `Design`,
+  `Relationships`, and `Boundary` as purposeful and optional sections rather
+  than a universal template. `git diff --check` passed.
+
 - 2026-08-07: Completed the Phase 4 composition-boundary clarification for the
   skills/agents separation migration. Clarified across repository instructions,
   root context, the migration plan, component-building guidance, the spawning

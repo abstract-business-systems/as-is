@@ -6,23 +6,24 @@
 Provide the reusable implementation procedure for one bounded component task.
 
 
-## Diagram
+## Design
+
+The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
     A["Selected backlog item"] --> B["Component task lifecycle"]
     B --> C["Validated durable handoff"]
 ```
-## Design
 
 This skill owns transient task creation, scoped implementation, child-boundary
 delegation, deterministic validation, changelog handoff, and task cleanup.
 
 ## Links
 
-- `SKILL.md` — authoritative implementation procedure.
-- `../../docs/component-task-record-protocol.md` — task and component boundaries.
-- `../managing-backlog/SKILL.md` — task selection input.
+- [SKILL.md](SKILL.md) — authoritative implementation procedure.
+- [../../docs/component-task-record-protocol.md](../../docs/component-task-record-protocol.md) — task and component boundaries.
+- [../managing-backlog/SKILL.md](../managing-backlog/SKILL.md) — task selection input.
 
 ## Changelog
 

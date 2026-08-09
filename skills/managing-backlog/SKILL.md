@@ -90,16 +90,21 @@ The representation produced by a query is the complete requested view:
 
 Use `skills/managing-backlog/scripts/query.ts` for the deterministic query and
 `skills/managing-backlog/query.test.ts` for focused schema, weighting, sorting,
-cycle, cleanup-evidence, representation-column, and repository-shape checks. The representation
+view-limit, cycle, cleanup-evidence, representation-column, and repository-shape
+checks. The representation
 omits recording-only preferences and acceptance because it is an at-a-glance
 prioritization view; the source table remains authoritative for those fields.
 For a request such as “Show me the backlog, please.”, run the query and return
-its rendered table verbatim (apart from a short planning-only preface). Do not
-manually reconstruct, abbreviate, or summarize the rows into another table. The
-response must include all representation columns, especially `description`,
-`dependencies`, and `notes`; a shortened summary table is not a valid backlog
-representation. Validate a captured response with
-`validateQueryRepresentation` before treating the display as complete.
+its rendered table verbatim (apart from a short planning-only preface), showing
+the top 10 items by descending weight by default. This is a view limit, not a
+change to the backlog or its weighting. If the user asks for another view, honor
+that explicit bounded override; use `--all` for the complete table or
+`--limit=N` for a different positive limit. Do not manually reconstruct,
+abbreviate, or summarize the rows into another table. The response must include
+all representation columns, especially `description`, `dependencies`, and
+`notes`; a shortened summary table is not a valid backlog representation.
+Validate a captured response with `validateQueryRepresentation` before treating
+the display as complete.
 
 ## Cleanup Of Implemented Items
 
@@ -120,7 +125,7 @@ ambiguous or belongs to another component, leave the row in place and report it
 for review. Cleanup is not task management: it does not create completion
 status, rewrite changelogs, or replace the reconciliation requirements above.
 
-Run the deterministic cleanup with:
+Run the deterministic cleanup with `cleanupCompletedBacklogs` via:
 
 ```bash
 bun skills/managing-backlog/scripts/query.ts --cleanup .

@@ -5,20 +5,20 @@
 Maintain the durable organization and authority context for reusable skills.
 
 
-## Diagram
+## Components
 
-```mermaid
-flowchart TD
-    A["Reusable procedure need"] --> B["Skill catalog"]
-    B --> C["Applicable skill contract"]
-```
+| Component | Purpose |
+| --- | --- |
+| [Context building](context-building/as-is.md) | Assemble bounded, provenance-bearing context. |
+| [Execution evidence](exploring-execution-evidence/as-is.md) | Investigate traces and readable sessions. |
+| [Implementing tasks](implementing-component-tasks/as-is.md) | Run bounded component-task lifecycle. |
+| [Maintaining components](maintaining-components/as-is.md) | Perform evidence-based component housekeeping. |
+| [Managing backlog](managing-backlog/as-is.md) | Prioritize bounded work proposals. |
+| [Spawning subagents](spawning-pi-subagents/as-is.md) | Launch and observe bounded Pi subprocesses. |
+| [Structuring records](structuring-as-is-records/as-is.md) | Structure durable records, links, diagrams, and handoffs. |
+| [Structuring content](structuring-content/as-is.md) | Organize repository knowledge. |
+| [Verification discipline](verification-discipline/as-is.md) | Select acceptance evidence by risk. |
+
 ## Links
-- `../agent-skills.md` — concise capability catalog.
-- `context-building/SKILL.md` — high-priority context-building contract.
-- `structuring-content/SKILL.md` — reusable organization procedure.
-- `structuring-as-is-records/SKILL.md` — durable `as-is.md` structure, links, diagrams, and context handoff.
-- `verification-discipline/SKILL.md` — validation selection procedure.
-- `managing-backlog/SKILL.md` — backlog capture and prioritization.
-- `implementing-component-tasks/SKILL.md` — transient task implementation and lifecycle.
-- `backlog.md` — skills-component planning index for reusable skill work.
-- `changelog.md` — concise completed handoff history for this component.
+
+- [../agent-skills.md](../agent-skills.md) — concise capability catalog.

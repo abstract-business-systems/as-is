@@ -10,17 +10,20 @@ restructuring. The task is scoped to the skill component and its durable handoff
 record; it does not physically move existing fixtures.
 
 
-## Diagram
+## Design
+
+The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
     A["Repository concept"] --> B["Content-structuring procedure"]
     B --> C["Discoverable authoritative artifact"]
 ```
+
+
 ## Links
 
-- `SKILL.md` — authoritative procedure and contract.
-- `backlog.md` — planning index for this component's open work.
+- [SKILL.md](SKILL.md) — authoritative procedure and contract.
 
 ## Changelog
 

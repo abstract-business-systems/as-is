@@ -26,6 +26,9 @@ const required = [
   "owning `changelog.md`",
   "cleanupCompletedBacklogs",
   "Do not infer completion",
+  "top 10 items",
+  "`--all`",
+  "`--limit=N`",
 ];
 for (const phrase of required) {
   if (!skill.includes(phrase)) throw new Error(`missing required phrase: ${phrase}`);
