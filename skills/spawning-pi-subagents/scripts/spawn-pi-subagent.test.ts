@@ -1,16 +1,16 @@
 import { expect, test } from "bun:test";
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { evaluateHandoffEligibility, type HandoffFacts } from "./handoff-eligibility.ts";
 
-const SCRIPT = "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts";
+const SCRIPT = resolve("skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts");
 const AGENT = "agents/as-is/agent.md";
 
 type RunResult = { stdout: string; stderr: string; exitCode: number };
 
-const runLauncher = (args: string[], env: NodeJS.ProcessEnv = process.env): Promise<RunResult> =>
+const runLauncher = (args: string[], env: NodeJS.ProcessEnv = process.env, launchCwd = process.cwd()): Promise<RunResult> =>
   new Promise((resolveRun) => {
     const childEnv = { ...env };
     // Tests model a direct host launch unless a caller is explicitly supplied.
@@ -19,7 +19,7 @@ const runLauncher = (args: string[], env: NodeJS.ProcessEnv = process.env): Prom
       delete childEnv.AS_IS_JOB_ID;
     }
     const child = spawn(Bun.which("bun") ?? "bun", [SCRIPT, ...args], {
-      cwd: process.cwd(),
+      cwd: launchCwd,
       env: childEnv,
       shell: false,
       stdio: ["ignore", "pipe", "pipe"],
@@ -73,6 +73,28 @@ const pidGone = (pid: number, timeoutMs: number): Promise<boolean> =>
 const readRegistryLines = (registry: string): unknown[] =>
   readFileSync(registry, "utf8").split("\n").filter((line) => line.trim())
     .map((line) => JSON.parse(line));
+
+test("project context follows the launching cwd when target cwd is a component", async () => {
+  const launchRoot = mkdtempSync(join(tmpdir(), "as-is-launch-root-"));
+  const target = join(launchRoot, "component");
+  const bundle = join(launchRoot, "bundle");
+  mkdirSync(target, { recursive: true });
+  mkdirSync(join(bundle, "agents", "fixture"), { recursive: true });
+  writeFileSync(join(launchRoot, "as-is.md"), "---\nconfig:\n  agents:\n    defaultModel: small\n---\n");
+  writeFileSync(join(launchRoot, "AGENTS.md"), "launch-root instruction");
+  writeFileSync(join(target, "AGENTS.md"), "component instruction");
+  writeFileSync(join(bundle, "agents", "fixture", "agent.md"), "---\nname: fixture\nmode: subagent\ntools: read\n---\nFixture agent.");
+  const result = await runLauncher([
+    "--agent", join(bundle, "agents", "fixture", "agent.md"),
+    "--task", "Project context discovery.",
+    "--cwd", target,
+    "--dry-run",
+  ], process.env, launchRoot);
+  if (result.exitCode !== 0) throw new Error(`${result.stderr}\n${result.stdout}`);
+  const parsed = JSON.parse(result.stdout);
+  expect(parsed.model).toBe("small");
+  rmSync(launchRoot, { recursive: true, force: true });
+});
 
 test("caller and parent metadata do not gate launcher dispatch", async () => {
   const result = await runLauncher([

@@ -6,6 +6,7 @@ import { basename, dirname, isAbsolute, join, relative, resolve } from "node:pat
 import { boundedLimit } from "../../../components/budget-control/budget.ts";
 import { emitTrace, startSpan, serializeSessionReference, type SessionReference } from "../../../components/observability/tracer.ts";
 import { evaluateHandoffEligibility, type HandoffFacts } from "./handoff-eligibility.ts";
+import { resolveInstructionContext } from "../../../components/instruction-context/resolver.ts";
 
 type Options = {
   agent?: string;
@@ -337,11 +338,28 @@ type ProjectModelConfig = {
   };
 };
 
+// The launching client's cwd is the project-context origin. Walk upward to
+// the root record rather than requiring Git metadata or treating the target
+// component cwd as the project root.
+const isProjectRecord = (text: string): boolean => /^---\r?\n[\s\S]*^config:\r?\n/m.test(text);
+const findProjectRoot = async (clientCwd: string): Promise<string | undefined> => {
+  let current = resolve(clientCwd);
+  while (true) {
+    try {
+      if (isProjectRecord(await readFile(join(current, "as-is.md"), "utf8"))) return current;
+    } catch { /* continue upward */ }
+    const parent = dirname(current);
+    if (parent === current) return undefined;
+    current = parent;
+  }
+};
+
 // Model policy belongs to the as-is system, not to a development host such as
-// OpenCode. Read only the root record, walking upward from the requested cwd.
+// OpenCode. Read only the root record supplied by the launching client.
 // The deliberately small parser covers the authored YAML configuration without
 // adding a YAML dependency to the launcher.
-const readProjectModelConfig = async (cwd: string): Promise<ProjectModelConfig> => {
+const readProjectModelConfig = async (projectRoot: string): Promise<ProjectModelConfig> => {
+  const cwd = projectRoot;
   let current = cwd;
   while (true) {
     try {
@@ -980,6 +998,8 @@ const main = async() => {
   }
 
   const cwd = resolve(options.cwd);
+  const clientCwd = resolve(process.cwd());
+  const projectRoot = await findProjectRoot(clientCwd);
   const agentPath = resolveFromCwd(options.agent as string, cwd);
   const definition = parseFrontMatter(await readFile(agentPath, "utf8"), agentPath);
   const task = options.task;
@@ -995,7 +1015,7 @@ const main = async() => {
   const inheritedCaller = process.env.AS_IS_JOB_ID ? process.env.AS_IS_IDENTITY : undefined;
   const caller = options.caller ?? inheritedCaller ?? "user";
   const parentJobId = options.parentJobId ?? process.env.AS_IS_JOB_ID ?? null;
-  const config = await readProjectModelConfig(cwd);
+  const config = projectRoot ? await readProjectModelConfig(projectRoot) : { models: {} };
   const tracer = config.componentBuildTracer;
   process.env.AS_IS_COMPONENT_BUILD_TRACER = tracer?.enabled === false
     ? "disabled"
@@ -1112,9 +1132,20 @@ const main = async() => {
     return;
   }
 
+  const instructionContext = projectRoot
+    ? await resolveInstructionContext(projectRoot, relative(projectRoot, cwd) || ".")
+    : { target: ".", sources: [], diagnostics: [{ code: "project-root-unavailable", message: "Unable to resolve project root from the launching client's cwd." }], complete: false };
+  const instructionPrompt = instructionContext.sources.length > 0
+    ? [
+      "The following centrally resolved AGENTS.md files are applicable instructions.",
+      "They are ordered from repository ancestor to target component; preserve their authority and scope.",
+      ...instructionContext.sources.flatMap((source) => ["", `--- ${source.relativePath} (${source.scope}) ---`, source.content]),
+    ].join("\n")
+    : "No applicable AGENTS.md files were resolved.";
   const prompt = [
     `You are running under the repository agent contract loaded from ${basename(agentPath)}.`,
     "The host-selected Pi tools and approval flags are authoritative for this process.",
+    instructionPrompt,
     "",
     definition.body,
     ...buildBudgetLines(options),

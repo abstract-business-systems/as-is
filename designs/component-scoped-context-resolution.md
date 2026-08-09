@@ -10,8 +10,12 @@ resources.
 
 - Start the component agent with the component directory as its working
   directory.
-- Keep launcher-owned repository operations anchored to the canonical repository
-  root rather than relying on the child working directory.
+- Derive project context from the launching client's current working directory;
+  the requested component directory identifies the target but does not redefine
+  the project root.
+- Keep launcher-owned repository operations anchored to the resolved project
+  root rather than relying on the child working directory or requiring Git for
+  project-context discovery.
 - Do not inject project configuration or linked-file contents into the prompt.
 - Provide specialized resolver/check tools for project-level configuration and
   tool outcomes.

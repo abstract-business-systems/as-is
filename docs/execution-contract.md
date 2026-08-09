@@ -11,6 +11,12 @@ does not redefine the contract.
 
 ## Authority And Context
 
+- The launching client's current working directory is the project-context
+  origin. The host resolves the project root from that origin and supplies
+  applicable repository instructions and project configuration to the worker.
+  The requested component `cwd` identifies the worker's target and default
+  relative execution context; it does not redefine the project root or act as a
+  security sandbox. Git metadata is not required for project-context discovery.
 - The root or component `as-is.md` record is the sole authoritative task state
   and the authoritative input/output for its bounded task. No runtime index or
   other backlog is a second authority. The orchestrator
