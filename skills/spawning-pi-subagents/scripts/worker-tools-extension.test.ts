@@ -13,7 +13,7 @@ as-is-version: 2
 describe("capability-based worker extension", () => {
   test("canonical target contracts are present and distinct", async () => {
     const cwd = process.cwd();
-    const roles = ["as-is", "component-builder", "execution-advisor", "expert", "worker"];
+    const roles = ["as-is", "component-builder", "execution-advisor", "evidence-validator", "expert", "worker"];
     for (const role of roles) {
       const path = join(cwd, "agents", role, "agent.md");
       const text = await Bun.file(path).text();

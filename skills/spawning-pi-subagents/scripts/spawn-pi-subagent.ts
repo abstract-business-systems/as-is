@@ -1006,24 +1006,24 @@ const main = async() => {
   const resolved = resolveModel(options.model ?? definition.model, config);
   const model = resolved.model;
   const provider = resolved.provider;
-  const isExpertValidation = identity === "expert";
-  // Expert validation is a launcher-owned capability profile, not a caller
+  const isEvidenceValidation = identity === "evidence-validator";
+  // Evidence validation is a launcher-owned capability profile, not a caller
   // supplied tool list. It deliberately has no shell and runs in the caller's
   // controlled worktree so it can inspect the actual uncommitted diff.
   const declaredTools = parseDeclaredTools(definition.tools, agentPath);
-  if (!isExpertValidation && options.tools)
+  if (!isEvidenceValidation && options.tools)
     throw new Error(`--tools is not accepted; declare tools in agent front matter: ${agentPath}`);
-  if (!isExpertValidation && options.noTools)
+  if (!isEvidenceValidation && options.noTools)
     throw new Error(`--no-tools is not accepted; declare the role's tool policy in agent front matter: ${agentPath}`);
   // Ordinary roles receive exactly the declared set. A missing declaration is
   // represented by an explicit empty capability set, never Pi defaults or an
   // identity-specific fallback.
-  const tools = isExpertValidation ? "read,grep,find,ls,git_inspect" : declaredTools;
+  const tools = isEvidenceValidation ? "read,grep,find,ls,git_inspect" : declaredTools;
   // The caller's declared tools determine the host's active capability set.
   // Caller/target identity and lineage remain diagnostic metadata only; they
   // are not delegation authorization. The extension registers its tools
   // declaratively, while Pi exposes only this active declared set.
-  const skillPaths = isExpertValidation ? [] : definition.skills
+  const skillPaths = isEvidenceValidation ? [] : definition.skills
     ? uniquePaths([
       ...definition.skills.map((skill) => resolveFromCwd(skill, cwd)),
       ...options.skills.map((skill) => resolveFromCwd(skill, cwd)),
@@ -1032,16 +1032,16 @@ const main = async() => {
       ? uniquePaths(options.skills.map((skill) => resolveFromCwd(skill, cwd)))
       : [];
   const launchProfile: LaunchProfile = {
-    expertValidation: isExpertValidation,
+    expertValidation: isEvidenceValidation,
     tools,
     skills: skillPaths,
-    noSession: isExpertValidation || Boolean(options.noSession),
+    noSession: isEvidenceValidation || Boolean(options.noSession),
     noExtensions: true,
-    extensionPath: resolve(cwd, isExpertValidation
-      ? "skills/spawning-pi-subagents/scripts/expert-inspection-extension.ts"
+    extensionPath: resolve(cwd, isEvidenceValidation
+      ? "skills/spawning-pi-subagents/scripts/evidence-validator-inspection-extension.ts"
       : ".pi/extensions/worker-tools.ts"),
-    noApprove: isExpertValidation || Boolean(options.noApprove),
-    worktree: isExpertValidation ? false : !(options.noWorktree ?? false),
+    noApprove: isEvidenceValidation || Boolean(options.noApprove),
+    worktree: isEvidenceValidation ? false : !(options.noWorktree ?? false),
   };
   // One launcher-boundary session span: lifecycle metadata only. In
   // particular, never pass prompts, responses, tools, or exception text to it.

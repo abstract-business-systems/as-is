@@ -29,7 +29,7 @@ test("thinking-companion launcher exposes a bounded non-authoritative profile", 
   ], { cwd: root, encoding: "utf8" });
   expect(result.status).toBe(0);
   const parsed = JSON.parse(result.stdout);
-  expect(parsed.tools).toBe("read,grep,find,ls");
+  expect(parsed.tools).toBe("read,grep,find,ls,call_subagent");
   expect(parsed.worktree).toBe(true);
 });
 
@@ -38,6 +38,7 @@ function makeFixture(): { directory: string; record: string } {
   const record = join(directory, "as-is.md");
   symlinkSync(join(root, ".pi"), join(directory, ".pi"));
   symlinkSync(join(root, "skills"), join(directory, "skills"));
+  symlinkSync(join(root, "agents"), join(directory, "agents"));
   writeFileSync(record, `---
 as-is-version: 2
 config:
@@ -102,17 +103,18 @@ test.skipIf(!liveEnabled)("thinking-companion gives concise, limitation-aware co
   } finally { rmSync(fixture.directory, { recursive: true, force: true }); }
 });
 
-test.skipIf(!liveEnabled)("thinking-companion limits complex alternatives and preserves agency", async () => {
+test.skipIf(!liveEnabled)("thinking-companion limits complex alternatives and preserves agency", { timeout: 30_000 }, async () => {
   const fixture = makeFixture();
   try {
     const result = await runLive(
-      "A human asks a complex, underspecified question about choosing among approaches. If you present alternatives, put only the genuinely distinct alternatives in a clearly labeled Options section and label them Option 1, Option 2, or Option 3; give no more than three. Identify an important unknown and say what should be verified before deciding. Do not pretend to be a domain professional or make the decision.",
+      "A human asks a complex, underspecified question about choosing among approaches. Consult the canonical expert once with a bounded read-only request for an independent perspective, then give no more than three genuinely distinct alternatives in a clearly labeled Options section. Identify an important unknown and say what should be verified before deciding. Do not pretend to be a domain professional or make the decision.",
       fixture,
     );
     expect([0, 124]).toContain(result.exitCode);
     const text = assistantText(result.stdout);
     expect(text).toMatch(/unknown|depends|verify|professional|evidence|context/i);
     expect(text).not.toMatch(/I decide|I have decided|the decision is made/i);
+    expect(result.stdout).toMatch(/call_subagent|expert/);
     const optionsSection = text.match(/(?:^|\n)\s*(?:#{1,3}\s*)?options?\s*:?[\s\S]*?(?=\n\s*#{1,3}\s+|\n\s*(?:considerations?|unknowns?|verification|next step)\s*:|$)/i)?.[0] ?? "";
     const options = optionsSection.match(/\bOption\s+[123]\b/gi) ?? [];
     expect(options.length).toBeLessThanOrEqual(3);

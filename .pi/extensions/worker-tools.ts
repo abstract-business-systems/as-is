@@ -396,7 +396,7 @@ async function resolveCanonicalTarget(cwd: string, role: string): Promise<Target
 }
 
 function toolsForTarget(role: string, declared: string[]): { tools: string[]; customTools: ToolDefinition[] } {
-  if (role === "expert") return { tools: [...defaultReadOnlyTools, "git_inspect"], customTools: [gitInspectTool] };
+  if (role === "evidence-validator") return { tools: [...defaultReadOnlyTools, "git_inspect"], customTools: [gitInspectTool] };
   const tools = declared.filter((tool) => builtinTools.has(tool));
   const customTools: ToolDefinition[] = [];
   if (declared.includes("analyze_session")) customTools.push(createSessionAnalysisTool());

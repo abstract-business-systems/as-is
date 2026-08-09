@@ -3,8 +3,8 @@ import { Type } from "typebox";
 
 const OPERATIONS = {
   status: ["status", "--short"],
-  diff: ["diff", "--no-ext-diff", "--", "skills/spawning-pi-subagents", "agents/expert"],
-  diffCheck: ["diff", "--check", "--no-ext-diff", "--", "skills/spawning-pi-subagents", "agents/expert"],
+  diff: ["diff", "--no-ext-diff", "--", "skills/spawning-pi-subagents", "agents/evidence-validator"],
+  diffCheck: ["diff", "--check", "--no-ext-diff", "--", "skills/spawning-pi-subagents", "agents/evidence-validator"],
   head: ["log", "-1", "--oneline", "--decorate"],
 } as const;
 

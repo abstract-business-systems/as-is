@@ -41,7 +41,8 @@ transition or infer completion.
 | `skills/` | Reusable procedures for task management, validation, delegation, and completion | Skills do not, by design, select, authorize, start, or delegate agents; an authority-bearing agent or orchestrator may invoke a mechanical adapter procedure without transferring authority into the skill | `skills/*/SKILL.md`, `AGENTS.md` |
 | `agents/as-is/agent.md` | User-facing routing and control-plane policy | Retains user-intent detection and routing; does not implement component work or become a shared routing skill | `agents/as-is/agent.md` |
 | `agents/component-builder/agent.md` | Component-scoped implementation, records, delegation, validation, and handoff | Owns builder authority only within its component; delegates only at child boundaries | `agents/component-builder/agent.md` |
-| `agents/expert/agent.md` | Read-only plan and diff validation | Inspection-only; cannot edit, delegate, or commit | `agents/expert/agent.md` |
+| `agents/expert/agent.md` | Read-only cross-domain consultation | Advisory-only; cannot edit, delegate, or commit | `agents/expert/agent.md` |
+| `agents/evidence-validator/agent.md` | Read-only plan and diff validation | Inspection-only; cannot edit, delegate, or commit | `agents/evidence-validator/agent.md` |
 | `agents/worker/` | Generalized worker capability and durable worker communication | Worker is a role target, not a hidden orchestrator or alternate task authority | `agents/worker/`, `worker/as-is.md` |
 | `skills/spawning-pi-subagents/` | Host launcher and bounded process/worktree mechanics | Remains an adapter skill/procedure; skills are globally available and role admission/authority stay with agents/orchestrator | `skills/spawning-pi-subagents/SKILL.md` |
 | `docs/execution-contract.md` | Host-neutral lifecycle contract | Defines launch/resume/observe/question/cancel/recover without host policy | `docs/execution-contract.md` |

@@ -7,13 +7,13 @@ import { join, resolve } from "node:path";
 
 const root = process.cwd();
 const launcher = resolve(root, "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts");
-const agent = resolve(root, "agents/expert/agent.md");
-const inspectionExtension = resolve(root, "skills/spawning-pi-subagents/scripts/expert-inspection-extension.ts");
+const agent = resolve(root, "agents/evidence-validator/agent.md");
+const inspectionExtension = resolve(root, "skills/spawning-pi-subagents/scripts/evidence-validator-inspection-extension.ts");
 const liveEnabled = process.env.AS_IS_LIVE_INTEGRATION === "1";
 // These values exercise launcher admission only; behavioral cases do not use
 // caller or parent identity as validation evidence.
 const safetyHarnessCaller = "component-builder";
-const safetyHarnessParentJobId = "expert-live-baseline-parent";
+const safetyHarnessParentJobId = "evidence-validator-live-baseline-parent";
 
 type Event = Record<string, any>;
 type Run = { stdout: string; stderr: string; exitCode: number };
@@ -50,7 +50,7 @@ function taskRecord(requirement: string): string {
 as-is-version: 2
 task:
   status: active
-  worker: expert
+  worker: evidence-validator
   updated: 2026-08-14T00:00:00Z
 constraints:
   cost:
@@ -98,13 +98,13 @@ safe to commit. Do not edit, commit, delegate, or claim completion.
 
 function makeFixture(name: string, requirement: string, change?: { path: string; content: string }): Fixture {
   const directory = mkdtempSync(join(tmpdir(), `expert-live-${name}-`));
-  const expertDirectory = join(directory, "agents", "expert");
+  const expertDirectory = join(directory, "agents", "evidence-validator");
   const skillDirectory = join(directory, "skills", "spawning-pi-subagents", "scripts");
   const record = join(expertDirectory, "tasks.md");
   const asIs = join(expertDirectory, "as-is.md");
   const agentCopy = join(expertDirectory, "agent.md");
-  const extensionCopy = join(skillDirectory, "expert-inspection-extension.ts");
-  const target = join(directory, change?.path ?? "agents/expert/fixture-target.md");
+  const extensionCopy = join(skillDirectory, "evidence-validator-inspection-extension.ts");
+  const target = join(directory, change?.path ?? "agents/evidence-validator/fixture-target.md");
 
   mkdirFor(record);
   mkdirFor(extensionCopy);
@@ -278,20 +278,20 @@ function assertUntouched(fixture: Fixture, beforeEvidence: string): void {
   if (existsSync(registryPath)) entries = readFileSync(registryPath, "utf8").split("\n").filter(Boolean).map(JSON.parse);
   expect(entries.filter((entry) => entry.event === "launched")).toHaveLength(1);
   const launch = entries.filter((entry) => entry.event === "launched")[0];
-  expect(launch).toMatchObject({ identity: "expert" });
+  expect(launch).toMatchObject({ identity: "evidence-validator" });
   expect(typeof launch.caller).toBe("string");
   expect(typeof launch.parentJobId).toBe("string");
   // Caller/parent values are launcher admission observations, not behavioral
   // evidence and are intentionally not matched to a named upstream role.
-  expect(entries.some((entry) => entry.event === "launched" && entry.identity !== "expert")).toBe(false);
+  expect(entries.some((entry) => entry.event === "launched" && entry.identity !== "evidence-validator")).toBe(false);
   expect(entries.some((entry) => entry.event === "finished" && (entry.committed === true || entry.commitSha))).toBe(false);
 }
 
 test.skipIf(!liveEnabled)("expert live passes a bounded valid controlled-worktree diff", async () => {
   const fixture = makeFixture(
     "pass",
-    "The only intended change is agents/expert/fixture-target.md. A clean diff-check and this exact in-scope change satisfy the acceptance conditions; report whether the evidence is safe to commit and include residual risk.",
-    { path: "agents/expert/fixture-target.md", content: "# Intended change\n\nThis is the reviewed in-scope fixture change.\n" },
+    "The only intended change is agents/evidence-validator/fixture-target.md. A clean diff-check and this exact in-scope change satisfy the acceptance conditions; report whether the evidence is safe to commit and include residual risk.",
+    { path: "agents/evidence-validator/fixture-target.md", content: "# Intended change\n\nThis is the reviewed in-scope fixture change.\n" },
   );
   const beforeEvidence = repositoryEvidence(root);
   try {
@@ -311,8 +311,8 @@ test.skipIf(!liveEnabled)("expert live passes a bounded valid controlled-worktre
 test.skipIf(!liveEnabled)("expert live reports an evidence-backed acceptance failure", async () => {
   const fixture = makeFixture(
     "fail",
-    "Only agents/expert/fixture-target.md may change. An unexpected file is an acceptance failure; report fail, explain the observed violation, and do not call the evidence safe to commit.",
-    { path: "agents/expert/unexpected.md", content: "# Out-of-scope change\n" },
+    "Only agents/evidence-validator/fixture-target.md may change. An unexpected file is an acceptance failure; report fail, explain the observed violation, and do not call the evidence safe to commit.",
+    { path: "agents/evidence-validator/unexpected.md", content: "# Out-of-scope change\n" },
   );
   const beforeEvidence = repositoryEvidence(root);
   try {

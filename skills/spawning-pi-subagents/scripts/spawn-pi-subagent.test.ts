@@ -136,9 +136,9 @@ test("normal component-builder launches forward the bounded in-process gate budg
   expect(parsed.budget["wall-clock-seconds"]).toBe(900);
 });
 
-test("expert validation uses the fixed read-only same-worktree capability profile", async () => {
+test("evidence validation uses the fixed read-only same-worktree capability profile", async () => {
   const result = await runLauncher([
-    "--agent", "agents/expert/agent.md",
+    "--agent", "agents/evidence-validator/agent.md",
     "--task", "Read-only validation.",
     "--cwd", process.cwd(),
     "--caller", "component-builder",
@@ -301,9 +301,9 @@ test("rejects empty declared tools before launch", async () => {
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
-test("expert safety profile is independent of caller metadata", async () => {
+test("evidence-validator safety profile is independent of caller metadata", async () => {
   const result = await runLauncher([
-    "--agent", "agents/expert/agent.md",
+    "--agent", "agents/evidence-validator/agent.md",
     "--task", "Capability-based read-only validation.",
     "--cwd", process.cwd(),
     "--caller", "untrusted-role",
