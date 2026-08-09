@@ -79,6 +79,8 @@ Passed:
 - `bun test components/observability/tracer.test.ts components/observability/lifecycle-hierarchy.test.ts` — 9 passed, 46 expectations.
 - `bun build components/control-plane/control-plane.ts --target bun --outfile /tmp/as-is-control-plane-build.js` — successful.
 - `git diff --check` — passed.
+- `bun test components/budget-control/budget.test.ts components/control-plane/control-plane.test.ts components/subprocess-execution-foundation/supervisor.test.ts` — 23 passed, 175 expectations.
+- `bun build components/budget-control/budget.ts --target bun --outfile /tmp/as-is-budget-build.js` — successful.
 
 - `bun test components/observability/tracer.test.ts components/observability/lifecycle-hierarchy.test.ts` — 9 passed, 46 expectations.
 - `bun test components/control-plane/control-plane.test.ts` — 5 passed, 31 expectations.
@@ -94,7 +96,13 @@ Not yet available.
 
 ## Blockers And Escalations
 
-The minimal extension path is implemented. Residual risk: the directory lock
+The minimal extension path is implemented. A first consolidation slice now
+lives in `components/budget-control/budget.ts`: shared remaining-budget,
+exhaustion, and admission arithmetic is used by both control-plane delegation/
+extension and supervisor exhaustion checks. It is an arithmetic helper only;
+task records remain authoritative and unknown provider cost remains unknown.
+
+Residual risk: the directory lock
 is a small-process lock and reports busy rather than waiting; it protects the
 parent/component update pair only when all writers use this control-plane path.
 Provider monetary cost remains unavailable and is not hard-enforced. Root tasks

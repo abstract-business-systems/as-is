@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { emitTrace, startSpan, type TracerConfig, type SpanLifecycle } from "../observability/tracer.ts";
+import { isExhausted } from "../budget-control/budget.ts";
 
 /**
  * A small, host-neutral execution boundary.
@@ -356,8 +357,7 @@ function budgetDimensionExhausted(
   spent: number | UnavailableValue,
   reserve: number | UnavailableValue,
 ): boolean | "unknown" {
-  if (typeof allocation !== "number" || typeof spent !== "number" || typeof reserve !== "number") return "unknown";
-  return allocation - spent - reserve <= 0;
+  return isExhausted({ allocation, spent, reserve });
 }
 
 function admissionBlocker(budget: UsageBudget): string | null {

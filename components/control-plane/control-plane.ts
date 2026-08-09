@@ -27,6 +27,7 @@ import {
 } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { createHash, randomBytes } from "node:crypto";
+import { admits, remainingBudget } from "../budget-control/budget.ts";
 
 export const STATUSES = new Set([
   "ready",
@@ -842,8 +843,8 @@ export class ControlPlane {
     const parentCost = resource(constraints(parent), "cost");
     const parentExecution = resource(constraints(parent), "execution");
     const parentWall = resource(parentExecution, "wall-clock");
-    const remainingCost = Number(parentCost.allocated ?? 0) - Number(parentCost.spent ?? 0) - Number(parentCost.reserve ?? 0);
-    const remainingWall = Number(parentWall["allocated-seconds"] ?? 0) - Number(parentWall["spent-seconds"] ?? 0) - Number(parentWall["reserve-seconds"] ?? 0);
+    const costBudget = { allocation: Number(parentCost.allocated ?? 0), spent: Number(parentCost.spent ?? 0), reserve: Number(parentCost.reserve ?? 0) };
+    const wallBudget = { allocation: Number(parentWall["allocated-seconds"] ?? 0), spent: Number(parentWall["spent-seconds"] ?? 0), reserve: Number(parentWall["reserve-seconds"] ?? 0) };
     const committedCost = children.reduce((sum, item) => sum + Number(resource(constraints(item), "cost").allocated ?? 0), 0);
     const committedWall = children.reduce((sum, item) => sum + Number(resource(resource(constraints(item), "execution"), "wall-clock")["allocated-seconds"] ?? 0), 0);
     const targetIsParent = target.path === parent.path;
@@ -851,9 +852,8 @@ export class ControlPlane {
     const currentTargetWall = Number(resource(resource(constraints(target), "execution"), "wall-clock")["allocated-seconds"] ?? 0);
     const committedTargetCost = targetIsParent ? 0 : currentTargetCost;
     const committedTargetWall = targetIsParent ? 0 : currentTargetWall;
-    if (committedCost + committedTargetCost + options.cost > remainingCost) throw new ControlPlaneError("extension cost exceeds parent remaining budget");
-    if (committedWall + committedTargetWall + options.wall > remainingWall) throw new ControlPlaneError("extension wall-clock exceeds parent remaining budget");
-    const targetCost = resource(constraints(target), "cost");
+    if (!admits(costBudget, committedCost + committedTargetCost, options.cost)) throw new ControlPlaneError("extension cost exceeds parent remaining budget");
+    if (!admits(wallBudget, committedWall + committedTargetWall, options.wall)) throw new ControlPlaneError("extension wall-clock exceeds parent remaining budget");    const targetCost = resource(constraints(target), "cost");
     const targetWall = resource(resource(constraints(target), "execution"), "wall-clock");
     const nextCost = Number(targetCost.allocated ?? 0) + options.cost;
     const nextWall = Number(targetWall["allocated-seconds"] ?? 0) + options.wall;
@@ -1039,10 +1039,10 @@ configured leaf slot is available.
     if (!isMapping(parentWall)) throw new ControlPlaneError("parent has no allocatable wall-clock budget");
     const existingCost = children.reduce((sum, item) => sum + Number(resource(constraints(item), "cost").allocated ?? 0), 0);
     const existingWall = children.reduce((sum, item) => sum + Number(resource(resource(constraints(item), "execution"), "wall-clock")["allocated-seconds"] ?? 0), 0);
-    const remainingCost = Number(parentCost.allocated ?? 0) - Number(parentCost.spent ?? 0) - Number(parentCost.reserve ?? 0);
-    const remainingWall = Number(parentWall["allocated-seconds"] ?? 0) - Number(parentWall["spent-seconds"] ?? 0) - Number(parentWall["reserve-seconds"] ?? 0);
-    if (existingCost + options.allocatedCost > remainingCost) throw new ControlPlaneError("child cost allocations exceed parent remaining budget");
-    if (existingWall + options.allocatedWall > remainingWall) throw new ControlPlaneError("child wall-clock allocations exceed parent remaining budget");
+    const costBudget = { allocation: Number(parentCost.allocated ?? 0), spent: Number(parentCost.spent ?? 0), reserve: Number(parentCost.reserve ?? 0) };
+    const wallBudget = { allocation: Number(parentWall["allocated-seconds"] ?? 0), spent: Number(parentWall["spent-seconds"] ?? 0), reserve: Number(parentWall["reserve-seconds"] ?? 0) };
+    if (!admits(costBudget, existingCost, options.allocatedCost)) throw new ControlPlaneError("child cost allocations exceed parent remaining budget");
+    if (!admits(wallBudget, existingWall, options.allocatedWall)) throw new ControlPlaneError("child wall-clock allocations exceed parent remaining budget");
     const externalEffects = options.externalEffects ?? effect(parentRecord);
     if (!(externalEffects in EFFECT_RANK) || EFFECT_RANK[externalEffects] > EFFECT_RANK[effect(parentRecord)]) {
       throw new ControlPlaneError("child external-effects policy weakens its parent");
