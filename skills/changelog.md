@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-08-15: Completed backlog item `functional-context-design-diagrams`. Added the reusable `functional-context-diagrams` skill with bounded inputs, functional-versus-technical context rules, context-map and outcome-flow templates, output requirements, validation checks, escalation boundaries, and durable component context. Linked it from the skills component record and the repository capability catalog. Focused content assertions and `git diff --check` passed; no runtime behavior changed.
+
 - 2026-08-12: Moved the Pi host entrypoint from the `as-is` skill to `.pi/prompts/as-is.md`, which launches `agents/as-is/agent.md` directly through the generic launcher. Removed the skill from project settings and retained its file only as a deprecated compatibility alias. Updated the launcher handoff fixture to mutate an actual orientation script rather than the deprecated alias; focused launcher and routing tests passed.
 
 - Completed `tool-contract-and-completion-gates`: tightened the reusable task

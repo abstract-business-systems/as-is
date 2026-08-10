@@ -100,6 +100,11 @@ that govern this catalog and its implementation.
 - **Durable record structuring:** Create and maintain `as-is.md` architecture
   records with stable sections, explicit links, diagrams, and parent-to-child
   context handoff. See [`skills/structuring-as-is-records/SKILL.md`](skills/structuring-as-is-records/SKILL.md).
+
+- **Functional context diagrams:** Design bounded diagrams around user goals,
+  responsibilities, boundaries, flows, and outcomes without substituting
+  technical architecture for functional context. See
+  [`skills/functional-context-diagrams/SKILL.md`](skills/functional-context-diagrams/SKILL.md).
 - **Assumption tracking:** Make uncertainty explicit and validate consequential
   assumptions.
 - **System modeling:** Map data flow, state, control flow, ownership, and
