@@ -101,6 +101,10 @@ that govern this catalog and its implementation.
   records with stable sections, explicit links, diagrams, and parent-to-child
   context handoff. See [`skills/structuring-as-is-records/SKILL.md`](skills/structuring-as-is-records/SKILL.md).
 
+- **Managing as-is documents:** Maintain bounded durable component records,
+  their links, and reader-oriented diagrams without transferring authority to
+  scripts or diagrams. See [`skills/as-is/SKILL.md`](skills/as-is/SKILL.md).
+
 - **Mermaid diagram design:** Design bounded Mermaid diagrams around component
   purpose, subcomponents, responsibilities, relationships, interactions,
   boundaries, flows, and outcomes without substituting technical architecture

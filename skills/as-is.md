@@ -9,6 +9,7 @@ Maintain the durable organization and authority context for reusable skills.
 
 | Component | Purpose |
 | --- | --- |
+| [Managing as-is documents](as-is/as-is.md) | Create and maintain durable component records. |
 | [Context building](context-building/as-is.md) | Assemble bounded, provenance-bearing context. |
 | [Execution evidence](exploring-execution-evidence/as-is.md) | Investigate traces and readable sessions. |
 | [Functional context diagrams](functional-context-diagrams/as-is.md) | Design bounded functional-context diagrams. |
