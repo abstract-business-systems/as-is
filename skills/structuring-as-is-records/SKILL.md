@@ -7,9 +7,10 @@ description: Creates and maintains durable as-is.md component records with stabl
 
 Use this skill when creating a repository or component `as-is.md`, or when a
 bounded maintenance task changes its durable structure. It owns the reusable
-record shape, hierarchy, link integrity, and diagram-navigation rules; it does
-not own project-wide adoption/setup or the lifecycle routing of an individual
-record. The record is durable
+record shape, hierarchy, link integrity, and diagram-navigation rules; detailed diagram authoring is defined in the
+sibling [`diagram-design.md`](diagram-design.md), which uses the hierarchical
+design context; it does not own project-wide adoption/setup or the lifecycle
+routing of an individual record. The record is durable
 architecture and navigation context consumed by both human readers and agents.
 It is not a task record, configuration store, or history archive.
 
@@ -141,6 +142,8 @@ configuration there.
 
 ## Links
 
+- [`diagram-design.md`](diagram-design.md) — detailed component and flow diagram authoring procedure.
+- [`backlog.md`](backlog.md) — implementation backlog for record-structuring and diagram behavior.
 - [`../backlog.md`](../backlog.md) — pending evaluation of the boundary between this record-structuring skill and `managing-as-is-document`.
 
 ## Output and stopping conditions
