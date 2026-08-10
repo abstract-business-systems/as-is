@@ -9,10 +9,10 @@ Maintain the durable organization and authority context for reusable skills.
 
 | Component | Purpose |
 | --- | --- |
-| [Managing as-is documents](as-is/as-is.md) | Create and maintain durable component records. |
+| [Managing as-is documents](managing-as-is-document/as-is.md) | Create and maintain durable component records. |
 | [Context building](context-building/as-is.md) | Assemble bounded, provenance-bearing context. |
 | [Execution evidence](exploring-execution-evidence/as-is.md) | Investigate traces and readable sessions. |
-| [Functional context diagrams](mermaid-diagram-design/as-is.md) | Design bounded functional-context diagrams. |
+| [Mermaid diagram design](mermaid-diagram-design/as-is.md) | Design bounded Mermaid diagrams for complete component context. |
 | [Implementing tasks](implementing-component-tasks/as-is.md) | Run bounded component-task lifecycle. |
 | [Maintaining components](maintaining-components/as-is.md) | Perform evidence-based component housekeeping. |
 | [Managing backlog](managing-backlog/as-is.md) | Prioritize bounded work proposals. |
