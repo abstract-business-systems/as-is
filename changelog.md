@@ -27,7 +27,7 @@
   `skills/spawning-pi-subagents/changelog.md`; its Pi host-version alignment
   remains unresolved.
 
-- 2026-07-29: Removed mandatory dry-run/preflight checks from `skills/as-is/SKILL.md` and `skills/spawning-pi-subagents/SKILL.md`; retained optional `--dry-run` guidance and the separate provider-free stub/dummy budget-enforcement rehearsal. Build, reference, and formatting checks passed; focused launcher tests had documented host/worktree-sensitive failures. Read-only expert validation passed and judged the scoped change safe to commit.
+- 2026-07-29: Removed mandatory dry-run/preflight checks from `skills/managing-as-is-document/SKILL.md` and `skills/spawning-pi-subagents/SKILL.md`; retained optional `--dry-run` guidance and the separate provider-free stub/dummy budget-enforcement rehearsal. Build, reference, and formatting checks passed; focused launcher tests had documented host/worktree-sensitive failures. Read-only expert validation passed and judged the scoped change safe to commit.
 
 # Changelog
 

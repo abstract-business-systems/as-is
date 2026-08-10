@@ -520,9 +520,11 @@ test("child commit handoff is explicitly pending parent integration", async () =
     const stubPi = join(dir, "pi-commit-stub.sh");
     writeFileSync(stubPi, [
       "#!/usr/bin/env bash",
-      "printf '\\n// handoff fixture\\n' >> skills/as-is/scripts/orient.ts",
-      "git add skills/as-is/scripts/orient.ts",
-      "git -c user.email=test@example.invalid -c user.name=test commit --allow-empty -m 'test: child handoff' >/dev/null",
+      "git config user.email test@example.invalid",
+      "git config user.name test",
+      "printf '\\n// handoff fixture\\n' >> skills/managing-as-is-document/scripts/orient.ts",
+      "git add skills/managing-as-is-document/scripts/orient.ts",
+      "git commit --allow-empty -m 'test: child handoff' >/dev/null",
       "exit 0",
       "",
     ].join("\n"), { mode: 0o755 });
@@ -870,8 +872,8 @@ test("worktree preservation: uncommitted work on clean exit is preserved", async
     writeFileSync(stubPi, [
       "#!/usr/bin/env bash",
       "# Simulate an agent that does work but exits without committing.",
-      "mkdir -p skills/as-is/scripts",
-      "echo 'unfinished work' > skills/as-is/scripts/scratch.ts",
+      "mkdir -p skills/managing-as-is-document/scripts",
+      "echo 'unfinished work' > skills/managing-as-is-document/scripts/scratch.ts",
       "exit 0",
       "",
     ].join("\n"), { mode: 0o755 });
@@ -894,7 +896,7 @@ test("worktree preservation: uncommitted work on clean exit is preserved", async
     // The worktree must still exist (preserved for recovery), and contain the
     // uncommitted file the stub created.
     expect(existsSync(handle.worktreePath)).toBe(true);
-    const scratch = join(handle.worktreePath, "skills/as-is/scripts/scratch.ts");
+    const scratch = join(handle.worktreePath, "skills/managing-as-is-document/scripts/scratch.ts");
     expect(existsSync(scratch)).toBe(true);
     expect(readFileSync(scratch, "utf8")).toContain("unfinished work");
 

@@ -18,7 +18,7 @@ context; it is not a task record, backlog, configuration store, or runtime log.
   boundary, and direct links needed for navigation.
 - Applicable parent instructions, bounded requirement, audience, assumptions,
   and acceptance conditions.
-- The generic [Mermaid diagram design](../functional-context-diagrams/SKILL.md)
+- The generic [Mermaid diagram design](../mermaid-diagram-design/SKILL.md)
   skill when a visual context view materially reduces interpretation cost.
 
 The component directory is the default scope. Read outside it only for named
@@ -99,5 +99,5 @@ scope.
 - [as-is.md](as-is.md) — durable record for this skill component.
 - [scripts/orient.ts](scripts/orient.ts) — read-only orientation snapshot utility.
 - [scripts/orient.test.ts](scripts/orient.test.ts) — focused orientation checks.
-- [../functional-context-diagrams/SKILL.md](../functional-context-diagrams/SKILL.md) — reusable Mermaid diagram design.
+- [../mermaid-diagram-design/SKILL.md](../mermaid-diagram-design/SKILL.md) — reusable Mermaid diagram design.
 - [../structuring-as-is-records/SKILL.md](../structuring-as-is-records/SKILL.md) — durable record structure and link integrity.

@@ -53,7 +53,7 @@ the role retains the authority decisions those skills cannot make.
 ## Required flow
 
 1. When starting and after a child returns, orient with
-   `bun skills/as-is/scripts/orient.ts` when useful. Advance the task to
+   `bun skills/managing-as-is-document/scripts/orient.ts` when useful. Advance the task to
    `active`, formulate the plan, and obtain attributable expert plan review
    before edits. The review covers scope, dependencies, acceptance, and
    recovery; revise or record a blocker when it fails.

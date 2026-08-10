@@ -103,13 +103,13 @@ that govern this catalog and its implementation.
 
 - **Managing as-is documents:** Maintain bounded durable component records,
   their links, and reader-oriented diagrams without transferring authority to
-  scripts or diagrams. See [`skills/as-is/SKILL.md`](skills/as-is/SKILL.md).
+  scripts or diagrams. See [`skills/managing-as-is-document/SKILL.md`](skills/managing-as-is-document/SKILL.md).
 
 - **Mermaid diagram design:** Design bounded Mermaid diagrams around component
   purpose, subcomponents, responsibilities, relationships, interactions,
   boundaries, flows, and outcomes without substituting technical architecture
   for reader-oriented context. See
-  [`skills/functional-context-diagrams/SKILL.md`](skills/functional-context-diagrams/SKILL.md).
+  [`skills/mermaid-diagram-design/SKILL.md`](skills/mermaid-diagram-design/SKILL.md).
 - **Assumption tracking:** Make uncertainty explicit and validate consequential
   assumptions.
 - **System modeling:** Map data flow, state, control flow, ownership, and

@@ -1,6 +1,6 @@
 # Mermaid Component Diagrams Backlog
 
-This is the planning index for the `skills/functional-context-diagrams`
+This is the planning index for the `skills/mermaid-diagram-design`
 component, not task authority. Active work belongs to the component's
 configured task record; completed items are removed after their summary is
 recorded in `changelog.md`.

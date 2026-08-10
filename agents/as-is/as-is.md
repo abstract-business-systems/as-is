@@ -105,5 +105,5 @@ demonstrates a need.
 
 - [`as-is-record-structure.md`](as-is-record-structure.md) — planning contract for durable component-record structure and incremental maintenance.
 - [`agent.md`](agent.md) — user-facing routing and delegation contract.
-- [`orient.ts`](../../../skills/as-is/scripts/orient.ts) — repository orientation snapshot used by status/routing turns.
+- [`orient.ts`](../../../skills/managing-as-is-document/scripts/orient.ts) — repository orientation snapshot used by status/routing turns.
 - [`live-behavioral.test.ts`](live-behavioral.test.ts) — opt-in live behavioral baseline for independent routing behavior.

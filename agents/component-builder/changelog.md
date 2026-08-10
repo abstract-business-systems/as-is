@@ -57,7 +57,7 @@ plan/advice/final validation, and reserves `spawning-pi-subagents` for separatel
 owned component boundaries. No Phase 2a, migration, launcher, parent, sibling, or
 root files were changed.
 
-Validation: `bun skills/as-is/scripts/orient.ts` completed before work;
+Validation: `bun skills/managing-as-is-document/scripts/orient.ts` completed before work;
 `git diff --check` passed; attributable in-process `EXPERT PLAN REVIEW` passed
 before edits; attributable in-process `EXPERT FINAL-DIFF VALIDATION` passed after
 edits and declared the change safe to commit. Host-reported cost and
@@ -77,5 +77,5 @@ scoped commit handoff.
 
 - **Component:** component-builder Orientation.
 - **Result:** Completed the bounded orientation snapshot and contract update. No child records or descendants were created; all acceptance work is terminal.
-- **Validation retained:** - The component-builder contract file contains the orientation line and the report-only handling note. - `opencode agent list` discovers `component-builder (subagent)`. - The agent file front-matter is valid with no duplicated fragment. - `bun test skills/as-is/scripts/orient.test.ts` passed (1 test). - `bun build --no-bundle --target bun --outfile /tmp/orient.js skills/as-is/scripts/orient.ts` passed. - `git diff --check` passed.
+- **Validation retained:** - The component-builder contract file contains the orientation line and the report-only handling note. - `opencode agent list` discovers `component-builder (subagent)`. - The agent file front-matter is valid with no duplicated fragment. - `bun test skills/managing-as-is-document/scripts/orient.test.ts` passed (1 test). - `bun build --no-bundle --target bun --outfile /tmp/orient.js skills/managing-as-is-document/scripts/orient.ts` passed. - `git diff --check` passed.
 - **Record migration:** Removed completed transient task narrative from `as-is.md`; Git history retains the original detailed evidence.

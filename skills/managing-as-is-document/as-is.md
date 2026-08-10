@@ -26,7 +26,7 @@ flowchart LR
 
 This skill is used by agents and orchestrators that maintain component context;
 it does not select, authorize, or launch them. It composes with the generic
-[Mermaid diagram design skill](../functional-context-diagrams/as-is.md) for
+[Mermaid diagram design skill](../mermaid-diagram-design/as-is.md) for
 visual representation and with
 [structuring-as-is-records](../structuring-as-is-records/as-is.md) for the
 canonical record shape. The existing orientation utility is a read-only
@@ -45,5 +45,5 @@ records. The scripts remain in place and are not duplicated or moved.
 - [SKILL.md](SKILL.md) — authoritative procedure, boundaries, outputs, and checks.
 - [scripts/orient.ts](scripts/orient.ts) — compact read-only repository task snapshot.
 - [scripts/orient.test.ts](scripts/orient.test.ts) — focused orientation tests.
-- [../functional-context-diagrams/as-is.md](../functional-context-diagrams/as-is.md) — Mermaid diagram-design component context.
+- [../mermaid-diagram-design/as-is.md](../mermaid-diagram-design/as-is.md) — Mermaid diagram-design component context.
 - [../structuring-as-is-records/as-is.md](../structuring-as-is-records/as-is.md) — canonical durable record guidance.
