@@ -1,5 +1,13 @@
 # Changelog
 
+- 2026-08-15: Refreshed `as-is.md` to reflect the current builder contract:
+  separate durable context from task authority, distinguish in-process review
+  from separately owned child handoff, document parent/child boundaries and
+  semantic integration ownership, and link the current reusable procedures.
+  Validation: focused orientation test, Markdown link checks, and
+  `git diff --check` passed. Residual risk: the record describes the role
+  contract but does not exercise provider-gated runtime behavior.
+
 - 2026-08-14: Completed the first skills/agents separation extraction for
   `component-builder`. Reduced `agent.md` from 89 lines / 7,263 bytes to 79
   lines / 4,578 bytes by moving duplicated lifecycle, validation, recovery, and
