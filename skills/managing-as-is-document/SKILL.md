@@ -49,18 +49,26 @@ infer architecture from ambient filesystem discovery.
 3. Create or revise only the required sections in this order: `Purpose`,
    optional immediate-child `Components`, `Design`, optional `Relationships`,
    optional `Boundary`, and `Links`. Keep prose authoritative and concise.
-4. Add a Mermaid diagram only when it clarifies purpose, responsibilities,
-   meaningful subcomponents, relationships, interactions, authority changes,
-   consequential or alternate flows, and observable outcomes. Invoke the
-   Mermaid diagram-design skill to select the smallest useful type; use
-   reader-oriented labels and omit implementation detail unless a separate
-   technical view is explicitly requested.
+4. Add a Mermaid diagram when prose and links alone leave a meaningful reader
+   question about the component's context, responsibility changes, interactions,
+   or consequential outcome. Apply the Mermaid diagram-design skill to select
+   the smallest useful type. The `as-is.md` view must communicate, at the
+   requested scope, the component's purpose, actors or users, one or more
+   meaningful immediate subcomponents when present, their responsibilities,
+   relationships, interactions, boundaries, authority changes, consequential
+   primary flows, and observable outcomes. Add alternate, rejected, or recovery
+   paths only when they materially affect understanding. Use functional labels
+   that do not require implementation knowledge; omit implementation detail
+   unless a separate technical view is explicitly requested.
 5. Link only direct, resolving repository-relative context. Describe why each
    non-obvious link matters. Preserve existing scripts and link them when they
    are relevant; do not duplicate or move them speculatively.
-6. Validate headings, authority separation, diagram semantics and syntax when
-   present, and all changed Markdown links. Run the smallest relevant
-   deterministic checks and `git diff --check`.
+6. Validate headings, authority separation, diagram semantics and Mermaid
+   syntax when present, and all changed Markdown links. Confirm every node and
+   edge has supported meaning, boundaries and consequential paths are visible,
+   and the diagram agrees with authoritative prose. Record assumptions,
+   unknowns, omitted detail, and residual risk rather than inferring context.
+   Run the smallest relevant deterministic checks and `git diff --check`.
 7. Record completed durable changes in the owning `changelog.md`. Stop before
    claiming completion if required evidence, links, boundaries, or authority
    are ambiguous.

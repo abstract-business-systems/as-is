@@ -9,15 +9,21 @@ runtime authorities.
 
 ## Design
 
-The skill inspects an owned record, preserves authoritative prose, optionally
-adds a reader-oriented Mermaid view, validates links and structure, and records
-completed durable changes in the owning changelog.
+The skill inspects an owned record, preserves authoritative prose, and adds a
+Mermaid view only when it reduces the reader's cost of understanding purpose,
+actors, meaningful subcomponents, responsibilities, relationships,
+interactions, boundaries, authority changes, consequential flows, and outcomes.
+The generic Mermaid skill selects the diagram type; this component defines how
+that view is applied to `as-is.md` and records assumptions or omitted detail.
+It validates links and structure before recording completed durable changes in
+the owning changelog.
 
 ```mermaid
 flowchart LR
     AUTHOR[Component owner or maintainer] --> CONTEXT[Authoritative component context]
     CONTEXT --> RECORD[Durable as-is record]
-    DIAGRAM[Mermaid diagram design] --> RECORD
+    DIAGRAM[Mermaid diagram design] --> VIEW[Reader-oriented context view]
+    VIEW --> RECORD
     RECORD --> READER[Understandable purpose, boundaries, and relationships]
     CHECKS[Deterministic documentation checks] --> RECORD
 ```
@@ -43,6 +49,7 @@ records. The scripts remain in place and are not duplicated or moved.
 ## Links
 
 - [SKILL.md](SKILL.md) — authoritative procedure, boundaries, outputs, and checks.
+- [../mermaid-diagram-design/SKILL.md](../mermaid-diagram-design/SKILL.md) — selects the appropriate Mermaid representation; this skill owns its as-is application.
 - [scripts/orient.ts](scripts/orient.ts) — compact read-only repository task snapshot.
 - [scripts/orient.test.ts](scripts/orient.test.ts) — focused orientation tests.
 - [../mermaid-diagram-design/as-is.md](../mermaid-diagram-design/as-is.md) — Mermaid diagram-design component context.
