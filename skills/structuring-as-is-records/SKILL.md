@@ -6,7 +6,10 @@ description: Creates and maintains durable as-is.md component records with stabl
 # Structuring Durable `as-is.md` Records
 
 Use this skill when creating a repository or component `as-is.md`, or when a
-bounded maintenance task changes its durable structure. The record is durable
+bounded maintenance task changes its durable structure. It owns the reusable
+record shape, hierarchy, link integrity, and diagram-navigation rules; it does
+not own project-wide adoption/setup or the lifecycle routing of an individual
+record. The record is durable
 architecture and navigation context consumed by both human readers and agents.
 It is not a task record, configuration store, or history archive.
 
@@ -30,6 +33,8 @@ Use these sections in this order when applicable:
 
 1. `# <Component> ...` — clear human-facing title.
 2. `## Purpose` — why the component exists and what responsibility it owns.
+   The directory containing this record defines the component boundary; do not
+   add a redundant boundary section merely to restate it.
 3. `## Components` — a table only when this record has documented immediate
    children. A child is a component only when it has its own `as-is.md`; do not
    list ordinary directories or descendants without component records. Link
@@ -45,11 +50,10 @@ Use these sections in this order when applicable:
    materially affects understanding. Keep parent-to-child context-handoff
    procedure in the relevant builder/record skills rather than unrelated role
    records. Omit when the component has no material relationship to explain.
-7. `## Boundary` — what the component owns and does not own. Use this section
-   only when ownership, checkout, access, or authority limits add context that
-   is not already clear from Purpose, Components, or Design. Prefer stating a
-   small boundary in Purpose or Design when that is clearer; do not add a
-   repetitive Boundary section merely to satisfy a template.
+7. If ownership, access, or authority limits add context not already clear
+   from the directory, Purpose, Components, or Design, state those limits in
+   the smallest relevant section. Do not add a repetitive `## Boundary`
+   section merely to restate the directory-defined component boundary.
 8. `## Links` — only direct repository-relative links needed to understand this
    component or operate within its boundary. Do not repeat links already serving
    as component navigation unless they provide additional context.
@@ -58,8 +62,11 @@ A diagram is not universal and is not required for every maintained record.
 When useful, place it inside `## Design` after the opening orientation sentence
 and before the detailed design points. Omit it when prose and navigation links
 are sufficient, especially for grouping or marker records. Use Mermaid `click`
-links only when they resolve from the record's location. Prose, Components
-tables, and Markdown links remain authoritative if a diagram diverges.
+links only when they resolve from the record's location. Component names in
+rendered diagrams should link to the target record's diagram section, normally
+`as-is.md#design`, rather than only to the component directory. The rendered
+SVG should preserve those hyperlinks where supported. Prose, Components tables,
+and Markdown links remain authoritative if a diagram diverges.
 
 ## Parent-to-child context handoff
 
@@ -78,6 +85,8 @@ unless evidence demonstrates a concrete ownership, safety, or cost problem.
 
 - Use clickable repository-relative Markdown links that resolve from the record's
   location; do not leave navigational targets as bare code spans.
+- Prefer component-name links to the target's `as-is.md#design` section so
+  navigation opens architecture context rather than only the component route.
 - Use `Links` only for additional context needed to understand this component's
   purpose, design, relationships, or boundary. Component-navigation links
   belong in `Components`, not again in `Links`.
@@ -102,8 +111,9 @@ section that owns them:
 - parent/child and dependency facts → `Relationships` when they are part of
   the component's architecture; builder handoff procedure belongs in the
   builder/record-structuring skills;
-- ownership and checkout boundary facts → `Boundary` when they materially
-  define the component's scope;
+- ownership and checkout boundary facts → the smallest relevant existing
+  section (usually Purpose or Design); do not create `Boundary` merely to
+  restate the directory-defined component scope;
 - stable composition decisions → `Design`;
 - architectural limitations or deferred decisions → `Follow-up` with a
   backlog/design link;
@@ -128,6 +138,10 @@ configuration there.
 6. Record completed structural facts in the owning `changelog.md`; remove
    temporary material only after checking tracked consumers, recovery value, and
    references.
+
+## Links
+
+- [`../backlog.md`](../backlog.md) — pending evaluation of the boundary between this record-structuring skill and `managing-as-is-document`.
 
 ## Output and stopping conditions
 

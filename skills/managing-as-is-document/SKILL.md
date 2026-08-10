@@ -6,7 +6,10 @@ description: Creates and maintains durable as-is.md component records with clear
 # Managing As-Is Documents
 
 Use this skill when a repository or component needs a durable `as-is.md`
-record created, maintained, or structurally reconciled. The record explains
+record created, maintained, or structurally reconciled. This skill is for the
+lifecycle of an individual record: creating, updating, validating, and keeping
+it navigable. It is not the project-adoption/setup procedure for introducing
+`as-is` into an existing project. The record explains
 what a component is responsible for and how readers should navigate its
 context; it is not a task record, backlog, configuration store, or runtime log.
 
@@ -27,8 +30,10 @@ infer architecture from ambient filesystem discovery.
 
 ## Authority and boundaries
 
-- `as-is.md` owns durable purpose, design, relationships, boundaries, diagrams,
-  and navigational links.
+- `as-is.md` owns durable purpose, design, relationships, diagrams, and
+  navigational links. The component boundary is the directory containing the
+  record; do not add a separate `Boundary` section merely to restate that
+  directory boundary.
 - This skill owns the as-is-specific design contract: an `as-is.md` diagram
   explains what the component does, its meaningful subcomponents and their
   responsibilities, how those responsibilities interact, where boundaries or
@@ -46,6 +51,12 @@ infer architecture from ambient filesystem discovery.
   they do not own record meaning, task authority, or agent selection.
 - A record may describe parent and child relationships but never grants
   permission to edit another component's files or state.
+- Component diagrams should make component navigation direct: render the
+  component's name as a link to the target record's diagram section, normally
+  `as-is.md#design`, rather than linking only to the directory route. Mermaid
+  `click` targets should resolve to the same repository-relative SVG hyperlink
+  when rendered; the source diagram remains readable without relying on the
+  rendered link.
 
 ## Procedure
 
@@ -57,7 +68,10 @@ infer architecture from ambient filesystem discovery.
    facts and flag contradictions or assumptions.
 3. Create or revise only the required sections in this order: `Purpose`,
    optional immediate-child `Components`, `Design`, optional `Relationships`,
-   optional `Boundary`, and `Links`. Keep prose authoritative and concise.
+   and `Links`. The directory containing `as-is.md` defines the component
+   boundary; add boundary prose only when a meaningful ownership or authority
+   distinction is not clear from the directory, purpose, components, or design.
+   Keep prose authoritative and concise.
 4. Add a diagram when prose and links alone leave a meaningful reader question
    about the component's context, responsibility changes, interactions, or
    consequential outcome. Define the as-is-specific content first: the view
@@ -93,6 +107,11 @@ infer architecture from ambient filesystem discovery.
 ## Checks
 
 - The record has a clear purpose and does not contain transient task state.
+- The component boundary is supplied by the owning directory; no redundant
+  boundary section is required.
+- Component names in diagrams link to the target component's `## Design`
+  section, and rendered SVG preserves those hyperlinks where the renderer
+  supports them.
 - Immediate child components are linked only when they have their own
   `as-is.md`; grandchildren are not duplicated.
 - Design explains responsibility and relationships without duplicating linked
@@ -117,4 +136,5 @@ scope.
 - [scripts/orient.ts](scripts/orient.ts) — read-only orientation snapshot utility.
 - [scripts/orient.test.ts](scripts/orient.test.ts) — focused orientation checks.
 - [../mermaid-diagram-design/SKILL.md](../mermaid-diagram-design/SKILL.md) — reusable Mermaid diagram design.
-- [../structuring-as-is-records/SKILL.md](../structuring-as-is-records/SKILL.md) — durable record structure and link integrity.
+- [../structuring-as-is-records/SKILL.md](../structuring-as-is-records/SKILL.md) — reusable durable record structure and link integrity.
+- [../backlog.md](../backlog.md) — pending evaluation of the boundary between this lifecycle skill and record-structuring skill.
