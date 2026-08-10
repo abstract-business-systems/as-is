@@ -16,3 +16,4 @@
 - Preserve one authoritative home for current state and distinguish durable
   component context, transient tasks, backlog proposals, and private runtime
   state.
+- Use the reusable Mermaid diagram-design skill when a durable component record needs a visual context view; keep record prose authoritative.

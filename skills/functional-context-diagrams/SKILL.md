@@ -1,130 +1,104 @@
 ---
-name: functional-context-diagrams
-description: Designs bounded diagrams that explain user goals, responsibilities, boundaries, flows, and outcomes without confusing functional context with technical architecture.
+name: mermaid-diagram-design
+description: Designs bounded Mermaid diagrams that explain complete component context, responsibilities, relationships, interactions, boundaries, flows, and outcomes for readers.
 ---
 
-# Functional Context Diagrams
+# Mermaid Diagram Design
 
-Create a diagram when a user, team, or agent needs to understand what a system
-or component does, who it serves, where responsibility changes, or how a
-bounded outcome flows through relevant responsibilities. The diagram is a
-communication aid: authoritative purpose, boundaries, and decisions remain in
-linked prose and records.
+Use this skill when a reader needs a visual explanation of a component's
+purpose, its immediate subcomponents or neighbors, responsibility changes, or
+a consequential outcome. A diagram is a communication aid: authoritative
+purpose, boundaries, and decisions remain in linked prose and records.
 
 ## Inputs
 
 - A named subject and the decision, explanation, or handoff the diagram must
   support.
-- The subject's authoritative purpose, responsibilities, boundaries, relevant
-  actors, neighboring responsibilities, and outcomes.
-- Explicit scope, audience, known assumptions, and any required repository
-  links.
+- Authoritative purpose, immediate subcomponents, responsibilities,
+  relationships, interactions, boundaries, actors, and outcomes.
+- Audience, bounded scope, assumptions, and required repository links.
 
-Do not infer missing responsibilities from implementation names or ambient
-filesystem discovery. Ask for or record an unresolved assumption when the
-source context does not support a relationship.
+Do not infer missing relationships from implementation names or ambient
+filesystem discovery. Record an unresolved assumption or stop when the source
+context does not support a relationship.
 
 ## Functional context
 
-Represent the subject in terms of externally meaningful behavior:
+Represent externally meaningful behavior:
 
-- **Actors and goals:** who requests or depends on the outcome and what they
-  need.
-- **Responsibilities:** meaningful capabilities or decisions owned by the
-  subject and relevant neighbors.
-- **Boundaries:** where responsibility, authority, trust, or scope changes.
-- **Flows:** requests, decisions, information, or outcomes between those
-  responsibilities.
-- **Outcomes:** observable results, rejected paths, or handoff states.
+- **Actors and goals:** who needs the outcome and why.
+- **Responsibilities:** capabilities or decisions owned by the subject and
+  immediate subcomponents.
+- **Relationships and interactions:** how responsibilities cooperate, hand off,
+  constrain, or inform one another.
+- **Boundaries and authority:** where ownership, trust, scope, or authority
+  changes.
+- **Consequential flows and outcomes:** primary requests, decisions, rejected
+  or alternate paths, recovery handoffs, and observable results.
 
-A functional diagram may name a role, record, or capability when it clarifies a
-responsibility. It should not primarily explain process IDs, source modules,
-container topology, deployment infrastructure, providers, protocols, or
-internal data structures. Those belong in a technical diagram or focused
-implementation documentation.
+Use functional nouns and roles rather than filenames. Do not primarily explain
+process IDs, modules, deployment topology, providers, protocols, or internal
+data structures; use a separate technical view when those details are needed.
 
 ## Method
 
-1. State the diagram's subject, audience, purpose, and bounded outcome.
-2. Extract supported actors, goals, responsibilities, boundaries, flows, and
-   outcomes from authoritative context. Label assumptions and unknowns.
-3. Select the smallest useful view: context map for neighboring responsibilities,
-   flow diagram for a bounded journey, or boundary diagram for ownership and
-   authority.
-4. Name nodes with functional nouns or roles. Use meaningful labels rather
-   than implementation filenames. Keep only nodes and edges needed for the
-   stated purpose.
-5. Draw the primary path first, then add only consequential alternate,
-   rejected, or recovery paths. Use notes or prose for details that would make
-   the diagram dense.
-6. Add repository-relative links only when they resolve from the document's
-   location and provide necessary navigation. Prose remains authoritative if a
-   diagram and prose diverge.
-7. Validate that every node has a purpose, every edge has a supported meaning,
-   boundaries are visible where responsibility changes, and technical detail
-   has not displaced the functional view.
-
-## Templates
-
-### Functional context map
-
-```mermaid
-flowchart LR
-    ACTOR[Actor goal] --> CAP[Subject capability]
-    CAP --> OUT[Observable outcome]
-    NEIGHBOR[Relevant neighboring responsibility] --> CAP
-    CAP --> NEIGHBOR
-```
-
-Use this for scope, responsibility, and relationship orientation. Replace the
-placeholder labels with functional names and remove unused nodes.
-
-### Bounded outcome flow
-
-```mermaid
-flowchart TD
-    REQUEST[User request or trigger] --> ADMIT{Relevant boundary or decision}
-    ADMIT -- accepted --> RESPONSIBILITY[Owned functional responsibility]
-    ADMIT -- rejected or deferred --> ALTERNATE[Reason and next outcome]
-    RESPONSIBILITY --> RESULT[Observable result]
-```
-
-Use this for a single user journey or handoff. Keep implementation mechanics
-out of the primary flow; link a separate technical view when needed.
+1. State the subject, audience, purpose, scope, and bounded outcome.
+2. Extract supported actors, goals, the subject, immediate subcomponents,
+   responsibilities, relationships, interactions, boundaries, flows, and
+   outcomes. Label assumptions and unknowns.
+3. Select the smallest useful Mermaid view:
+   - **flowchart** for responsibilities, boundaries, and an outcome journey;
+   - **sequence diagram** for time-ordered interactions or handoffs;
+   - **state diagram** for meaningful lifecycle states and transitions;
+   - **journey** for actor experience across responsibilities;
+   - **context map** using a flowchart when neighboring responsibilities and
+     scope matter more than chronology.
+   Do not force one diagram type when a different type communicates the bounded
+   decision more clearly.
+4. Name nodes with reader-oriented functional labels. Include only the
+   subcomponents, neighbors, and edges needed for the stated scope.
+5. Draw the primary path first, then add consequential alternate, rejected, or
+   recovery paths. Show boundaries where responsibility or authority changes;
+   explain dense detail in prose.
+6. Add only resolving repository-relative links. Prose and component tables
+   remain authoritative if a diagram diverges.
+7. Validate syntax, link targets, supported edge meanings, readable labels,
+   bounded scope, and consistency with authoritative prose.
 
 ## Output
 
 Return or record:
 
-- the diagram in Mermaid or another agreed readable notation;
-- subject, audience, purpose, and scope;
-- a short interpretation of the primary path and boundaries;
+- a Mermaid diagram and its subject, audience, purpose, and scope;
+- a short interpretation of responsibilities, interactions, boundaries, and the
+  primary and consequential alternate paths;
 - source links or provenance for non-obvious relationships;
-- assumptions, unknowns, and any omitted technical detail;
-- validation result and residual risk.
+- assumptions, unknowns, omitted technical detail, validation result, and
+  residual risk.
 
 ## Checks
 
-- The subject and intended outcome are explicit.
-- Actors, responsibilities, relevant boundaries, and consequential outcomes
-  are represented at the selected scope.
+- Subject, audience, scope, and intended outcome are explicit.
+- Immediate subcomponents and their meaningful responsibilities are represented
+  when they are relevant to the purpose.
+- Relationships, interactions, authority boundaries, and consequential outcomes
+  are understandable without implementation knowledge.
 - Every edge expresses a supported functional relationship.
-- Labels are understandable without knowing implementation filenames.
-- Technical architecture is not presented as functional context.
-- The diagram is bounded, readable, and consistent with authoritative prose.
+- The selected Mermaid type fits the question and the diagram is readable.
+- Technical architecture has not displaced functional context.
 - Mermaid syntax and repository-relative links pass the smallest applicable
   deterministic check.
 
 ## Stop and escalate
 
-Stop rather than inventing a diagram when the authoritative purpose or boundary
-is missing, sources contradict one another, the requested view would cross an
-unauthorized component boundary, or the diagram would imply an unapproved
-architecture or authority decision. Propose a separate technical diagram when
-implementation detail is necessary to answer the user's question.
+Stop rather than inventing a diagram when authoritative purpose or boundary is
+missing, sources contradict one another, the view would cross an unauthorized
+component boundary, or it would imply an unapproved architecture or authority
+decision. Propose a separate technical diagram when implementation detail is
+necessary.
 
 ## Boundary
 
-This skill designs and validates representations. It does not change component
-behavior, grant authority, select or launch agents, resolve linked context, or
-make architectural decisions on behalf of the owner.
+This skill designs and validates Mermaid representations. It does not own
+component behavior or records, grant authority, select or launch agents,
+resolve linked context, or make architectural decisions.

@@ -101,9 +101,10 @@ that govern this catalog and its implementation.
   records with stable sections, explicit links, diagrams, and parent-to-child
   context handoff. See [`skills/structuring-as-is-records/SKILL.md`](skills/structuring-as-is-records/SKILL.md).
 
-- **Functional context diagrams:** Design bounded diagrams around user goals,
-  responsibilities, boundaries, flows, and outcomes without substituting
-  technical architecture for functional context. See
+- **Mermaid diagram design:** Design bounded Mermaid diagrams around component
+  purpose, subcomponents, responsibilities, relationships, interactions,
+  boundaries, flows, and outcomes without substituting technical architecture
+  for reader-oriented context. See
   [`skills/functional-context-diagrams/SKILL.md`](skills/functional-context-diagrams/SKILL.md).
 - **Assumption tracking:** Make uncertainty explicit and validate consequential
   assumptions.

@@ -1,31 +1,32 @@
-# Functional Context Diagrams
+# Mermaid Diagram Design
 
 ## Purpose
-Design bounded functional-context diagrams that explain user goals,
-responsibilities, boundaries, flows, and outcomes without replacing
-authoritative component prose or confusing functional context with technical
-architecture.
+Design bounded Mermaid diagrams that make a component's purpose, immediate
+subcomponents, responsibilities, relationships, interactions, boundaries,
+consequential flows, and observable outcomes understandable to readers without
+implementation knowledge.
 
 ## Design
 
-The skill extracts supported functional relationships and presents the
-smallest useful view for its audience and decision.
+The skill selects a Mermaid representation based on the reader's question and
+keeps authoritative context in prose.
 
 ```mermaid
 flowchart LR
-    GOAL[User or actor goal] --> RESPONSIBILITY[Owned responsibility]
-    RESPONSIBILITY --> BOUNDARY[Relevant boundary]
-    BOUNDARY --> OUTCOME[Observable outcome]
+    ACTOR[Actor goal] --> SUBJECT[Subject responsibility]
+    SUBJECT --> CHILD[Relevant subcomponent responsibility]
+    CHILD --> OUTCOME[Observable outcome]
 ```
 
 ## Boundary
 
-The skill owns diagram design and validation guidance. It does not own
-component behavior, task authority, agent selection, context resolution, or
-architectural decisions.
+The skill owns reusable diagram design and validation guidance. The owning
+component record owns the meaning and authority of its purpose, boundaries,
+and relationships. This skill does not own component behavior, task authority,
+agent selection, context resolution, or architectural decisions.
 
 ## Links
 
-- [SKILL.md](SKILL.md) — authoritative procedure and templates.
+- [SKILL.md](SKILL.md) — authoritative procedure and Mermaid type-selection guidance.
 - [../structuring-as-is-records/as-is.md](../structuring-as-is-records/as-is.md) — durable record and diagram placement guidance.
 - [../as-is.md](../as-is.md) — skills component map.
