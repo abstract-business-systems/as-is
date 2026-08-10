@@ -29,6 +29,15 @@ infer architecture from ambient filesystem discovery.
 
 - `as-is.md` owns durable purpose, design, relationships, boundaries, diagrams,
   and navigational links.
+- This skill owns the as-is-specific design contract: an `as-is.md` diagram
+  explains what the component does, its meaningful subcomponents and their
+  responsibilities, how those responsibilities interact, where boundaries or
+  authority change, and which consequential flows and outcomes matter to the
+  reader.
+- [Mermaid diagram design](../mermaid-diagram-design/SKILL.md) owns the
+  reusable representation mechanics: Mermaid syntax and type selection,
+  functional-context framing, clear labels, readability, and exclusion of
+  technical architecture from a functional view.
 - `tasks.md` and `as-is.json.task` own transient task status, progress, budget,
   acceptance evidence, and recovery.
 - `backlog.md` owns unstarted proposals; `changelog.md` owns concise completed
@@ -49,17 +58,17 @@ infer architecture from ambient filesystem discovery.
 3. Create or revise only the required sections in this order: `Purpose`,
    optional immediate-child `Components`, `Design`, optional `Relationships`,
    optional `Boundary`, and `Links`. Keep prose authoritative and concise.
-4. Add a Mermaid diagram when prose and links alone leave a meaningful reader
-   question about the component's context, responsibility changes, interactions,
-   or consequential outcome. Apply the Mermaid diagram-design skill to select
-   the smallest useful type. The `as-is.md` view must communicate, at the
-   requested scope, the component's purpose, actors or users, one or more
+4. Add a diagram when prose and links alone leave a meaningful reader question
+   about the component's context, responsibility changes, interactions, or
+   consequential outcome. Define the as-is-specific content first: the view
+   must communicate the component's purpose, actors or users, one or more
    meaningful immediate subcomponents when present, their responsibilities,
    relationships, interactions, boundaries, authority changes, consequential
    primary flows, and observable outcomes. Add alternate, rejected, or recovery
-   paths only when they materially affect understanding. Use functional labels
-   that do not require implementation knowledge; omit implementation detail
-   unless a separate technical view is explicitly requested.
+   paths only when they materially affect understanding. Then invoke or compose
+   with the Mermaid diagram-design skill for the Mermaid representation, type,
+   functional labels, readability, and technical-detail boundary. Do not create
+   a second diagram-mechanics contract here.
 5. Link only direct, resolving repository-relative context. Describe why each
    non-obvious link matters. Preserve existing scripts and link them when they
    are relevant; do not duplicate or move them speculatively.

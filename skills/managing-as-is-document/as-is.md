@@ -9,12 +9,12 @@ runtime authorities.
 
 ## Design
 
-The skill inspects an owned record, preserves authoritative prose, and adds a
-Mermaid view only when it reduces the reader's cost of understanding purpose,
+The skill inspects an owned record, preserves authoritative prose, and defines
+what an `as-is.md` diagram must communicate: what the component does, its
 actors, meaningful subcomponents, responsibilities, relationships,
 interactions, boundaries, authority changes, consequential flows, and outcomes.
-The generic Mermaid skill selects the diagram type; this component defines how
-that view is applied to `as-is.md` and records assumptions or omitted detail.
+It invokes the generic Mermaid diagram-design skill for Mermaid mechanics,
+functional framing, clear labels, readability, and technical-detail limits.
 It validates links and structure before recording completed durable changes in
 the owning changelog.
 
@@ -32,8 +32,9 @@ flowchart LR
 
 This skill is used by agents and orchestrators that maintain component context;
 it does not select, authorize, or launch them. It composes with the generic
-[Mermaid diagram design skill](../mermaid-diagram-design/as-is.md) for
-visual representation and with
+[Mermaid diagram design skill](../mermaid-diagram-design/as-is.md): this skill
+owns the as-is-specific meaning and the Mermaid skill owns reusable diagram
+mechanics. It also composes with
 [structuring-as-is-records](../structuring-as-is-records/as-is.md) for the
 canonical record shape. The existing orientation utility is a read-only
 supporting script, not an authority-bearing workflow.
