@@ -52,7 +52,7 @@ their meaning only.
 - `configuration.tasks` — default task-unit budgets and task execution limits.
 - `configuration.scheduling` — wake, check-in, concurrency, retry, and recovery policy.
 - `configuration.notifications` — material event notification behavior.
-- `configuration.agents` — default role, model presets, provider, and agent selection.
+- `configuration.agents` — default role, model presets, provider, agent selection, and optional default thinking level.
 - `configuration.technology-preferences` — preferred runtime and package manager.
 - `configuration.hitl` — conditions requiring human direction or approval.
 - `configuration.logging` — concise history verbosity and retention policy.
@@ -106,3 +106,10 @@ an opt-in execution control rather than a tracked project setting.
 The root configuration can enable or shape reusable skills and agent bundles.
 Changing a skill can therefore change system functionality, subject to the
 higher-authority constraints and validation gates.
+
+Agent Markdown front matter may declare `thinking: off|minimal|low|medium|high|xhigh|max`.
+The launcher and in-process worker adapter resolve thinking levels in this order:
+explicit `--thinking` override, agent declaration, then
+`configuration.agents.defaultThinkingLevel`. Invalid values fail before the
+agent starts. Pi or the selected model may clamp a requested level when that
+model does not support it; `max` is a configured request, not a provider guarantee.

@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { evaluateHandoffEligibility, type HandoffFacts } from "./handoff-eligibility.ts";
@@ -73,6 +73,88 @@ const pidGone = (pid: number, timeoutMs: number): Promise<boolean> =>
 const readRegistryLines = (registry: string): unknown[] =>
   readFileSync(registry, "utf8").split("\n").filter((line) => line.trim())
     .map((line) => JSON.parse(line));
+
+test("agent declarations resolve thinking levels and forward them to Pi", async () => {
+  const fixture = mkdtempSync(join(tmpdir(), "as-is-thinking-level-test-"));
+  try {
+    const agent = join(fixture, "fixture-agent.md");
+    writeFileSync(agent, ["---", "name: fixture-role", "mode: subagent", "model: medium", "thinking: high", "tools: read", "---", "Return ok."].join("\n"));
+    const declared = await runLauncher(["--agent", agent, "--task", "Thinking declaration.", "--cwd", process.cwd(), "--dry-run"]);
+    expect(declared.exitCode).toBe(0);
+    const declaredOutput = JSON.parse(declared.stdout);
+    expect(declaredOutput.thinking).toBe("high");
+    expect(declaredOutput.args).toContain("--thinking");
+    expect(declaredOutput.args).toContain("high");
+
+    const overridden = await runLauncher(["--agent", agent, "--task", "Thinking override.", "--cwd", process.cwd(), "--thinking", "max", "--dry-run"]);
+    expect(overridden.exitCode).toBe(0);
+    const overriddenOutput = JSON.parse(overridden.stdout);
+    expect(overriddenOutput.thinking).toBe("max");
+    expect(overriddenOutput.args).toContain("max");
+  } finally { rmSync(fixture, { recursive: true, force: true }); }
+});
+
+test("forwards the effective thinking level to a real child-process boundary", async () => {
+  const fixture = mkdtempSync(join(tmpdir(), "as-is-thinking-forward-test-"));
+  try {
+    const agent = join(fixture, "fixture-agent.md");
+    const argsFile = join(fixture, "args");
+    const stub = join(fixture, "pi-stub.sh");
+    writeFileSync(agent, ["---", "name: fixture-role", "mode: subagent", "thinking: max", "tools: read", "---", "Return ok."].join("\n"));
+    writeFileSync(stub, ["#!/usr/bin/env bash", `printf '%s\\n' \"$@\" > ${JSON.stringify(argsFile)}`, "exit 0", ""].join("\n"), { mode: 0o755 });
+    const result = await runLauncher([
+      "--agent", agent, "--task", "Thinking forwarding.", "--cwd", process.cwd(), "--pi", stub,
+      "--no-worktree", "--no-session", "--no-registry",
+    ]);
+    expect(result.exitCode).toBe(0);
+    const args = readFileSync(argsFile, "utf8").split("\n").filter(Boolean);
+    expect(args).toContain("--thinking");
+    expect(args).toContain("max");
+  } finally { rmSync(fixture, { recursive: true, force: true }); }
+});
+
+test("invalid thinking declarations fail before Pi starts", async () => {
+  const fixture = mkdtempSync(join(tmpdir(), "as-is-invalid-thinking-test-"));
+  try {
+    const agent = join(fixture, "fixture-agent.md");
+    writeFileSync(agent, ["---", "name: fixture-role", "mode: subagent", "thinking: extreme", "tools: read", "---", "Return ok."].join("\n"));
+    const result = await runLauncher(["--agent", agent, "--task", "Invalid thinking declaration.", "--cwd", process.cwd(), "--dry-run"]);
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain("agent declaration");
+    expect(result.stderr).toContain("max");
+  } finally { rmSync(fixture, { recursive: true, force: true }); }
+});
+
+test("project default thinking level applies when the agent has no declaration", async () => {
+  const launchRoot = mkdtempSync(join(tmpdir(), "as-is-project-thinking-test-"));
+  const bundle = join(launchRoot, "bundle");
+  mkdirSync(join(bundle, "agents", "fixture"), { recursive: true });
+  writeFileSync(join(launchRoot, "as-is.json"), JSON.stringify({ configuration: { agents: { defaultThinkingLevel: "low" } } }));
+  writeFileSync(join(bundle, "agents", "fixture", "agent.md"), ["---", "name: fixture", "mode: subagent", "tools: read", "---", "Return ok."].join("\n"));
+  try {
+    const result = await runLauncher(["--agent", join(bundle, "agents", "fixture", "agent.md"), "--task", "Project thinking default.", "--cwd", launchRoot, "--dry-run"], process.env, launchRoot);
+    expect(result.exitCode).toBe(0);
+    const parsed = JSON.parse(result.stdout);
+    expect(parsed.thinking).toBe("low");
+    expect(parsed.args).toContain("low");
+  } finally { rmSync(launchRoot, { recursive: true, force: true }); }
+});
+
+test("all repository agent definitions declare the intended thinking level", async () => {
+  const paths = [
+    ...readdirSync(join(process.cwd(), "agents"), { withFileTypes: true })
+      .filter((entry: { isDirectory: () => boolean; name: string }) => entry.isDirectory())
+      .map((entry: { name: string }) => join(process.cwd(), "agents", entry.name, "agent.md")),
+    join(process.cwd(), "validation-fixtures/agent-capability-probe/agent.md"),
+  ];
+  for (const path of paths) {
+    const text = readFileSync(path, "utf8");
+    const declarations = text.match(/^thinking:\s*([^\s]+)\s*$/gm) ?? [];
+    expect(declarations).toHaveLength(1);
+    const expected = path === join(process.cwd(), "agents/as-is/agent.md") ? "thinking: high" : "thinking: max";
+    expect(declarations[0]).toBe(expected);
+  }
+});
 
 test("project context follows the launching cwd when target cwd is a component", async () => {
   const launchRoot = mkdtempSync(join(tmpdir(), "as-is-launch-root-"));

@@ -3,6 +3,7 @@ name: expert
 description: Provides bounded, read-only cross-domain analysis and a second perspective for human questions.
 mode: subagent
 model: large
+thinking: max
 tools: read,grep,find,ls,resolve_component_context
 skills:
   - skills/human-centered-consulting

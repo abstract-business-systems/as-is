@@ -8,6 +8,7 @@ import { emitTrace, startSpan, serializeSessionReference, type SessionReference 
 import { evaluateHandoffEligibility, type HandoffFacts } from "./handoff-eligibility.ts";
 import { resolveInstructionContext } from "../../../components/instruction-context/resolver.ts";
 import { isTaskNarrativeFilename, parseAsIsJson } from "../../../components/as-is-data/resolver.ts";
+import { parseThinkingLevel, resolveThinkingLevel, type ThinkingLevel } from "./agent-thinking.ts";
 
 type Options = {
   agent?: string;
@@ -15,6 +16,7 @@ type Options = {
   cwd: string;
   pi?: string;
   model?: string;
+  thinking?: string;
   noSession?: boolean;
   tools?: string;
   skills: string[];
@@ -37,6 +39,7 @@ type Options = {
 type AgentDefinition = {
   body: string;
   model?: string;
+  thinking?: string;
   tools?: string;
   name?: string;
   skills?: string[];
@@ -136,6 +139,8 @@ Optional:
   --cwd <path>               Child working directory (default: current directory)
   --pi <path>                Local Pi executable (default: PI_BIN or Bun package runner)
   --model <model>            Override the agent file model
+  --thinking <level>         Override the agent/project thinking level
+                             (off, minimal, low, medium, high, xhigh, max)
   --no-session               Do not persist the child session
   --tools <names>            Comma-separated Pi tool allow-list
   --skill <path>             Additional skill file or directory (repeatable)
@@ -174,6 +179,7 @@ const valueOptions = new Set([
   "--cwd",
   "--pi",
   "--model",
+  "--thinking",
   "--tools",
   "--skill",
   "--record",
@@ -269,6 +275,7 @@ const parseOptions = (args: string[]): Options => {
     else if (option === "--cwd") options.cwd = value;
     else if (option === "--pi") options.pi = value;
     else if (option === "--model") options.model = value;
+    else if (option === "--thinking") options.thinking = value;
     else if (option === "--tools") options.tools = value;
     else if (option === "--record") options.record = value;
     else if (option === "--caller") options.caller = value;
@@ -322,6 +329,7 @@ const parseFrontMatter = (raw: string, filePath: string): AgentDefinition => {
   return {
     body,
     model: values.get("model"),
+    thinking: values.get("thinking"),
     tools: values.get("tools"),
     name: values.get("name"),
     skills: skills.length > 0 ? skills : undefined,
@@ -333,6 +341,7 @@ const resolveFromCwd = (value: string, cwd: string): string =>
 
 type ProjectModelConfig = {
   defaultModel?: string;
+  defaultThinkingLevel?: ThinkingLevel;
   models: Record<string, string>;
   provider?: string;
   taskRecordNames?: string[];
@@ -375,6 +384,7 @@ const readProjectModelConfig = async (projectRoot: string): Promise<ProjectModel
   }
   return {
     defaultModel: string(agents.defaultModel),
+    defaultThinkingLevel: parseThinkingLevel(agents.defaultThinkingLevel, "configuration.agents.defaultThinkingLevel"),
     models,
     provider: string(agents.provider),
     taskRecordNames: isTaskNarrativeFilename(records.task) ? [records.task] : undefined,
@@ -415,7 +425,7 @@ const resolvePi = (requested: string | undefined, cwd: string): PiInvocation => 
     args: [
       "x",
       "--bun",
-      process.env.PI_PACKAGE ?? "@earendil-works/pi-coding-agent@0.82.0",
+      process.env.PI_PACKAGE ?? "@earendil-works/pi-coding-agent@0.84.0",
     ],
   };
 };
@@ -1014,7 +1024,7 @@ const main = async() => {
   const inheritedCaller = process.env.AS_IS_JOB_ID ? process.env.AS_IS_IDENTITY : undefined;
   const caller = options.caller ?? inheritedCaller ?? "user";
   const parentJobId = options.parentJobId ?? process.env.AS_IS_JOB_ID ?? null;
-  const config = projectRoot ? await readProjectModelConfig(projectRoot) : { models: {} };
+  const config: ProjectModelConfig = projectRoot ? await readProjectModelConfig(projectRoot) : { models: {} };
   const tracer = config.componentBuildTracer;
   process.env.AS_IS_COMPONENT_BUILD_TRACER = tracer?.enabled === false
     ? "disabled"
@@ -1025,6 +1035,11 @@ const main = async() => {
   const resolved = resolveModel(options.model ?? definition.model, config);
   const model = resolved.model;
   const provider = resolved.provider;
+  const thinking = resolveThinkingLevel({
+    cli: options.thinking,
+    agent: definition.thinking,
+    projectDefault: config.defaultThinkingLevel,
+  });
   const isEvidenceValidation = identity === "evidence-validator";
   // Evidence validation is a launcher-owned capability profile, not a caller
   // supplied tool list. It deliberately has no shell and runs in the caller's
@@ -1083,6 +1098,7 @@ const main = async() => {
   baseArgs.push("--no-extensions", "--extension", launchProfile.extensionPath);
   if (provider) baseArgs.push("--provider", provider);
   if (model) baseArgs.push("--model", model);
+  if (thinking) baseArgs.push("--thinking", thinking);
   if (launchProfile.tools) baseArgs.push("--tools", launchProfile.tools);
   else if (!launchProfile.expertValidation) baseArgs.push("--no-tools");
   if (definition.skills) baseArgs.push("--no-skills");
@@ -1113,6 +1129,7 @@ const main = async() => {
       skills: launchProfile.skills,
       model: model ?? null,
       provider: provider ?? null,
+      thinking: thinking ?? null,
       sessionPath: launchProfile.noSession ? null : "<session-dir>",
       tools: launchProfile.tools ?? null,
       detach: options.detach ?? false,

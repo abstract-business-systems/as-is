@@ -3,6 +3,7 @@ name: agent-capability-probe
 description: Generic read-only fixture agent for testing one bounded in-process agent call.
 mode: subagent
 model: medium
+thinking: max
 tools: read,grep,find,ls,call_subagent
 permission:
   task: deny

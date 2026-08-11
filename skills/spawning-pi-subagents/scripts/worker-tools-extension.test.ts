@@ -3,7 +3,7 @@ import { mkdtemp, mkdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { SessionManager } from "@earendil-works/pi-coding-agent";
-import workerTools, { analyzeProjectSession } from "../../../.pi/extensions/worker-tools";
+import workerTools, { analyzeProjectSession, resolveWorkerThinkingLevel, workerSessionOptions } from "../../../.pi/extensions/worker-tools";
 
 const rootRecord = "# Root\n";
 
@@ -14,6 +14,14 @@ function componentContextTool() {
   return registered;
 }
 describe("capability-based worker extension", () => {
+  test("resolves the declared thinking level for in-process workers", () => {
+    expect(resolveWorkerThinkingLevel(process.cwd(), "max", "worker")).toBe("max");
+    expect(workerSessionOptions({ id: "fixture" }, process.cwd(), "max", "worker")).toEqual({ model: { id: "fixture" }, thinkingLevel: "max" });
+  });
+
+  test("rejects invalid in-process thinking declarations", () => {
+    expect(() => resolveWorkerThinkingLevel(process.cwd(), "extreme", "worker")).toThrow("max");
+  });
   test("canonical target contracts are present and distinct", async () => {
     const cwd = process.cwd();
     const roles = ["as-is", "component-builder", "execution-advisor", "evidence-validator", "expert", "worker"];

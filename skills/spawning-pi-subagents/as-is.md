@@ -38,11 +38,11 @@ no-change work have no separate child merge; the parent must record an explicit
 `no-separate-integration` disposition and still satisfy validation, descendant
 closure, and scoped-commit gates.
 
-The launcher currently passes the agent's `model:` value literally to pi and relies on inherited `PI_PROVIDER`/`PI_MODEL` environment
-variables for the provider, so an agent cannot name a fast model by alias and
-the launch path is not portable to a host without those env vars set. This task
-makes the launcher resolve model presets and the provider from the repository's
-root `as-is.md` and makes child runs observable by default.
+The launcher resolves the agent's `model:` and `thinking:` values through
+project configuration and passes them explicitly to Pi, so an agent can name a
+model preset and thinking level without relying on inherited session
+environment variables. The launcher fallback uses the skill-owned compatible Pi
+package version and child runs remain observable by default.
 
 
 ## Design

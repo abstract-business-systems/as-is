@@ -26,9 +26,10 @@ The launcher accepts:
   `.agents/agents` tree is reserved for client-host projection semantics;
 - one task string;
 - the repository working directory;
-- optional Pi model, approval, and host skill settings; the future migration
-  target is globally available skills rather than agent-front-matter skill
-  selection. Ordinary tool admission comes only from the selected agent
+- optional Pi model, thinking level, approval, and host skill settings; the
+  future migration target is globally available skills rather than
+  agent-front-matter skill selection. Ordinary tool admission comes only from
+  the selected agent
   file's `tools:` front matter;
 - optional wall-clock and monetary-cost budget constraints.
 
@@ -65,10 +66,13 @@ any agent that declares `call_subagent` may target any canonical
 lineage are diagnostic metadata rather than authorization gates. Target
 contracts and host safety profiles still apply. The `expert` validation role is
 the sole launcher-owned capability exception and always receives the fixed
-read-only `read,grep,find,ls,git_inspect` profile. Model policy is resolved from root
-`as-is.json` `configuration.agents`: `defaultModel`, `provider`, and the named
-`models` map. Supported project presets are `small`, `medium`, `large`, and
-`xlarge`; the resulting model value and provider are passed explicitly to Pi.
+read-only `read,grep,find,ls,git_inspect` profile. Model policy is resolved from
+root `as-is.json` `configuration.agents`: `defaultModel`, `provider`, and the
+named `models` map. Thinking policy accepts `off`, `minimal`, `low`, `medium`,
+`high`, `xhigh`, and `max`; it resolves explicit launcher override, then agent
+`thinking:` front matter, then `defaultThinkingLevel`. The resulting model,
+provider, and thinking level are passed explicitly to Pi. Supported project
+presets are `small`, `medium`, `large`, and `xlarge`.
 The launcher does not read model or provider policy from OpenCode configuration
 or environment variables; those are not system configuration sources.
 OpenCode-specific front matter such as `permission:` is not a Pi permission

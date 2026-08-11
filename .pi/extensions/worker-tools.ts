@@ -1,5 +1,6 @@
 import { readFile, readdir } from "node:fs/promises";
-import { join } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import { existsSync } from "node:fs";
 import { createHash, randomUUID } from "node:crypto";
 import {
   createAgentSession,
@@ -11,6 +12,7 @@ import {
 } from "../../skills/spawning-pi-subagents/node_modules/@earendil-works/pi-coding-agent";
 import { Type } from "../../skills/spawning-pi-subagents/node_modules/typebox";
 import { boundedLimit } from "../../components/budget-control/budget.ts";
+import { extractAgentThinking, parseThinkingLevel, resolveThinkingLevel, type ThinkingLevel } from "../../skills/spawning-pi-subagents/scripts/agent-thinking.ts";
 import { readAsIsJson } from "../../components/as-is-data/resolver.ts";
 import { resolveLocalLinkedContext } from "../../components/linked-context/resolver.ts";
 import {
@@ -378,7 +380,41 @@ export function currentSessionReference(ctx: { sessionManager?: { getSessionId?:
   }
 }
 
-type TargetDefinition = { body: string; tools: string[] };
+type TargetDefinition = { body: string; tools: string[]; thinking?: string };
+
+function projectDefaultThinkingLevel(cwd: string): ThinkingLevel | undefined {
+  let current = resolve(cwd);
+  while (true) {
+    const path = join(current, "as-is.json");
+    if (existsSync(path)) {
+      const configuration = readAsIsJson(path).configuration;
+      if (configuration && typeof configuration === "object" && !Array.isArray(configuration)) {
+        const agents = (configuration as Record<string, unknown>).agents;
+        if (agents && typeof agents === "object" && !Array.isArray(agents)) {
+          return parseThinkingLevel(
+            (agents as Record<string, unknown>).defaultThinkingLevel,
+            "configuration.agents.defaultThinkingLevel",
+          );
+        }
+      }
+    }
+    const parent = dirname(current);
+    if (parent === current) return undefined;
+    current = parent;
+  }
+}
+
+export function resolveWorkerThinkingLevel(cwd: string, agentThinking: unknown, role: string): ThinkingLevel | undefined {
+  return resolveThinkingLevel({
+    agent: agentThinking,
+    projectDefault: projectDefaultThinkingLevel(cwd),
+  }, `${role} thinking`);
+}
+
+export function workerSessionOptions<T>(model: T, cwd: string, agentThinking: unknown, role: string): { model: T; thinkingLevel?: ThinkingLevel } {
+  const thinkingLevel = resolveWorkerThinkingLevel(cwd, agentThinking, role);
+  return thinkingLevel ? { model, thinkingLevel } : { model };
+}
 
 async function resolveCanonicalTarget(cwd: string, role: string): Promise<TargetDefinition> {
   if (!canonicalRoleName.test(role)) throw new Error(`invalid canonical agent role: ${role}`);
@@ -394,7 +430,7 @@ async function resolveCanonicalTarget(cwd: string, role: string): Promise<Target
   const tools = toolsLine ? toolsLine.split(",").map((tool) => tool.trim()).filter(Boolean) : [];
   const unsupported = tools.filter((tool) => !supportedTargetTools.has(tool));
   if (unsupported.length > 0) throw new Error(`canonical agent declares unsupported tools: ${unsupported.join(", ")}`);
-  return { body: raw, tools: [...new Set(tools)] };
+  return { body: raw, tools: [...new Set(tools)], thinking: extractAgentThinking(raw, path) };
 }
 
 function toolsForTarget(role: string, declared: string[]): { tools: string[]; customTools: ToolDefinition[] } {
@@ -519,7 +555,7 @@ const callSubagent: ToolDefinition = {
       const profile = toolsForTarget(roleName, target.tools);
       const result = await createAgentSession({
         cwd,
-        model: ctx.model,
+        ...workerSessionOptions(ctx.model, cwd, target.thinking, roleName),
         resourceLoader: createWorkerLoader(target.body),
         tools: profile.tools,
         sessionManager: SessionManager.inMemory(cwd),

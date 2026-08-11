@@ -3,6 +3,7 @@ name: as-is
 description: User-facing router for agentic development.
 mode: primary
 model: medium
+thinking: high
 tools: read,grep,find,ls,bash,edit,write,resolve_component_context
 permission:
   task: allow
