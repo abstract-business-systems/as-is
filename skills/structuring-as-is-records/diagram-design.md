@@ -61,8 +61,8 @@ readers and agents direct parent-to-child navigation.
 A child diagram should also include a parent link when the parent is known and
 showing it does not violate the child view boundary. The parent link targets
 the parent's `as-is.md#design` section and provides reverse navigation. The
-Markdown component table remains authoritative if a renderer cannot preserve a
-link.
+Markdown component table must declare the same resolving `as-is.md#design`
+target and remains authoritative if a renderer cannot preserve a link.
 
 ## Layout and flows
 

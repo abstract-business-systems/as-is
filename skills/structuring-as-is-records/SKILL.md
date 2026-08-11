@@ -78,8 +78,10 @@ or recovery diagrams follow the structural view and remain separately scoped.
 Use Mermaid `click` links only when they resolve from the record's location.
 Component names in rendered diagrams should link to the target record's diagram
 section, normally `as-is.md#design`, rather than only to the component
-directory. The rendered SVG should preserve those hyperlinks where supported.
-Prose, Components tables, and Markdown links remain authoritative if a diagram
+directory. The rendered SVG should preserve those hyperlinks where supported. Declare the
+same `as-is.md#design` target in the record's `Components` table; the table is
+the reliable fallback when the host renderer suppresses SVG navigation. Prose,
+Components tables, and Markdown links remain authoritative if a diagram
 diverges.
 
 ## Parent-to-child context handoff

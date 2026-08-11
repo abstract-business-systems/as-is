@@ -15,10 +15,10 @@ Read-only roles may still receive explicit host safety caps.
 
 | Component | Purpose |
 | --- | --- |
-| [as-is router](as-is/as-is.md) | Interpret user-facing requests and route substantive work. |
-| [component-builder](component-builder/as-is.md) | Build bounded components and maintain their records. |
-| [execution-advisor](execution-advisor/as-is.md) | Analyze execution traces and readable local session data. |
-| [worker](worker/as-is.md) | Provide bounded in-process assistance. |
+| [as-is router](as-is/as-is.md#design) | Interpret user-facing requests and route substantive work. |
+| [component-builder](component-builder/as-is.md#design) | Build bounded components and maintain their records. |
+| [execution-advisor](execution-advisor/as-is.md#design) | Analyze execution traces and readable local session data. |
+| [worker](worker/as-is.md#design) | Provide bounded in-process assistance. |
 
 ## Links
 

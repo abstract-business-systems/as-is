@@ -17,9 +17,9 @@ record.
 
 | Component | Purpose |
 | --- | --- |
-| [Agents](agents/as-is.md) | Organize independent configured agent roles. |
-| [Designs](designs/as-is.md) | Organize enduring architecture and execution designs. |
-| [Skills](skills/as-is.md) | Organize reusable operational procedures. |
+| [Agents](agents/as-is.md#design) | Organize independent configured agent roles. |
+| [Designs](designs/as-is.md#design) | Organize enduring architecture and execution designs. |
+| [Skills](skills/as-is.md#design) | Organize reusable operational procedures. |
 
 ## Design
 
