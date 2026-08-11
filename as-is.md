@@ -27,16 +27,24 @@ This is a component map, not a mandatory execution sequence. The root record
 connects the repository component to its immediate documented child areas.
 
 ```mermaid
+%%{init: {"securityLevel": "loose"}}%%
 flowchart TD
     Root["as-is repository"]
     Root --> Agents["Agents"]
     Root --> Designs["Designs"]
     Root --> Skills["Skills"]
 
-    click Agents "./agents/as-is.md" "Open Agents component record"
-    click Designs "./designs/as-is.md" "Open Designs component record"
-    click Skills "./skills/as-is.md" "Open Skills component record"
+    click Agents href "./agents/as-is.md#design" "Open Agents design"
+    click Designs href "./designs/as-is.md#design" "Open Designs design"
+    click Skills href "./skills/as-is.md#design" "Open Skills design"
 ```
+
+If the host Markdown renderer suppresses Mermaid navigation, use these
+source-level links, which remain authoritative:
+
+- [Open Agents design](agents/as-is.md#design)
+- [Open Designs design](designs/as-is.md#design)
+- [Open Skills design](skills/as-is.md#design)
 
 Only areas with their own `as-is.md` are components in this record. Other
 repository directories remain navigable through their own files or links but

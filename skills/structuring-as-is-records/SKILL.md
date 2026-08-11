@@ -30,6 +30,13 @@ records, budgets, or tasks.
 
 ## Required record shape
 
+For a record with immediate documented child components, the `## Design`
+diagram (when present) begins with a structural component view of exactly the
+record and those children. Additional behavioral diagrams follow it and must
+be explicitly scoped as flows. Leaf records may omit diagrams when prose and
+links are sufficient. See [`diagram-design.md`](diagram-design.md) for the
+authoring procedure and validation criteria.
+
 Use these sections in this order when applicable:
 
 1. `# <Component> ...` — clear human-facing title.
@@ -60,14 +67,20 @@ Use these sections in this order when applicable:
    as component navigation unless they provide additional context.
 
 A diagram is not universal and is not required for every maintained record.
-When useful, place it inside `## Design` after the opening orientation sentence
-and before the detailed design points. Omit it when prose and navigation links
-are sufficient, especially for grouping or marker records. Use Mermaid `click`
-links only when they resolve from the record's location. Component names in
-rendered diagrams should link to the target record's diagram section, normally
-`as-is.md#design`, rather than only to the component directory. The rendered
-SVG should preserve those hyperlinks where supported. Prose, Components tables,
-and Markdown links remain authoritative if a diagram diverges.
+A record with an immediate `## Components` table is structurally applicable and,
+when it uses a diagram, must begin `## Design` with a bounded component diagram
+of itself and those immediate documented children. Leaf and marker records may
+omit that structural diagram when prose and navigation links are sufficient;
+do not add a meaningless one-node placeholder. When useful, place a diagram
+inside `## Design` after the opening orientation sentence and before the
+detailed design points. Optional key-flow, data-flow, sequence, state, decision,
+or recovery diagrams follow the structural view and remain separately scoped.
+Use Mermaid `click` links only when they resolve from the record's location.
+Component names in rendered diagrams should link to the target record's diagram
+section, normally `as-is.md#design`, rather than only to the component
+directory. The rendered SVG should preserve those hyperlinks where supported.
+Prose, Components tables, and Markdown links remain authoritative if a diagram
+diverges.
 
 ## Parent-to-child context handoff
 

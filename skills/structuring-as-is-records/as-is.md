@@ -10,12 +10,15 @@ handoff. It does not own component task state or agent authority.
 
 ## Design
 
-The component is organized around the following relationships and flow.
+This skill organizes durable record maintenance through structure, bounded
+navigation, and explicit context handoff. The component is a leaf record with
+no immediate documented child components, so its existing bounded flow diagram
+is sufficient; a parent-level component diagram is not applicable.
 
 ```mermaid
 flowchart TD
-    A["Record maintenance"] --> B["Record structure and links"]
-    B --> C["Navigable durable context"]
+    A["Record maintenance"] -->|uses| B["Record structure and links"]
+    B -->|produces| C["Navigable durable context"]
 ```
 
 Record authors describe the overall flow at the nearest useful parent level and
