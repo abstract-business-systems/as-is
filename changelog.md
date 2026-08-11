@@ -1,3 +1,5 @@
+- 2026-08-23: Completed `dissolve-root-hierarchical-design-document`. Retired the two tracked root migration indexes after reviewing repository consumers and recovery value; their requirements remain distributed among the setup, as-is record-management, Mermaid, and naming owners and their backlogs. Removed the stale root backlog reference, created the planning-only follow-up `audit-as-is-guidance-coverage`, and passed reference, whitespace, and Markdown checks. No implementation behavior changed; rendered Mermaid links remain untested because no renderer is configured.
+
 - 2026-08-16: Refined durable `as-is.md` record guidance and the root record.
   The root now describes the repository component rather than the document,
   serves both human and agent readers, maps only immediate repository areas,
