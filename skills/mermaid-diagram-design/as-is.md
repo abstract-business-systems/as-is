@@ -28,5 +28,5 @@ agent selection, context resolution, or architectural decisions.
 ## Links
 
 - [SKILL.md](SKILL.md) — authoritative procedure and Mermaid type-selection guidance.
-- [../structuring-as-is-records/as-is.md](../structuring-as-is-records/as-is.md) — durable record and diagram placement guidance.
+- [../managing-as-is-document/as-is.md](../managing-as-is-document/as-is.md) — durable record and diagram placement guidance.
 - [../as-is.md](../as-is.md) — skills component map.

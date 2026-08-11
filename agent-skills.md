@@ -99,11 +99,11 @@ that govern this catalog and its implementation.
   tables, dependency graphs, and other useful representations.
 - **Durable record structuring:** Create and maintain `as-is.md` architecture
   records with stable sections, explicit links, diagrams, and parent-to-child
-  context handoff. See [`skills/structuring-as-is-records/SKILL.md`](skills/structuring-as-is-records/SKILL.md).
+  context handoff. See [`skills/managing-as-is-document/SKILL.md`](skills/managing-as-is-document/SKILL.md).
 
 - **Managing as-is documents:** Maintain bounded durable component records,
   their links, and reader-oriented diagrams without transferring authority to
-  scripts or diagrams. See [`skills/managing-as-is-document/SKILL.md`](skills/managing-as-is-document/SKILL.md).
+  scripts, durable record structure, or diagrams. See [`skills/managing-as-is-document/SKILL.md`](skills/managing-as-is-document/SKILL.md).
 
 - **Mermaid diagram design:** Design bounded Mermaid diagrams around component
   purpose, subcomponents, responsibilities, relationships, interactions,

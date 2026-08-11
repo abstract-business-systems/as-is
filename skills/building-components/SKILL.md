@@ -31,7 +31,7 @@ child closure without taking ownership of the child's files or records.
 1. Read `as-is.md`, the current task, and named dependencies. Advance the task
    to `active` and record the scope, changed-artifact expectation, constraints,
    dependencies, recovery checkpoint, and acceptance mapping. Use
-   `structuring-as-is-records` when creating or changing the durable record;
+   `managing-as-is-document` when creating or changing the durable record;
    that skill owns record structure and link declarations, while this skill
    owns how a builder consumes the resulting context.
 2. Formulate a minimal implementation plan and obtain the required read-only
@@ -116,4 +116,4 @@ proves caller ancestry.
   commit procedure.
 - `verification-discipline/SKILL.md` — risk-matched validation evidence.
 - `../../agents/component-builder/agent.md` — role authority and expert gates.
-- `../structuring-as-is-records/SKILL.md` — durable record structure and link declaration.
+- `../managing-as-is-document/SKILL.md` — durable record lifecycle, structure, and link declaration.

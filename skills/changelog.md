@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-08-21: Completed backlog item `combine-as-is-record-skills`. Consolidated record lifecycle, stable structure, hierarchy, explicit context links, diagram decisions, validation, and changelog handoff into the canonical `managing-as-is-document` skill; migrated repository references and removed the superseded `structuring-as-is-records` component. Focused backlog/orientation tests and `git diff --check` passed; Mermaid rendering remains untested because no repository renderer is configured.
+
 - 2026-08-20: Completed backlog item `align-skill-directories-with-frontmatter-names`. Renamed the two implemented skill component directories to match their `SKILL.md` frontmatter names, updated repository links, catalogs, scripts, tests, backlog dependencies, and historical references, and preserved all component artifacts. Focused validation and `git diff --check` passed; no runtime behavior changed.
 
 - 2026-08-15: Completed backlog item `functional-context-design-diagrams`. Added the reusable `mermaid-diagram-design` skill with bounded inputs, functional-versus-technical context rules, context-map and outcome-flow templates, output requirements, validation checks, escalation boundaries, and durable component context. Linked it from the skills component record and the repository capability catalog. Focused content assertions and `git diff --check` passed; no runtime behavior changed.

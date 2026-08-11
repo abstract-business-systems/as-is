@@ -17,7 +17,6 @@ Maintain the durable organization and authority context for reusable skills.
 | [Maintaining components](maintaining-components/as-is.md#design) | Perform evidence-based component housekeeping. |
 | [Managing backlog](managing-backlog/as-is.md#design) | Prioritize bounded work proposals. |
 | [Spawning subagents](spawning-pi-subagents/as-is.md#design) | Launch and observe bounded Pi subprocesses. |
-| [Structuring records](structuring-as-is-records/as-is.md#design) | Structure durable records, links, diagrams, and handoffs. |
 | [Structuring content](structuring-content/as-is.md#design) | Organize repository knowledge. |
 | [Verification discipline](verification-discipline/as-is.md#design) | Select acceptance evidence by risk. |
 
@@ -38,8 +37,7 @@ flowchart TD
         MaintainingComponents["Maintaining components"]
         ManagingBacklog["Managing backlog"]
         SpawningSubagents["Spawning subagents"]
-        StructuringRecords["Structuring records"]
-        StructuringContent["Structuring content"]
+            StructuringContent["Structuring content"]
         Verification["Verification discipline"]
     end
 
@@ -52,7 +50,6 @@ flowchart TD
     click MaintainingComponents href "./maintaining-components/as-is.md#design" "Open maintaining components design"
     click ManagingBacklog href "./managing-backlog/as-is.md#design" "Open managing backlog design"
     click SpawningSubagents href "./spawning-pi-subagents/as-is.md#design" "Open spawning subagents design"
-    click StructuringRecords href "./structuring-as-is-records/as-is.md#design" "Open structuring records design"
     click StructuringContent href "./structuring-content/as-is.md#design" "Open structuring content design"
     click Verification href "./verification-discipline/as-is.md#design" "Open verification discipline design"
 ```

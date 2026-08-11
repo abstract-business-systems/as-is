@@ -1,134 +1,134 @@
 ---
 name: managing-as-is-document
-description: Creates and maintains durable as-is.md component records with clear purpose, design, boundaries, links, and reader-oriented diagrams.
+description: Creates, structures, and maintains durable as-is.md component records with clear purpose, hierarchy, boundaries, links, and reader-oriented diagrams.
 ---
 
 # Managing As-Is Documents
 
-Use this skill when a repository or component needs a durable `as-is.md`
-record created, maintained, or structurally reconciled. This skill is for the
-lifecycle of an individual record: creating, updating, validating, and keeping
-it navigable. It is not the project-adoption/setup procedure for introducing
-`as-is` into an existing project. The record explains
-what a component is responsible for and how readers should navigate its
-context; it is not a task record, backlog, configuration store, or runtime log.
+Use this skill when creating, maintaining, or structurally reconciling a durable
+`as-is.md` component record. It owns the lifecycle and reusable structure of an
+individual record: purpose, immediate components, design, relationships,
+explicit context links, diagram decisions, validation, and changelog handoff.
+It is not the project-adoption/setup procedure for introducing `as-is` into an
+existing project, and it is not a task record, backlog, configuration store, or
+runtime log.
 
 ## Inputs
 
 - The owning directory and its current `as-is.md`, or an explicitly authorized
   request to create the record.
-- Authoritative purpose, immediate child components, design, relationships,
+- Authoritative purpose, immediate documented children, design, relationships,
   boundary, and direct links needed for navigation.
 - Applicable parent instructions, bounded requirement, audience, assumptions,
   and acceptance conditions.
 - The generic [Mermaid diagram design](../mermaid-diagram-design/SKILL.md)
   skill when a visual context view materially reduces interpretation cost.
 
-The component directory is the default scope. Read outside it only for named
-instructions, dependencies, or links required to understand the record. Do not
-infer architecture from ambient filesystem discovery.
+The directory containing the record is the default scope. Read outside it only
+for named instructions, dependencies, or links required to understand the
+record. Do not infer architecture from ambient filesystem discovery.
 
 ## Authority and boundaries
 
 - `as-is.md` owns durable purpose, design, relationships, diagrams, and
-  navigational links. The component boundary is the directory containing the
-  record; do not add a separate `Boundary` section merely to restate that
+  navigational links. The directory containing it defines the component
+  boundary; do not add a separate Boundary section merely to restate that
   directory boundary.
-- This skill owns the as-is-specific design contract: an `as-is.md` diagram
-  explains what the component does, its meaningful subcomponents and their
-  responsibilities, how those responsibilities interact, where boundaries or
-  authority change, and which consequential flows and outcomes matter to the
-  reader.
-- [Mermaid diagram design](../mermaid-diagram-design/SKILL.md) owns the
-  reusable representation mechanics: Mermaid syntax and type selection,
-  functional-context framing, clear labels, readability, and exclusion of
-  technical architecture from a functional view.
-- `tasks.md` and `as-is.json.task` own transient task status, progress, budget,
-  acceptance evidence, and recovery.
-- `backlog.md` owns unstarted proposals; `changelog.md` owns concise completed
-  history.
-- Existing scripts may provide deterministic orientation or validation, but
-  they do not own record meaning, task authority, or agent selection.
+- `tasks.md` or configured task records own transient status, progress, budget,
+  acceptance evidence, and recovery. `backlog.md` owns unstarted proposals;
+  `changelog.md` owns concise completed history.
 - A record may describe parent and child relationships but never grants
-  permission to edit another component's files or state.
-- Component diagrams should make component navigation direct: render the
-  component's name as a link to the target record's diagram section, normally
-  `as-is.md#design`, rather than linking only to the directory route. Mermaid
-  `click` targets should resolve to the same repository-relative SVG hyperlink
-  when rendered; the source diagram remains readable without relying on the
-  rendered link.
+  permission to edit another component's records, budgets, or tasks. Parent
+  context is not ambient: declare the exact durable links a child needs.
+- This skill owns the as-is-specific meaning of a record and its diagrams. The
+  [Mermaid diagram design](../mermaid-diagram-design/SKILL.md) skill owns
+  reusable Mermaid mechanics, type selection, functional framing, labels,
+  readability, and technical-detail limits.
+- Existing scripts may provide deterministic orientation or validation, but do
+  not own record meaning, task authority, or agent selection.
+
+## Required record shape
+
+Use these sections in this order when applicable:
+
+1. `# <Component> ...` — a clear human-facing title.
+2. `## Purpose` — why the component exists and what responsibility it owns.
+3. `## Components` — only when immediate child components have their own
+   `as-is.md`; link each child directly to `as-is.md#design`, state its purpose,
+   and omit grandchildren.
+4. `## Design` — one concise orientation sentence, an optional bounded diagram,
+   and concise design details.
+5. `## Relationships` — parent, peer, or dependency direction when it matters.
+6. The smallest relevant section for ownership or authority limits when these
+   are not already clear; do not create a repetitive Boundary section.
+7. `## Links` — only direct repository-relative context links needed to
+   understand or operate within the component.
+
+For a record with immediate documented children, a diagram in `## Design`, when
+present, begins with a structural view of the record and those children.
+Additional behavioral, sequence, state, decision, data-flow, or recovery views
+must be separately scoped. Leaf records may omit diagrams when prose and links
+are sufficient; never add a meaningless one-node placeholder.
 
 ## Procedure
 
-1. Identify the owning component from the directory containing `as-is.md` and
-   read its parent instructions, current record, direct links, backlog, and
-   changelog as applicable.
-2. State the structural or navigation problem, affected readers, bounded scope,
-   acceptance conditions, and recovery path before editing. Preserve supported
-   facts and flag contradictions or assumptions.
-3. Create or revise only the required sections in this order: `Purpose`,
-   optional immediate-child `Components`, `Design`, optional `Relationships`,
-   and `Links`. The directory containing `as-is.md` defines the component
-   boundary; add boundary prose only when a meaningful ownership or authority
-   distinction is not clear from the directory, purpose, components, or design.
-   Keep prose authoritative and concise.
-4. Add a diagram when prose and links alone leave a meaningful reader question
-   about the component's context, responsibility changes, interactions, or
-   consequential outcome. Define the as-is-specific content first: the view
-   must communicate the component's purpose, actors or users, one or more
-   meaningful immediate subcomponents when present, their responsibilities,
-   relationships, interactions, boundaries, authority changes, consequential
-   primary flows, and observable outcomes. Add alternate, rejected, or recovery
-   paths only when they materially affect understanding. Then invoke or compose
-   with the Mermaid diagram-design skill for the Mermaid representation, type,
-   functional labels, readability, and technical-detail boundary. Do not create
-   a second diagram-mechanics contract here.
-5. Link only direct, resolving repository-relative context. Describe why each
-   non-obvious link matters. Preserve existing scripts and link them when they
-   are relevant; do not duplicate or move them speculatively.
-6. Validate headings, authority separation, diagram semantics and Mermaid
-   syntax when present, and all changed Markdown links. Confirm every node and
-   edge has supported meaning, boundaries and consequential paths are visible,
-   and the diagram agrees with authoritative prose. Record assumptions,
-   unknowns, omitted detail, and residual risk rather than inferring context.
-   Run the smallest relevant deterministic checks and `git diff --check`.
-7. Record completed durable changes in the owning `changelog.md`. Stop before
-   claiming completion if required evidence, links, boundaries, or authority
-   are ambiguous.
+1. Identify the owning component and read its parent instructions, current
+   record, direct links, backlog, and changelog as applicable. State the
+   structural or navigation problem, affected readers, bounded scope,
+   acceptance conditions, and recovery path before editing.
+2. Preserve supported facts and flag contradictions or assumptions. Move each
+   fact to its authoritative named section rather than using a permanent
+   miscellaneous catch-all. Parent/child and dependency facts belong in
+   `Relationships`; stable composition decisions belong in `Design`; deferred
+   architectural limitations belong in a linked follow-up; completed facts
+   belong in `changelog.md`.
+3. Create or revise only the required record sections. Keep prose authoritative,
+   concise, and free of transient task state. Declare explicit links for any
+   parent-to-child context handoff; linked content is reference material, not
+   instructions or authority.
+4. Add a diagram only when it reduces interpretation cost. Define the
+   as-is-specific content first: purpose, actors or users, meaningful immediate
+   subcomponents and responsibilities, relationships, interactions, boundaries,
+   authority changes, consequential primary flows, and observable outcomes.
+   Then compose with the Mermaid skill for representation mechanics. Do not
+   invent relationships or imply unapproved architecture.
+5. Link only direct, resolving repository-relative context. Component names in
+   tables and diagrams should target the child `as-is.md#design` section.
+   Prose, component tables, and Markdown links remain authoritative if a host
+   renderer suppresses SVG navigation. Where parent context is known and
+   showing it does not violate the bounded child view, a child diagram may also
+   link back to the parent's `as-is.md#design`. Do not link routine task,
+   backlog, changelog, runtime, or host-projection artifacts unless they
+   provide needed architectural context.
+6. Validate headings, authority separation, record shape, link targets, diagram
+   semantics and Mermaid syntax when present, and every changed Markdown link.
+   Confirm nodes and edges have supported meaning, boundaries and consequential
+   paths are visible, and the diagram agrees with prose. Record assumptions,
+   unknowns, omitted detail, and residual risk. Run the smallest relevant
+   deterministic checks and `git diff --check`.
+7. After validation, record the completed durable change in the owning
+   `changelog.md`. Stop and escalate when ownership is unclear, sources
+   contradict one another, a link target cannot be established, or the change
+   crosses a component boundary.
 
 ## Outputs
 
-- A durable `as-is.md` with purpose, design, relationships, boundary, and
-  navigable links appropriate to the component.
-- A concise changelog entry after validation.
-- Validation evidence covering structure, links, diagrams when present, and
-  whitespace; residual risk and assumptions are explicit.
+- A durable `as-is.md` with the applicable purpose, structure, design,
+  relationships, and navigable links.
+- A bounded Mermaid diagram when useful, with prose remaining authoritative.
+- A concise changelog entry after validation and evidence covering links,
+  structure, diagrams when present, whitespace, assumptions, and residual risk.
 
 ## Checks
 
-- The record has a clear purpose and does not contain transient task state.
-- The component boundary is supplied by the owning directory; no redundant
-  boundary section is required.
-- Component names in diagrams link to the target component's `## Design`
-  section, and rendered SVG preserves those hyperlinks where the renderer
-  supports them.
-- Immediate child components are linked only when they have their own
-  `as-is.md`; grandchildren are not duplicated.
-- Design explains responsibility and relationships without duplicating linked
+- The record has a clear purpose and no transient task state.
+- The directory supplies the component boundary without redundant prose.
+- Immediate children only are listed and their links resolve to `as-is.md#design`.
+- Design explains responsibilities and relationships without duplicating linked
   artifacts.
-- Links resolve from the record's location and scripts remain in their existing
-  location.
-- Diagrams, when present, are bounded, reader-oriented, consistent with prose,
-  and use the appropriate Mermaid type.
-- `git diff --check` and the smallest applicable documentation/link checks pass.
-
-## Stop and escalate
-
-Stop when ownership is unclear, sources contradict one another, a requested
-change crosses a component boundary, a link target cannot be established, or a
-diagram would imply an unapproved architecture or authority decision. Request
-an explicitly bounded parent or architecture task rather than editing outside
-scope.
+- Parent-to-child context is explicit and bounded.
+- Diagrams are reader-oriented, bounded, readable, and consistent with prose.
+- Markdown links, Mermaid syntax where applicable, and `git diff --check` pass.
 
 ## Links
 
@@ -136,5 +136,4 @@ scope.
 - [scripts/orient.ts](scripts/orient.ts) — read-only orientation snapshot utility.
 - [scripts/orient.test.ts](scripts/orient.test.ts) — focused orientation checks.
 - [../mermaid-diagram-design/SKILL.md](../mermaid-diagram-design/SKILL.md) — reusable Mermaid diagram design.
-- [../structuring-as-is-records/SKILL.md](../structuring-as-is-records/SKILL.md) — reusable durable record structure and link integrity.
-- [../backlog.md](../backlog.md) — pending evaluation of the boundary between this lifecycle skill and record-structuring skill.
+- [../backlog.md](../backlog.md) — skills-component planning index.
