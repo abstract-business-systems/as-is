@@ -524,7 +524,7 @@ test("child commit handoff is explicitly pending parent integration", async () =
       "git config user.name test",
       "printf '\\n// handoff fixture\\n' >> skills/managing-as-is-document/scripts/orient.ts",
       "git add skills/managing-as-is-document/scripts/orient.ts",
-      "git commit --allow-empty -m 'test: child handoff' >/dev/null",
+      "git commit --allow-empty -m 'test(launcher): record child handoff' >/dev/null",
       "exit 0",
       "",
     ].join("\n"), { mode: 0o755 });
@@ -702,6 +702,24 @@ test("handoff eligibility is fail-closed for every completion gate", () => {
     expect(evaluateHandoffEligibility(facts).blockers).toContain(blocker);
   }
   const pending = evaluateHandoffEligibility({ ...complete, integration: { status: "pending-parent-integration", callerHeadAncestry: false } });
+  expect(pending.eligible).toBe(false);
+  expect(pending.blockers).toContain("pending-parent-integration");
+});
+
+test("parent handoff gate distinguishes integrated from pending child commit", () => {
+  const complete: HandoffFacts = {
+    record: { durable: true, status: "completed", validationEvidence: true, expertEvidence: true, resultEvidence: true },
+    descendants: { allTerminal: true, failedOrCancelledAccounted: true },
+    commit: { sha: "child-commit", exists: true, scoped: true },
+    integration: { status: "integrated", callerHeadAncestry: true },
+  };
+
+  expect(evaluateHandoffEligibility(complete)).toEqual({ eligible: true, blockers: [] });
+
+  const pending = evaluateHandoffEligibility({
+    ...complete,
+    integration: { status: "pending-parent-integration", callerHeadAncestry: false },
+  });
   expect(pending.eligible).toBe(false);
   expect(pending.blockers).toContain("pending-parent-integration");
 });

@@ -49,6 +49,7 @@ the role retains the authority decisions those skills cannot make.
   assistance, or no-change work, this builder records an explicit
   `no-separate-integration` disposition rather than inferring one from exit
   status; validation, descendant closure, and scoped-commit gates still apply.
+- A child handoff with `pending-parent-integration` is an active integration obligation, not a completed descendant. Before closing the parent task, inspect the child commit and durable evidence, protect unrelated parent changes, cherry-pick the scoped child commit into the canonical parent worktree, resolve conflicts only within the authorized scope or record a blocker, rerun parent-side validation, and verify the resulting commit is an ancestor of the parent branch. If the child has no commit, failed validation, incomplete evidence, or a budget-stopped result, do not recreate or claim the work as integrated; preserve the child recovery surface and record the next action.
 
 ## Required flow
 
@@ -71,17 +72,9 @@ the role retains the authority decisions those skills cannot make.
    commit. Record validation, source-labelled cost/time observations when
    available, residual risk, result, recovery checkpoint, next action, and
    terminal descendant closure before handoff.
-4. Complete only after every descendant is terminal and failed/cancelled
-   descendants are accounted for. Use `committing-completed-work` for the
-   scoped durable handoff. Commit completed work before exit; do not force a
-   commit for blocked, budget-stopped, or otherwise incomplete work. The runner
-   owns isolated-worktree cleanup and preserves uncommitted recovery candidates.
-5. On child return, retain child commits as source evidence and consolidate
-   related work into one scoped integration commit before merging into the
-   original branch; record source/result SHAs, scope, and preserved unrelated
-   work. When assistance is in-process, the parent owns the worktree, or no
-   repository change exists, record an explicit no-separate-integration
-   disposition rather than inferring it from process exit.
+4. For every isolated child result, perform parent-side integration before descendant closure: require a committed, scoped, validated child handoff; inspect its source SHA; cherry-pick it into the canonical parent worktree without overwriting unrelated changes; handle only in-scope conflicts; run the required parent-side checks; and verify `git merge-base --is-ancestor <integrated-sha> HEAD` (or equivalent ancestry evidence). Record the source SHA, integrated SHA, validation, and any conflict/recovery outcome in the parent task evidence. A child remains non-terminal for parent purposes while integration is pending or unverified.
+5. Complete only after every descendant is terminal and failed/cancelled descendants are accounted for. Use `committing-completed-work` for the scoped durable handoff. Commit completed work before exit; do not force a commit for blocked, budget-stopped, or otherwise incomplete work. The runner owns isolated-worktree cleanup and preserves uncommitted recovery candidates.
+6. On child return, retain child commits as source evidence and consolidate related work into one scoped integration commit before merging into the original branch; record source/result SHAs, scope, and preserved unrelated work. When assistance is in-process, the parent owns the worktree, or no repository change exists, record an explicit no-separate-integration disposition rather than inferring it from process exit.
 
 Do not change parent or sibling records, create runtime state, contact external
 services, or put secrets in durable context. Parent reconciliation owns any

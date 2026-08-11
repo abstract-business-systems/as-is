@@ -1,5 +1,15 @@
 # Changelog
 
+- 2026-08-15: Added a focused parent-side handoff regression test proving that
+  otherwise complete facts are eligible when the child commit is integrated,
+  but remain ineligible with the `pending-parent-integration` blocker before
+  parent integration. No production behavior changed. Validation: the new
+  test passed and `git diff --check` passed; the focused launcher suite had 35
+  passes and one pre-existing child-commit fixture failure (`committed` was
+  false). Expert final review judged the scoped test safe to commit. No
+  descendants were authorized; closure was vacuously terminal. Residual risk:
+  the existing live handoff fixture failure remains unresolved.
+
 - 2026-08-15: Completed `parent-integration-ownership`. Contracts now make the
   receiving component-builder responsible for semantic handoff review and
   nearest-common-ancestor integration; the launcher only performs mechanical

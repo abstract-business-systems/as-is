@@ -1,5 +1,15 @@
 # Changelog
 
+- 2026-08-15: Strengthened parent-side child integration requirements. A
+  `pending-parent-integration` handoff is now explicitly non-terminal until
+  the builder verifies scoped child evidence, cherry-picks the child commit
+  without overwriting unrelated work, reruns parent-side validation, and proves
+  caller-branch ancestry. Missing commits, incomplete evidence, and
+  budget-stopped children remain recoverable blockers rather than being
+  recreated or reported as integrated. Validation: agent-contract inspection
+  and `git diff --check` passed. Residual risk: live provider execution and
+  conflict-resolution behavior remain outside this documentation change.
+
 - 2026-08-15: Refreshed `as-is.md` to reflect the current builder contract:
   separate durable context from task authority, distinguish in-process review
   from separately owned child handoff, document parent/child boundaries and
