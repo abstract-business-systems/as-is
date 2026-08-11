@@ -68,6 +68,7 @@ function makeFixture(name: string, requirement: string): Fixture {
   const canary = join(directory, "component", "canary.md");
   mkdirSync(join(directory, "component"), { recursive: true });
   symlinkSync(join(root, ".pi"), join(directory, ".pi"));
+  writeFileSync(join(directory, ".gitignore"), ".as-is/tracing.jsonl\n");
   writeFileSync(join(directory, "as-is.md"), `# Disposable Worker Component
 
 ## Purpose

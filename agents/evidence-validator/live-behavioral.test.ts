@@ -79,6 +79,7 @@ function makeFixture(name: string, requirement: string, change?: { path: string;
 
   mkdirFor(record);
   mkdirFor(extensionCopy);
+  writeFileSync(join(directory, ".gitignore"), ".as-is/tracing.jsonl\njobs*.jsonl\n");
   writeFileSync(join(directory, "as-is.md"), `# Disposable expert project
 
 ## Purpose

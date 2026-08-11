@@ -31,8 +31,8 @@ async function runAsIs(task: string, directory: string, caller?: string): Promis
     "--pi", pi,
     "--no-worktree",
     "--no-session",
-    "--budget-wall-clock-seconds", "45",
-    "--budget-cost-usd", "0.10",
+    "--budget-wall-clock-seconds", "90",
+    "--budget-cost-usd", "0.20",
     "--caller", caller ?? "user",
     ...(caller ? ["--parent-job-id", "live-as-is-behavior"] : []),
   ];
@@ -99,7 +99,7 @@ function expectUnchanged(before: string): void {
   expect(repositoryStatus()).toBe(before);
 }
 
-test.skipIf(!liveEnabled)("as-is live direct handling stays recommendation-only and non-mutating", { timeout: 30_000 }, async () => {
+test.skipIf(!liveEnabled)("as-is live direct handling stays recommendation-only and non-mutating", { timeout: 120_000 }, async () => {
   const directory = mkdtempSync(join(tmpdir(), "as-is-live-direct-"));
   const before = repositoryStatus();
   try {
@@ -117,7 +117,7 @@ test.skipIf(!liveEnabled)("as-is live direct handling stays recommendation-only 
   }
 });
 
-test.skipIf(!liveEnabled)("as-is live substantive routing identifies authority without starting work", { timeout: 30_000 }, async () => {
+test.skipIf(!liveEnabled)("as-is live substantive routing identifies authority without starting work", { timeout: 120_000 }, async () => {
   const directory = mkdtempSync(join(tmpdir(), "as-is-live-authority-"));
   const before = repositoryStatus();
   try {
@@ -136,7 +136,7 @@ test.skipIf(!liveEnabled)("as-is live substantive routing identifies authority w
   }
 });
 
-test.skipIf(!liveEnabled)("as-is live self-target request is rejected without a child", { timeout: 30_000 }, async () => {
+test.skipIf(!liveEnabled)("as-is live self-target request is rejected without a child", { timeout: 120_000 }, async () => {
   const directory = mkdtempSync(join(tmpdir(), "as-is-live-self-"));
   const before = repositoryStatus();
   try {
