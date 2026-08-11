@@ -1,4 +1,4 @@
-# as-is Component
+# as-is Component - as-is
 
 ## Independence
 
@@ -26,12 +26,11 @@ The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
-    Parent["Agents"] --> A["User request"]
-    A --> B["as-is front-face router"]
+    A["User request"] --> B["as-is front-face router"]
     B --> C["Admitted agent and applicable skill"]
-
-    click Parent href "../as-is.md#design" "Open Agents design"
 ```
+
+Parent: [Agents](../as-is.md#design)
 
 - Interpret user intent and route substantive requests to the best admitted
   agent and applicable skill.

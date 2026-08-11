@@ -1,5 +1,13 @@
 # Skills Architecture for Knowledge-Work Agents
 
+## Status
+
+This former root catalog is retained as migration context. The current
+repository capability index is [`skills/as-is.md`](skills/as-is.md); individual
+operational contracts remain in each linked `skills/*/SKILL.md`. This document
+is not a second source of truth and can be removed after its remaining design
+consumers are migrated.
+
 This document is a conceptual catalog for a knowledge-work automation system.
 It is intentionally comprehensive at the level of capability domains, not an
 exhaustive list of every technique, domain practice, or tool integration.
@@ -45,7 +53,8 @@ exhaustive list of every technique, domain practice, or tool integration.
   foundational capability domains should remain relatively stable.
 
 See [Design Principles](docs/design-principles.md) for the project-wide principles
-that govern this catalog and its implementation.
+that govern this catalog and its implementation. See the current
+[Skills component record](skills/as-is.md) for the discoverable repository map.
 
 ## Layers of Reuse
 
@@ -97,19 +106,22 @@ that govern this catalog and its implementation.
   decision-relevant details or provenance.
 - **Knowledge structuring:** Convert facts into inventories, maps, timelines,
   tables, dependency graphs, and other useful representations.
-- **Durable record structuring:** Create and maintain `as-is.md` architecture
-  records with stable sections, explicit links, diagrams, and parent-to-child
-  context handoff. See [`skills/managing-as-is-document/SKILL.md`](skills/managing-as-is-document/SKILL.md).
+- **Naming software concepts:** Choose and validate semantically accurate names
+  for components, records, files, directories, skills, agents, APIs, and other
+  software concepts. See [`skills/naming-software-concepts/SKILL.md`](skills/naming-software-concepts/SKILL.md).
+- **Setting up as-is documentation:** Introduce canonical `as-is.md` records
+  into an existing project, identify approved semantic components, and add the
+  root instruction that records are canonical component architecture context.
+  See [`skills/as-is-setup/SKILL.md`](skills/as-is-setup/SKILL.md).
 
-- **Managing as-is documents:** Maintain bounded durable component records,
-  their links, and reader-oriented diagrams without transferring authority to
-  scripts, durable record structure, or diagrams. See [`skills/managing-as-is-document/SKILL.md`](skills/managing-as-is-document/SKILL.md).
+- **Managing as-is documents:** Create and maintain bounded durable component
+  records, including as-is-specific hierarchy, titles, diagrams, links, and
+  parent navigation. See [`skills/managing-as-is-document/SKILL.md`](skills/managing-as-is-document/SKILL.md).
 
-- **Designing Mermaid diagrams:** Design bounded Mermaid diagrams around component
-  purpose, subcomponents, responsibilities, relationships, interactions,
-  boundaries, flows, and outcomes without substituting technical architecture
-  for reader-oriented context. See
-  [`skills/designing-mermaid-diagrams/SKILL.md`](skills/designing-mermaid-diagrams/SKILL.md).
+- **Designing Mermaid diagrams:** Design generic Mermaid diagrams around
+  purpose, responsibilities, relationships, interactions, boundaries, flows,
+  and outcomes without imposing repository-specific `as-is.md` conventions.
+  See [`skills/designing-mermaid-diagrams/SKILL.md`](skills/designing-mermaid-diagrams/SKILL.md).
 - **Assumption tracking:** Make uncertainty explicit and validate consequential
   assumptions.
 - **System modeling:** Map data flow, state, control flow, ownership, and

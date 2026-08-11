@@ -1,5 +1,5 @@
 
-# Exploring Execution Evidence
+# Exploring Execution Evidence - as-is
 
 ## Purpose
 
@@ -17,11 +17,11 @@ The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
-    Parent["Skills"] --> A["Trace or session evidence"] --> B["Evidence exploration procedure"]
+    A["Trace or session evidence"] --> B["Evidence exploration procedure"]
     B --> C["Source-labelled report"]
-
-    click Parent href "../as-is.md#design" "Open Skills design"
 ```
+
+Parent: [Skills](../as-is.md#design)
 
 - Start from a supplied trace or session selector and progressively inspect
   only the evidence needed for the question.

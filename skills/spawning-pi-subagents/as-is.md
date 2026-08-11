@@ -1,5 +1,5 @@
 
-# Launcher Host-Config Resolution And Run Observability
+# Launcher Host-Config Resolution And Run Observability - as-is
 
 ## Delegation Design
 
@@ -53,11 +53,11 @@ The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
-    Parent["Skills"] --> A["Delegation request"] --> B["Pi subprocess launcher"]
+    A["Delegation request"] --> B["Pi subprocess launcher"]
     B --> C["Detached child and observation"]
-
-    click Parent href "../as-is.md#design" "Open Skills design"
 ```
+
+Parent: [Skills](../as-is.md#design)
 
 
 ## Links

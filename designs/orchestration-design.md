@@ -30,7 +30,9 @@ runs.
   level, but the collection of operational skills and domain playbooks is
   deliberately extensible rather than exhaustive.
 
-See `agent-skills.md` for the current taxonomy and definitions.
+See [`skills/as-is.md`](../skills/as-is.md) for the current repository skill
+map and [`agent-skills.md`](../agent-skills.md) for the retained conceptual
+taxonomy and definitions.
 
 ### Durable Agents
 

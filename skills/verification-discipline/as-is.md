@@ -1,5 +1,5 @@
 
-# Verification Discipline
+# Verification Discipline - as-is
 
 ## Purpose
 
@@ -15,11 +15,11 @@ The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
-    Parent["Skills"] --> A["Acceptance conditions"] --> B["Risk-matched validation"]
+    A["Acceptance conditions"] --> B["Risk-matched validation"]
     B --> C["Evidence and residual risk"]
-
-    click Parent href "../as-is.md#design" "Open Skills design"
 ```
+
+Parent: [Skills](../as-is.md#design)
 
 
 ## Links

@@ -1,5 +1,5 @@
 
-# Subprocess Execution Foundation
+# Subprocess Execution Foundation - as-is
 
 ## Purpose
 
@@ -11,6 +11,8 @@ wait for worker completion.
 ## Design
 
 The component is organized around the following relationships and flow.
+
+Parent: [as-is](../../as-is.md#design)
 
 ```mermaid
 flowchart TD

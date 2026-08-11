@@ -1,6 +1,25 @@
 # Changelog
 
-- 2026-08-21: Completed backlog item `combine-as-is-record-skills`. Consolidated record lifecycle, stable structure, hierarchy, explicit context links, diagram decisions, validation, and changelog handoff into the canonical `managing-as-is-document` skill; migrated repository references and removed the superseded `structuring-as-is-records` component. Focused backlog/orientation tests and `git diff --check` passed; Mermaid rendering remains untested because no repository renderer is configured.
+- 2026-08-22: Updated as-is setup and record management to inspect existing
+  parent and sibling records for naming conventions instead of depending on a
+  direct naming-skill link. The general naming skill remains available in the
+  Skills catalog for broader naming work. Reduced parent container fill opacity
+  to 10 percent and changed component boxes to no fill so the diagrams better
+  align with the underlying theme while retaining visual separation.
+
+- 2026-08-22: Added the naming-software-concepts component record and linked
+  naming guidance from the Skills map, as-is setup, and as-is record
+  management. Added examples for structural, context, scenario, data, state,
+  decision, recovery, and journey diagrams. Replaced the indigo Mermaid styling
+  with neutral slate-and-white styling. `git diff --check` and scoped link
+  checks passed.
+
+- 2026-08-22: Added the canonical `as-is-setup` skill for existing-project
+  adoption, including semantic candidate review and root `AGENTS.md`
+  canonical-use instruction injection. Updated the capability catalog and
+  setup backlog. `git diff --check` passed.
+
+- 2026-08-21: Completed backlog item `combine-as-is-record-skills`. Consolidated record lifecycle, stable structure, hierarchy, explicit context links, diagram decisions, validation, and changelog handoff into the canonical `managing-as-is-document` skill; migrated repository references and removed the superseded record-structuring skill component. Focused backlog/orientation tests and `git diff --check` passed; Mermaid rendering remains untested because no repository renderer is configured.
 
 - 2026-08-20: Completed backlog item `align-skill-directories-with-frontmatter-names`. Renamed the two implemented skill component directories to match their `SKILL.md` frontmatter names, updated repository links, catalogs, scripts, tests, backlog dependencies, and historical references, and preserved all component artifacts. Focused validation and `git diff --check` passed; no runtime behavior changed.
 

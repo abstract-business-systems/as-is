@@ -1,5 +1,5 @@
 
-# Increment 6 Recovery Fixture
+# Increment 6 Recovery Fixture - as-is
 
 ## Purpose
 
@@ -10,6 +10,8 @@ after private worker runtime state is unavailable.
 ## Design
 
 The component is organized around the following relationships and flow.
+
+Parent: [as-is](../../as-is.md#design)
 
 ```mermaid
 flowchart TD

@@ -2,14 +2,18 @@
 
 ## Status
 
-Working design proposal captured from a design discussion. This document is a
-standalone concept document and uses abstract examples only; it does not
-describe or model this repository.
+This document has been dissolved into the owning implementation guidance and
+backlogs. The former design discussion is preserved in repository history;
+current rules live in the linked skills and their examples below. This file is
+kept temporarily as a migration index only and must not be treated as a second
+source of truth.
 
 ## Summary
 
 Document a large system as a hierarchy of bounded components. Each component
-has a name, purpose, boundary, and (where useful) child components. A diagram
+has a name, purpose, boundary, and (where useful) child components. Its durable
+record title uses the component name followed by ` - as-is`; the suffix
+identifies the record without changing the component's name in diagrams. A diagram
 shows one component and its immediate children, with labeled relationships among
 those visible nodes. Readers progressively disclose detail by navigating to a
 child component's own document.
@@ -28,12 +32,15 @@ reveal implementation detail only at the level where it is needed.
 
 ### 1. Hierarchy represents ownership and composition
 
-A parent component contains or composes child components. The component
-boundary is defined by the directory containing its `as-is.md` record, so a
-separate boundary section is not required merely to restate that directory.
-Containment is not a labeled edge: it is represented visually by placing child
-boxes inside the parent box. A child has its own purpose and boundary. The
-hierarchy is not required to represent every runtime relationship in the
+A parent component contains or composes child components. A parent is a
+component with one or more immediate child components, each represented by its
+own `as-is.md` record. The component boundary is defined by the directory
+containing its `as-is.md` record, so a separate boundary section is not required
+merely to restate that directory. Containment is not a labeled edge: it is
+represented visually by placing child boxes inside the parent box. A child has
+its own purpose and boundary. A collection of ordinary documents without child
+records is not a parent component and does not receive a container diagram.
+The hierarchy is not required to represent every runtime relationship in the
 system.
 
 ```mermaid
@@ -49,6 +56,12 @@ flowchart TD
     end
 ```
 
+Use the actual component name as the container title and use labeled boxes for
+children. Styling may distinguish the container from child boxes when that
+improves scanability; a heatmap is not an equivalent representation because it
+shows intensity rather than hierarchy. Reverse navigation from a child to its
+parent is a nearby Markdown link, not a synthetic node or containment edge.
+
 A component document for `Intake` would show `Intake` and its immediate
 children, not the complete platform. When a component is rendered in another
 diagram, its displayed name should link to the target record's diagram section,
@@ -58,9 +71,13 @@ detailed architecture context.
 
 ### 2. Diagrams are local, bounded views
 
-A diagram should display no more than two hierarchy levels: one parent and its
-immediate children. It may show relationships among those visible nodes. It
-should not expand arbitrary descendants merely to expose a distant dependency.
+A parent container diagram should display no more than two hierarchy levels:
+one parent and its immediate children. It may show explicit, semantically
+labeled relationships among those visible sibling nodes. It should not expand
+arbitrary descendants merely to expose a distant dependency. Use a balanced or
+evenly distributed layout for this relationship map rather than a sequential
+top-to-bottom flow. Non-parent records may use other diagrams when useful, but
+should not receive a container diagram.
 
 ```mermaid
 ---
@@ -357,12 +374,15 @@ Recommended conventions:
 | Decision flow | Guards and branch outcomes | Top-to-bottom by default |
 | Network relationship | Labeled relationship, not time | Clustered or radial where supported |
 
-Except for sequence diagrams, use top-to-bottom direction by default. This
-applies to containment, dependency, data-flow, decision, recovery, and state
-views. Vertical data-flow diagrams are especially useful for long pipelines and
-align naturally with state-change diagrams. Sequence diagrams are the sole
-intentional exception: their participants are conventionally arranged
-horizontally, while messages progress vertically in time.
+Use top-to-bottom direction by default for temporal flows, containment when a
+hierarchical progression is useful, dependency, data-flow, decision, recovery,
+and state views. Container relationship maps are an explicit exception: use a
+balanced or evenly distributed arrangement so sibling relationships can be
+seen without implying sequence. Vertical data-flow diagrams are especially
+useful for long pipelines and align naturally with state-change diagrams.
+Sequence diagrams are another intentional exception: their participants are
+conventionally arranged horizontally, while messages progress vertically in
+time.
 
 Every non-containment relationship shown in a component view should have an
 explicit arrow. Containment is the exception: it is represented by nested boxes
@@ -378,9 +398,10 @@ with explicit layout control.
 
 The relationship label is the primary semantic content of an edge. Start with a
 small controlled vocabulary and extend it only when a new distinction changes
-interpretation. Component names are also navigational content: diagram nodes
-should link to the target component's `## Design` section, and rendered SVG
-should preserve those hyperlinks where supported.
+interpretation. Component names are also navigational content: child diagram
+nodes should link to the target component's `## Design` section, and rendered
+SVG should preserve those hyperlinks where supported. Reverse parent navigation
+belongs in nearby Markdown rather than a synthetic diagram node or edge.
 
 | Relationship | Meaning | Example |
 |---|---|---|
@@ -462,79 +483,34 @@ Consider Graphviz or D2 when Mermaid's automatic layout, network diagrams, or
 edge semantics become a demonstrated limitation. Treat raw SVG as output rather
 than the primary authored source.
 
-## Example component record
+## Current implementation owners
 
-```markdown
-# Checkout
+The former design requirements are now implemented or tracked here:
 
-## Purpose
+- [As-is setup](skills/as-is-setup/SKILL.md) owns project adoption, candidate
+  review, and root instruction integration.
+- [Managing as-is documents](skills/managing-as-is-document/SKILL.md) owns
+  record structure, hierarchy, naming, parent navigation, and as-is-specific
+  diagrams.
+- [Designing Mermaid diagrams](skills/designing-mermaid-diagrams/SKILL.md)
+  owns generic Mermaid mechanics and diagram-type selection.
+- [Naming software concepts](skills/naming-software-concepts/SKILL.md) owns
+  semantic naming and repository naming grammar.
+- [Container diagram example](skills/managing-as-is-document/container-diagram-example.md)
+  demonstrates the parent relationship-map pattern.
+- [Managing as-is backlog](skills/managing-as-is-document/backlog.md) tracks
+  unresolved vocabulary, view, and validation work.
 
-Accepts an order request and coordinates validation, authorization, and order
-recording.
-
-## Scope
-
-The `checkout/` directory owns order-submission orchestration. It does not own
-payment-provider identity or fulfillment execution. The directory defines the
-component boundary; this section records only the meaningful ownership limits.
-
-## Components
-
-- `cart-validator` — checks cart structure and availability.
-- `authorization-client` — exposes a payment authorization capability.
-- `order-recorder` — records the resulting order state.
-
-## Design
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TD
-    subgraph Checkout[Checkout]
-        Validator[Cart Validator]
-        Auth[Authorization Client]
-        Recorder[Order Recorder]
-
-        Validator -->|provides validation result to| Auth
-        Auth -->|provides authorization result to| Recorder
-    end
-```
-
-The concrete payment provider is connected above Checkout's boundary. Internal
-children do not name or render that provider.
-
-## Links
-
-- `submit-order.md` — scenario flow.
-- `authorization-contract.md` — boundary contract.
-```
+This migration index no longer defines a competing record template or diagram
+source.
 
 ## Automatic component creation
 
-The documentation process may identify and propose a component record
-automatically for a semantically meaningful, key, or complex piece of an
-existing system. Automatic creation is a documentation bootstrap, not an
-automatic architectural decision: it should establish the smallest useful
-record, preserve the user-visible name and purpose, and leave ordinary
-implementation details undocumented unless they become important.
-
-A candidate is especially suitable for automatic component creation when it
-has a distinct boundary, substantial complexity, independent change impact,
-important external relationships, or a key flow that needs its own context.
-The generated record should contain at least:
-
-- Name and purpose.
-- Parent component and boundary.
-- Immediate children, if known.
-- The local diagram.
-- Links to key flows and implementation evidence.
-- Unresolved assumptions or a request for human confirmation, where needed.
-
-A simple utility or routine should not become a component merely because an
-automation tool can detect it. The user retains authority over decomposition and
-may merge, rename, or reject an automatically proposed component.
+Initial component identification and record creation are owned by the
+[`as-is-setup`](skills/as-is-setup/SKILL.md) skill. Individual record lifecycle,
+structure, and as-is-specific diagrams are owned by
+[`managing-as-is-document`](skills/managing-as-is-document/SKILL.md). This
+planning document does not create a competing automatic-decomposition contract.
 
 ## Evaluation criteria
 
@@ -559,12 +535,10 @@ fact.
 
 ## Open questions
 
-- Which relationship vocabulary should be fixed initially?
-- Which view kinds require mandatory direction declarations?
-- How should diagram-to-component links be represented in the chosen renderer?
-- When should a concrete external identity be disclosed at a higher level?
-- Should diagrams be validated mechanically for resolvable component names?
-- Which flows deserve durable documentation rather than remaining in tests or
-  implementation notes?
-- Is Mermaid's layout sufficient for the first network-view use case, or is a
-  Graphviz/D2 renderer needed from the beginning?
+The remaining decisions are tracked in the owning skills' backlogs rather than
+in this planning document. In particular, the as-is record-management backlog
+contains the container-diagram implementation and navigation work, while the
+Mermaid skill backlog contains generic renderer and diagram-mechanics work.
+The root backlog records the completed distribution and retains this index
+only until the repository's uncommitted migration is reviewed and the file can
+be safely removed.

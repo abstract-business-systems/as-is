@@ -195,9 +195,10 @@ positive fixtures pass with provenance and residual-risk evidence.
 **Goal:** reconcile all explanatory and host-facing documentation after
 behavior and validations are stable.
 
-- Update `agent-skills.md`, `AGENTS.md`, execution/design docs, role contracts,
-  launcher guidance, and host projection notes to use one vocabulary and
-  canonical paths.
+- Update [`skills/as-is.md`](../skills/as-is.md), `AGENTS.md`, execution/design
+  docs, role contracts, launcher guidance, and host projection notes to use one
+  vocabulary and canonical paths. Treat the former root `agent-skills.md` as
+  migration context until its remaining consumers are retired.
 - Link this plan and its resulting implementation records without copying
   task authority into designs or changelogs.
 - Mark superseded guidance explicitly and remove only after auditing tracked,

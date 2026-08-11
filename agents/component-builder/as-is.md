@@ -1,5 +1,5 @@
 
-# component-builder
+# component-builder - as-is
 
 ## Purpose
 
@@ -20,8 +20,7 @@ for planning, delegation, descendant closure, and completion.
 
 ```mermaid
 flowchart TD
-    Parent["Agents"] --> A["Assigned bounded task"]
-    A --> B["Read component context and task authority"]
+    A["Assigned bounded task"] --> B["Read component context and task authority"]
     B --> C["Plan and obtain attributable expert review"]
     C --> D["Implement within component boundary"]
     D --> E{"Separately owned descendant?"}
@@ -30,9 +29,9 @@ flowchart TD
     E -- "No" --> G
     G --> H["Run checks and obtain final diff validation"]
     H --> I["Record evidence and create scoped commit"]
-
-    click Parent href "../as-is.md#design" "Open Agents design"
 ```
+
+Parent: [Agents](../as-is.md#design)
 
 Same-component assistance and expert reviews use the host-provided in-process
 subagent mechanism. A separately owned child is launched through the bounded

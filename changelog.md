@@ -3,9 +3,9 @@
   serves both human and agent readers, maps only immediate repository areas,
   avoids duplicate navigation links, and keeps boundary facts concise. The
   router record no longer carries root-level or builder-specific relationship
-  context. The record-structuring skill now treats `Components`, `Design`,
-  `Relationships`, and `Boundary` as purposeful and optional sections rather
-  than a universal template. `git diff --check` passed.
+  context. The as-is record skill now treats `Components`, `Design`,
+  `Relationships`, and boundary facts as purposeful sections rather than a
+  universal template. `git diff --check` passed.
 
 - 2026-08-07: Completed the Phase 4 composition-boundary clarification for the
   skills/agents separation migration. Clarified across repository instructions,

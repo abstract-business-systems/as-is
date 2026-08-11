@@ -1,5 +1,5 @@
 
-# OpenCode Mediation Dogfood
+# OpenCode Mediation Dogfood - as-is
 
 ## Purpose
 
@@ -10,6 +10,8 @@ mediation reaches the configured implementer.
 ## Design
 
 The component is organized around the following relationships and flow.
+
+Parent: [as-is](../../as-is.md#design)
 
 ```mermaid
 flowchart TD

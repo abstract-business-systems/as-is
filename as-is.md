@@ -1,4 +1,4 @@
-# as-is Project
+# as-is - as-is
 
 ## Purpose
 
@@ -26,17 +26,23 @@ record.
 This is a component map, not a mandatory execution sequence. The root record
 connects the repository component to its immediate documented child areas.
 
+Parent: [as-is](#design)
+
 ```mermaid
 %%{init: {"securityLevel": "loose"}}%%
-flowchart TD
-    Root["as-is repository"]
-    Root --> Agents["Agents"]
-    Root --> Designs["Designs"]
-    Root --> Skills["Skills"]
+flowchart LR
+    subgraph Root["as-is"]
+        direction LR
+        Agents["<a href='./agents/as-is.md#design'>Agents</a>"]
+        Designs["<a href='./designs/as-is.md#design'>Designs</a>"]
+        Skills["<a href='./skills/as-is.md#design'>Skills</a>"]
 
-    click Agents href "./agents/as-is.md#design" "Open Agents design"
-    click Designs href "./designs/as-is.md#design" "Open Designs design"
-    click Skills href "./skills/as-is.md#design" "Open Skills design"
+        Agents -->|uses procedures from| Skills
+    end
+    classDef component fill:#f8fafc,fill-opacity:0.1,stroke:#334155,stroke-width:2px
+    classDef child fill:#2563eb,fill-opacity:0.1,stroke:#64748b,stroke-width:1px
+    class Root component
+    class Agents,Designs,Skills child
 ```
 
 If the host Markdown renderer suppresses Mermaid navigation, use these

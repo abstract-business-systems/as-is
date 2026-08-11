@@ -5,9 +5,10 @@ description: Designs bounded Mermaid diagrams that explain component context, re
 
 # Designing Mermaid Diagrams
 
-Use this skill when a reader needs a visual explanation of a component's
-purpose, its immediate subcomponents or neighbors, responsibility changes, or
-a consequential outcome. A diagram is a communication aid: authoritative
+Use this skill when a reader needs a generic Mermaid visual explanation of a
+subject's purpose, responsibilities, relationships, interactions, boundaries,
+flows, or outcomes. It designs diagrams independently of the repository's
+`as-is.md` record convention. A diagram is a communication aid: authoritative
 purpose, boundaries, and decisions remain in linked prose and records.
 
 ## Inputs
@@ -56,12 +57,19 @@ data structures; use a separate technical view when those details are needed.
    Do not force one diagram type when a different type communicates the bounded
    decision more clearly.
 4. Name nodes with reader-oriented functional labels. Include only the
-   subcomponents, neighbors, and edges needed for the stated scope.
+   subcomponents, neighbors, and edges needed for the stated scope. When a
+   host document requests an even relationship map, choose a balanced layout
+   rather than implying sequence; the host document owns any domain-specific
+   container or hierarchy convention.
 5. Draw the primary path first, then add consequential alternate, rejected, or
    recovery paths. Show boundaries where responsibility or authority changes;
    explain dense detail in prose.
-6. Add only resolving repository-relative links. Prose and component tables
-   remain authoritative if a diagram diverges.
+6. Add only resolving links required by the diagram's host document. Keep
+   repository-specific component-linking, parent navigation, and container
+   rules in the host document's owning procedure; do not make them generic
+   Mermaid mechanics. Prose remains authoritative if a diagram diverges.
+   When a linked Mermaid node is required by the host, use the host-supported
+   link syntax and preserve a Markdown fallback outside the diagram.
 7. Validate syntax, link targets, supported edge meanings, readable labels,
    bounded scope, and consistency with authoritative prose.
 
@@ -85,6 +93,10 @@ Return or record:
   are understandable without implementation knowledge.
 - Every edge expresses a supported functional relationship.
 - The selected Mermaid type fits the question and the diagram is readable.
+- Generic diagram guidance does not impose a host document's hierarchy, title,
+  parent-link, or container-view rules.
+- Host-specific link syntax and fallback behavior are not presented as generic
+  Mermaid requirements.
 - Technical architecture has not displaced functional context.
 - Mermaid syntax and repository-relative links pass the smallest applicable
   deterministic check.

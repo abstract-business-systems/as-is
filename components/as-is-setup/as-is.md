@@ -1,4 +1,4 @@
-# as-is Setup
+# as-is Setup - as-is
 
 ## Purpose
 
@@ -11,6 +11,8 @@ locations.
 ## Design
 
 The component is organized around the following relationships and flow.
+
+Parent: [as-is](../../as-is.md#design)
 
 ```mermaid
 flowchart TD

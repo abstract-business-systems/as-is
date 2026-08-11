@@ -1,5 +1,5 @@
 
-# Maintaining Components
+# Maintaining Components - as-is
 
 ## Purpose
 
@@ -16,11 +16,11 @@ The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
-    Parent["Skills"] --> A["Maintenance evidence"] --> B["Maintenance procedure"]
+    A["Maintenance evidence"] --> B["Maintenance procedure"]
     B --> C["Bounded backlog or handoff"]
-
-    click Parent href "../as-is.md#design" "Open Skills design"
 ```
+
+Parent: [Skills](../as-is.md#design)
 
 
 ## Links

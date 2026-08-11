@@ -98,7 +98,9 @@ task authority.
 - This skill owns the reusable procedure and decision criteria; design
   principles own broad cross-project values; component task records own
   current-task evidence and decisions; each skill or agent document owns its
-  detailed contract; `agent-skills.md` remains only a concise linked catalog.
+  detailed contract; [`skills/as-is.md`](../as-is.md) is the concise linked
+  capability catalog. The former root [`agent-skills.md`](../../agent-skills.md)
+  is migration context, not a second catalog authority.
 
 ## Structure Rules
 

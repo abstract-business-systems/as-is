@@ -1,5 +1,5 @@
 
-# Execution Advisor
+# Execution Advisor - as-is
 
 ## Purpose
 
@@ -15,12 +15,11 @@ The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
-    Parent["Agents"] --> A["Trace or session selector"]
-    A --> B["Read-only evidence analysis"]
+    A["Trace or session selector"] --> B["Read-only evidence analysis"]
     B --> C["Decision-ready findings or budget request"]
-
-    click Parent href "../as-is.md#design" "Open Agents design"
 ```
+
+Parent: [Agents](../as-is.md#design)
 
 The role composes the globally available `exploring-execution-evidence`
 procedure and read-only task-record context. A future extraction may package

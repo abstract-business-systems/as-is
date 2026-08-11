@@ -1,4 +1,4 @@
-# as-is Data Resolution
+# as-is Data Resolution - as-is
 
 ## Purpose
 
@@ -10,6 +10,8 @@ human-facing Markdown context.
 ## Design
 
 The component is organized around the following relationships and flow.
+
+Parent: [as-is](../../as-is.md#design)
 
 ```mermaid
 flowchart TD

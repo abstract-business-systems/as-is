@@ -1,5 +1,5 @@
 
-# Increment 5 Dogfood
+# Increment 5 Dogfood - as-is
 
 ## Purpose
 
@@ -10,6 +10,8 @@ subprocess adapter without domain changes or external effects.
 ## Design
 
 The component is organized around the following relationships and flow.
+
+Parent: [as-is](../../as-is.md#design)
 
 ```mermaid
 flowchart TD

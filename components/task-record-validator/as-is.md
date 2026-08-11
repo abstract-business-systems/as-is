@@ -1,5 +1,5 @@
 
-# Task-Record Validator
+# Task-Record Validator - as-is
 
 ## Purpose
 
@@ -10,6 +10,8 @@ runtime enforcement.
 ## Design
 
 The component is organized around the following relationships and flow.
+
+Parent: [as-is](../../as-is.md#design)
 
 ```mermaid
 flowchart TD

@@ -1,5 +1,5 @@
 
-# Control Plane Implementation Conversion
+# Control Plane Implementation Conversion - as-is
 
 ## Purpose
 
@@ -12,6 +12,8 @@ historical fixture.
 ## Design
 
 The component is organized around the following relationships and flow.
+
+Parent: [as-is](../../as-is.md#design)
 
 ```mermaid
 flowchart TD

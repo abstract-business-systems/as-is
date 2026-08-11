@@ -1,5 +1,5 @@
 
-# Implementing Component Tasks
+# Implementing Component Tasks - as-is
 
 ## Purpose
 
@@ -14,11 +14,11 @@ The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
-    Parent["Skills"] --> A["Selected backlog item"] --> B["Component task lifecycle"]
+    A["Selected backlog item"] --> B["Component task lifecycle"]
     B --> C["Validated durable handoff"]
-
-    click Parent href "../as-is.md#design" "Open Skills design"
 ```
+
+Parent: [Skills](../as-is.md#design)
 
 This skill owns transient task creation, scoped implementation, child-boundary
 delegation, deterministic validation, changelog handoff, and task cleanup.

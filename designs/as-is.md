@@ -1,10 +1,17 @@
 
-# Designs
+# Designs - as-is
 
 ## Purpose
 Provide a discoverable component for enduring architecture, protocol, and
 execution design documents.
 
+## Design
+
+Parent: [as-is](../as-is.md#design)
+
+This component has no independently documented child components. The design
+artifacts in this directory are ordinary documents rather than child
+`as-is.md` components, so no container diagram is included.
 
 ## Links
 - [execution-accounting-design.md](execution-accounting-design.md) — execution accounting design.

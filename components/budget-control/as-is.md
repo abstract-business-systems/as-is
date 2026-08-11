@@ -1,4 +1,4 @@
-# Budget Arithmetic
+# Budget Arithmetic - as-is
 
 ## Purpose
 
@@ -9,6 +9,8 @@ runtime budget exhaustion checks.
 ## Design
 
 The component is organized around the following relationships and flow.
+
+Parent: [as-is](../../as-is.md#design)
 
 ```mermaid
 flowchart TD

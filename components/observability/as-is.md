@@ -1,4 +1,4 @@
-# Observability
+# Observability - as-is
 
 ## Purpose
 
@@ -8,6 +8,8 @@ Provide supplementary execution telemetry and trace query support without becomi
 ## Design
 
 The component is organized around the following relationships and flow.
+
+Parent: [as-is](../../as-is.md#design)
 
 ```mermaid
 flowchart TD

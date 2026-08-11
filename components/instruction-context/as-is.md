@@ -1,4 +1,4 @@
-# Instruction Context
+# Instruction Context - as-is
 
 ## Purpose
 
@@ -10,6 +10,8 @@ sandbox or exposing unrelated repository content.
 ## Design
 
 The component is organized around the following relationships and flow.
+
+Parent: [as-is](../../as-is.md#design)
 
 ```mermaid
 flowchart TD

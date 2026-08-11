@@ -1,4 +1,4 @@
-# Dummy Delegation Fixture
+# Dummy Delegation Fixture - as-is
 
 ## Purpose
 Provide a harmless, deterministic component for rehearsing as-is delegation,
@@ -8,6 +8,8 @@ budget bubbling, child commit handoff, parent integration, and cleanup.
 ## Design
 
 The component is organized around the following relationships and flow.
+
+Parent: [as-is](../../as-is.md#design)
 
 ```mermaid
 flowchart TD

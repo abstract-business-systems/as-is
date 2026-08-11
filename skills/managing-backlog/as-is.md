@@ -1,5 +1,5 @@
 
-# Managing Backlog
+# Managing Backlog - as-is
 
 ## Purpose
 
@@ -15,11 +15,11 @@ The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
-    Parent["Skills"] --> A["Backlog entries"] --> B["Deterministic prioritization"]
+    A["Backlog entries"] --> B["Deterministic prioritization"]
     B --> C["Selected task input"]
-
-    click Parent href "../as-is.md#design" "Open Skills design"
 ```
+
+Parent: [Skills](../as-is.md#design)
 
 The backlog is a planning index, not task authority. Each component backlog uses
 a stable table with `id`, `status`, integer `user preference`, integer `system

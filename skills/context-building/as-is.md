@@ -1,5 +1,5 @@
 
-# Context Building
+# Context Building - as-is
 
 ## Purpose
 Provide reusable context assembly for bounded decisions and handoffs.
@@ -13,11 +13,11 @@ The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
-    Parent["Skills"] --> A["Bounded decision"] --> B["Context assembly"]
+    A["Bounded decision"] --> B["Context assembly"]
     B --> C["Provenance-bearing handoff"]
-
-    click Parent href "../as-is.md#design" "Open Skills design"
 ```
+
+Parent: [Skills](../as-is.md#design)
 
 
 ## Links

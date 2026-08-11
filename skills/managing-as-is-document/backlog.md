@@ -1,9 +1,10 @@
 # Managing As-Is Document Backlog
 
-This is the planning index for the proposed `managing-as-is-document` skill
-component. It currently accompanies the existing `skills/managing-as-is-document/scripts/`
-utilities and records the bounded work needed to establish the discoverable
-skill and its durable component record. It is not task authority.
+This planning index covers as-is-specific record lifecycle, structure, diagram,
+and navigation behavior. It is not task authority.
 
 | id | status | user preference | system preference | purpose | description | dependencies | acceptance | notes |
 | --- | --- | ---: | ---: | --- | --- | --- | --- | --- |
+| formalize-as-is-relationship-vocabulary | open | 3 | 2 | Formalize the as-is relationship and capability vocabulary | Define and validate the smallest controlled vocabulary for containment, sibling relationships, capabilities, authority, provider abstraction, and consequential cross-component interactions in as-is diagrams. | - | The vocabulary distinguishes containment from labeled relationships, defines meanings and examples for `provides`, `uses`, `calls`, `delegates-to`, `publishes`, `subscribes-to`, `reads`, `writes`, `validates`, `observes`, `authorizes`, and `connects-to`, and records when concrete provider identity must be disclosed. | As-is-specific; generic Mermaid mechanics remain owned by `designing-mermaid-diagrams`. |
+| define-as-is-flow-view-rules | open | 3 | 2 | Define structure, key-flow, and standard-flow view rules | Consolidate the as-is-specific rules for structural container diagrams, key or complex flows, ordinary standard-flow assumptions, view scope, direction semantics, and consequential failure/recovery disclosure. | - | The managing skill states how structural and temporal views differ, when a flow needs durable documentation, which views use balanced layouts versus progression layouts, and how authoritative diagrams relate to prose. | Preserve the current parent-only container rule and balanced sibling relationship-map direction. |
+| validate-as-is-diagrams-and-navigation | open | 3 | 2 | Add deterministic validation for as-is diagrams and navigation | Provide focused checks for strict record titles, parent-only container diagrams, immediate-child scope, explicit sibling relationship arrows, resolving `#design` links, nearby parent links, and renderer fallback behavior. | `formalize-as-is-relationship-vocabulary`; `define-as-is-flow-view-rules` | Checks detect malformed or out-of-scope diagrams and unresolved links without requiring a configured Mermaid renderer; renderer-specific SVG checks remain separate where tooling exists. | No architecture is inferred mechanically from syntax; validation checks documented meaning and declared scope. |

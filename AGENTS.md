@@ -9,6 +9,10 @@ and surfaced as reusable procedures under [skills](skills/). This file holds
 only the generic developmental guardrails that apply to any agent working in
 this repository.
 
+- The relevant `as-is.md` record is the canonical representation of its
+  component's purpose, design, relationships, and navigational context; use it
+  as the authoritative architecture context for that component.
+
 ## Guard Clauses
 
 - Do not amend, push, create pull requests, change branches, or alter remotes

@@ -1,4 +1,4 @@
-# Linked Context
+# Linked Context - as-is
 
 ## Purpose
 
@@ -11,6 +11,8 @@ is the bounded `resolve_component_context` tool.
 ## Design
 
 The component is organized around the following relationships and flow.
+
+Parent: [as-is](../../as-is.md#design)
 
 ```mermaid
 flowchart TD

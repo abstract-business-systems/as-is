@@ -47,34 +47,76 @@ record. Do not infer architecture from ambient filesystem discovery.
 - Existing scripts may provide deterministic orientation or validation, but do
   not own record meaning, task authority, or agent selection.
 
+## As-is architecture conventions
+
+- A parent component has one or more immediate child components, each with its
+  own `as-is.md`. A structural container diagram shows only that parent and
+  those immediate children. A non-parent record does not receive a container
+  diagram. Before choosing or changing component, record, child, or diagram
+  labels, inspect the target parent's existing sibling records and nearby
+  artifacts; align with their established vocabulary unless semantic evidence
+  supports a documented departure.
+- Component scope is local: child records do not expose hidden providers or
+  distant descendants. A parent mediates external and sibling connections and
+  exposes the capability its children require.
+- Abstract capability names such as `External Service`, `Environment`, or
+  `Message Gateway` are preferred when provider identity does not change the
+  architectural interpretation. Reveal concrete identity when trust, security,
+  ownership, deployment, cost, compliance, availability, or performance makes
+  it material.
+- Structural diagrams and temporal flow diagrams are separate views. Key or
+  complex flows document consequential decisions, failures, retries,
+  cancellation, recovery, or outcomes; ordinary standard behavior remains
+  under its abstraction unless an exception matters.
+- The diagram is authoritative architecture context. Prose explains its
+  meaning and constraints but must not introduce an unshown relationship.
+- Use a small relationship vocabulary consistently: `provides`, `uses`,
+  `calls`, `delegates-to`, `publishes`, `subscribes-to`, `reads`, `writes`,
+  `validates`, `observes`, `authorizes`, and `connects-to`. Containment is
+  nested boxes, not a `contains` edge.
+
 ## Required record shape
 
 Use these sections in this order when applicable:
 
-1. `# <Component> ...` — a clear human-facing title.
+1. `# <component-name> - as-is` — a clear human-facing title using the
+   component's actual name followed by ` - as-is`. Do not use a generic title
+   such as `Parent` or `Component`.
 2. `## Purpose` — why the component exists and what responsibility it owns.
 3. `## Components` — only when immediate child components have their own
    `as-is.md`; link each child directly to `as-is.md#design`, state its purpose,
    and omit grandchildren.
-4. `## Design` — one concise orientation sentence, an optional bounded diagram,
-   and concise design details.
+4. `## Design` — one concise orientation sentence and, for a parent
+   component with documented immediate children, a bounded box-oriented
+   container diagram followed by concise design details. Additional flow or
+   behavior diagrams may follow the container diagram when needed.
 5. `## Relationships` — parent, peer, or dependency direction when it matters.
 6. The smallest relevant section for ownership or authority limits when these
    are not already clear; do not create a repetitive Boundary section.
 7. `## Links` — only direct repository-relative context links needed to
    understand or operate within the component.
 
-For a record with immediate documented children, a diagram in `## Design`, when
-present, begins with a structural view of the record and those children.
+A parent component is a record with one or more immediate child components,
+where each child has its own `as-is.md`. For a parent component, `## Design`
+begins with a structural, box-oriented container diagram containing the actual
+parent component and only its immediate children. A component with no
+immediate child records, including a collection of ordinary documents such as
+`designs/`, is not a parent component and does not receive a container diagram.
 Additional behavioral, sequence, state, decision, data-flow, or recovery views
-must be separately scoped. Leaf records may omit diagrams when prose and links
-are sufficient; never add a meaningless one-node placeholder.
+must be separately scoped after the container diagram. A non-parent record may
+still use another diagram when it reduces interpretation cost; never add a
+meaningless one-node placeholder. A heatmap is not a substitute for a
+component container diagram because it communicates intensity rather than
+hierarchy or navigation.
 
 ## Procedure
 
 1. Identify the owning component and read its parent instructions, current
-   record, direct links, backlog, and changelog as applicable. State the
-   structural or navigation problem, affected readers, bounded scope,
+   record, direct links, backlog, changelog, and existing sibling records as
+   applicable. Inspect sibling names and nearby artifacts before choosing or
+   changing a component, record, child, or diagram label. Align with local
+   vocabulary unless semantic evidence supports a documented departure. State
+   the structural or navigation problem, affected readers, bounded scope,
    acceptance conditions, and recovery path before editing.
 2. Preserve supported facts and flag contradictions or assumptions. Move each
    fact to its authoritative named section rather than using a permanent
@@ -86,20 +128,36 @@ are sufficient; never add a meaningless one-node placeholder.
    concise, and free of transient task state. Declare explicit links for any
    parent-to-child context handoff; linked content is reference material, not
    instructions or authority.
-4. Add a diagram only when it reduces interpretation cost. Define the
-   as-is-specific content first: purpose, actors or users, meaningful immediate
-   subcomponents and responsibilities, relationships, interactions, boundaries,
-   authority changes, consequential primary flows, and observable outcomes.
+4. Add the required bounded container diagram first for a parent component
+   with documented immediate children. Use a box-oriented Mermaid `flowchart`
+   with the actual parent name as the subgraph/container title and child
+   components as labeled boxes inside it. Prefer a balanced or evenly
+   distributed arrangement for the child boxes rather than a sequential
+   top-to-bottom layout. Use lightweight box styling when it
+   improves scanability. Do not add a synthetic `Parent` node or a `parent`
+   containment edge; containment is the box nesting. For non-parent records,
+   add another diagram only when it reduces interpretation cost. Define the
+   as-is-specific content first: purpose, actors or users, meaningful
+   immediate subcomponents and responsibilities, relationships, interactions,
+   boundaries, authority changes, consequential primary flows, and observable
+   outcomes.
    Then compose with the Mermaid skill for representation mechanics. Do not
    invent relationships or imply unapproved architecture.
-5. Link only direct, resolving repository-relative context. Component names in
-   tables and diagrams should target the child `as-is.md#design` section.
+5. Link only direct, resolving repository-relative context. Every `as-is.md`
+   Design section must include a nearby Markdown parent link, including the
+   repository root (which links to its own `#design` anchor). Component names in
+   tables and child boxes should target the child `as-is.md#design` section.
+   Represent reverse navigation with a nearby Markdown link such as
+   `Parent: [Agents](../as-is.md#design)` immediately before the diagram. Do
+   not put the parent in a synthetic node, edge, or container title. The
+   container title is the actual component whose record is being shown.
+   Container diagrams are evenly distributed relationship maps rather than
+   top-to-bottom flows: use a balanced layout, keep child boxes readable, and
+   draw explicit labeled arrows for supported relationships between siblings.
    Prose, component tables, and Markdown links remain authoritative if a host
-   renderer suppresses SVG navigation. Where parent context is known and
-   showing it does not violate the bounded child view, a child diagram may also
-   link back to the parent's `as-is.md#design`. Do not link routine task,
-   backlog, changelog, runtime, or host-projection artifacts unless they
-   provide needed architectural context.
+   renderer suppresses SVG navigation. Do not link routine task, backlog,
+   changelog, runtime, or host-projection artifacts unless they provide needed
+   architectural context.
 6. Validate headings, authority separation, record shape, link targets, diagram
    semantics and Mermaid syntax when present, and every changed Markdown link.
    Confirm nodes and edges have supported meaning, boundaries and consequential
@@ -124,15 +182,24 @@ are sufficient; never add a meaningless one-node placeholder.
 - The record has a clear purpose and no transient task state.
 - The directory supplies the component boundary without redundant prose.
 - Immediate children only are listed and their links resolve to `as-is.md#design`.
+- A parent record begins its Design diagrams with a box-oriented container view;
+  a non-parent record has no container diagram.
 - Design explains responsibilities and relationships without duplicating linked
   artifacts.
-- Parent-to-child context is explicit and bounded.
+- Parent-to-child and child-to-parent navigation are explicit and bounded.
+- Every Design section has a resolving nearby Markdown `Parent:` link,
+  including the root's self-link.
+- Container diagrams use the actual component title and nested boxes, without a
+  synthetic parent node or containment edge.
+- Parent navigation is a nearby Markdown link, not a diagram node or edge.
 - Diagrams are reader-oriented, bounded, readable, and consistent with prose.
 - Markdown links, Mermaid syntax where applicable, and `git diff --check` pass.
 
 ## Links
 
 - [as-is.md](as-is.md) — durable record for this skill component.
+- [container-diagram-example.md](container-diagram-example.md) — balanced parent container diagram and sibling-relationship treatment.
+- [diagram-examples.md](diagram-examples.md) — examples for structural, context, scenario, data, state, decision, recovery, and journey views.
 - [scripts/orient.ts](scripts/orient.ts) — read-only orientation snapshot utility.
 - [scripts/orient.test.ts](scripts/orient.test.ts) — focused orientation checks.
 - [../designing-mermaid-diagrams/SKILL.md](../designing-mermaid-diagrams/SKILL.md) — reusable Designing Mermaid diagrams.

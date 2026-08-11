@@ -14,7 +14,10 @@ concept, role, scope, and responsibility of an artifact.
 2. Prefer an established de facto or de jure term when one accurately fits.
 3. Select the narrowest clear name that remains accurate as the artifact grows.
 4. Apply the artifact's grammar and host-required filename exceptions.
-5. Check nearby names for collision, inconsistency, or an overloaded concept.
+5. Inspect the target's parent and sibling records or nearby artifacts for
+   established naming conventions. Align with that local vocabulary unless
+   semantic evidence supports a clearer departure; also check for collision,
+   inconsistency, or an overloaded concept.
 6. Explain a non-obvious name or departure from established terminology.
 
 ## Repository Grammar

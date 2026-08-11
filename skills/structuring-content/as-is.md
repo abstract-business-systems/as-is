@@ -1,5 +1,5 @@
 
-# Structuring Content
+# Structuring Content - as-is
 
 ## Purpose
 
@@ -18,11 +18,11 @@ The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
-    Parent["Skills"] --> A["Repository concept"] --> B["Content-structuring procedure"]
+    A["Repository concept"] --> B["Content-structuring procedure"]
     B --> C["Discoverable authoritative artifact"]
-
-    click Parent href "../as-is.md#design" "Open Skills design"
 ```
+
+Parent: [Skills](../as-is.md#design)
 
 
 ## Links

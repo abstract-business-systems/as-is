@@ -1,20 +1,41 @@
 
-# Skills
+# Skills - as-is
 
 ## Purpose
 [Open repository design](../as-is.md#design)
 
 Maintain the durable organization and authority context for reusable skills.
+This record is also the concise capability catalog for discovering the skill
+components below; each component's `SKILL.md` remains authoritative for its
+operational contract.
 
+## Capability model
+
+- A **capability domain** groups related competence for navigation.
+- An **atomic skill** has one primary purpose and can be independently invoked,
+  assessed, improved, permissioned, and reused.
+- An **operational skill** applies one or more capabilities to a recurring
+  bounded procedure.
+- An **agent role** combines shared skills with tools, permissions, model
+  settings, and a bounded responsibility; agents do not own skill definitions.
+- A **workflow or orchestrator** composes agents and skills, preserves state,
+  applies policy, and coordinates human input.
+
+Prefer canonical atomic skills over tool-specific procedures or duplicated role
+instructions. Use the smallest reusable skill that has enough independent value
+to assign, test, improve, observe, or govern. Keep domain-specific playbooks
+extensible and preserve authority in the owning agent, workflow, or task record.
 
 ## Components
 
 | Component | Purpose |
 | --- | --- |
+| [As-is setup](as-is-setup/as-is.md#design) | Introduce canonical as-is documentation into an existing project. |
 | [Managing as-is documents](managing-as-is-document/as-is.md#design) | Create and maintain durable component records. |
 | [Context building](context-building/as-is.md#design) | Assemble bounded, provenance-bearing context. |
 | [Execution evidence](exploring-execution-evidence/as-is.md#design) | Investigate traces and readable sessions. |
 | [Designing Mermaid diagrams](designing-mermaid-diagrams/as-is.md#design) | Design bounded Mermaid diagrams for complete component context. |
+| [Naming software concepts](naming-software-concepts/as-is.md#design) | Choose semantically accurate names for repository concepts. |
 | [Implementing tasks](implementing-component-tasks/as-is.md#design) | Run bounded component-task lifecycle. |
 | [Maintaining components](maintaining-components/as-is.md#design) | Perform evidence-based component housekeeping. |
 | [Managing backlog](managing-backlog/as-is.md#design) | Prioritize bounded work proposals. |
@@ -24,42 +45,47 @@ Maintain the durable organization and authority context for reusable skills.
 
 ## Design
 
-The skills area groups its immediate documented skill components; deeper skill
-records are owned and described by those components.
+The Skills component groups its immediate documented skill components; deeper
+skill records are owned and described by those components. The container diagram
+uses the actual Skills component name and linked child boxes. Reverse navigation
+to the parent is kept as a nearby Markdown link.
+
+Parent: [as-is](../as-is.md#design)
 
 ```mermaid
 %%{init: {"securityLevel": "loose"}}%%
-flowchart TD
-    Parent["as-is repository"] --> Skills["Skills"]
-        ManagingAsIs["Managing as-is documents"]
-        ContextBuilding["Context building"]
-        ExecutionEvidence["Execution evidence"]
-        MermaidDesign["Designing Mermaid diagrams"]
-        ImplementingTasks["Implementing tasks"]
-        MaintainingComponents["Maintaining components"]
-        ManagingBacklog["Managing backlog"]
-        SpawningSubagents["Spawning subagents"]
-            StructuringContent["Structuring content"]
-        Verification["Verification discipline"]
-    end
+flowchart LR
+    subgraph Skills["Skills"]
+        direction LR
+        Setup["<a href='./as-is-setup/as-is.md#design'>As-is setup</a>"]
+        ManagingAsIs["<a href='./managing-as-is-document/as-is.md#design'>Managing as-is documents</a>"]
+        ContextBuilding["<a href='./context-building/as-is.md#design'>Context building</a>"]
+        ExecutionEvidence["<a href='./exploring-execution-evidence/as-is.md#design'>Execution evidence</a>"]
+        MermaidDesign["<a href='./designing-mermaid-diagrams/as-is.md#design'>Designing Mermaid diagrams</a>"]
+        ImplementingTasks["<a href='./implementing-component-tasks/as-is.md#design'>Implementing tasks</a>"]
+        MaintainingComponents["<a href='./maintaining-components/as-is.md#design'>Maintaining components</a>"]
+        ManagingBacklog["<a href='./managing-backlog/as-is.md#design'>Managing backlog</a>"]
+        SpawningSubagents["<a href='./spawning-pi-subagents/as-is.md#design'>Spawning subagents</a>"]
+        StructuringContent["<a href='./structuring-content/as-is.md#design'>Structuring content</a>"]
+        Verification["<a href='./verification-discipline/as-is.md#design'>Verification discipline</a>"]
+        Naming["<a href='./naming-software-concepts/as-is.md#design'>Naming software concepts</a>"]
 
-    click Parent href "../as-is.md#design" "Open repository design"
-    click Skills href "./as-is.md#design" "Open Skills design"
-    click ManagingAsIs href "./managing-as-is-document/as-is.md#design" "Open managing as-is documents design"
-    click ContextBuilding href "./context-building/as-is.md#design" "Open context building design"
-    click ExecutionEvidence href "./exploring-execution-evidence/as-is.md#design" "Open execution evidence design"
-    click MermaidDesign href "./designing-mermaid-diagrams/as-is.md#design" "Open Designing Mermaid diagrams"
-    click ImplementingTasks href "./implementing-component-tasks/as-is.md#design" "Open implementing tasks design"
-    click MaintainingComponents href "./maintaining-components/as-is.md#design" "Open maintaining components design"
-    click ManagingBacklog href "./managing-backlog/as-is.md#design" "Open managing backlog design"
-    click SpawningSubagents href "./spawning-pi-subagents/as-is.md#design" "Open spawning subagents design"
-    click StructuringContent href "./structuring-content/as-is.md#design" "Open structuring content design"
-    click Verification href "./verification-discipline/as-is.md#design" "Open verification discipline design"
+        Setup -->|creates records through| ManagingAsIs
+        ManagingAsIs -->|uses generic mechanics from| MermaidDesign
+        ImplementingTasks -->|validated by| Verification
+        SpawningSubagents -->|uses| Verification
+
+    end
+    classDef component fill:#f8fafc,fill-opacity:0.1,stroke:#334155,stroke-width:2px
+    classDef child fill:#2563eb,fill-opacity:0.1,stroke:#64748b,stroke-width:1px
+    class Skills component
+    class Setup,ManagingAsIs,ContextBuilding,ExecutionEvidence,MermaidDesign,ImplementingTasks,MaintainingComponents,ManagingBacklog,SpawningSubagents,StructuringContent,Verification,Naming child
 ```
 
 If the host Markdown renderer suppresses Mermaid navigation, use the component
-names in the table above; those Markdown links are authoritative.
+names in the table above; those Markdown links remain authoritative.
 
 ## Links
 
-- [../agent-skills.md](../agent-skills.md) — concise capability catalog.
+- [../agent-skills.md](../agent-skills.md) — migration-era conceptual catalog retained as a linked reference.
+- [../docs/design-principles.md](../docs/design-principles.md) — repository-wide authority and design principles.
