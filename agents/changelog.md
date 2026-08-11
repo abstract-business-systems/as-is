@@ -1,5 +1,14 @@
 # Changelog
 
+- 2026-08-22: Removed the `Design` sections from the agents and worker
+  component records at the user's request. Runtime role contracts remain
+  unchanged.
+
+- 2026-08-22: Refined the agents design view to distinguish independent role
+  contracts, host admission, durable repository context, and reusable skills.
+  Updated the diagram and surrounding explanation without changing runtime
+  behavior; `git diff --check` and direct role-link inspection passed.
+
 - 2026-08-15: Completed `agent-owned-tool-capabilities`. Canonical agent
   contracts remain the source of ordinary tool declarations; launcher admission
   validates and forwards them without identity-based injection, while the
