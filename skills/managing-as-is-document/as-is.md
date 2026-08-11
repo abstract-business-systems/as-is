@@ -23,7 +23,7 @@ before recording completed durable changes in the owning changelog.
 flowchart LR
     AUTHOR[Component owner or maintainer] --> CONTEXT[Authoritative component context]
     CONTEXT --> RECORD[Durable as-is record]
-    DIAGRAM[Mermaid diagram design] --> VIEW[Reader-oriented context view]
+    DIAGRAM[Designing Mermaid diagrams] --> VIEW[Reader-oriented context view]
     VIEW --> RECORD
     RECORD --> READER[Understandable purpose, hierarchy, boundaries, and relationships]
     CHECKS[Deterministic documentation checks] --> RECORD
@@ -42,7 +42,7 @@ is read-only supporting infrastructure, not an authority-bearing workflow.
 ## Links
 
 - [SKILL.md](SKILL.md) — authoritative record lifecycle, structure, boundaries, and checks.
-- [../mermaid-diagram-design/SKILL.md](../mermaid-diagram-design/SKILL.md) — reusable Mermaid representation mechanics.
+- [../designing-mermaid-diagrams/SKILL.md](../designing-mermaid-diagrams/SKILL.md) — reusable Mermaid representation mechanics.
 - [scripts/orient.ts](scripts/orient.ts) — compact read-only repository task snapshot.
 - [scripts/orient.test.ts](scripts/orient.test.ts) — focused orientation tests.
-- [../mermaid-diagram-design/as-is.md](../mermaid-diagram-design/as-is.md) — Mermaid diagram-design component context.
+- [../designing-mermaid-diagrams/as-is.md](../designing-mermaid-diagrams/as-is.md) — Mermaid diagram-design component context.

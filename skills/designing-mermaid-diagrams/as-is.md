@@ -1,4 +1,4 @@
-# Mermaid Diagram Design
+# Designing Mermaid Diagrams
 
 ## Purpose
 Design bounded Mermaid diagrams that make a component's purpose, immediate

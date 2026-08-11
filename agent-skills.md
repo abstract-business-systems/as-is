@@ -105,11 +105,11 @@ that govern this catalog and its implementation.
   their links, and reader-oriented diagrams without transferring authority to
   scripts, durable record structure, or diagrams. See [`skills/managing-as-is-document/SKILL.md`](skills/managing-as-is-document/SKILL.md).
 
-- **Mermaid diagram design:** Design bounded Mermaid diagrams around component
+- **Designing Mermaid diagrams:** Design bounded Mermaid diagrams around component
   purpose, subcomponents, responsibilities, relationships, interactions,
   boundaries, flows, and outcomes without substituting technical architecture
   for reader-oriented context. See
-  [`skills/mermaid-diagram-design/SKILL.md`](skills/mermaid-diagram-design/SKILL.md).
+  [`skills/designing-mermaid-diagrams/SKILL.md`](skills/designing-mermaid-diagrams/SKILL.md).
 - **Assumption tracking:** Make uncertainty explicit and validate consequential
   assumptions.
 - **System modeling:** Map data flow, state, control flow, ownership, and

@@ -1,9 +1,9 @@
 ---
-name: mermaid-diagram-design
-description: Designs bounded Mermaid diagrams that explain complete component context, responsibilities, relationships, interactions, boundaries, flows, and outcomes for readers.
+name: designing-mermaid-diagrams
+description: Designs bounded Mermaid diagrams that explain component context, responsibilities, relationships, interactions, boundaries, flows, and outcomes for readers.
 ---
 
-# Mermaid Diagram Design
+# Designing Mermaid Diagrams
 
 Use this skill when a reader needs a visual explanation of a component's
 purpose, its immediate subcomponents or neighbors, responsibility changes, or
