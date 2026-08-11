@@ -6,33 +6,11 @@
 
 - 2026-08-15: Implemented the approved delegation/integration routing model. Component work routes to an admitted `component-builder`, which owns validation and semantic integration; durable delegated results name the receiving integration owner and preserve source/result scope and ancestry evidence. Bounded non-component worker assistance is explicitly report-only. Repository-authored routing tests cover general routing, component-builder routing, receiving ownership, durable handoff evidence, and worker advice; focused validation passed (9 tests, 36 assertions) with `git diff --check` clean.
 
-- 2026-08-15: Completed `revise-as-is-component-record-structure` as a
-  planning-only contract. Added `as-is-record-structure.md`, defining compact
-  required/optional durable-record sections, authority separation, explicit
-  parent-to-child context handoff, link and Mermaid integrity rules, and
-  temporary `Miscellaneous` treatment. Linked it from the owning record and
-  removed the completed backlog item; no repository-wide rewrite occurred.
-  Focused content assertions and `git diff --check` passed. Residual risk: the
-  current task-record validator assumes every `as-is.md` is a strict task
-  record, so it could not validate this front-matter-free durable agent record;
-  representative-record migration remains separately authorized work.
+- 2026-08-15: Completed `revise-as-is-component-record-structure` as a planning-only contract. Added `as-is-record-structure.md`, defining compact required/optional durable-record sections, authority separation, explicit parent-to-child context handoff, link and Mermaid integrity rules, and temporary `Miscellaneous` treatment. Linked it from the owning record and removed the completed backlog item; no repository-wide rewrite occurred. Focused content assertions and `git diff --check` passed. Residual risk: the current task-record validator assumes every `as-is.md` is a strict task record, so it could not validate this front-matter-free durable agent record; representative-record migration remains separately authorized work.
 
-- 2026-08-06: Completed `independent-behavior-contract`. Replaced deterministic
-  route labels and live assertions that required named downstream roles with
-  generic admitted-authority semantics. The exact literal `What's next?` live
-  case and the direct, substantive, and self-target scenarios passed after the
-  refactor; no child was launched and no repository mutation was observed.
-  Post-refactor behavior is recorded in `as-is.md`; provider wording and
-  latency remain residual risks.
+- 2026-08-06: Completed `independent-behavior-contract`. Replaced deterministic route labels and live assertions that required named downstream roles with generic admitted-authority semantics. The exact literal `What's next?` live case and the direct, substantive, and self-target scenarios passed after the refactor; no child was launched and no repository mutation was observed. Post-refactor behavior is recorded in `as-is.md`; provider wording and latency remain residual risks.
 
-- 2026-08-06: Completed `live-behavioral-baseline`. Corrected the direct case
-  to use the literal `What's next?` request and ran all three independently
-  fixture-backed scenarios against the real Pi provider. The tests passed
-  (3 tests, 16 assertions, 58.24 seconds), covering recommendation-only direct
-  handling, substantive authority identification without work, and self-target
-  rejection. No child was launched and repository state was unchanged. Stable
-  behavior is recorded in `as-is.md`; provider wording and latency remain
-  residual risks.
+- 2026-08-06: Completed `live-behavioral-baseline`. Corrected the direct case to use the literal `What's next?` request and ran all three independently fixture-backed scenarios against the real Pi provider. The tests passed (3 tests, 16 assertions, 58.24 seconds), covering recommendation-only direct handling, substantive authority identification without work, and self-target rejection. No child was launched and repository state was unchanged. Stable behavior is recorded in `as-is.md`; provider wording and latency remain residual risks.
 
 - 2026-08-12: Removed the completed `bounded-reasoning-for-simple-tasks` backlog item after its bounded direct-routing behavior, no-retry guard, and focused regression coverage were implemented and validated. The completion summary is retained here.
 
@@ -62,19 +40,6 @@
 
 - 2026-08-06: Added a bounded mechanical path for explicitly named, single-component documentation transformations, retaining component-builder authority for substantive or ambiguous work and enforcing a 30-second stop/no-retry recovery guard. Added focused fixture coverage; 4 tests pass. `whats-next-routing` remains untouched.
 
-- 2026-08-06: Clarified the What's next? routing contract so actionable task
-  statuses retain precedence and the safe backlog fallback is a concrete,
-  recommendation-only item with required decision fields. Focused routing
-  validation passed: 6 tests, 0 failures.
+- 2026-08-06: Clarified the What's next? routing contract so actionable task statuses retain precedence and the safe backlog fallback is a concrete, recommendation-only item with required decision fields. Focused routing validation passed: 6 tests, 0 failures.
 
-- 2026-08-06: Recovered and integrated the validated as-is migration from commit
-  `b3a86eae` and the available sibling worktree without restoring historical
-  task state as current authority. Replaced the legacy task-form `as-is.md`
-  with durable purpose, design, boundary, and links; moved its necessary
-  historical recovery facts here as the component's single history source. The
-  configured transient `tasks.md` record remains current task authority, not
-  this durable context or the changelog. Added literal **What's next?** routing: actionable
-  `active`, `blocked`, or `awaiting-approval` task records first; otherwise
-  inspect and prioritize open backlog items through
-  `skills/managing-backlog/SKILL.md`. No broader migration remains in this
-  component; external legacy consumers, if any, require separately owned work.
+- 2026-08-06: Recovered and integrated the validated as-is migration from commit `b3a86eae` and the available sibling worktree without restoring historical task state as current authority. Replaced the legacy task-form `as-is.md` with durable purpose, design, boundary, and links; moved its necessary historical recovery facts here as the component's single history source. The configured transient `tasks.md` record remains current task authority, not this durable context or the changelog. Added literal **What's next?** routing: actionable `active`, `blocked`, or `awaiting-approval` task records first; otherwise inspect and prioritize open backlog items through `skills/managing-backlog/SKILL.md`. No broader migration remains in this component; external legacy consumers, if any, require separately owned work.

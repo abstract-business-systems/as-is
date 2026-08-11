@@ -1,8 +1,6 @@
 # Agents Backlog
 
-Planning index for the `agents/` component. Active work belongs to the
-owning component task record; completed items are removed after their summary
-is recorded in the owning changelog.
+Planning index for the `agents/` component. Active work belongs to the owning component task record; completed items are removed after their summary is recorded in the owning changelog.
 
 | id | status | user preference | system preference | purpose | description | dependencies | acceptance | notes |
 | --- | --- | ---: | ---: | --- | --- | --- | --- | --- |
