@@ -8,12 +8,16 @@ Provide the reusable implementation procedure for one bounded component task.
 
 ## Design
 
+[Open Skills design](../as-is.md#design)
+
 The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
-    A["Selected backlog item"] --> B["Component task lifecycle"]
+    Parent["Skills"] --> A["Selected backlog item"] --> B["Component task lifecycle"]
     B --> C["Validated durable handoff"]
+
+    click Parent href "../as-is.md#design" "Open Skills design"
 ```
 
 This skill owns transient task creation, scoped implementation, child-boundary

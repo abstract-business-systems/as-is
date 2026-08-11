@@ -1,6 +1,8 @@
 
 # Agents
 
+[Open repository design](../as-is.md#design)
+
 ## Purpose
 Maintain the durable task context and organization for independent configured agent roles.
 

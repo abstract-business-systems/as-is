@@ -47,12 +47,16 @@ root `as-is.md` and makes child runs observable by default.
 
 ## Design
 
+[Open Skills design](../as-is.md#design)
+
 The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
-    A["Delegation request"] --> B["Pi subprocess launcher"]
+    Parent["Skills"] --> A["Delegation request"] --> B["Pi subprocess launcher"]
     B --> C["Detached child and observation"]
+
+    click Parent href "../as-is.md#design" "Open Skills design"
 ```
 
 

@@ -8,14 +8,18 @@ implementation knowledge.
 
 ## Design
 
+[Open Skills design](../as-is.md#design)
+
 The skill selects a Mermaid representation based on the reader's question and
 keeps authoritative context in prose.
 
 ```mermaid
 flowchart LR
-    ACTOR[Actor goal] --> SUBJECT[Subject responsibility]
+    Parent[Skills] --> ACTOR[Actor goal] --> SUBJECT[Subject responsibility]
     SUBJECT --> CHILD[Relevant subcomponent responsibility]
     CHILD --> OUTCOME[Observable outcome]
+
+    click Parent href "../as-is.md#design" "Open Skills design"
 ```
 
 ## Boundary

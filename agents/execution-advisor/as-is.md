@@ -15,8 +15,11 @@ The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
-    A["Trace or session selector"] --> B["Read-only evidence analysis"]
+    Parent["Agents"] --> A["Trace or session selector"]
+    A --> B["Read-only evidence analysis"]
     B --> C["Decision-ready findings or budget request"]
+
+    click Parent href "../as-is.md#design" "Open Agents design"
 ```
 
 The role composes the globally available `exploring-execution-evidence`
@@ -27,6 +30,10 @@ read-only, selector-driven session-analysis surface, then returns
 source-labelled observations, inferences, unknowns, recommendations, and
 approval requests when justified. It retrieves
 only the session detail needed for the investigation.
+
+## Parent navigation
+
+[Open Agents design](../as-is.md#design)
 
 ## Authority And Boundaries
 

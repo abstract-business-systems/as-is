@@ -20,7 +20,8 @@ for planning, delegation, descendant closure, and completion.
 
 ```mermaid
 flowchart TD
-    A["Assigned bounded task"] --> B["Read component context and task authority"]
+    Parent["Agents"] --> A["Assigned bounded task"]
+    A --> B["Read component context and task authority"]
     B --> C["Plan and obtain attributable expert review"]
     C --> D["Implement within component boundary"]
     D --> E{"Separately owned descendant?"}
@@ -29,6 +30,8 @@ flowchart TD
     E -- "No" --> G
     G --> H["Run checks and obtain final diff validation"]
     H --> I["Record evidence and create scoped commit"]
+
+    click Parent href "../as-is.md#design" "Open Agents design"
 ```
 
 Same-component assistance and expert reviews use the host-provided in-process
@@ -51,6 +54,10 @@ launcher implementation, runtime state, or another component's integration.
 It does not infer completion from process exit, downstream output, telemetry,
 or caller identity. Incomplete, blocked, or budget-stopped work remains
 recoverable in its task record rather than being committed as complete.
+
+## Parent navigation
+
+[Open Agents design](../as-is.md#design)
 
 ## Links
 

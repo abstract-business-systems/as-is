@@ -2,6 +2,8 @@
 # Skills
 
 ## Purpose
+[Open repository design](../as-is.md#design)
+
 Maintain the durable organization and authority context for reusable skills.
 
 
@@ -28,7 +30,7 @@ records are owned and described by those components.
 ```mermaid
 %%{init: {"securityLevel": "loose"}}%%
 flowchart TD
-    subgraph Skills["Skills"]
+    Parent["as-is repository"] --> Skills["Skills"]
         ManagingAsIs["Managing as-is documents"]
         ContextBuilding["Context building"]
         ExecutionEvidence["Execution evidence"]
@@ -41,6 +43,7 @@ flowchart TD
         Verification["Verification discipline"]
     end
 
+    click Parent href "../as-is.md#design" "Open repository design"
     click Skills href "./as-is.md#design" "Open Skills design"
     click ManagingAsIs href "./managing-as-is-document/as-is.md#design" "Open managing as-is documents design"
     click ContextBuilding href "./context-building/as-is.md#design" "Open context building design"

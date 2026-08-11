@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-08-22: Completed backlog item `add-parent-navigation-to-component-diagrams`. Added bounded child-to-parent Markdown and Mermaid navigation for documented agent and skill records, targeting each parent `as-is.md#design`; preserved prose/table fallback navigation and omitted unavailable parent contexts. Focused parent-link checks and `git diff --check` passed; Mermaid rendering remains untested because no repository renderer is configured.
+
 - 2026-08-20: Completed backlog item `separate-as-is-design-guidance-from-mermaid-mechanics`. Assigned as-is-specific diagram meaning to this skill and reusable Mermaid, functional-context, clear-label, readability, and technical-boundary rules to `designing-mermaid-diagrams`; updated composition guidance without changing runtime behavior. Focused content/link checks and `git diff --check` passed.
 
 - 2026-08-20: Completed backlog item `as-is-diagram-communication-guidance`. Defined when an `as-is.md` diagram is useful and required reader-oriented coverage of purpose, actors, subcomponents, responsibilities, relationships, interactions, boundaries, authority changes, consequential paths, and outcomes. Kept Mermaid type selection with the generic diagram-design skill and added explicit syntax, link, assumption, and omitted-detail validation. Focused documentation checks and `git diff --check` passed; no runtime behavior changed.
