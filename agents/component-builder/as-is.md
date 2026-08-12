@@ -16,19 +16,24 @@ The builder keeps durable component purpose separate from current task state:
 `as-is.md` describes the component, `tasks.md` governs the active task, and
 `changelog.md` records completed handoffs. It composes focused skills for task
 lifecycle, validation, recovery, and committing while retaining role authority
-for planning, delegation, descendant closure, and completion.
+for planning, delegation, descendant closure, and completion. A separately owned
+child is not terminal until its scoped result is integrated and caller ancestry
+is proved; failed or incomplete child work remains recoverable in the task record.
 
 ```mermaid
 flowchart TD
-    A["Assigned bounded task"] --> B["Read component context and task authority"]
+    A["Assigned bounded task"] --> B["Read durable component context and task authority"]
     B --> C["Plan and obtain attributable expert review"]
     C --> D["Implement within component boundary"]
     D --> E{"Separately owned descendant?"}
-    E -- "Yes" --> F["Handoff through admitted component-builder"]
-    F --> G["Review child result and prove closure"]
-    E -- "No" --> G
-    G --> H["Run checks and obtain final diff validation"]
-    H --> I["Record evidence and create scoped commit"]
+    E -- "No" --> H["Run acceptance checks and final diff validation"]
+    E -- "Yes" --> F["Handoff explicit context and approved budget"]
+    F --> G{"Child returns committed, validated evidence?"}
+    G -- "No" --> R["Preserve recoverable blocker in task record"]
+    G -- "Yes" --> I["Integrate child commit and prove caller ancestry"]
+    I --> H
+    H --> J["Record evidence and terminal descendant closure"]
+    J --> K["Write changelog and create scoped durable commit"]
 ```
 
 Parent: [Agents](../as-is.md#design)
