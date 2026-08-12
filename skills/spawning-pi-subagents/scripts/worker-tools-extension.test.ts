@@ -2,10 +2,24 @@ import { describe, expect, test } from "bun:test";
 import { mkdtemp, mkdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { SessionManager } from "@earendil-works/pi-coding-agent";
+import { createAgentSession, createExtensionRuntime, ModelRuntime, SessionManager } from "@earendil-works/pi-coding-agent";
 import workerTools, { analyzeProjectSession, resolveWorkerThinkingLevel, workerSessionOptions } from "../../../.pi/extensions/worker-tools";
 
 const rootRecord = "# Root\n";
+
+const testWorkerLoader = {
+  getExtensions: () => ({ extensions: [], errors: [], runtime: createExtensionRuntime() }),
+  getSkills: () => ({ skills: [], diagnostics: [] }),
+  getPrompts: () => ({ prompts: [], diagnostics: [] }),
+  getThemes: () => ({ themes: [], diagnostics: [] }),
+  getAgentsFiles: () => ({ agentsFiles: [] }),
+  getSystemPrompt: () => "worker test",
+  getSystemPromptSource: () => undefined,
+  getAppendSystemPrompt: () => [],
+  getAppendSystemPromptSources: () => [],
+  extendResources: () => undefined,
+  reload: async () => undefined,
+};
 
 function componentContextTool() {
   let registered: { name: string; execute: Function } | undefined;
@@ -16,7 +30,37 @@ function componentContextTool() {
 describe("capability-based worker extension", () => {
   test("resolves the declared thinking level for in-process workers", () => {
     expect(resolveWorkerThinkingLevel(process.cwd(), "max", "worker")).toBe("max");
-    expect(workerSessionOptions({ id: "fixture" }, process.cwd(), "max", "worker")).toEqual({ model: { id: "fixture" }, thinkingLevel: "max" });
+  });
+
+  test("uses the target agent model and thinking instead of the caller settings", async () => {
+    const modelRuntime = await ModelRuntime.create();
+    const callerModel = modelRuntime.getModel("openrouter", "@preset/abs-small");
+    if (!callerModel) throw new Error("fixture caller model unavailable");
+    const context = { model: callerModel, modelRegistry: { getAll: () => [...modelRuntime.getModels()] } } as never;
+    const resolved = workerSessionOptions(context, process.cwd(), "medium", "max", "worker");
+    expect(resolved.model).toMatchObject({ provider: "openrouter", id: "@preset/abs-medium" });
+    expect(resolved.model).not.toBe(callerModel);
+    expect(resolved.thinkingLevel).toBe("max");
+    const modelPatternWithThinking = workerSessionOptions(context, process.cwd(), "@preset/abs-medium:high", "max", "worker");
+    expect(modelPatternWithThinking.model).toMatchObject({ provider: "openrouter", id: "@preset/abs-medium" });
+    expect(modelPatternWithThinking.thinkingLevel).toBe("max");
+    const { session } = await createAgentSession({
+      cwd: process.cwd(),
+      model: resolved.model,
+      thinkingLevel: resolved.thinkingLevel,
+      modelRuntime,
+      resourceLoader: testWorkerLoader,
+      sessionManager: SessionManager.inMemory(process.cwd()),
+      tools: ["read"],
+    });
+    expect(session.model).toMatchObject({ provider: "openrouter", id: "@preset/abs-medium" });
+    expect(session.thinkingLevel).toBe("max");
+    session.dispose();
+
+    const projectDefault = workerSessionOptions(context, process.cwd(), undefined, "high", "worker");
+    expect(projectDefault.model).toMatchObject({ provider: "openrouter", id: "@preset/abs-small" });
+    expect(projectDefault.model).not.toBe(callerModel);
+    expect(projectDefault.thinkingLevel).toBe("high");
   });
 
   test("rejects invalid in-process thinking declarations", () => {

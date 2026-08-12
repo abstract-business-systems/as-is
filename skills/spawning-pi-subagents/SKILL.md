@@ -70,7 +70,10 @@ read-only `read,grep,find,ls,git_inspect` profile. Model policy is resolved from
 root `as-is.json` `configuration.agents`: `defaultModel`, `provider`, and the
 named `models` map. Thinking policy accepts `off`, `minimal`, `low`, `medium`,
 `high`, `xhigh`, and `max`; it resolves explicit launcher override, then agent
-`thinking:` front matter, then `defaultThinkingLevel`. The resulting model,
+`thinking:` front matter, then `defaultThinkingLevel`. In-process
+`call_subagent` applies the selected target's `model:` and `thinking:`
+declarations through the same project model presets and provider rather than
+inheriting the caller session's model or thinking level. The resulting model,
 provider, and thinking level are passed explicitly to Pi. Supported project
 presets are `small`, `medium`, `large`, and `xlarge`.
 The launcher does not read model or provider policy from OpenCode configuration

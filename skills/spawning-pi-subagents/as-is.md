@@ -38,11 +38,14 @@ no-change work have no separate child merge; the parent must record an explicit
 `no-separate-integration` disposition and still satisfy validation, descendant
 closure, and scoped-commit gates.
 
-The launcher resolves the agent's `model:` and `thinking:` values through
-project configuration and passes them explicitly to Pi, so an agent can name a
-model preset and thinking level without relying on inherited session
-environment variables. The launcher fallback uses the skill-owned compatible Pi
-package version and child runs remain observable by default.
+Both subprocess and in-process delegation resolve the target agent's `model:`
+and `thinking:` values through project configuration, so a child can name a
+model preset and thinking level without inheriting caller-session settings or
+relying on environment variables. The subprocess launcher passes the resolved
+values explicitly to Pi; the in-process adapter resolves the corresponding
+configured Pi model before creating its isolated session. The launcher fallback
+uses the skill-owned compatible Pi package version and child runs remain
+observable by default.
 
 
 ## Design

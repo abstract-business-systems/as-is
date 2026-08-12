@@ -37,13 +37,22 @@ export function resolveThinkingLevel(
   return cli ?? agent ?? projectDefault;
 }
 
-export function extractAgentThinking(raw: string, source: string): string | undefined {
+function extractAgentFrontMatterScalar(raw: string, fieldName: "model" | "thinking", source: string): string | undefined {
   const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/u);
   if (!match) throw new Error(`Agent file has no front matter: ${source}`);
   let value: string | undefined;
+  const fieldPattern = new RegExp(`^${fieldName}:\\s*(.*)$`, "u");
   for (const line of match[1].split(/\r?\n/u)) {
-    const field = line.match(/^thinking:\s*(.*)$/u);
+    const field = line.match(fieldPattern);
     if (field) value = normalizeScalar(field[1]);
   }
   return value;
+}
+
+export function extractAgentThinking(raw: string, source: string): string | undefined {
+  return extractAgentFrontMatterScalar(raw, "thinking", source);
+}
+
+export function extractAgentModel(raw: string, source: string): string | undefined {
+  return extractAgentFrontMatterScalar(raw, "model", source);
 }

@@ -5,14 +5,16 @@ import { createHash, randomUUID } from "node:crypto";
 import {
   createAgentSession,
   createExtensionRuntime,
+  resolveCliModel,
   SessionManager,
+  type ExtensionContext,
   type ResourceLoader,
   type ToolDefinition,
   type ExtensionAPI,
 } from "../../skills/spawning-pi-subagents/node_modules/@earendil-works/pi-coding-agent";
 import { Type } from "../../skills/spawning-pi-subagents/node_modules/typebox";
 import { boundedLimit } from "../../components/budget-control/budget.ts";
-import { extractAgentThinking, parseThinkingLevel, resolveThinkingLevel, type ThinkingLevel } from "../../skills/spawning-pi-subagents/scripts/agent-thinking.ts";
+import { extractAgentModel, extractAgentThinking, parseThinkingLevel, resolveThinkingLevel, type ThinkingLevel } from "../../skills/spawning-pi-subagents/scripts/agent-thinking.ts";
 import { readAsIsJson } from "../../components/as-is-data/resolver.ts";
 import { resolveLocalLinkedContext } from "../../components/linked-context/resolver.ts";
 import {
@@ -380,40 +382,84 @@ export function currentSessionReference(ctx: { sessionManager?: { getSessionId?:
   }
 }
 
-type TargetDefinition = { body: string; tools: string[]; thinking?: string };
+type TargetDefinition = { body: string; model?: string; tools: string[]; thinking?: string };
 
-function projectDefaultThinkingLevel(cwd: string): ThinkingLevel | undefined {
+type ProjectAgentConfig = {
+  defaultModel?: string;
+  defaultThinkingLevel?: ThinkingLevel;
+  models: Record<string, string>;
+  provider?: string;
+};
+
+const object = (value: unknown): Record<string, unknown> =>
+  value !== null && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+const string = (value: unknown): string | undefined => typeof value === "string" ? value : undefined;
+
+function projectAgentConfig(cwd: string): ProjectAgentConfig {
   let current = resolve(cwd);
   while (true) {
     const path = join(current, "as-is.json");
     if (existsSync(path)) {
-      const configuration = readAsIsJson(path).configuration;
-      if (configuration && typeof configuration === "object" && !Array.isArray(configuration)) {
-        const agents = (configuration as Record<string, unknown>).agents;
-        if (agents && typeof agents === "object" && !Array.isArray(agents)) {
-          return parseThinkingLevel(
-            (agents as Record<string, unknown>).defaultThinkingLevel,
-            "configuration.agents.defaultThinkingLevel",
-          );
+      const data = readAsIsJson(path);
+      if (data.configuration !== undefined) {
+        const agents = object(object(data.configuration).agents);
+        const models: Record<string, string> = {};
+        for (const [name, value] of Object.entries(object(agents.models))) {
+          if (typeof value === "string") models[name] = value;
         }
+        return {
+          defaultModel: string(agents.defaultModel),
+          defaultThinkingLevel: parseThinkingLevel(agents.defaultThinkingLevel, "configuration.agents.defaultThinkingLevel"),
+          models,
+          provider: string(agents.provider),
+        };
       }
     }
     const parent = dirname(current);
-    if (parent === current) return undefined;
+    if (parent === current) return { models: {} };
     current = parent;
   }
 }
 
-export function resolveWorkerThinkingLevel(cwd: string, agentThinking: unknown, role: string): ThinkingLevel | undefined {
+function workerThinkingLevel(config: ProjectAgentConfig, agentThinking: unknown, role: string): ThinkingLevel | undefined {
   return resolveThinkingLevel({
     agent: agentThinking,
-    projectDefault: projectDefaultThinkingLevel(cwd),
+    projectDefault: config.defaultThinkingLevel,
   }, `${role} thinking`);
 }
 
-export function workerSessionOptions<T>(model: T, cwd: string, agentThinking: unknown, role: string): { model: T; thinkingLevel?: ThinkingLevel } {
-  const thinkingLevel = resolveWorkerThinkingLevel(cwd, agentThinking, role);
-  return thinkingLevel ? { model, thinkingLevel } : { model };
+export function resolveWorkerThinkingLevel(cwd: string, agentThinking: unknown, role: string): ThinkingLevel | undefined {
+  return workerThinkingLevel(projectAgentConfig(cwd), agentThinking, role);
+}
+
+export function workerSessionOptions(
+  ctx: Pick<ExtensionContext, "model" | "modelRegistry">,
+  cwd: string,
+  agentModel: unknown,
+  agentThinking: unknown,
+  role: string,
+): { model?: NonNullable<ExtensionContext["model"]>; thinkingLevel?: ThinkingLevel } {
+  const config = projectAgentConfig(cwd);
+  // The target declaration or project default selects the child model; the
+  // caller model is never inherited when either is configured.
+  const selectedModel = typeof agentModel === "string" ? agentModel : config.defaultModel;
+  const modelName = selectedModel ? config.models[selectedModel] ?? selectedModel : undefined;
+  const thinkingLevel = workerThinkingLevel(config, agentThinking, role);
+  if (!modelName) return thinkingLevel ? { thinkingLevel } : {};
+
+  const resolved = resolveCliModel({
+    cliProvider: config.provider,
+    cliModel: modelName,
+    cliThinking: thinkingLevel,
+    modelRuntime: {
+      getModels: () => ctx.modelRegistry.getAll(),
+      hasConfiguredAuth: () => false,
+    } as Parameters<typeof resolveCliModel>[0]["modelRuntime"],
+  });
+  if (resolved.error || !resolved.model) {
+    throw new Error(`${role} model declaration could not be resolved: ${resolved.error ?? modelName}`);
+  }
+  return thinkingLevel ? { model: resolved.model, thinkingLevel } : { model: resolved.model };
 }
 
 async function resolveCanonicalTarget(cwd: string, role: string): Promise<TargetDefinition> {
@@ -430,7 +476,12 @@ async function resolveCanonicalTarget(cwd: string, role: string): Promise<Target
   const tools = toolsLine ? toolsLine.split(",").map((tool) => tool.trim()).filter(Boolean) : [];
   const unsupported = tools.filter((tool) => !supportedTargetTools.has(tool));
   if (unsupported.length > 0) throw new Error(`canonical agent declares unsupported tools: ${unsupported.join(", ")}`);
-  return { body: raw, tools: [...new Set(tools)], thinking: extractAgentThinking(raw, path) };
+  return {
+    body: raw,
+    model: extractAgentModel(raw, path),
+    tools: [...new Set(tools)],
+    thinking: extractAgentThinking(raw, path),
+  };
 }
 
 function toolsForTarget(role: string, declared: string[]): { tools: string[]; customTools: ToolDefinition[] } {
@@ -555,7 +606,7 @@ const callSubagent: ToolDefinition = {
       const profile = toolsForTarget(roleName, target.tools);
       const result = await createAgentSession({
         cwd,
-        ...workerSessionOptions(ctx.model, cwd, target.thinking, roleName),
+        ...workerSessionOptions(ctx, cwd, target.model, target.thinking, roleName),
         resourceLoader: createWorkerLoader(target.body),
         tools: profile.tools,
         sessionManager: SessionManager.inMemory(cwd),
