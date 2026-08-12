@@ -1,19 +1,7 @@
-# Skill Instructions
+# Skills Instructions
 
-- Prefer declarative language for procedures, contracts, authority, inputs,
-  outputs, and acceptance conditions.
-- Prefer deterministic scripts for repeatable policy enforcement, discovery,
-  validation, task lifecycle, and cleanup.
-- Keep skills composable and focused. Put reusable flow logic in skills rather
-  than duplicating it across agent role prompts.
-- Skills are not authority-bearing callers: they do not, by design, select,
-  authorize, start, or delegate agents. An authority-bearing agent or
-  orchestrator may invoke a mechanical adapter procedure exposed by a skill;
-  that invocation does not transfer authority into the skill. Agents compose
-  and invoke skills, retain launch and approval authority, and may use
-  subagents for bounded implementation, research, review, planning, recovery,
-  or other flows beyond jobs.
-- Preserve one authoritative home for current state and distinguish durable
-  component context, transient tasks, backlog proposals, and private runtime
-  state.
-- Use the reusable Mermaid diagram-design skill when a durable component record needs a visual context view; keep record prose authoritative.
+- Procedures, contracts, authority, inputs, outputs, and acceptance conditions use declarative language.
+- Repeatable policy enforcement, discovery, validation, task lifecycle, and cleanup use deterministic scripts.
+- Skills remain composable and focused. Reusable flow logic belongs in skills rather than duplicated agent role prompts.
+- Skills are reusable procedures, not authority-bearing callers. Skills do not select, authorize, start, observe, recover, cancel, or delegate agents. Authority-bearing agents and orchestrators retain launch, approval, observation, recovery, cancellation, and delegation authority. A mechanical adapter invoked from a skill does not transfer that authority.
+- Each skill SHOULD have a validating live test that exercises its behavior through its supported interface. A skill without a live test records the reason and residual risk.

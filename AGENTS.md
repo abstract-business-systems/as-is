@@ -1,6 +1,6 @@
 # as-is Repository Instructions
 
-Follow [Design Principles](docs/design-principles.md). Repository-authored files and directories use lowercase kebab-case unless a host requires an exact filename. Markdown files should not use soft-wrapped prose; keep each paragraph or list item on one logical line unless a wrap is justified by readability or formatting constraints, while preserving intentional hard breaks and formatting-sensitive blocks.
+Follow [Design Principles](docs/design-principles.md). Repository-authored files and directories use lowercase kebab-case unless a host requires an exact filename. Markdown files should not use soft-wrapped prose; keep each paragraph or list item on one logical line unless a wrap is justified by readability or formatting constraints, while preserving intentional hard breaks and formatting-sensitive blocks. AGENTS files SHOULD use declarative and concise language.
 
 The as-is task-record, delegation, recovery, and completion mechanics are governed by [component-task-record-protocol.md](docs/component-task-record-protocol.md) and surfaced as reusable procedures under [skills](skills/). This file holds only the generic developmental guardrails that apply to any agent working in this repository.
 

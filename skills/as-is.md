@@ -50,7 +50,15 @@ extensible and preserve authority in the owning agent, workflow, or task record.
 The Skills component groups its immediate documented skill components; deeper
 skill records are owned and described by those components. The container diagram
 uses the actual Skills component name and linked child boxes. Reverse navigation
-to the parent is kept as a nearby Markdown link.
+to the parent is kept as a nearby Markdown link. Agents are the authority-bearing
+composition layer: an agent role combines reusable skills with tools, permissions,
+model settings, and bounded responsibility. Skills provide reusable procedures
+and do not select, authorize, start, observe, recover, cancel, or delegate agents.
+Authority-bearing agents and orchestrators retain those decisions and controls.
+Subagents support bounded implementation, research, review, planning, recovery,
+and other approved flows. Delegation requires a bounded input, expected output,
+and verification boundary, and its result is preserved in repository context
+before dependent work proceeds.
 
 Parent: [as-is](../as-is.md#design)
 
