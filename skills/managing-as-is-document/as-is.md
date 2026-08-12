@@ -2,22 +2,11 @@
 
 ## Purpose
 
-Maintain durable `as-is.md` records that explain the purpose, design,
-relationships, boundaries, hierarchy, and navigational context of repository
-components. This component provides the reusable procedure for creating,
-structuring, and maintaining those records without turning them into task,
-backlog, configuration, or runtime authorities.
+Maintain durable `as-is.md` records that explain the purpose, design, relationships, boundaries, hierarchy, and navigational context of repository components. This component provides the reusable procedure for creating, structuring, and maintaining those records without turning them into task, backlog, configuration, or runtime authorities.
 
 ## Design
 
-The skill inspects an owned record, preserves authoritative prose, applies the
-canonical record shape, and defines what an `as-is.md` diagram must communicate:
-what the component does, its actors, meaningful immediate children,
-responsibilities, relationships, interactions, boundaries, authority changes,
-consequential flows, and outcomes. It invokes the generic Mermaid diagram
-design skill for Mermaid mechanics, functional framing, clear labels,
-readability, and technical-detail limits. It validates links and structure
-before recording completed durable changes in the owning changelog.
+The skill declares the durable record model, diagram and navigation model, example structure, and compact ordered application model for an owned record. It keeps authoritative purpose, boundaries, relationships, and decisions in prose and direct links; diagrams provide a bounded reader-oriented view. Its consolidated diagram examples keep the parent-container convention, navigation fallback, and separately scoped non-container views together. It composes with the generic Mermaid diagram design skill for Mermaid mechanics, functional framing, clear labels, readability, and technical-detail limits, then records validated durable changes in the owning configured changelog record.
 
 Parent: [Skills](../as-is.md#design)
 
@@ -31,25 +20,17 @@ flowchart LR
     CHECKS["Deterministic documentation checks"] --> RECORD
 ```
 
-The record shape uses Purpose, optional immediate Components, Design, optional
-Relationships, and Links. A parent record's Design begins with its box-oriented
-container diagram; non-parent records do not receive container diagrams. A
-component boundary is the directory containing `as-is.md`; child records are
-explicit components, while ordinary directories and grandchildren are not
-promoted into the record. Parent context is never ambient: declare exact
-durable links needed for a bounded child handoff.
+The record shape uses Purpose, optional immediate Components, Design, optional Relationships, focused ownership facts when needed, and direct context links. A parent record's Design begins with its box-oriented container diagram; non-parent records do not receive container diagrams. A component boundary is the directory containing `as-is.md`; child records are explicit components, while ordinary directories and grandchildren are not promoted into the record. Parent context is never ambient: direct durable links provide a bounded child handoff.
 
-This skill is used by agents and orchestrators that maintain component context;
-it does not select, authorize, or launch them. The existing orientation utility
-is read-only supporting infrastructure, not an authority-bearing workflow.
+This skill is used by agents and orchestrators that maintain component context; it does not select, authorize, start, observe, recover, cancel, or delegate agents. The existing orientation utility is read-only supporting infrastructure, not an authority-bearing workflow.
+
+`content-test.ts` validates the stable documentation contract, and `scripts/orient.test.ts` exercises only read-only orientation support; no live test can exercise record-maintenance execution because its supported interface is repository-authored Markdown rather than an executable API. Residual risk: focused structural and link inspection cannot prove agent interpretation or renderer-specific diagram behavior.
 
 ## Links
 
-- [SKILL.md](SKILL.md) — authoritative record lifecycle, structure, boundaries, and checks.
-- [container-diagram-example.md](container-diagram-example.md) — proposed balanced parent container diagram and sibling-relationship treatment.
-- [diagram-examples.md](diagram-examples.md) — examples for every supported as-is diagram view.
-- [backlog.md](backlog.md) — pending as-is-specific vocabulary, view, and validation work.
-- [../designing-mermaid-diagrams/SKILL.md](../designing-mermaid-diagrams/SKILL.md) — reusable generic Mermaid representation mechanics.
+- [SKILL.md](SKILL.md) — authoritative declarative record model, example structure, compact ordered application model, and linked diagram references.
+- [diagram-examples.md](diagram-examples.md) — consolidated structural-container, navigation-fallback, and separately scoped diagram-view examples.
+- [backlog.md](backlog.md) — pending as-is-specific vocabulary, view, and validation work; this repository configures `backlog.md` as the planning-record filename.
 - [scripts/orient.ts](scripts/orient.ts) — compact read-only repository task snapshot.
 - [scripts/orient.test.ts](scripts/orient.test.ts) — focused orientation tests.
-- [../designing-mermaid-diagrams/as-is.md](../designing-mermaid-diagrams/as-is.md) — Mermaid diagram-design component context.
+- [content-test.ts](content-test.ts) — deterministic content validation for this skill's durable contract.

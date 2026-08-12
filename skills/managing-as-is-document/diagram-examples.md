@@ -1,19 +1,16 @@
 # As-Is Diagram Examples
 
-These examples are reusable patterns for `as-is.md` records. Each view states
-its question, scope, layout, and arrow meaning so readers do not mistake a
-layout choice for architecture. Replace the illustrative names and edges only
-with relationships supported by the component's authoritative context.
+These examples are reusable patterns for `as-is.md` records. Each view states its question, scope, layout, and arrow meaning so readers do not mistake a layout choice for architecture. Replace the illustrative names and edges only with relationships supported by the component's authoritative context.
 
 ## Structural container
 
-Use for a parent component with independently documented immediate children.
-Containment is nested boxes; sibling relationships are explicit labeled arrows.
-Use a balanced relationship-map layout rather than implying sequence.
+Use for a parent component with independently documented immediate children. Containment is nested boxes; sibling relationships are explicit labeled arrows. Use a balanced relationship-map layout rather than implying sequence.
+
+### Complete parent-record example
+
+The `Checkout` component owns three documented child components. The diagram shows only `Checkout` and those immediate children. The nearby parent link supports reverse navigation; it is not a synthetic diagram node or edge.
 
 ```markdown
-Parent: [Platform](../as-is.md#design)
-
 ## Design
 
 - Kind: `structural-container`
@@ -21,27 +18,44 @@ Parent: [Platform](../as-is.md#design)
 - Visible levels: `Checkout` and immediate children
 - Layout: balanced left-to-right relationship map
 - Arrow meaning: labeled sibling capability or responsibility relationship
+
+Parent: [Commerce Platform](../../as-is.md#design)
 ```
 
 ```mermaid
+%%{init: {"securityLevel": "loose"}}%%
 flowchart LR
     subgraph Checkout["Checkout"]
         direction LR
-        Validation["Validation"]
-        Authorization["Authorization"]
-        OrderRecording["Order recording"]
+        Validation["<a href='./validation/as-is.md#design'>Validation</a>"]
+        Authorization["<a href='./authorization/as-is.md#design'>Authorization</a>"]
+        OrderRecording["<a href='./order-recording/as-is.md#design'>Order recording</a>"]
 
         Validation -->|approves request for| Authorization
         Authorization -->|releases outcome to| OrderRecording
         Validation -.->|supplies accepted order data to| OrderRecording
     end
+
+    classDef container fill:#f8fafc,fill-opacity:0.1,stroke:#334155,stroke-width:2px
+    classDef child fill:#2563eb,fill-opacity:0.1,stroke:#64748b,stroke-width:1px
+    class Checkout container
+    class Validation,Authorization,OrderRecording child
 ```
+
+### Why this representation
+
+- The subgraph title is the actual component name, not `Parent` or a synthetic parent node.
+- Child components are boxes nested inside the parent container.
+- Sibling relationships use explicit, semantically labeled arrows.
+- The parent link is nearby Markdown navigation rather than a diagram edge.
+- The outer `LR` layout gives the container a balanced relationship-map shape; it does not imply a runtime sequence.
+- Child names target each child's `as-is.md#design` section when the host renderer supports the link syntax.
+
+If the renderer does not support linked HTML labels or preserve SVG links, the Markdown `Components` table remains the authoritative fallback. Do not add a container diagram to a record unless the children are independently documented components with their own `as-is.md` records.
 
 ## Context map
 
-Use when the reader needs the component's functional neighbors and boundaries,
-not its internal chronology. Keep hidden providers and distant descendants out
-of the view.
+Use when the reader needs the component's functional neighbors and boundaries, not its internal chronology. Keep hidden providers and distant descendants out of the view.
 
 ```markdown
 - Kind: `context-map`
@@ -60,8 +74,7 @@ flowchart TD
 
 ## Scenario or sequence flow
 
-Use for a consequential request, journey, or handoff where time order matters.
-Sequence participants remain horizontal while messages progress vertically.
+Use for a consequential request, journey, or handoff where time order matters. Sequence participants remain horizontal while messages progress vertically.
 
 ```markdown
 - Kind: `scenario`
@@ -85,8 +98,7 @@ sequenceDiagram
 
 ## Data flow
 
-Use for a consequential pipeline in which information is transformed or
-validated. Prefer vertical flow for long pipelines.
+Use for a consequential pipeline in which information is transformed or validated. Prefer vertical flow for long pipelines.
 
 ```markdown
 - Kind: `data-flow`
@@ -106,9 +118,7 @@ flowchart TD
 
 ## State flow
 
-Use when lifecycle states and legal transitions are architecturally meaningful.
-Put guards, actions, and ownership in prose or a transition table when labels
-alone are insufficient.
+Use when lifecycle states and legal transitions are architecturally meaningful. Put guards, actions, and ownership in prose or a transition table when labels alone are insufficient.
 
 ```markdown
 - Kind: `state-flow`
@@ -134,9 +144,7 @@ stateDiagram-v2
 
 ## Decision flow
 
-Use when guards produce materially different outcomes or authority decisions.
-Label branches with the condition or outcome, not merely `yes` and `no` when a
-more meaningful phrase is available.
+Use when guards produce materially different outcomes or authority decisions. Label branches with the condition or outcome, not merely `yes` and `no` when a more meaningful phrase is available.
 
 ```markdown
 - Kind: `decision-flow`
@@ -157,8 +165,7 @@ flowchart TD
 
 ## Recovery flow
 
-Use when failure, retry, escalation, compensation, or cancellation changes the
-architecture or observable outcome. Do not repeat routine transport behavior.
+Use when failure, retry, escalation, compensation, or cancellation changes the architecture or observable outcome. Do not repeat routine transport behavior.
 
 ```markdown
 - Kind: `recovery-flow`
@@ -180,9 +187,7 @@ flowchart TD
 
 ## Actor journey
 
-Use when the reader needs the experience across responsibilities rather than
-component ownership or exact message order. Keep the journey focused on a
-single actor and outcome.
+Use when the reader needs the experience across responsibilities rather than component ownership or exact message order. Keep the journey focused on a single actor and outcome.
 
 ```markdown
 - Kind: `journey`
@@ -215,6 +220,4 @@ journey
 - Use a **recovery flow** for consequential failure and repair behavior.
 - Use an **actor journey** for user experience across responsibilities.
 
-A record may contain more than one view when each answers a different reader
-question. Do not add every view by default; standard behavior remains implicit
-unless an exception or consequence makes it worth documenting.
+A record may contain more than one view when each answers a different reader question. Do not add every view by default; standard behavior remains implicit unless an exception or consequence makes it worth documenting.

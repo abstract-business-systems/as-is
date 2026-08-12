@@ -1,6 +1,8 @@
 # Skills Instructions
 
-- Procedures, contracts, authority, inputs, outputs, and acceptance conditions use declarative language.
+- Skills state durable contracts, authority, inputs, outputs, acceptance conditions, and validation criteria declaratively.
+- A short ordered application model is appropriate only when order materially affects safety, recovery, correctness, or a state transition. It expresses preconditions, required outcomes, stop conditions, and handoff without imposing an agent-specific execution path.
+- Examples and references occur beside the rules they clarify and illustrate rather than override the contract. A trailing Links section contains only direct navigation not already conveyed contextually. Examples of one concept are consolidated unless separate audience, scope, consumer, or validation value justifies a separate artifact.
 - Repeatable policy enforcement, discovery, validation, task lifecycle, and cleanup use deterministic scripts.
 - Skills remain composable and focused. Reusable flow logic belongs in skills rather than duplicated agent role prompts.
 - Skills are reusable procedures, not authority-bearing callers. Skills do not select, authorize, start, observe, recover, cancel, or delegate agents. Authority-bearing agents and orchestrators retain launch, approval, observation, recovery, cancellation, and delegation authority. A mechanical adapter invoked from a skill does not transfer that authority.
