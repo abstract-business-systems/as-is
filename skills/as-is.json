@@ -27,10 +27,10 @@
       "external-effects": "prohibited"
     },
     "acceptance": [
-      "A bounded pilot plan and phase checkpoints are recorded before pilot execution.",
-      "The pilot evaluates whether post-order as-is reconciliation is a distinct reusable skill or can remain a composition of existing skills.",
-      "The pilot result records alternatives, authority boundaries, recovery behavior, and focused validation without prescribing model, cache, batching, or launch policy.",
-      "The selected backlog item and task record remain aligned, and the pre-pilot checkpoint is committed without claiming pilot completion."
+      "The skills decision record distinguishes its scope from the root-owned manual validation-fixtures pilot that repairs as-is.md records.",
+      "The root pilot evaluates whether post-order as-is reconciliation is a distinct reusable skill or can remain manual coordination plus existing record-management guidance.",
+      "The later decision records alternatives, authority boundaries, recovery behavior, and focused validation without prescribing model, cache, batching, launch policy, or a generic task-execution procedure.",
+      "The selected skills backlog item and task record remain aligned without claiming pilot completion or creating a new skill prematurely."
     ]
   }
 }

@@ -54,5 +54,40 @@
         "local-directory": ".as-is/tracing.jsonl"
       }
     }
+  },
+  "task": {
+    "status": "ready",
+    "worker": "as-is",
+    "updated": "2026-08-12T23:08:00Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 3,
+        "spent": 0,
+        "reserve": 0.6,
+        "source": "host-reported",
+        "fallback-metric": "unavailable"
+      },
+      "delegation": {
+        "maximum-depth": 2,
+        "maximum-children": 1
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 1800,
+          "spent-seconds": 0,
+          "reserve-seconds": 360,
+          "source": "host-reported"
+        }
+      },
+      "external-effects": "prohibited"
+    },
+    "acceptance": [
+      "A root-owned, manual, serial post-order pilot is recorded for the validation-fixtures vertical slice.",
+      "The pilot aligns each target component only from its owned evidence, then reconciles validation-fixtures only from its own evidence and final immediate-child as-is.md records.",
+      "Root coordination does not edit child as-is.md records, and child implementation, tests, task narratives, transcripts, and grandchildren are not parent semantic inputs.",
+      "The manual pilot does not invoke implementing-component-tasks or building-components as execution procedures.",
+      "The root task hands bounded pilot evidence to the skills-owned reconciling-as-is-records decision without claiming or creating a new skill prematurely."
+    ]
   }
 }
