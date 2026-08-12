@@ -21,7 +21,10 @@ flowchart TD
 
 The setup record is a process view, not a parent container view. It uses a
 vertical layout because the arrows represent progression from discovery through
-approval to durable setup outcomes.
+approval to durable setup outcomes. Setup selects whole-project mode by default
+and treats an explicit directory as an independent bounded target; the selected
+mode, target, effective boundary, and excluded paths are preserved in the
+reviewable plan before any write.
 
 Parent: [Skills](../as-is.md#design)
 
