@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-08-12: Updated the Agents container diagram to show independent role routing: component work routes to component-builder, evidence analysis routes to execution-advisor, and bounded report-only advice routes to worker. Clarified that arrows are supported relationships rather than a mandatory delegation chain. Validation: direct role-link and Mermaid structure checks plus `git diff --check` passed. Residual risk: the diagram does not model host admission or durable task-record details as separate nodes.
+
 - 2026-08-22: Removed the `Design` sections from the agents and worker component records at the user's request. Runtime role contracts remain unchanged.
 
 - 2026-08-22: Refined the agents design view to distinguish independent role contracts, host admission, durable repository context, and reusable skills. Updated the diagram and surrounding explanation without changing runtime behavior; `git diff --check` and direct role-link inspection passed.
