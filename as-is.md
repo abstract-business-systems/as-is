@@ -32,6 +32,8 @@ connects the repository component to its immediate documented child areas.
 
 Parent: [as-is](#design)
 
+The repository's composition model separates authority-bearing agents and workflows from reusable skills. Agents and workflows compose the child areas; explicit links and each area's Design section provide the bounded context for their relationships.
+
 ```mermaid
 %%{init: {"securityLevel": "loose"}}%%
 flowchart LR
@@ -78,8 +80,6 @@ artifacts without independent records.
   `as-is.md` records.
 - This root record maps immediate areas; each area owns the detailed records for
   its descendants.
-- Agents are the authority-bearing composition layer; skills provide reusable
-  procedures without selecting, authorizing, starting, or delegating agents.
 - Explicit links provide bounded context; parent context is never ambient.
 - Machine configuration belongs in `as-is.json`, and active task state belongs
   in the configured task record.
