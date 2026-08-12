@@ -1,0 +1,36 @@
+{
+  "task": {
+    "status": "ready",
+    "worker": "component-builder",
+    "updated": "2026-08-12T21:35:00Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.5,
+        "spent": 0,
+        "reserve": 0.1,
+        "source": "host-reported",
+        "fallback-metric": "unavailable"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 300,
+          "spent-seconds": 0,
+          "reserve-seconds": 60,
+          "source": "host-reported"
+        }
+      },
+      "external-effects": "prohibited"
+    },
+    "acceptance": [
+      "A bounded pilot plan and phase checkpoints are recorded before pilot execution.",
+      "The pilot evaluates whether post-order as-is reconciliation is a distinct reusable skill or can remain a composition of existing skills.",
+      "The pilot result records alternatives, authority boundaries, recovery behavior, and focused validation without prescribing model, cache, batching, or launch policy.",
+      "The selected backlog item and task record remain aligned, and the pre-pilot checkpoint is committed without claiming pilot completion."
+    ]
+  }
+}
