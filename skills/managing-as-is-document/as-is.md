@@ -6,7 +6,7 @@ Maintain durable `as-is.md` records that explain the purpose, design, relationsh
 
 ## Design
 
-The skill declares the durable record model, diagram and navigation model, example structure, and compact ordered application model for an owned record. It keeps authoritative purpose, boundaries, relationships, and decisions in prose and direct links; diagrams provide a bounded reader-oriented view. Its consolidated diagram examples keep the parent-container convention, navigation fallback, and separately scoped non-container views together. It composes with the generic Mermaid diagram design skill for Mermaid mechanics, functional framing, clear labels, readability, and technical-detail limits, then records validated durable changes in the owning configured changelog record.
+The skill declares the durable record model, diagram and navigation model, example structure, creation, alignment, and replacement model, and compact ordered application model for an owned record. Initial-record, semantic-alignment, controlled-replacement, and migration-or-retirement treatments are selected from evidence about the approved component boundary and implementation context. It keeps authoritative purpose, boundaries, relationships, and decisions in prose and direct links; diagrams provide a bounded reader-oriented view. Its consolidated diagram examples keep the parent-container convention, navigation fallback, and separately scoped non-container views together. It composes with the generic Mermaid diagram design skill for Mermaid mechanics, functional framing, clear labels, readability, and technical-detail limits.
 
 Parent: [Skills](../as-is.md#design)
 
@@ -28,7 +28,7 @@ This skill is used by agents and orchestrators that maintain component context; 
 
 ## Links
 
-- [SKILL.md](SKILL.md) — authoritative declarative record model, example structure, compact ordered application model, and linked diagram references.
+- [SKILL.md](SKILL.md) — authoritative declarative record, creation, alignment, replacement, and compact ordered application models, plus linked diagram references.
 - [diagram-examples.md](diagram-examples.md) — consolidated structural-container, navigation-fallback, and separately scoped diagram-view examples.
 - [backlog.md](backlog.md) — pending as-is-specific vocabulary, view, and validation work; this repository configures `backlog.md` as the planning-record filename.
 - [scripts/orient.ts](scripts/orient.ts) — compact read-only repository task snapshot.

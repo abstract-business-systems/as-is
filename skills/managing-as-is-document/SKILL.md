@@ -5,13 +5,13 @@ description: Defines and maintains durable as-is.md component records with clear
 
 # Managing As-Is Documents
 
-This skill defines the durable record contract for an individual `as-is.md` component record. It applies when a record is created, maintained, or structurally reconciled; project adoption remains the concern of `as-is-setup` and `integrate-as-is-documentation`. It does not create task, backlog, configuration, runtime, or agent authority.
+This skill defines the durable record contract for an individual `as-is.md` component record. It applies when a record for an approved component boundary is created, maintained, aligned with implementation evidence, or structurally reconciled; project adoption and component identification remain the concerns of `as-is-setup` and `integrate-as-is-documentation`. It does not create task, backlog, configuration, runtime, or agent authority.
 
 ## Scope And Authority
 
 - The owning directory and its `as-is.md` define the default component boundary. Context outside that boundary is limited to applicable instructions, explicitly declared links, named dependencies, and sibling naming evidence needed for a changed label.
 - The record's durable inputs are authoritative purpose, immediate documented children, design, relationships, direct navigation context, applicable instructions, bounded requirement, audience, assumptions, and acceptance conditions.
-- `as-is.md` owns durable purpose, design, relationships, diagrams, and navigational links. The configured task record owns transient status, progress, budget, acceptance evidence, and recovery; configured backlog and changelog records own proposals and concise completed history.
+- `as-is.md` owns durable purpose, design, relationships, diagrams, and navigational links. The configured task record owns transient status, progress, budget, acceptance evidence, and recovery; configured backlog records own unstarted proposals.
 - A record describes parent and child relationships without granting permission to edit another component's records, budgets, or tasks. Parent context is explicit rather than ambient.
 - This skill owns record-specific structure, diagram meaning, and navigation. [Designing Mermaid diagrams](../designing-mermaid-diagrams/SKILL.md) owns reusable Mermaid mechanics, view selection, functional framing, labels, readability, and technical-detail limits.
 - Existing scripts may provide deterministic orientation or validation, but they do not own record meaning, task authority, or agent selection.
@@ -31,7 +31,7 @@ An `as-is.md` holds stable component context for readers. It contains no active 
 
 A parent component has one or more immediate child components with their own `as-is.md` records. Its Design starts with a structural container view of the actual parent and only those children. A record with no immediate child records, including a collection of ordinary documents, is not a parent and has no container diagram. A non-parent record may use another view only when it reduces interpretation cost; a one-node placeholder and a heatmap are not structural substitutes.
 
-Links are direct, resolving repository-relative context needed to understand or operate within the component. Routine task, backlog, changelog, runtime, and host-projection artifacts are omitted unless they provide that needed context; a link never duplicates the authority of its target.
+Links are direct, resolving repository-relative context needed to understand or operate within the component. Routine task, backlog, runtime, and host-projection artifacts are omitted unless they provide that needed context; a link never duplicates the authority of its target.
 
 ## Diagram And Navigation Model
 
@@ -87,16 +87,24 @@ flowchart LR
 - `<direct context>` → `<repository-relative-path>` — <Why this context matters.>
 `````
 
+## Creation, Alignment, And Replacement Model
+
+| Situation | Record treatment |
+| --- | --- |
+| Approved component boundary without an `as-is.md` | An initial record contains supported durable purpose, design, relationships, and direct context. Component identification and approval remain owned by `as-is-setup` or `integrate-as-is-documentation`. A child record contains only its own context and direct parent navigation; applicable parent maps and container views remain parent-owned. |
+| Implementation evidence changes reader-relevant context | Alignment is semantic rather than file-by-file. It covers purpose, boundary, immediate composition, material relationship or authority, and consequential lifecycle, failure, or recovery behavior; private helpers, generated artifacts, routine control flow, and non-material refactoring detail remain outside the record. |
+| Record and implementation conflict | Implementation is evidence rather than automatic record authority. An intended or approved behavior change makes the record stale; unexpected implementation divergence remains an implementation or escalation concern; unresolved ambiguity leaves the record unchanged. |
+| Material reorganization with unchanged component identity and boundary | In-place revision is the default. A controlled replacement is justified only when incremental revision cannot retain coherent purpose, structure, or navigation and preservation needs have been assessed. |
+| Changed component identity or boundary | The change is a migration or retirement decision rather than ordinary alignment; its owner, consumers, direct-link disposition, recovery or audit value, and replacement path require explicit resolution before relocation or removal. |
+
 ## Applying The Model
 
-1. Before a durable revision is treated as complete, its bounded reader problem, owning record, applicable instructions, direct links, sibling vocabulary, acceptance conditions, assumptions, contradictions, and recovery path are explicit.
-2. Supported durable facts reside in their named section: composition in Design, material parent/peer/dependency direction in Relationships, deferred limitations in a linked follow-up, and completed history in the configured changelog record. Linked material remains reference context rather than inherited instructions or authority.
-3. A revision changes only applicable sections and views. Component labels align with the target parent's established sibling vocabulary unless semantic evidence supports a documented departure; child records do not expose hidden providers or distant descendants, and a parent mediates external and sibling connections.
-4. Completion requires heading and authority separation, record shape, resolving changed links, diagram syntax where applicable, supported nodes and edges, consistency between diagrams and prose, and the stated acceptance conditions. Assumptions, unknowns, omitted detail, residual risk, and the smallest relevant deterministic checks, including `git diff --check`, are recorded.
-5. After validation, the configured changelog record holds the validated durable change. Unclear ownership, contradictory sources, an unresolved link target, or an unauthorized boundary crossing is a blocker rather than a reason to infer architecture or broaden scope.
+1. Before a durable revision is treated as complete, its bounded reader problem, owning record, applicable instructions, direct links, sibling vocabulary, implementation evidence when alignment is in scope, acceptance conditions, assumptions, contradictions, and recovery path are explicit.
+2. Supported durable facts reside in their named section: composition in Design, material parent, peer, or dependency direction in Relationships, and deferred limitations in a linked follow-up. Linked material remains reference context rather than inherited instructions or authority.
+3. The applicable creation, alignment, or replacement treatment is limited to affected sections and views. Component labels align with the target parent's established sibling vocabulary unless semantic evidence supports a documented departure; child records do not expose hidden providers or distant descendants, and a parent mediates external and sibling connections.
+4. Completion requires heading and authority separation, record shape, resolving changed links, diagram syntax where applicable, supported nodes and edges, consistency between diagrams and prose, and the stated acceptance conditions. Assumptions, unknowns, omitted detail, residual risk, and the smallest relevant deterministic checks, including `git diff --check`, are recorded. Unclear ownership, contradictory sources, an unresolved link target, or an unauthorized boundary crossing is a blocker rather than a reason to infer architecture or broaden scope.
 
 ## Outputs
 
-- A durable `as-is.md` whose applicable sections provide purpose, design, relationships, and navigable context.
+- A durable `as-is.md` whose applicable sections provide purpose, design, relationships, and navigable context through an initial record, semantic alignment, or controlled replacement.
 - A bounded diagram only where it materially reduces interpretation cost, with prose and links remaining authoritative.
-- A concise configured-changelog entry after the revision's validation evidence, assumptions, and residual risk are durable.
