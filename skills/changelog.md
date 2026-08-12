@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-08-12: Completed `integrate-as-is-documentation`. Added the reusable skill, durable record, focused content validation, and linked catalog entry. The procedure now covers review-first semantic candidate identification, whole-project and directory-scoped boundaries, approved record creation, parent navigation, bounded diagrams, and validation. No external project was modified by the skill itself.
+
 - 2026-08-22: Updated as-is setup and record management to inspect existing
   parent and sibling records for naming conventions instead of depending on a
   direct naming-skill link. The general naming skill remains available in the

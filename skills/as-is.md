@@ -31,6 +31,7 @@ extensible and preserve authority in the owning agent, workflow, or task record.
 | Component | Purpose |
 | --- | --- |
 | [As-is setup](as-is-setup/as-is.md#design) | Introduce canonical as-is documentation into an existing project. |
+| [Integrating as-is documentation](integrate-as-is-documentation/as-is.md#design) | Review and create as-is records in an existing project. |
 | [Managing as-is documents](managing-as-is-document/as-is.md#design) | Create and maintain durable component records. |
 | [Context building](context-building/as-is.md#design) | Assemble bounded, provenance-bearing context. |
 | [Execution evidence](exploring-execution-evidence/as-is.md#design) | Investigate traces and readable sessions. |
@@ -42,6 +43,9 @@ extensible and preserve authority in the owning agent, workflow, or task record.
 | [Spawning subagents](spawning-pi-subagents/as-is.md#design) | Launch and observe bounded Pi subprocesses. |
 | [Structuring content](structuring-content/as-is.md#design) | Organize repository knowledge. |
 | [Verification discipline](verification-discipline/as-is.md#design) | Select acceptance evidence by risk. |
+| [Building components](building-components/as-is.md#design) | Build bounded components and produce durable handoffs. |
+| [Committing completed work](committing-completed-work/as-is.md#design) | Create scoped commits for validated completed work. |
+| [Human-centered consulting](human-centered-consulting/as-is.md#design) | Guide concise, agency-preserving consultation. |
 
 ## Design
 
@@ -58,6 +62,7 @@ flowchart LR
     subgraph Skills["Skills"]
         direction LR
         Setup["<a href='./as-is-setup/as-is.md#design'>As-is setup</a>"]
+        Integrate["<a href='./integrate-as-is-documentation/as-is.md#design'>Integrating as-is documentation</a>"]
         ManagingAsIs["<a href='./managing-as-is-document/as-is.md#design'>Managing as-is documents</a>"]
         ContextBuilding["<a href='./context-building/as-is.md#design'>Context building</a>"]
         ExecutionEvidence["<a href='./exploring-execution-evidence/as-is.md#design'>Execution evidence</a>"]
@@ -69,17 +74,24 @@ flowchart LR
         StructuringContent["<a href='./structuring-content/as-is.md#design'>Structuring content</a>"]
         Verification["<a href='./verification-discipline/as-is.md#design'>Verification discipline</a>"]
         Naming["<a href='./naming-software-concepts/as-is.md#design'>Naming software concepts</a>"]
+        Building["<a href='./building-components/as-is.md#design'>Building components</a>"]
+        Committing["<a href='./committing-completed-work/as-is.md#design'>Committing completed work</a>"]
+        Consulting["<a href='./human-centered-consulting/as-is.md#design'>Human-centered consulting</a>"]
 
         Setup -->|creates records through| ManagingAsIs
+        Integrate -->|composes setup and review for| ManagingAsIs
         ManagingAsIs -->|uses generic mechanics from| MermaidDesign
         ImplementingTasks -->|validated by| Verification
         SpawningSubagents -->|uses| Verification
+        Building -->|uses| Verification
+        Building -->|hands completed work to| Committing
+        Consulting -->|guides| Naming
 
     end
     classDef component fill:#f8fafc,fill-opacity:0.1,stroke:#334155,stroke-width:2px
     classDef child fill:#2563eb,fill-opacity:0.1,stroke:#64748b,stroke-width:1px
     class Skills component
-    class Setup,ManagingAsIs,ContextBuilding,ExecutionEvidence,MermaidDesign,ImplementingTasks,MaintainingComponents,ManagingBacklog,SpawningSubagents,StructuringContent,Verification,Naming child
+    class Setup,Integrate,ManagingAsIs,ContextBuilding,ExecutionEvidence,MermaidDesign,ImplementingTasks,MaintainingComponents,ManagingBacklog,SpawningSubagents,StructuringContent,Verification,Naming,Building,Committing,Consulting child
 ```
 
 If the host Markdown renderer suppresses Mermaid navigation, use the component
@@ -89,3 +101,7 @@ names in the table above; those Markdown links remain authoritative.
 
 - [../agent-skills.md](../agent-skills.md) — migration-era conceptual catalog retained as a linked reference.
 - [../docs/design-principles.md](../docs/design-principles.md) — repository-wide authority and design principles.
+- [integrate-as-is-documentation/SKILL.md](integrate-as-is-documentation/SKILL.md) — reviewable as-is adoption and component-identification procedure.
+- [building-components/SKILL.md](building-components/SKILL.md) — bounded component build procedure.
+- [committing-completed-work/SKILL.md](committing-completed-work/SKILL.md) — scoped completion handoff procedure.
+- [human-centered-consulting/SKILL.md](human-centered-consulting/SKILL.md) — consultation guidance.

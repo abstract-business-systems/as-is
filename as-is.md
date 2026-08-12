@@ -20,6 +20,10 @@ record.
 | [Agents](agents/as-is.md#design) | Organize independent configured agent roles. |
 | [Designs](designs/as-is.md#design) | Organize enduring architecture and execution designs. |
 | [Skills](skills/as-is.md#design) | Organize reusable operational procedures. |
+| [Components](components/as-is.md#design) | Organize implementation boundaries and their focused tests. |
+| [Documentation](docs/as-is.md#design) | Organize normative repository protocols and guidance. |
+| [Validation Fixtures](validation-fixtures/as-is.md#design) | Organize retained delegation, adapter, and recovery evidence. |
+| [Pi Host Integration](.pi/as-is.md#design) | Map repository contracts onto the local Pi host. |
 
 ## Design
 
@@ -36,13 +40,20 @@ flowchart LR
         Agents["<a href='./agents/as-is.md#design'>Agents</a>"]
         Designs["<a href='./designs/as-is.md#design'>Designs</a>"]
         Skills["<a href='./skills/as-is.md#design'>Skills</a>"]
+        Components["<a href='./components/as-is.md#design'>Components</a>"]
+        Documentation["<a href='./docs/as-is.md#design'>Documentation</a>"]
+        Fixtures["<a href='./validation-fixtures/as-is.md#design'>Validation Fixtures</a>"]
+        PiHost["<a href='./.pi/as-is.md#design'>Pi Host Integration</a>"]
 
         Agents -->|uses procedures from| Skills
+        Components -->|follows protocols from| Documentation
+        PiHost -->|hosts roles and procedures from| Agents
+        PiHost -->|emits evidence for| Components
     end
     classDef component fill:#f8fafc,fill-opacity:0.1,stroke:#334155,stroke-width:2px
     classDef child fill:#2563eb,fill-opacity:0.1,stroke:#64748b,stroke-width:1px
     class Root component
-    class Agents,Designs,Skills child
+    class Agents,Designs,Skills,Components,Documentation,Fixtures,PiHost child
 ```
 
 If the host Markdown renderer suppresses Mermaid navigation, use these
@@ -51,10 +62,17 @@ source-level links, which remain authoritative:
 - [Open Agents design](agents/as-is.md#design)
 - [Open Designs design](designs/as-is.md#design)
 - [Open Skills design](skills/as-is.md#design)
+- [Open Components design](components/as-is.md#design)
+- [Open Documentation design](docs/as-is.md#design)
+- [Open Validation Fixtures design](validation-fixtures/as-is.md#design)
+- [Open Pi Host Integration design](.pi/as-is.md#design)
 
 Only areas with their own `as-is.md` are components in this record. Other
 repository directories remain navigable through their own files or links but
-are not listed as components here.
+are not listed as components here. `docs/` is a documented collection rather
+than a set of child components, while `.pi/` is a host-integration boundary;
+`.opencode/`, `scripts/`, `temp/`, and `.agents/` remain ordinary or projected
+artifacts without independent records.
 
 - The repository is composed of filesystem areas and components with durable
   `as-is.md` records.
