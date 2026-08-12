@@ -20,6 +20,8 @@ for planning, delegation, descendant closure, and completion. A separately owned
 child is not terminal until its scoped result is integrated and caller ancestry
 is proved; failed or incomplete child work remains recoverable in the task record.
 
+Parent: [Agents](../as-is.md#design)
+
 ```mermaid
 flowchart TD
     A["Assigned bounded task"] --> B["Read durable component context and task authority"]
@@ -35,8 +37,6 @@ flowchart TD
     H --> J["Record evidence and terminal descendant closure"]
     J --> K["Write changelog and create scoped durable commit"]
 ```
-
-Parent: [Agents](../as-is.md#design)
 
 Same-component assistance and expert reviews use the host-provided in-process
 subagent mechanism. A separately owned child is launched through the bounded
@@ -58,10 +58,6 @@ launcher implementation, runtime state, or another component's integration.
 It does not infer completion from process exit, downstream output, telemetry,
 or caller identity. Incomplete, blocked, or budget-stopped work remains
 recoverable in its task record rather than being committed as complete.
-
-## Parent navigation
-
-[Open Agents design](../as-is.md#design)
 
 ## Links
 

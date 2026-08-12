@@ -10,17 +10,15 @@ current maintenance assignment without executing the audit itself.
 
 ## Design
 
-[Open Skills design](../as-is.md#design)
-
 The component is organized around the following relationships and flow.
+
+Parent: [Skills](../as-is.md#design)
 
 ```mermaid
 flowchart TD
     A["Maintenance evidence"] --> B["Maintenance procedure"]
     B --> C["Bounded backlog or handoff"]
 ```
-
-Parent: [Skills](../as-is.md#design)
 
 
 ## Links

@@ -22,15 +22,13 @@ work.
 
 The component is organized around the following relationships and flow.
 
-[Open Agents design](../as-is.md#design)
+Parent: [Agents](../as-is.md#design)
 
 ```mermaid
 flowchart TD
     A["User request"] --> B["as-is front-face router"]
     B --> C["Admitted agent and applicable skill"]
 ```
-
-Parent: [Agents](../as-is.md#design)
 
 - Interpret user intent and route substantive requests to the best admitted
   agent and applicable skill.

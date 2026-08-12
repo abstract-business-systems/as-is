@@ -12,17 +12,15 @@ record; it does not physically move existing fixtures.
 
 ## Design
 
-[Open Skills design](../as-is.md#design)
-
 The component is organized around the following relationships and flow.
+
+Parent: [Skills](../as-is.md#design)
 
 ```mermaid
 flowchart TD
     A["Repository concept"] --> B["Content-structuring procedure"]
     B --> C["Discoverable authoritative artifact"]
 ```
-
-Parent: [Skills](../as-is.md#design)
 
 
 ## Links

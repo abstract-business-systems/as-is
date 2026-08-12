@@ -145,15 +145,19 @@ hierarchy or navigation.
    invent relationships or imply unapproved architecture.
 5. Link only direct, resolving repository-relative context. Every `as-is.md`
    Design section must include a nearby Markdown parent link, including the
-   repository root (which links to its own `#design` anchor). Component names in
-   tables and child boxes should target the child `as-is.md#design` section.
-   Represent reverse navigation with a nearby Markdown link such as
-   `Parent: [Agents](../as-is.md#design)` immediately before the diagram. Do
-   not put the parent in a synthetic node, edge, or container title. The
-   container title is the actual component whose record is being shown.
-   Container diagrams are evenly distributed relationship maps rather than
-   top-to-bottom flows: use a balanced layout, keep child boxes readable, and
-   draw explicit labeled arrows for supported relationships between siblings.
+   repository root (which links to its own `#design` anchor). When the record
+   has a diagram, place the `Parent:` link at the top of the first diagram
+   view: it must be the last Markdown content immediately before the opening
+   Mermaid fence, after only the short Design orientation needed to introduce
+   that view. Do not place it after the first diagram or between multiple
+   diagrams. Component names in tables and child boxes should target the child
+   `as-is.md#design` section. Represent reverse navigation with a nearby
+   Markdown link such as `Parent: [Agents](../as-is.md#design)`. Do not put the
+   parent in a synthetic node, edge, or container title. The container title is
+   the actual component whose record is being shown. Container diagrams are
+   evenly distributed relationship maps rather than top-to-bottom flows: use a
+   balanced layout, keep child boxes readable, and draw explicit labeled arrows
+   for supported relationships between siblings.
    Prose, component tables, and Markdown links remain authoritative if a host
    renderer suppresses SVG navigation. Do not link routine task, backlog,
    changelog, runtime, or host-projection artifacts unless they provide needed
@@ -189,6 +193,9 @@ hierarchy or navigation.
 - Parent-to-child and child-to-parent navigation are explicit and bounded.
 - Every Design section has a resolving nearby Markdown `Parent:` link,
   including the root's self-link.
+- When a Design section has diagrams, its `Parent:` link is at the top of the
+  first diagram view, immediately before the first Mermaid fence and not after
+  that diagram.
 - Container diagrams use the actual component title and nested boxes, without a
   synthetic parent node or containment edge.
 - Parent navigation is a nearby Markdown link, not a diagram node or edge.

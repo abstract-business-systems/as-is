@@ -47,17 +47,15 @@ package version and child runs remain observable by default.
 
 ## Design
 
-[Open Skills design](../as-is.md#design)
-
 The component is organized around the following relationships and flow.
+
+Parent: [Skills](../as-is.md#design)
 
 ```mermaid
 flowchart TD
     A["Delegation request"] --> B["Pi subprocess launcher"]
     B --> C["Detached child and observation"]
 ```
-
-Parent: [Skills](../as-is.md#design)
 
 
 ## Links

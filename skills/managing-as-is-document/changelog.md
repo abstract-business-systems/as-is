@@ -1,5 +1,9 @@
 # Changelog
 
+- 2026-08-12: Corrected the first-diagram parent-navigation update by removing redundant `Open ... design` and `Parent navigation` links from the affected records. The single `Parent:` link remains immediately before each first Mermaid fence; duplicate-link and target checks passed.
+
+- 2026-08-23: Moved each affected component-to-parent `Parent:` link to the top of its first diagram view, immediately before the Mermaid fence, and made that placement an explicit record-maintenance invariant. Audited all repository `as-is.md` records with diagrams; link-target and whitespace checks passed. Mermaid rendering remains untested because no repository renderer is configured.
+
 - 2026-08-22: Updated record maintenance to inspect parent and sibling records
   as the primary naming evidence, aligning new labels with established local
   vocabulary unless a documented semantic departure is needed. Removed the

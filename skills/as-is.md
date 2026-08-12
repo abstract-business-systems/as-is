@@ -2,8 +2,6 @@
 # Skills - as-is
 
 ## Purpose
-[Open repository design](../as-is.md#design)
-
 Maintain the durable organization and authority context for reusable skills.
 This record is also the concise capability catalog for discovering the skill
 components below; each component's `SKILL.md` remains authoritative for its

@@ -8,13 +8,13 @@ implementation knowledge.
 
 ## Design
 
-[Open Skills design](../as-is.md#design)
-
 The skill selects a generic Mermaid representation based on the reader's
 question and keeps authoritative context in prose. It owns Mermaid diagram
 mechanics, diagram-type selection, and communication guidance for generic
 subjects. Repository-specific record structure and navigation belong to the
 host document's owning procedure.
+
+Parent: [Skills](../as-is.md#design)
 
 ```mermaid
 flowchart LR
@@ -22,8 +22,6 @@ flowchart LR
     SUBJECT --> CHILD["Relevant subcomponent responsibility"]
     CHILD --> OUTCOME["Observable outcome"]
 ```
-
-Parent: [Skills](../as-is.md#design)
 
 ## Boundary
 

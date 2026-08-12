@@ -7,9 +7,9 @@ Provide reusable context assembly for bounded decisions and handoffs.
 
 ## Design
 
-[Open Skills design](../as-is.md#design)
-
 The component is organized around the following relationships and flow.
+
+Parent: [Skills](../as-is.md#design)
 
 ```mermaid
 flowchart TD
@@ -17,7 +17,6 @@ flowchart TD
     B --> C["Provenance-bearing handoff"]
 ```
 
-Parent: [Skills](../as-is.md#design)
 
 
 ## Links

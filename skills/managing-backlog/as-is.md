@@ -9,17 +9,15 @@ tasks, using durable recording tables and a deterministic query-time display.
 
 ## Design
 
-[Open Skills design](../as-is.md#design)
-
 The component is organized around the following relationships and flow.
+
+Parent: [Skills](../as-is.md#design)
 
 ```mermaid
 flowchart TD
     A["Backlog entries"] --> B["Deterministic prioritization"]
     B --> C["Selected task input"]
 ```
-
-Parent: [Skills](../as-is.md#design)
 
 The backlog is a planning index, not task authority. Each component backlog uses
 a stable table with `id`, `status`, integer `user preference`, integer `system

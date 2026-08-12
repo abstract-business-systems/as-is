@@ -10,8 +10,6 @@ backlog, configuration, or runtime authorities.
 
 ## Design
 
-[Open Skills design](../as-is.md#design)
-
 The skill inspects an owned record, preserves authoritative prose, applies the
 canonical record shape, and defines what an `as-is.md` diagram must communicate:
 what the component does, its actors, meaningful immediate children,
@@ -20,6 +18,8 @@ consequential flows, and outcomes. It invokes the generic Mermaid diagram
 design skill for Mermaid mechanics, functional framing, clear labels,
 readability, and technical-detail limits. It validates links and structure
 before recording completed durable changes in the owning changelog.
+
+Parent: [Skills](../as-is.md#design)
 
 ```mermaid
 flowchart LR
@@ -30,8 +30,6 @@ flowchart LR
     RECORD --> READER["Understandable purpose, hierarchy, boundaries, and relationships"]
     CHECKS["Deterministic documentation checks"] --> RECORD
 ```
-
-Parent: [Skills](../as-is.md#design)
 
 The record shape uses Purpose, optional immediate Components, Design, optional
 Relationships, and Links. A parent record's Design begins with its box-oriented

@@ -10,6 +10,8 @@ creation of approved canonical component records.
 
 The setup skill separates project adoption from individual record maintenance:
 
+Parent: [Skills](../as-is.md#design)
+
 ```mermaid
 flowchart TD
     Project["Existing project"] --> Plan["Reviewable setup plan"]
@@ -25,8 +27,6 @@ approval to durable setup outcomes. Setup selects whole-project mode by default
 and treats an explicit directory as an independent bounded target; the selected
 mode, target, effective boundary, and excluded paths are preserved in the
 reviewable plan before any write.
-
-Parent: [Skills](../as-is.md#design)
 
 The setup procedure preserves existing content, uses the strict
 `# <component-name> - as-is` record title, and delegates record-specific

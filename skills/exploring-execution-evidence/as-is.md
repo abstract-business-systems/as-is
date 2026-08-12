@@ -11,17 +11,15 @@ analysis.
 
 ## Design
 
-[Open Skills design](../as-is.md#design)
-
 The component is organized around the following relationships and flow.
+
+Parent: [Skills](../as-is.md#design)
 
 ```mermaid
 flowchart TD
     A["Trace or session evidence"] --> B["Evidence exploration procedure"]
     B --> C["Source-labelled report"]
 ```
-
-Parent: [Skills](../as-is.md#design)
 
 - Start from a supplied trace or session selector and progressively inspect
   only the evidence needed for the question.
