@@ -49,6 +49,18 @@ Links are direct, resolving repository-relative context needed to understand or 
 
 The [diagram examples](diagram-examples.md) start with the structural-container example for parent containment, sibling relationships, root-to-current breadcrumbs, and renderer fallback, then illustrate separately scoped non-container views. These references occur with the rules they support; a trailing Links catalog in this procedure would duplicate that context and is intentionally omitted.
 
+## Flow View Rules
+
+Use these as-is-specific rules to choose and interpret a view without treating diagram syntax as architecture authority.
+
+- **Structural views** answer stable ownership, containment, immediate composition, and sibling responsibility questions. A parent structural container shows the actual parent and documented immediate children; its balanced relationship-map arrows express supported sibling relationships, not runtime order.
+- **Temporal views** answer one bounded consequential behavior, such as a request, handoff, transformation, lifecycle, decision, recovery, or actor experience. They show only the actors, responsibilities, boundaries, transitions, and outcomes needed for that question.
+- **Durable flow threshold:** retain a key or complex flow when it crosses a component or authority boundary, changes a consequential outcome, exposes a material alternate or rejected path, or requires failure, recovery, retry, escalation, compensation, or cancellation to understand the design. Keep routine standard behavior abstract in prose or omit the flow view when it adds no interpretation value; do not turn ordinary implementation steps into durable architecture.
+- **Balanced versus progression layout:** use a balanced relationship map for structural containers and context maps whose purpose is comparison or neighborhood, with no implied chronology. Use a progression layout for scenario or sequence, data, state, decision, recovery, and actor-journey views when order, transition, guarded outcome, repair, or experience stage is part of the stated meaning. Apply the pre-render layout plan before choosing the direction.
+- **Direction semantics:** diagram direction communicates only the selected view's declared meaning. Structural placement and sibling-arrow orientation do not prove sequence; temporal arrows, state transitions, data paths, guarded branches, recovery handoffs, and journey stages may express order or progression when the view states that they do.
+- **Failure and recovery disclosure:** show a non-routine failure or recovery path when it changes ownership, authority, state, outcome, or reader action. Keep routine transport or implementation failures abstract, and record omitted detail or residual risk in prose rather than adding exhaustive error paths.
+- **Authority and divergence:** authoritative prose, record links, and approved component boundaries define the architecture. A diagram is a bounded reader-oriented view; it must not invent a relationship, expose a hidden provider, or override prose. If a diagram and authoritative context diverge, treat the record as stale or blocked and resolve the evidence rather than inferring a new architecture from the drawing.
+
 ## Example Structure
 
 The optional Components, Relationships, and Links sections appear below to show their placement. Leaf records omit Components, and any section without durable content is omitted rather than replaced by filler.
