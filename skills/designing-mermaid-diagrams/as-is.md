@@ -11,13 +11,20 @@ implementation knowledge.
 The skill selects a generic Mermaid representation based on the reader's
 question and keeps authoritative context in prose. It owns Mermaid diagram
 mechanics, diagram-type selection, and communication guidance for generic
-subjects, including a pre-render layout plan and the preference for taller,
-narrower ELK/TB flowcharts when they improve readability. The plan captures the
-available render surface, intended shape, density budget, grouping and routing,
-and any supported exception before rendering. The host document's owning procedure decides whether
-a node requires a link; when it does, a matching Markdown fallback preserves
-navigation if a renderer suppresses the diagram link rather than replacing it.
-That fallback is distinct navigation, not a reason to duplicate the target or ordinary direct-child contract in a separate link catalog. Repository-specific record structure and breadcrumb navigation belong to the host document's owning procedure.
+subjects, including the distinction between source-level and optional
+renderer-backed navigation checks, a pre-render layout plan, and the preference
+for taller, narrower ELK/TB flowcharts when they improve readability. The plan
+captures the available render surface, intended shape, density budget, grouping
+and routing, and any supported exception before rendering. The host document's
+owning procedure decides whether a node requires a link; when it does, a
+matching Markdown fallback preserves navigation if a renderer suppresses the
+diagram link rather than replacing it. That fallback is distinct navigation,
+not a reason to duplicate the target or ordinary direct-child contract in a
+separate link catalog. Repository-specific record structure and breadcrumb
+navigation belong to the host document's owning procedure. Renderer-backed
+checks accept diagram sources in bounded batches; document discovery remains
+caller-owned, and the checks do not install providers or contact external
+services.
 
 [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Designing Mermaid Diagrams**
 
@@ -46,4 +53,5 @@ agent selection, context resolution, or architectural decisions.
 ## Links
 
 - [SKILL.md](SKILL.md) — authoritative procedure and Mermaid type-selection guidance.
+- [rendered-navigation.md](rendered-navigation.md) — repository-local optional browser-batch input and evidence contract.
 - [../managing-as-is-document/SKILL.md](../managing-as-is-document/SKILL.md) — host-specific as-is diagram conventions are owned outside this generic skill.

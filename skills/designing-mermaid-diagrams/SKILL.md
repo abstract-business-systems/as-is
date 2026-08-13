@@ -97,6 +97,14 @@ and reader intent, not a generic display contract.
    supported edge meanings, readable labels, bounded scope, and consistency
    with authoritative prose.
 
+## Rendered navigation validation
+
+When a target supplies an approved local browser renderer, an optional
+read-only batch check may receive diagram sources and verify expected href
+preservation. The caller owns document discovery, source extraction, and
+Markdown-fallback validation; the renderer accepts diagram source, not document
+paths. Do not install a renderer or contact external services.
+
 ## Output
 
 Return or record:

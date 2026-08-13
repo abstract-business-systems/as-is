@@ -1,5 +1,5 @@
 {
-  "extensions": ["./extensions/worker-tools.ts"],
+  "extensions": ["./extensions/worker-tools.ts", "./extensions/mermaid-tools.ts"],
   "skills": [
     "../skills/committing-completed-work",
     "../skills/context-building",
