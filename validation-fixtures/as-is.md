@@ -8,30 +8,36 @@ Retain harmless, bounded fixtures for validating delegation, host mediation, rec
 
 | Component | Purpose |
 | --- | --- |
-| [dummy delegation](dummy-delegation/as-is.md#design) | Rehearse delegation, budget bubbling, handoff, integration, and cleanup. |
-| [increment 5 dogfood](increment-5-dogfood/as-is.md#design) | Validate the selected subprocess adapter in isolation. |
-| [increment 6 recovery fixture](increment-6-recovery-fixture/as-is.md#design) | Validate durable recovery when private runtime state is unavailable. |
-| [OpenCode mediation dogfood](opencode-mediation-dogfood/as-is.md#design) | Validate explicit primary-agent mediation to the configured implementer. |
+| [dummy delegation](dummy-delegation/as-is.md#design) | Rehearse one bounded local delegation, durable registry evidence, and scoped parent integration. |
+| [increment 5 dogfood](increment-5-dogfood/as-is.md#design) | Retain completed local dogfood evidence for the Increment 5 OpenCode subprocess adapter. |
+| [increment 6 recovery fixture](increment-6-recovery-fixture/as-is.md#design) | Retain completed record-only recovery evidence after private runtime state is unavailable. |
+| [OpenCode mediation dogfood](opencode-mediation-dogfood/as-is.md#design) | Retain completed explicit primary-agent mediation evidence for the configured implementer. |
 
 ## Design
 
-Validation fixtures are independent evidence boundaries. They share the repository's contracts but do not become runtime components or product dependencies.
+Validation fixtures are independent evidence boundaries. They retain deterministic local rehearsal or concise completed-evidence context for delegation, adapter, recovery, and mediation behavior; they do not become runtime components or product dependencies.
 
-Parent: [as-is](../as-is.md#design)
+[as-is](../as-is.md#design) / **Validation Fixtures**
+
+### Fixture containment map
 
 ```mermaid
+---
+config:
+  layout: elk
+---
 %%{init: {"securityLevel": "loose"}}%%
-flowchart LR
+flowchart TB
     subgraph Fixtures["Validation Fixtures"]
-        direction LR
+        direction TB
         Dummy["<a href='./dummy-delegation/as-is.md#design'>dummy delegation</a>"]
         Increment5["<a href='./increment-5-dogfood/as-is.md#design'>increment 5 dogfood</a>"]
         Increment6["<a href='./increment-6-recovery-fixture/as-is.md#design'>increment 6 recovery fixture</a>"]
         OpenCode["<a href='./opencode-mediation-dogfood/as-is.md#design'>OpenCode mediation dogfood</a>"]
 
-        Dummy -->|rehearses shared handoff boundary with| Increment5
-        Increment5 -->|shares adapter evidence boundary with| OpenCode
-        Increment6 -->|extends the recovery evidence boundary from| Dummy
+        Dummy -->|rehearses bounded delegation and integration evidence| Increment5
+        Increment5 -->|retains completed adapter evidence alongside| OpenCode
+        Increment6 -->|retains completed recovery evidence alongside| Dummy
     end
     classDef component fill:#f8fafc,fill-opacity:0.1,stroke:#334155,stroke-width:2px
     classDef child fill:#2563eb,fill-opacity:0.1,stroke:#64748b,stroke-width:1px
@@ -39,9 +45,9 @@ flowchart LR
     class Dummy,Increment5,Increment6,OpenCode child
 ```
 
-The fixture relationships describe shared validation concerns, not production dependencies. Retained fixture records and their local READMEs remain the authoritative evidence for each scenario.
+The fixture relationships describe shared validation concerns, not production dependencies. Each linked child box targets the same record as its Components-table entry; that table is the required Markdown and renderer fallback, not a replacement for interactive diagram navigation. This parent's Links retain only distinct fixture-wide context. This parent does not interpret child implementation, tests, task narratives, transcripts, or grandchildren.
 
 ## Links
 
-- [`README.md`](README.md) — navigation and retention rationale.
+- [`README.md`](README.md) — fixture navigation and retention rationale.
 - [`../docs/component-task-record-protocol.md`](../docs/component-task-record-protocol.md) — task-record behavior exercised by the fixtures.

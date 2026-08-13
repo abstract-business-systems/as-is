@@ -1,23 +1,23 @@
-
 # Increment 6 Recovery Fixture - as-is
 
 ## Purpose
 
-Provide a harmless child component for validating recovery from a durable record
-after private worker runtime state is unavailable.
-
+Retain a harmless completed fixture that validates recovery from a durable record after private worker runtime state is unavailable.
 
 ## Design
 
-The component is organized around the following relationships and flow.
+This component preserves concise evidence for a completed record-only recovery rehearsal. Git history retains details that recovery preserved the configured worker, cumulative attempt and budget history, a bounded backoff/attempt policy, replacement approval, descendant closure, and cleanup after a local interruption removed private runtime state. It has no descendants and does not expose a current runtime recovery service or product dependency.
 
-Parent: [as-is](../../as-is.md#design)
+[as-is](../../as-is.md#design) / [Validation Fixtures](../as-is.md#design) / **Increment 6 Recovery Fixture**
+
+### Record-only recovery rehearsal
 
 ```mermaid
-flowchart TD
-    A["Recovery scenario"] --> B["Recovery fixture"]
-    B --> C["Durable evidence of resumption"]
+---
+config:
+  layout: elk
+---
+flowchart TB
+    Interruption["Private runtime state unavailable"] --> Recovery["Durable record-only recovery"]
+    Recovery --> Outcome["Bounded completed fixture evidence"]
 ```
-
-
-## Links

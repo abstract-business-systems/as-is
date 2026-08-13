@@ -23,5 +23,3 @@ flowchart TD
   enforcement.
 - Keep validation ownership here without becoming task authority or runtime
   enforcement.
-
-## Links

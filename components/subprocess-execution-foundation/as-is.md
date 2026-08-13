@@ -28,5 +28,3 @@ flowchart TD
 - Historical investigation found synchronous nested delegation and blind
   waiting increased elapsed time; host capability and attribution limitations
   remain residual risks.
-
-## Links

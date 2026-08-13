@@ -50,11 +50,11 @@ Human confirmation is required before accepting the decomposition or creating re
 
 ## Record creation and navigation
 
-After confirmation, update or create only the approved records inside the effective boundary. Use the strict title form `# <component-name> - as-is`. Route each individual record through `managing-as-is-document` and keep purpose, design, relationships, and links in the durable record. Keep active task state, acceptance evidence, budget, recovery, and completion in the configured task record instead.
+After confirmation, update or create only the approved records inside the effective boundary. Use the strict title form `# <component-name> - as-is`. Route each individual record through `managing-as-is-document` and keep purpose, design, relationships, and links in the durable record. A `## Links` section adds only distinct working context absent from parent navigation or the required Markdown fallback for a diagram-linked target; a Components-table fallback intentionally accompanies linked structural child boxes rather than creating a separate Links entry. Source and test files remain omitted unless they meet the managing skill's reader-facing or indispensable-behavior exception. Keep active task state, acceptance evidence, budget, recovery, and completion in the configured task record instead.
 
-A parent record lists only immediate children that have their own `as-is.md`. Its `Design` section begins with a bounded box-oriented Mermaid container diagram using the actual parent name as the container title and child boxes linked to each child's `as-is.md#design`. Do not add a synthetic parent node or a `contains` edge. Use balanced child placement and explicit labeled arrows only for supported sibling or dependency relationships. The component table and nearby Markdown links remain authoritative if a renderer suppresses Mermaid navigation.
+Every record has at least one reader-oriented Mermaid diagram. A parent record lists only immediate children that have their own `as-is.md`; its `Components` table links to each child's `as-is.md#design`, while its `Design` begins with a bounded box-oriented container diagram using the actual parent name as the container title and child boxes that link to the same targets using host-supported syntax. The Components table is the required Markdown fallback if a renderer suppresses diagram navigation. A non-parent record uses the smallest supported view of its own responsibility, interaction, boundary, lifecycle, or outcome. Introduce each Mermaid fence with a descriptive `### <diagram name>` heading, not a literal `### Relevant diagrams` heading or a separate caption line. Do not add a synthetic parent node, a `contains` edge, or a one-node placeholder. Use balanced child placement and explicit labeled arrows only for supported sibling or dependency relationships. Prefer a taller, narrower ELK/TB flowchart when that improves readability; the Components table and nearby Markdown links remain authoritative navigation in every renderer.
 
-A child record has a nearby resolving `Parent:` Markdown link before its `Design` content. Use the smallest suitable additional view for a non-parent record only when it reduces interpretation cost. A structural container view is not a flow. Use a key or complex flow view for consequential decisions, failures, retries, cancellation, recovery, authority changes, or outcomes; leave routine standard behavior under its abstraction and record the omission rationale when the distinction matters. Do not invent relationships to fill a diagram.
+Immediately above the first diagram, add a resolving nearby `Parent:` Markdown link, including a root self-link. Use the smallest suitable non-parent view; a structural container view is not a flow. Use a key or complex flow view for consequential decisions, failures, retries, cancellation, recovery, authority changes, or outcomes; leave routine standard behavior under its abstraction and record the omission rationale when the distinction matters. Do not invent relationships to fill a diagram.
 
 Add the canonical architecture instruction exactly once to the applicable target-local instruction file, without replacing existing guidance:
 
@@ -65,10 +65,13 @@ Add the canonical architecture instruction exactly once to the applicable target
 Validate the selected plan and resulting records with the smallest relevant deterministic checks:
 
 - Every created title uses `# <component-name> - as-is`.
-- Parent maps list immediate approved children only and link to resolving `as-is.md#design` anchors.
-- Parent diagrams use nested containment, balanced child boxes, supported labeled relationships, and no synthetic parent node or containment edge.
-- Child records have resolving nearby parent links.
-- Markdown links, Mermaid syntax where available, canonical instruction uniqueness, and `git diff --check` pass.
+- Components tables list immediate approved children only and link to resolving `as-is.md#design` anchors.
+- Every record has a named diagram subsection and no literal `### Relevant diagrams`, empty diagram subsection, or placeholder diagram.
+- Parent diagrams use nested containment, resolving linked child-box targets with matching Components-table Markdown fallback, balanced child boxes, supported labeled relationships, and no synthetic parent node or containment edge.
+- Every first diagram has a resolving nearby parent link.
+- Each `## Links` section contains only distinct working context not already navigable through Components, parent navigation, or required Markdown diagram fallback; any source or test target meets the explicit exception.
+- Applicable flowcharts prefer a taller, narrower ELK/TB layout.
+- Markdown links, Mermaid syntax and configured layout support where available, canonical instruction uniqueness, and `git diff --check` pass.
 - A before/after path comparison proves that all writes remain inside the effective boundary; directory-scoped mode also proves enclosing and sibling paths are unchanged.
 
 Record assumptions, omitted standard-flow detail, renderer limitations, and residual risk. Do not infer architectural truth from syntax validation alone.

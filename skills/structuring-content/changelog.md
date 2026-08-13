@@ -1,5 +1,9 @@
 # Changelog
 
+- 2026-08-13: Clarified that a link list supplies distinct context rather than a repeated catalog of nearby navigation or routine implementation and test files; exceptions require a reader-facing interface or indispensable exact behavior. Focused contract inspection, `bun skills/managing-as-is-document/content-test.ts`, `python3 components/task-record-validator/task_record_validator.py .`, and `git diff --check` passed.
+
+- 2026-08-13: Clarified the general content-structure rule: omit optional Markdown sections with no durable content rather than retaining an empty heading or placeholder text. The managing-as-is-document skill applies this rule specifically to `## Links`.
+
 ## 2026-08-15 — Legacy record migration
 
 - **Component:** Structuring Content.

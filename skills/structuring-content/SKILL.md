@@ -24,9 +24,7 @@ implementation or authority boundary.
    established type-directory convention warrants grouping from the first item;
    retain a unique artifact at the current level when the required evidence is
    absent or an exception applies, and record the decision.
-5. Link related authoritative artifacts instead of duplicating their contents.
-   Prefer one authoritative home for a decision or rule; do not keep the same
-   current decision, rule, or state in two authoritative locations.
+5. Link related authoritative artifacts only when they add distinct needed context or navigation; do not repeat a nearby target merely as a catalog. Prefer one authoritative home for a decision or rule; do not keep the same current decision, rule, or state in two authoritative locations. Do not use a high-level link list to enumerate implementation or test files unless the exact file is a reader-facing operational interface or indispensable to understand or operate the artifact; otherwise link its stable prose contract or explain its role in prose.
 6. Separate settled design from proposals, active task state, and private runtime
    state.
 7. Review for discoverability, semantic grouping, replacement paths, accuracy,
@@ -44,7 +42,7 @@ forcing unlike representations into one schema.
 ## Representation Rules
 
 Choose the representation that matches the information shape and the reader's
-task. Apply the same rule to durable Markdown artifacts and live responses.
+task. Apply the same rule to durable Markdown artifacts and live responses. Omit an optional Markdown section when it has no durable content; do not retain an empty heading or add placeholder text merely to preserve a template shape.
 
 | Information shape | Preferred representation |
 | --- | --- |

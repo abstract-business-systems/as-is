@@ -10,7 +10,20 @@ This skill composes setup scope, candidate identification, naming, record manage
 
 Parent: [Skills](../as-is.md#design)
 
-The integration flow produces a reviewable plan first, obtains human disposition for each candidate, then routes approved record creation through `managing-as-is-document`. Parent maps expose only immediate documented children; routine filesystem artifacts remain ordinary navigable content unless semantic evidence supports a component boundary.
+### Record-adoption flow
+
+```mermaid
+---
+config:
+  layout: elk
+---
+flowchart TB
+    Scope["Approved project or directory scope"] --> Plan["Reviewable component plan"]
+    Plan --> Approval["Human component disposition"]
+    Approval --> Records["Approved as-is records"]
+```
+
+The integration flow produces a reviewable plan first, obtains human disposition for each candidate, then routes approved record creation through `managing-as-is-document`. Parent maps expose only immediate documented children; routine filesystem artifacts remain ordinary navigable content unless semantic evidence supports a component boundary. Linked structural-container child boxes are paired with Components-table Markdown fallback, so a renderer-independent route remains available without repeating the targets in Links. Nearby parent navigation and required fallback for separately linked diagrams provide their own routes. Source and test links need the explicit reader-facing or indispensable-behavior exception. Applicable diagrams use named diagram headings, nearby parent navigation, and the generic readable-layout guidance.
 
 ## Links
 

@@ -22,5 +22,3 @@ flowchart TD
 - Leave allocations, approvals, extensions, and monetary enforcement to task
   records and the control plane.
 - Preserve unknown provider observations as unavailable rather than zero.
-
-## Links

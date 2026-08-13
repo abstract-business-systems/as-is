@@ -1,23 +1,23 @@
-
 # OpenCode Mediation Dogfood - as-is
 
 ## Purpose
 
-Provide a fresh harmless child component proving that explicit primary-agent
-mediation reaches the configured implementer.
-
+Retain a harmless completed fixture that validates explicit primary-agent mediation to the configured implementer.
 
 ## Design
 
-The component is organized around the following relationships and flow.
+This component retains the durable navigation and concise history for a completed OpenCode mediation handoff. Git history retains machine-readable role evidence for an `orchestrator` and parent-linked `implementer`, with no `general` or `explore` mediation, plus the completed worker handoff and parent reconciliation. It does not expose a current mediation service, model setting, or product dependency.
 
-Parent: [as-is](../../as-is.md#design)
+[as-is](../../as-is.md#design) / [Validation Fixtures](../as-is.md#design) / **OpenCode Mediation Dogfood**
+
+### Explicit mediation handoff
 
 ```mermaid
-flowchart TD
-    A["Mediation scenario"] --> B["OpenCode mediation fixture"]
-    B --> C["Configured implementer result"]
+---
+config:
+  layout: elk
+---
+flowchart TB
+    Orchestrator["Orchestrator"] -->|hands off explicitly to| Implementer["Configured implementer"]
+    Implementer --> Outcome["Completed bounded fixture"]
 ```
-
-
-## Links

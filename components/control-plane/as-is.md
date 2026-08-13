@@ -20,6 +20,3 @@ flowchart TD
     A["Host-neutral control-plane source"] --> B["Implementation conversion"]
     B --> C["Protected task semantics and fixture"]
 ```
-
-
-## Links

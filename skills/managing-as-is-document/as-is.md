@@ -6,12 +6,18 @@ Maintain durable `as-is.md` records that explain the purpose, design, relationsh
 
 ## Design
 
-The skill declares the durable record model, diagram and navigation model, example structure, creation, alignment, and replacement model, and compact ordered application model for an owned record. Initial-record, semantic-alignment, controlled-replacement, and migration-or-retirement treatments are selected from evidence about the approved component boundary and implementation context. It keeps authoritative purpose, boundaries, relationships, and decisions in prose and direct links; diagrams provide a bounded reader-oriented view. Its consolidated diagram examples keep the parent-container convention, navigation fallback, and separately scoped non-container views together. It composes with the generic Mermaid diagram design skill for Mermaid mechanics, functional framing, clear labels, readability, and technical-detail limits.
+The skill declares the durable record model, diagram and navigation model, example structure, creation, alignment, and replacement model, and compact ordered application model for an owned record. Initial-record, semantic-alignment, controlled-replacement, and migration-or-retirement treatments are selected from evidence about the approved component boundary and implementation context. It keeps authoritative purpose, boundaries, relationships, and decisions in prose and direct links; diagrams provide bounded reader-oriented views. Its consolidated diagram examples keep the parent-container convention, named diagram subsections, parent navigation, navigation fallback, and separately scoped non-container views together. It composes with the generic Mermaid diagram design skill for Mermaid mechanics, functional framing, clear labels, readable taller/narrower layouts, and technical-detail limits.
 
 Parent: [Skills](../as-is.md#design)
 
+### Record-maintenance context flow
+
 ```mermaid
-flowchart LR
+---
+config:
+  layout: elk
+---
+flowchart TB
     AUTHOR["Component owner or maintainer"] --> CONTEXT["Authoritative component context"]
     CONTEXT --> RECORD["Durable as-is record"]
     DIAGRAM["Designing Mermaid diagrams"] --> VIEW["Reader-oriented context view"]
@@ -20,7 +26,7 @@ flowchart LR
     CHECKS["Deterministic documentation checks"] --> RECORD
 ```
 
-The record shape uses Purpose, optional immediate Components, Design, optional Relationships, focused ownership facts when needed, and direct context links. A parent record's Design begins with its box-oriented container diagram; non-parent records do not receive container diagrams. A component boundary is the directory containing `as-is.md`; child records are explicit components, while ordinary directories and grandchildren are not promoted into the record. Parent context is never ambient: direct durable links provide a bounded child handoff.
+The record shape uses Purpose, optional immediate Components, Design, optional Relationships, focused ownership facts when needed, and distinct direct context links. A parent record's Design begins with its box-oriented container diagram; non-parent records do not receive container diagrams. A component boundary is the directory containing `as-is.md`; child records are explicit components, while ordinary directories and grandchildren are not promoted into the record. Parent context is never ambient: each linked immediate-child box is paired with a Components table that supplies Markdown and renderer fallback; nearby parent navigation and a Markdown fallback for any separately linked diagram target cover their own routes, while Links add only context those paths do not already provide. Source and test files remain absent unless their exact behavior is indispensable to the reader.
 
 This skill is used by agents and orchestrators that maintain component context; it does not select, authorize, start, observe, recover, cancel, or delegate agents. The existing orientation utility is read-only supporting infrastructure, not an authority-bearing workflow.
 
@@ -30,7 +36,3 @@ This skill is used by agents and orchestrators that maintain component context; 
 
 - [SKILL.md](SKILL.md) — authoritative declarative record, creation, alignment, replacement, and compact ordered application models, plus linked diagram references.
 - [diagram-examples.md](diagram-examples.md) — consolidated structural-container, navigation-fallback, and separately scoped diagram-view examples.
-- [backlog.md](backlog.md) — pending as-is-specific vocabulary, view, and validation work; this repository configures `backlog.md` as the planning-record filename.
-- [scripts/orient.ts](scripts/orient.ts) — compact read-only repository task snapshot.
-- [scripts/orient.test.ts](scripts/orient.test.ts) — focused orientation tests.
-- [content-test.ts](content-test.ts) — deterministic content validation for this skill's durable contract.

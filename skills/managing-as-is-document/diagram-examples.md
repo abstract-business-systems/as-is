@@ -11,22 +11,36 @@ Use for a parent component with independently documented immediate children. Con
 The `Checkout` component owns three documented child components. The diagram shows only `Checkout` and those immediate children. The nearby parent link supports reverse navigation; it is not a synthetic diagram node or edge.
 
 ```markdown
+## Components
+
+| Component | Purpose |
+| --- | --- |
+| [Validation](./validation/as-is.md#design) | Validates checkout requests. |
+| [Authorization](./authorization/as-is.md#design) | Authorizes accepted requests. |
+| [Order recording](./order-recording/as-is.md#design) | Records authorized outcomes. |
+
 ## Design
 
 - Kind: `structural-container`
 - Scope: `checkout`
 - Visible levels: `Checkout` and immediate children
-- Layout: balanced left-to-right relationship map
+- Layout: balanced taller, narrower relationship map
 - Arrow meaning: labeled sibling capability or responsibility relationship
 
 Parent: [Commerce Platform](../../as-is.md#design)
+
+### Structural container
 ```
 
 ```mermaid
+---
+config:
+  layout: elk
+---
 %%{init: {"securityLevel": "loose"}}%%
-flowchart LR
+flowchart TB
     subgraph Checkout["Checkout"]
-        direction LR
+        direction TB
         Validation["<a href='./validation/as-is.md#design'>Validation</a>"]
         Authorization["<a href='./authorization/as-is.md#design'>Authorization</a>"]
         OrderRecording["<a href='./order-recording/as-is.md#design'>Order recording</a>"]
@@ -48,10 +62,10 @@ flowchart LR
 - Child components are boxes nested inside the parent container.
 - Sibling relationships use explicit, semantically labeled arrows.
 - The parent link is nearby Markdown navigation rather than a diagram edge.
-- The outer `LR` layout gives the container a balanced relationship-map shape; it does not imply a runtime sequence.
-- Child names target each child's `as-is.md#design` section when the host renderer supports the link syntax.
+- The ELK/TB layout prefers a taller, narrower relationship map; it does not imply a runtime sequence.
+- Child box labels target the corresponding `Components` table entries.
 
-If the renderer does not support linked HTML labels or preserve SVG links, the Markdown `Components` table remains the authoritative fallback. Do not add a container diagram to a record unless the children are independently documented components with their own `as-is.md` records.
+The child-box links provide interactive navigation when supported. The matching Markdown `Components` table remains the authoritative fallback when a renderer strips diagram links. The diagram-link and Markdown-fallback pair is intentional; do not repeat child targets in `## Links` unless a target adds distinct working context. Do not add a container diagram to a record unless the children are independently documented components with their own `as-is.md` records.
 
 ## Context map
 
@@ -65,8 +79,14 @@ Use when the reader needs the component's functional neighbors and boundaries, n
 - Arrow meaning: functional dependency or capability exchange
 ```
 
+### Context map
+
 ```mermaid
-flowchart TD
+---
+config:
+  layout: elk
+---
+flowchart TB
     Customer["Customer"] -->|submits order to| Checkout["Checkout"]
     Checkout -->|requests authorization from| PaymentCapability["Payment capability"]
     Checkout -->|records outcome in| OrderStore["Order store"]
@@ -83,6 +103,8 @@ Use for a consequential request, journey, or handoff where time order matters. S
 - Layout: sequence participants horizontal; messages progress vertically
 - Arrow meaning: temporal request, response, or outcome
 ```
+
+### Scenario sequence
 
 ```mermaid
 sequenceDiagram
@@ -108,8 +130,14 @@ Use for a consequential pipeline in which information is transformed or validate
 - Arrow meaning: data or result progression
 ```
 
+### Data flow
+
 ```mermaid
-flowchart TD
+---
+config:
+  layout: elk
+---
+flowchart TB
     Request["Order request"] --> Validation["Validate order"]
     Validation -->|accepted order| Authorization["Authorize payment"]
     Authorization -->|authorization result| Recording["Record outcome"]
@@ -127,6 +155,8 @@ Use when lifecycle states and legal transitions are architecturally meaningful. 
 - Layout: top-to-bottom progression
 - Arrow meaning: state transition caused by an event or result
 ```
+
+### State flow
 
 ```mermaid
 stateDiagram-v2
@@ -154,8 +184,14 @@ Use when guards produce materially different outcomes or authority decisions. La
 - Arrow meaning: guarded branch or resulting decision
 ```
 
+### Decision flow
+
 ```mermaid
-flowchart TD
+---
+config:
+  layout: elk
+---
+flowchart TB
     Start["Order submitted"] --> Valid{"Order valid?"}
     Valid -->|no| Reject["Reject order"]
     Valid -->|yes| Authorized{"Payment authorized?"}
@@ -175,8 +211,14 @@ Use when failure, retry, escalation, compensation, or cancellation changes the a
 - Arrow meaning: failure, retry, escalation, or compensation handoff
 ```
 
+### Recovery flow
+
 ```mermaid
-flowchart TD
+---
+config:
+  layout: elk
+---
+flowchart TB
     Request["Authorization request"] --> Timeout{"Response before deadline?"}
     Timeout -->|yes| Result["Use authorization result"]
     Timeout -->|no| Pending["Store pending outcome"]
@@ -196,6 +238,8 @@ Use when the reader needs the experience across responsibilities rather than com
 - Layout: journey stages progress left-to-right
 - Arrow meaning: experience progression; details belong in stage text
 ```
+
+### Actor journey
 
 ```mermaid
 journey

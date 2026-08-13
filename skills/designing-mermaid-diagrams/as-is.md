@@ -11,13 +11,24 @@ implementation knowledge.
 The skill selects a generic Mermaid representation based on the reader's
 question and keeps authoritative context in prose. It owns Mermaid diagram
 mechanics, diagram-type selection, and communication guidance for generic
-subjects. Repository-specific record structure and navigation belong to the
-host document's owning procedure.
+subjects, including the preference for taller, narrower ELK/TB flowcharts when
+they improve readability. The host document's owning procedure decides whether
+a node requires a link; when it does, a matching Markdown fallback preserves
+navigation if a renderer suppresses the diagram link rather than replacing it.
+That fallback is distinct navigation, not a reason to duplicate the target in a
+separate link catalog. Repository-specific record structure and navigation
+belong to the host document's owning procedure.
 
 Parent: [Skills](../as-is.md#design)
 
+### Generic outcome flow
+
 ```mermaid
-flowchart LR
+---
+config:
+  layout: elk
+---
+flowchart TB
     ACTOR["Actor goal"] --> SUBJECT["Subject responsibility"]
     SUBJECT --> CHILD["Relevant subcomponent responsibility"]
     CHILD --> OUTCOME["Observable outcome"]
@@ -33,6 +44,4 @@ agent selection, context resolution, or architectural decisions.
 ## Links
 
 - [SKILL.md](SKILL.md) — authoritative procedure and Mermaid type-selection guidance.
-- [../managing-as-is-document/as-is.md](../managing-as-is-document/as-is.md) — durable record and diagram placement guidance.
 - [../managing-as-is-document/SKILL.md](../managing-as-is-document/SKILL.md) — host-specific as-is diagram conventions are owned outside this generic skill.
-- [../as-is.md](../as-is.md) — skills component map.

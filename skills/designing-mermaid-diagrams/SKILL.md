@@ -61,17 +61,20 @@ data structures; use a separate technical view when those details are needed.
    host document requests an even relationship map, choose a balanced layout
    rather than implying sequence; the host document owns any domain-specific
    container or hierarchy convention.
-5. Draw the primary path first, then add consequential alternate, rejected, or
+5. Prefer a taller, narrower readable view over a wide one. For a Mermaid
+   flowchart that benefits from automatic placement, use a fence-local ELK
+   frontmatter block (`config: layout: elk`) and `flowchart TB`; retain a
+   supported non-ELK layout only when ELK would obscure the stated relationship,
+   conflict with host rendering, or make the diagram less readable. Layout is
+   presentation, never evidence of chronology unless the diagram's stated
+   meaning says otherwise.
+6. Draw the primary path first, then add consequential alternate, rejected, or
    recovery paths. Show boundaries where responsibility or authority changes;
    explain dense detail in prose.
-6. Add only resolving links required by the diagram's host document. Keep
-   repository-specific component-linking, parent navigation, and container
-   rules in the host document's owning procedure; do not make them generic
-   Mermaid mechanics. Prose remains authoritative if a diagram diverges.
-   When a linked Mermaid node is required by the host, use the host-supported
-   link syntax and preserve a Markdown fallback outside the diagram.
-7. Validate syntax, link targets, supported edge meanings, readable labels,
-   bounded scope, and consistency with authoritative prose.
+7. Add only resolving links required by the diagram's host document. Keep repository-specific component-linking, parent navigation, and container rules in the host document's owning procedure; do not make them generic Mermaid mechanics. Prose remains authoritative if a diagram diverges. Do not infer that an adequate Markdown navigation surface replaces a host-required diagram link. When a linked Mermaid node is required by the host, use the host-supported link syntax and preserve a Markdown fallback outside the diagram. Once that fallback exists, do not repeat the target in an unrelated link list unless it adds distinct working context.
+8. Validate syntax, configured layout support where applicable, link targets,
+   supported edge meanings, readable labels, bounded scope, and consistency
+   with authoritative prose.
 
 ## Output
 
@@ -93,6 +96,7 @@ Return or record:
   are understandable without implementation knowledge.
 - Every edge expresses a supported functional relationship.
 - The selected Mermaid type fits the question and the diagram is readable.
+- A flowchart uses a taller, narrower ELK/TB layout when that preference improves readability; any exception is supported by the host or the diagram's stated meaning.
 - Generic diagram guidance does not impose a host document's hierarchy, title,
   parent-link, or container-view rules.
 - Host-specific link syntax and fallback behavior are not presented as generic

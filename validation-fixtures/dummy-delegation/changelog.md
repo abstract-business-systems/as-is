@@ -1,3 +1,4 @@
 # Changelog
 
 - 2026-08-06: Updated the deterministic launcher fixture so a local as-is caller delegates exactly once to component-builder with explicit caller identity, record path, and bounded budgets; focused Bun validation verifies launch/finish registry evidence and preserves the task record as protocol authority.
+- 2026-08-13: Aligned this record's local delegation-rehearsal diagram with the experimental validation-fixtures convention: a named diagram heading, root-to-current breadcrumb, and ELK/TB layout. Removed the changelog link because it is historical context rather than direct implementation context. The breadcrumb notation remains local to this twig pending user review. No fixture behavior changed; focused content, breadcrumb, link, and whitespace checks passed, while Mermaid rendering remains untested.
