@@ -11,7 +11,7 @@ acceptance conditions using appropriate evidence.
 
 The component is organized around the following relationships and flow.
 
-Parent: [Skills](../as-is.md#design)
+[as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Verification Discipline**
 
 ```mermaid
 flowchart TD

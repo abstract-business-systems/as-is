@@ -8,7 +8,7 @@ Provide the reusable procedure for building one bounded component and producing 
 
 The skill composes task implementation, validation, recovery, and completion procedures. It guides a builder through context, expert review, bounded implementation, child handoff, acceptance evidence, descendant closure, and durable handoff without selecting or launching agents itself.
 
-Parent: [Skills](../as-is.md#design)
+[as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Building Components**
 
 The skill is reusable procedure, not authority. The configured agent remains responsible for component selection, delegation, parent integration, completion decisions, and any required approvals.
 

@@ -23,14 +23,13 @@ record.
 | [Components](components/as-is.md#design) | Organize implementation boundaries and their focused tests. |
 | [Documentation](docs/as-is.md#design) | Organize normative repository protocols and guidance. |
 | [Validation Fixtures](validation-fixtures/as-is.md#design) | Organize retained delegation, adapter, and recovery evidence. |
-| [Pi Host Integration](.pi/as-is.md#design) | Map repository contracts onto the local Pi host. |
 
 ## Design
 
 This is a component map, not a mandatory execution sequence. The root record
 connects the repository component to its immediate documented child areas.
 
-Parent: [as-is](#design)
+**as-is**
 
 The repository's composition model separates authority-bearing agents and workflows from reusable skills. Agents and workflows compose the child areas; explicit links and each area's Design section provide the bounded context for their relationships.
 
@@ -45,41 +44,24 @@ flowchart LR
         Components["<a href='./components/as-is.md#design'>Components</a>"]
         Documentation["<a href='./docs/as-is.md#design'>Documentation</a>"]
         Fixtures["<a href='./validation-fixtures/as-is.md#design'>Validation Fixtures</a>"]
-        PiHost["<a href='./.pi/as-is.md#design'>Pi Host Integration</a>"]
-
         Agents -->|uses procedures from| Skills
         Components -->|follows protocols from| Documentation
-        PiHost -->|hosts roles and procedures from| Agents
-        PiHost -->|emits evidence for| Components
     end
     classDef component fill:#f8fafc,fill-opacity:0.1,stroke:#334155,stroke-width:2px
     classDef child fill:#2563eb,fill-opacity:0.1,stroke:#64748b,stroke-width:1px
     class Root component
-    class Agents,Designs,Skills,Components,Documentation,Fixtures,PiHost child
+    class Agents,Designs,Skills,Components,Documentation,Fixtures child
 ```
 
-If the host Markdown renderer suppresses Mermaid navigation, use these
-source-level links, which remain authoritative:
+The Components table is the required Markdown and renderer fallback for the linked immediate-child boxes.
 
-- [Open Agents design](agents/as-is.md#design)
-- [Open Designs design](designs/as-is.md#design)
-- [Open Skills design](skills/as-is.md#design)
-- [Open Components design](components/as-is.md#design)
-- [Open Documentation design](docs/as-is.md#design)
-- [Open Validation Fixtures design](validation-fixtures/as-is.md#design)
-- [Open Pi Host Integration design](.pi/as-is.md#design)
-
-Only areas with their own `as-is.md` are components in this record. Other
-repository directories remain navigable through their own files or links but
-are not listed as components here. `docs/` is a documented collection rather
-than a set of child components, while `.pi/` is a host-integration boundary;
-`.opencode/`, `scripts/`, `temp/`, and `.agents/` remain ordinary or projected
-artifacts without independent records.
+Only areas with their own `as-is.md` are components in this record. Other repository directories remain navigable through their own files or links but are not listed as components here. `docs/` is a documented collection rather than a set of child components. `.pi/` remains a projected bundle artifact until the deferred host-integration component is separately established; `.opencode/`, `scripts/`, `temp/`, and `.agents/` also remain ordinary or projected artifacts without independent records.
 
 - The repository is composed of filesystem areas and components with durable
   `as-is.md` records.
 - This root record maps immediate areas; each area owns the detailed records for
   its descendants.
+- The `.pi/` directory remains a projected bundle artifact rather than a component until the deferred `establish-host-integration-component` proposal is selected.
 - Explicit links provide bounded context; parent context is never ambient.
 - Machine configuration belongs in `as-is.json`, and active task state belongs
   in the configured task record.

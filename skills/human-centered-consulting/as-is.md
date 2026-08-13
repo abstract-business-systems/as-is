@@ -8,7 +8,7 @@ Provide reusable guidance for concise, agency-preserving consultation that helps
 
 The skill shapes consultation around direct conclusions, progressive disclosure, explicit uncertainty, material trade-offs, and the smallest necessary clarifying question. It preserves human responsibility and does not grant professional authority or task execution permission.
 
-Parent: [Skills](../as-is.md#design)
+[as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Human-Centered Consulting**
 
 The procedure is used by human-facing roles such as the expert and thinking companion. Those agents retain authority over whether and how to apply the guidance; the skill does not select, authorize, or launch agents.
 

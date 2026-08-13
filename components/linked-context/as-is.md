@@ -12,7 +12,7 @@ is the bounded `resolve_component_context` tool.
 
 The component is organized around the following relationships and flow.
 
-Parent: [as-is](../../as-is.md#design)
+[as-is](../../as-is.md#design) / [Components](../as-is.md#design) / **Linked Context**
 
 ```mermaid
 flowchart TD

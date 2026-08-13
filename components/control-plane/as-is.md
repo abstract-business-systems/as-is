@@ -13,7 +13,7 @@ historical fixture.
 
 The component is organized around the following relationships and flow.
 
-Parent: [as-is](../../as-is.md#design)
+[as-is](../../as-is.md#design) / [Components](../as-is.md#design) / **Control Plane Implementation Conversion**
 
 ```mermaid
 flowchart TD

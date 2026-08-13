@@ -10,7 +10,7 @@ Provide the reusable implementation procedure for one bounded component task.
 
 The component is organized around the following relationships and flow.
 
-Parent: [Skills](../as-is.md#design)
+[as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Implementing Component Tasks**
 
 ```mermaid
 flowchart TD
@@ -26,7 +26,3 @@ delegation, deterministic validation, changelog handoff, and task cleanup.
 - [SKILL.md](SKILL.md) — authoritative implementation procedure.
 - [../../docs/component-task-record-protocol.md](../../docs/component-task-record-protocol.md) — task and component boundaries.
 - [../managing-backlog/SKILL.md](../managing-backlog/SKILL.md) — task selection input.
-
-## Changelog
-
-- 2026-08-02: separated task implementation from backlog prioritization.

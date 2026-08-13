@@ -1,4 +1,3 @@
-
 # component-builder - as-is
 
 ## Purpose
@@ -20,22 +19,28 @@ for planning, delegation, descendant closure, and completion. A separately owned
 child is not terminal until its scoped result is integrated and caller ancestry
 is proved; failed or incomplete child work remains recoverable in the task record.
 
-Parent: [Agents](../as-is.md#design)
+[as-is](../../as-is.md#design) / [agents](../as-is.md#design) / **component-builder**
+
+### Component delivery and child integration
 
 ```mermaid
-flowchart TD
-    A["Assigned bounded task"] --> B["Read durable component context and task authority"]
-    B --> C["Plan and obtain attributable expert review"]
-    C --> D["Implement within component boundary"]
-    D --> E{"Separately owned descendant?"}
-    E -- "No" --> H["Run acceptance checks and final diff validation"]
-    E -- "Yes" --> F["Handoff explicit context and approved budget"]
-    F --> G{"Child returns committed, validated evidence?"}
-    G -- "No" --> R["Preserve recoverable blocker in task record"]
-    G -- "Yes" --> I["Integrate child commit and prove caller ancestry"]
-    I --> H
-    H --> J["Record evidence and terminal descendant closure"]
-    J --> K["Write changelog and create scoped durable commit"]
+---
+config:
+  layout: elk
+---
+flowchart TB
+    Task["Assigned bounded task"] --> Context["Read durable context and task authority"]
+    Context --> Review["Plan and obtain attributable expert review"]
+    Review --> Implement["Implement within component boundary"]
+    Implement --> Child{"Separately owned descendant?"}
+    Child -->|no separately owned descendant| Validate["Run acceptance checks and final diff validation"]
+    Child -->|separately owned descendant| Handoff["Handoff explicit context and approved budget"]
+    Handoff --> Evidence{"Committed, validated child evidence?"}
+    Evidence -->|missing or unvalidated evidence| Blocker["Preserve recoverable blocker in task record"]
+    Evidence -->|committed validated evidence| Integrate["Integrate child commit and prove caller ancestry"]
+    Integrate --> Validate
+    Validate --> Closure["Record evidence and terminal descendant closure"]
+    Closure --> Commit["Write changelog and create scoped durable commit"]
 ```
 
 Same-component assistance and expert reviews use the host-provided in-process

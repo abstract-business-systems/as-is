@@ -11,7 +11,7 @@ human-facing Markdown context.
 
 The component is organized around the following relationships and flow.
 
-Parent: [as-is](../../as-is.md#design)
+[as-is](../../as-is.md#design) / [Components](../as-is.md#design) / **as-is Data Resolution**
 
 ```mermaid
 flowchart TD
@@ -31,7 +31,3 @@ flowchart TD
 - [`resolver.ts`](resolver.ts) — bounded preparation-time resolver.
 - [`resolver.test.ts`](resolver.test.ts) — deterministic resolution tests.
 - [`../as-is-setup/as-is.md`](../as-is-setup/as-is.md) — related setup component.
-
-## Changelog
-
-- Initial resolver component added for distributed `as-is.json` data.

@@ -24,7 +24,7 @@ implementation or authority boundary.
    established type-directory convention warrants grouping from the first item;
    retain a unique artifact at the current level when the required evidence is
    absent or an exception applies, and record the decision.
-5. Link related authoritative artifacts only when they add distinct needed context or navigation; do not repeat a nearby target merely as a catalog. Prefer one authoritative home for a decision or rule; do not keep the same current decision, rule, or state in two authoritative locations. Do not use a high-level link list to enumerate implementation or test files unless the exact file is a reader-facing operational interface or indispensable to understand or operate the artifact; otherwise link its stable prose contract or explain its role in prose.
+5. Link related authoritative artifacts only when they add distinct needed context or navigation; do not repeat a breadcrumb, required Markdown fallback, or ordinary direct-child contract merely as a catalog. Prefer one authoritative home for a decision or rule; do not keep the same current decision, rule, or state in two authoritative locations. Do not use a high-level link list to enumerate implementation or test files unless the exact file is a reader-facing operational interface or indispensable to understand or operate the artifact; otherwise link its stable prose contract or explain its role in prose.
 6. Separate settled design from proposals, active task state, and private runtime
    state.
 7. Review for discoverability, semantic grouping, replacement paths, accuracy,
@@ -79,12 +79,8 @@ task authority.
 
 - Put enduring cross-project behavior in `docs/design-principles.md`.
 - Put executable, reusable procedures in `skills/<skill-name>/SKILL.md`.
-- Put current task authority in `as-is.md` and concise historical overview in
-  its `Changelog` section; `Changelog` is the canonical name, not a parallel
-  source of truth, archive, or runtime log.
-- A small `Changelog` belongs in `as-is.md` when that record is the smallest
-  coherent authoritative home for the current task and concise recovery
-  history.
+- Put current task authority in its configured task record and durable component context in its canonical record. Place historical material according to the target project's applicable record, retention, and recovery conventions; do not impose a filename, heading, or section arrangement without that authority.
+- Separate timeless rationale needed to understand current architecture from dated progress, completion, or task history. Retain, relocate, or remove historical material only after assessing its consumers, recovery or audit value, authority, and replacement path.
 - For a document that grows into a directory, prefer the host pattern
   `<xyz>.md` -> `<xyz>/index.md` as the entry point, then extract focused
   section files beside it and link them from the index or root entry. Keep the

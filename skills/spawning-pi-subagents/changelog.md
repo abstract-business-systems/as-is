@@ -1,5 +1,10 @@
 # Changelog
 
+- 2026-08-08: Added explicit normal-session loading of the project-local `.pi/extensions/worker-tools.ts`, disabled duplicate extension discovery, and forwarded `call_subagent` in normal component-builder tool profiles. Bounded in-process expert `git_inspect` access remains expert-only; subprocess expert validation retains its separate restricted inspection profile. Focused launcher tests (18), Bun build, diff-check, and a fresh in-process expert final gate passed. Residual risk: live provider execution and caller ancestry integration are outside this component's focused prerequisite evidence.
+- Kept the launcher/worktree/observation follow-ups here after ownership review.
+- Moved cumulative-accounting follow-up ownership to `designs/as-is.md` and `designs/execution-accounting-design.md`.
+- Historical investigation found that synchronous nested delegation, repeated recovery, blind waiting, and missing supervisor-owned enforcement caused excessive elapsed time; retain this as rationale only, not as a current handoff or runtime log.
+
 - 2026-08-15: Added a focused parent-side handoff regression test proving that
   otherwise complete facts are eligible when the child commit is integrated,
   but remain ineligible with the `pending-parent-integration` blocker before

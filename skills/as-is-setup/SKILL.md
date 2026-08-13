@@ -67,8 +67,7 @@ descendants, excluding every ancestor, sibling, and enclosing-project artifact.
 2. Inspect guidance and produce a dry-run plan before writes. The plan must
    record the selected mode, target path, effective boundary, applicable
    instruction path and disposition, root `as-is.md` path and disposition,
-   candidate paths, approved planned writes, and explicitly excluded
-   out-of-scope paths. In directory-scoped mode, state that no parent project
+   candidate paths, approved planned writes, a pre-render layout plan for every planned diagram, and explicitly excluded out-of-scope paths. Each planned diagram records its available render-surface constraint, intended shape, visible-node/edge/label density budget, grouping and routing direction, and any supported exception or residual risk. In directory-scoped mode, state that no parent project
    root or sibling path is required or changed. Do not infer candidates from
    directory names alone.
 3. Identify candidate components only within the effective boundary from
@@ -99,9 +98,7 @@ descendants, excluding every ancestor, sibling, and enclosing-project artifact.
    instruction file; never inject the instruction into an enclosing project or
    sibling directory.
 
-7. Link the setup result to the record-management skill and validate record
-   headings, component links, diagram links, Mermaid syntax where present, and
-   `git diff --check`. Snapshot candidate changed paths before and after the
+7. Link the setup result to the record-management skill and validate record headings, component links, diagram links, the pre-render layout plan for every planned diagram, Mermaid syntax where present, target-local record-placement and retention conventions, and `git diff --check`. Snapshot candidate changed paths before and after the
    setup operation and reject the result if any changed path is outside the
    effective boundary; in directory-scoped mode explicitly verify that the
    enclosing project root and sibling directories are unchanged.
@@ -110,7 +107,8 @@ descendants, excluding every ancestor, sibling, and enclosing-project artifact.
 
 - A reviewable setup plan with mode, selected target, effective boundary,
   instruction and root-record dispositions, candidate evidence, names, paths,
-  confidence, assumptions, planned writes, and excluded paths.
+  confidence, assumptions, planned writes, one pre-render layout plan per
+  planned diagram, and excluded paths.
 - An approved target-root `as-is.md` record and approved component records,
   when setup writes are authorized.
 - One canonical-use instruction in the applicable target instruction file.
@@ -130,9 +128,13 @@ descendants, excluding every ancestor, sibling, and enclosing-project artifact.
 - Every created record uses `# <component-name> - as-is`.
 - Candidate names align with established sibling vocabulary and repository
   grammar, or document why a different name is semantically necessary.
+- The pre-render layout plan for every planned diagram states render-surface
+  constraint, intended shape, density budget, grouping and routing direction,
+  and any supported exception or residual risk without inventing numeric
+  dimensions absent host authority.
 - Candidates have semantic evidence and human disposition.
-- Parent/child diagrams, where applicable, follow the as-is record-management
-  rules and child links target `as-is.md#design`.
+- Parent/child diagrams, where applicable, follow the as-is record-management rules and child links target `as-is.md#design`.
+- Historical material follows the target project's applicable record-placement and retention conventions.
 - Existing content and unrelated instructions remain intact.
 - A before/after path comparison proves that writes remain inside the effective
   boundary; directory-scoped validation also proves parent and sibling paths are

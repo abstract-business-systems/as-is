@@ -8,7 +8,7 @@ Provide the repository's normative human documentation for design principles, co
 
 Documentation is an ordinary document collection rather than a set of independently owned child components. Each document owns its subject while this record provides the collection's navigation and architectural context.
 
-Parent: [as-is](../as-is.md#design)
+[as-is](../as-is.md#design) / **Documentation**
 
 The collection separates broad principles, durable component/task protocol, machine configuration, host-neutral execution, and host-specific adapter guidance. It is read-only context for implementation and does not replace component records or task authority.
 

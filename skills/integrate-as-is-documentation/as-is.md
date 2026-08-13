@@ -8,9 +8,11 @@ Provide the reusable adoption procedure for introducing `as-is` records into an 
 
 This skill composes setup scope, candidate identification, naming, record management, and Mermaid representation without becoming an authority-bearing agent or replacing the individual record-management procedure.
 
-Parent: [Skills](../as-is.md#design)
+[as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Integrating As-Is Documentation**
 
 ### Record-adoption flow
+
+- Pre-render layout plan: repository Markdown consumers with no fixed dimensions or configured renderer; taller-than-wide adoption flow; four short-labeled nodes and three edges; top-to-bottom routing expresses adoption progression; renderer-specific geometry remains untested.
 
 ```mermaid
 ---
@@ -23,7 +25,7 @@ flowchart TB
     Approval --> Records["Approved as-is records"]
 ```
 
-The integration flow produces a reviewable plan first, obtains human disposition for each candidate, then routes approved record creation through `managing-as-is-document`. Parent maps expose only immediate documented children; routine filesystem artifacts remain ordinary navigable content unless semantic evidence supports a component boundary. Linked structural-container child boxes are paired with Components-table Markdown fallback, so a renderer-independent route remains available without repeating the targets in Links. Nearby parent navigation and required fallback for separately linked diagrams provide their own routes. Source and test links need the explicit reader-facing or indispensable-behavior exception. Applicable diagrams use named diagram headings, nearby parent navigation, and the generic readable-layout guidance.
+The integration flow produces a reviewable plan first, obtains human disposition for each candidate, then routes approved record creation through `managing-as-is-document`. Parent maps expose only immediate documented children; routine filesystem artifacts remain ordinary navigable content unless semantic evidence supports a component boundary. Linked structural-container child boxes are paired with the Components-table Markdown catalog and fallback, so a renderer-independent route remains available without repeating targets or ordinary direct-child contracts in Links. Root-to-current breadcrumbs and required fallback for separately linked diagrams provide their own routes. A projected host prompt without a canonical record remains an ordinary bundle artifact rather than a component candidate. Source and test links need the explicit reader-facing or indispensable-behavior exception. Target-local policy determines history placement and retention. Applicable diagrams use named diagram headings, root-to-current breadcrumbs, and the generic readable-layout guidance. The reviewable adoption plan captures each planned diagram's render-surface constraint, intended shape, density budget, grouping and routing direction, and any supported exception before rendering rather than discovering a wide layout afterward.
 
 ## Links
 

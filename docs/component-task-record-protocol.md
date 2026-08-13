@@ -145,11 +145,7 @@ The local `as-is.json.task` object is strict and machine-validatable:
   invocation increments `attempt`; a supervisor re-observation of the same
   invocation updates one key. Runtime JobIds may be retained as source-labelled
   diagnostics, but a JobId change never creates an attempt or resets use.
-- Concise historical notes stay succinct by default. The canonical name for
-  that section is `Changelog`; only the smallest necessary concise history
-  belongs in the current root or component `as-is.md` when that record is the
-  smallest coherent authoritative home. `Changelog` is historical overview,
-  not current-task authority, an archive, or a runtime log. Project-specific
+- Concise historical notes stay succinct by default. The canonical filename for that history is configured as `changelog.md`; dated completion and task history belong beside, not inside, the root or component `as-is.md`. `Changelog` is historical overview, not current-task authority, an archive, or a runtime log. Timeless rationale needed to understand the current component remains in its Design or Relationships section. Project-specific
   verbosity controls how much is retained, but it does not create another
   authority or a second current-task record.
 - The component directory is the default read/write boundary. `as-is.md` links
@@ -172,10 +168,7 @@ file (default `tasks.md`). Historical
 task recovery uses Git history plus the repository's concise history entries;
 it does not use a `task-archives/` directory, a second task tree, or a separate
 host-specific recovery path. Legacy YAML-front-matter task records are unsupported. Every task uses JSON
-metadata and a front-matter-free Markdown narrative. Historical notes are succinct by default and use the canonical `Changelog`
-heading. A small retained `Changelog` may live in `as-is.md` when that record
-is the smallest coherent authoritative home; it is never a parallel task
-authority. Project-specific verbosity configuration, such as
+metadata and a front-matter-free Markdown narrative. Historical notes are succinct by default and use the configured sibling `changelog.md` with the canonical `Changelog` heading. It is never a parallel task authority. Project-specific verbosity configuration, such as
 a repository logging setting in `docs/configuration.md`, controls how much detail
 is retained in the history entry, but only within its historical-overview role;
 it is not task authority and must not duplicate verbose records or secrets.
@@ -183,10 +176,7 @@ it is not task authority and must not duplicate verbose records or secrets.
 Before removing historical material, the responsible orchestrator audits
 tracked, untracked, and ignored contents, current consumers, ownership,
 recovery/audit value, and cost to recreate. Git history does not preserve
-uncommitted content. Necessary concise facts from an uncommitted artifact must
-be retained in the current record or the concise history entry, or an
-appropriately scoped evidence commit must be created before removal when
-authorized. A claim of byte-for-byte recovery is prohibited when no such commit
+uncommitted content. Necessary timeless facts from an uncommitted artifact must be retained in the current record, while dated completion or task facts belong in the concise sibling history entry; otherwise an appropriately scoped evidence commit must be created before removal when authorized. A claim of byte-for-byte recovery is prohibited when no such commit
 exists.
 
 The protocol has no `superseded` status. When a task is genuinely cancelled,
@@ -199,8 +189,7 @@ authorized bounded task based on current policy and Git evidence.
 
 ## Component Record Body
 
-The durable `as-is.md` body describes the component's purpose, design, links, and
-concise `Changelog`; it does not contain transient task state or YAML front matter.
+The durable `as-is.md` body describes the component's purpose, design, relationships, boundaries, and links; it does not contain transient task state, dated completion or task history, or YAML front matter. Concise historical entries reside in the configured sibling `changelog.md`.
 
 ## Companion/Narrative Recovery
 

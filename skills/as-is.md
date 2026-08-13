@@ -49,7 +49,7 @@ extensible and preserve authority in the owning agent, workflow, or task record.
 
 The Skills component groups its immediate documented skill components; deeper skill records are owned and described by those components. The container diagram uses the actual Skills component name and linked child boxes. Reverse navigation to the parent is kept as a nearby Markdown link. Skills remain focused, reusable procedures and may be composed by an agent or workflow. Reusable flow logic belongs in skills rather than duplicated role prompts. A skill may describe a handoff or subagent contract as an input or output, but authority to select, launch, observe, recover, or cancel a subagent remains with the agent or orchestrator. Repository-local skills are preferred for setup, naming, and knowledge organization; external or installed skills fit only when their assumptions, tools, and output contracts match this repository.
 
-Parent: [as-is](../as-is.md#design)
+[as-is](../as-is.md#design) / **Skills**
 
 ```mermaid
 %%{init: {"securityLevel": "loose"}}%%
@@ -96,7 +96,3 @@ names in the table above; those Markdown links remain authoritative.
 
 - [../agent-skills.md](../agent-skills.md) — migration-era conceptual catalog retained as a linked reference.
 - [../docs/design-principles.md](../docs/design-principles.md) — repository-wide authority and design principles.
-- [integrate-as-is-documentation/SKILL.md](integrate-as-is-documentation/SKILL.md) — reviewable as-is adoption and component-identification procedure.
-- [building-components/SKILL.md](building-components/SKILL.md) — bounded component build procedure.
-- [committing-completed-work/SKILL.md](committing-completed-work/SKILL.md) — scoped completion handoff procedure.
-- [human-centered-consulting/SKILL.md](human-centered-consulting/SKILL.md) — consultation guidance.

@@ -10,7 +10,7 @@ runtime budget exhaustion checks.
 
 The component is organized around the following relationships and flow.
 
-Parent: [as-is](../../as-is.md#design)
+[as-is](../../as-is.md#design) / [Components](../as-is.md#design) / **Budget Arithmetic**
 
 ```mermaid
 flowchart TD

@@ -8,7 +8,7 @@ Provide the reusable completion procedure for creating one scoped Git handoff fr
 
 The skill checks completion preconditions, stages only declared durable artifacts, validates the staged patch, creates one concise commit, preserves unrelated work, and reconciles the exact selected backlog item after the handoff exists. It does not authorize partial or unvalidated commits.
 
-Parent: [Skills](../as-is.md#design)
+[as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Committing Completed Work**
 
 The completion procedure is downstream of task authority and validation. The owning agent decides semantic completion; the skill supplies mechanical scope and evidence gates.
 

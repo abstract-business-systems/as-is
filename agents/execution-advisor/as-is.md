@@ -1,5 +1,4 @@
-
-# Execution Advisor - as-is
+# execution-advisor - as-is
 
 ## Purpose
 
@@ -11,24 +10,25 @@ by its current budget.
 
 ## Design
 
-The component is organized around the following relationships and flow.
+The advisor turns one bounded execution question and exact selector into source-labelled findings without acquiring runtime or budget authority.
 
-Parent: [Agents](../as-is.md#design)
+[as-is](../../as-is.md#design) / [agents](../as-is.md#design) / **execution-advisor**
+
+### Bounded execution evidence analysis
 
 ```mermaid
-flowchart TD
-    A["Trace or session selector"] --> B["Read-only evidence analysis"]
-    B --> C["Decision-ready findings or budget request"]
+---
+config:
+  layout: elk
+---
+flowchart TB
+    Question["Focused execution question"] --> Selector["Exact trace or session selector"]
+    Selector --> Evidence["Read-only trace and session evidence"]
+    Evidence --> Findings["Source-labelled findings and recommendation"]
+    Findings --> Request["Approval-required budget request"]
 ```
 
-The role composes the globally available `exploring-execution-evidence`
-procedure and read-only task-record context. A future extraction may package
-this flow as `evidence-based-consultation`, subject to a naming review, while
-this role retains advisory authority. It uses trace queries and an exact-ID,
-read-only, selector-driven session-analysis surface, then returns
-source-labelled observations, inferences, unknowns, recommendations, and
-approval requests when justified. It retrieves
-only the session detail needed for the investigation.
+The role composes the globally available `exploring-execution-evidence` procedure and read-only task-record context. It uses trace queries and an exact-ID, read-only, selector-driven session-analysis surface, then returns source-labelled observations, inferences, unknowns, recommendations, and approval requests when justified. It retrieves only the session detail needed for the investigation.
 
 ## Authority And Boundaries
 
@@ -46,8 +46,3 @@ and runtime reconciliation.
 - [`../../docs/component-task-record-protocol.md`](../../docs/component-task-record-protocol.md) — task and budget authority.
 - [`../../docs/execution-contract.md`](../../docs/execution-contract.md) — host-neutral execution boundary.
 - [`../../components/observability/tracing-design.md`](../../components/observability/tracing-design.md) — session-reference-first policy.
-
-## Changelog
-
-- 2026-08-11: Renamed and broadened the role to analyze traces and session evidence. Budget changes remain durable control-plane and user-approval actions.
-- 2026-08-12: Local session analysis follows readable local Pi stores; external traces correlate with opaque session IDs only.

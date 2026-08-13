@@ -1,6 +1,7 @@
 # Skills Instructions
 
 - Skills state durable contracts, authority, inputs, outputs, acceptance conditions, and validation criteria declaratively.
+- Skills are generic and reusable across target projects. They defer target-specific filenames, section placement, retention, history, and policy choices to the target project's applicable instructions and durable authorities. A skill may state only the workflow and conventions intrinsic to its declared host contract; it must not hardcode this repository's conventions. Repository-local dogfood tests may validate this repository's adoption but must be identified as such and must not promote its conventions into the reusable skill contract.
 - A short ordered application model is appropriate only when order materially affects safety, recovery, correctness, or a state transition. It expresses preconditions, required outcomes, stop conditions, and handoff without imposing an agent-specific execution path.
 - Examples and references occur beside the rules they clarify and illustrate rather than override the contract. A trailing Links section contains only direct navigation not already conveyed contextually. Examples of one concept are consolidated unless separate audience, scope, consumer, or validation value justifies a separate artifact.
 - Repeatable policy enforcement, discovery, validation, task lifecycle, and cleanup use deterministic scripts.

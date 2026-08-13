@@ -1,5 +1,8 @@
 # Changelog
 
+- Initial component extracted from the setup skill; canonical skills and agents are linked only from their respective bundle folders.
+- Replaced the former `skills/setting-up-as-is` skill with the component-owned `as-is-setup` skill and added the component backlog.
+
 - 2026-08-09 reconciliation: removed the completed `host-wiring-adapters`
   planning row after verifying implementation `008accc` is in history and its
   adapter-separation evidence satisfies the row's acceptance. Retained the

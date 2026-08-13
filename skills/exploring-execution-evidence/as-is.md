@@ -13,7 +13,7 @@ analysis.
 
 The component is organized around the following relationships and flow.
 
-Parent: [Skills](../as-is.md#design)
+[as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Exploring Execution Evidence**
 
 ```mermaid
 flowchart TD
@@ -42,8 +42,3 @@ validation, recovery, completion, limits, and allocation.
 - [`../../components/observability/tracing-design.md`](../../components/observability/tracing-design.md) — session-reference-first and privacy policy.
 - [`../context-building/SKILL.md`](../context-building/SKILL.md) — bounded context and provenance procedure.
 - [`../verification-discipline/SKILL.md`](../verification-discipline/SKILL.md) — evidence and residual-risk guidance.
-
-## Changelog
-
-- 2026-08-11: Renamed and broadened the execution-evidence skill to cover Pi session analysis alongside local traces. Session content remains outside normal trace payloads and task authority.
-- 2026-08-12: Adopted filesystem ownership as the local session access boundary and restricted external trace correlation to opaque session IDs.

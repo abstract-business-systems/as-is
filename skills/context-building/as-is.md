@@ -9,7 +9,7 @@ Provide reusable context assembly for bounded decisions and handoffs.
 
 The component is organized around the following relationships and flow.
 
-Parent: [Skills](../as-is.md#design)
+[as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Context Building**
 
 ```mermaid
 flowchart TD

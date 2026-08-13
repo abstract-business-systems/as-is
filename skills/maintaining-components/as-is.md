@@ -12,7 +12,7 @@ current maintenance assignment without executing the audit itself.
 
 The component is organized around the following relationships and flow.
 
-Parent: [Skills](../as-is.md#design)
+[as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Maintaining Components**
 
 ```mermaid
 flowchart TD
@@ -24,11 +24,3 @@ flowchart TD
 ## Links
 
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
-
-## Changelog
-
-- Created the missing `skills/maintaining-components/as-is.md` durable record.
-- Preserved the existing skill ownership and recorded the first concrete
-  maintenance backlog.
-- Left the user's second backlog unspecified pending clarification instead of
-  inventing an extra substantive item.

@@ -11,17 +11,19 @@ implementation knowledge.
 The skill selects a generic Mermaid representation based on the reader's
 question and keeps authoritative context in prose. It owns Mermaid diagram
 mechanics, diagram-type selection, and communication guidance for generic
-subjects, including the preference for taller, narrower ELK/TB flowcharts when
-they improve readability. The host document's owning procedure decides whether
+subjects, including a pre-render layout plan and the preference for taller,
+narrower ELK/TB flowcharts when they improve readability. The plan captures the
+available render surface, intended shape, density budget, grouping and routing,
+and any supported exception before rendering. The host document's owning procedure decides whether
 a node requires a link; when it does, a matching Markdown fallback preserves
 navigation if a renderer suppresses the diagram link rather than replacing it.
-That fallback is distinct navigation, not a reason to duplicate the target in a
-separate link catalog. Repository-specific record structure and navigation
-belong to the host document's owning procedure.
+That fallback is distinct navigation, not a reason to duplicate the target or ordinary direct-child contract in a separate link catalog. Repository-specific record structure and breadcrumb navigation belong to the host document's owning procedure.
 
-Parent: [Skills](../as-is.md#design)
+[as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Designing Mermaid Diagrams**
 
 ### Generic outcome flow
+
+- Pre-render layout plan: repository Markdown consumers with no fixed dimensions or configured renderer; taller-than-wide outcome flow; four short-labeled nodes and three edges; top-to-bottom routing expresses outcome progression; renderer-specific geometry remains untested.
 
 ```mermaid
 ---

@@ -12,7 +12,7 @@ wait for worker completion.
 
 The component is organized around the following relationships and flow.
 
-Parent: [as-is](../../as-is.md#design)
+[as-is](../../as-is.md#design) / [Components](../as-is.md#design) / **Subprocess Execution Foundation**
 
 ```mermaid
 flowchart TD

@@ -22,22 +22,30 @@ Own the repository's implementation components: focused runtime, resolution, con
 
 The Components area groups implementation boundaries by responsibility rather than by execution order. Each child owns its source, focused tests, durable record, and component-specific history.
 
-Parent: [as-is](../as-is.md#design)
+[as-is](../as-is.md#design) / **Components**
+
+### Component relationship map
+
+- Pre-render layout plan: repository Markdown consumers with no fixed dimensions or configured renderer; taller-than-wide balanced relationship map; nine child boxes, seven labeled relationship arrows, and concise labels; immediate children are nested in Components while arrows express supported relationships rather than execution order; renderer-specific geometry remains untested.
 
 ```mermaid
+---
+config:
+  layout: elk
+---
 %%{init: {"securityLevel": "loose"}}%%
-flowchart LR
+flowchart TB
     subgraph Components["Components"]
-        direction LR
+        direction TB
         Data["<a href='./as-is-data/as-is.md#design'>as-is data resolution</a>"]
         Setup["<a href='./as-is-setup/as-is.md#design'>as-is setup</a>"]
         Budget["<a href='./budget-control/as-is.md#design'>budget arithmetic</a>"]
-        Control["<a href='./control-plane/as-is.md#design'>control plane</a>"]
         Instructions["<a href='./instruction-context/as-is.md#design'>instruction context</a>"]
         Linked["<a href='./linked-context/as-is.md#design'>linked context</a>"]
-        Observability["<a href='./observability/as-is.md#design'>observability</a>"]
-        Subprocess["<a href='./subprocess-execution-foundation/as-is.md#design'>subprocess execution foundation</a>"]
         Validator["<a href='./task-record-validator/as-is.md#design'>task-record validator</a>"]
+        Control["<a href='./control-plane/as-is.md#design'>control plane</a>"]
+        Subprocess["<a href='./subprocess-execution-foundation/as-is.md#design'>subprocess execution foundation</a>"]
+        Observability["<a href='./observability/as-is.md#design'>observability</a>"]
 
         Data -->|provides configuration to| Control
         Budget -->|supports admission in| Control

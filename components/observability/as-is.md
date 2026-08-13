@@ -9,7 +9,7 @@ Provide supplementary execution telemetry and trace query support without becomi
 
 The component is organized around the following relationships and flow.
 
-Parent: [as-is](../../as-is.md#design)
+[as-is](../../as-is.md#design) / [Components](../as-is.md#design) / **Observability**
 
 ```mermaid
 flowchart TD

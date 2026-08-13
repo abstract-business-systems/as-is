@@ -2,13 +2,25 @@
 
 These examples are reusable patterns for `as-is.md` records. Each view states its question, scope, layout, and arrow meaning so readers do not mistake a layout choice for architecture. Replace the illustrative names and edges only with relationships supported by the component's authoritative context.
 
+## Pre-render layout plan
+
+Plan the view before writing its Mermaid fence. Record the host or embed surface that constrains it, the intended shape, a legible node/edge/label density budget, grouping and routing direction, and any supported exception or residual risk. These are constraints and reader-intent decisions, not invented numeric dimensions; use a supplied width, height, or aspect ratio only when the target host authoritatively provides one.
+
+```markdown
+- Render-surface constraint: repository Markdown consumers; no fixed dimensions or configured renderer supplied
+- Shape target: taller-than-wide balanced relationship map
+- Density budget: three child boxes, three labeled sibling arrows, short labels
+- Grouping and routing: immediate children nested in Checkout; arrows express sibling relationships, not runtime order
+- Exception or residual risk: renderer-specific geometry remains untested
+```
+
 ## Structural container
 
 Use for a parent component with independently documented immediate children. Containment is nested boxes; sibling relationships are explicit labeled arrows. Use a balanced relationship-map layout rather than implying sequence.
 
 ### Complete parent-record example
 
-The `Checkout` component owns three documented child components. The diagram shows only `Checkout` and those immediate children. The nearby parent link supports reverse navigation; it is not a synthetic diagram node or edge.
+The `Checkout` component owns three documented child components. The diagram shows only `Checkout` and those immediate children. The trimmed root-to-current breadcrumb supports reverse navigation; it is not a synthetic diagram node or edge.
 
 ```markdown
 ## Components
@@ -25,9 +37,14 @@ The `Checkout` component owns three documented child components. The diagram sho
 - Scope: `checkout`
 - Visible levels: `Checkout` and immediate children
 - Layout: balanced taller, narrower relationship map
+- Render-surface constraint: repository Markdown consumers; no fixed dimensions or configured renderer supplied
+- Shape target: taller-than-wide balanced relationship map
+- Density budget: three child boxes, three labeled sibling arrows, short labels
+- Grouping and routing: immediate children nested in Checkout; arrows express sibling relationships, not runtime order
+- Exception or residual risk: renderer-specific geometry remains untested
 - Arrow meaning: labeled sibling capability or responsibility relationship
 
-Parent: [Commerce Platform](../../as-is.md#design)
+[Commerce Platform](../../as-is.md#design) / **Checkout**
 
 ### Structural container
 ```
@@ -61,11 +78,11 @@ flowchart TB
 - The subgraph title is the actual component name, not `Parent` or a synthetic parent node.
 - Child components are boxes nested inside the parent container.
 - Sibling relationships use explicit, semantically labeled arrows.
-- The parent link is nearby Markdown navigation rather than a diagram edge.
+- The breadcrumb is root-to-current Markdown navigation rather than a diagram edge.
 - The ELK/TB layout prefers a taller, narrower relationship map; it does not imply a runtime sequence.
 - Child box labels target the corresponding `Components` table entries.
 
-The child-box links provide interactive navigation when supported. The matching Markdown `Components` table remains the authoritative fallback when a renderer strips diagram links. The diagram-link and Markdown-fallback pair is intentional; do not repeat child targets in `## Links` unless a target adds distinct working context. Do not add a container diagram to a record unless the children are independently documented components with their own `as-is.md` records.
+The child-box links provide interactive navigation when supported. The matching Markdown `Components` table remains the sole immediate-child catalog and authoritative fallback when a renderer strips diagram links. The diagram-link and Markdown-fallback pair is intentional; do not repeat child targets or ordinary direct-child contracts in `## Links` unless an artifact adds distinct parent-level working context. Do not add a container diagram to a record unless the children are independently documented components with their own `as-is.md` records.
 
 ## Context map
 

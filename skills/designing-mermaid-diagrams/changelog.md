@@ -1,5 +1,9 @@
 # Changelog
 
+- 2026-08-13: Added a generic pre-render layout plan to diagram design. Each planned view now records its available render-surface constraint, intended shape, visible-node/edge/label density budget, grouping and routing direction, and a supported exception or residual risk before Mermaid is written. The guidance avoids invented numeric dimensions unless the target host provides them, preserving host neutrality while preventing wide layouts from being discovered only after rendering. No renderer, host, runtime, or existing diagram behavior changed; renderer-specific geometry remains untested.
+
+- 2026-08-13: Aligned generic diagram guidance with the host-owned breadcrumb convention and clarified that a required Markdown fallback does not justify cataloging ordinary direct-child contracts. No Mermaid syntax, renderer, host, or runtime behavior changed; renderer navigation remains untested.
+
 - 2026-08-13: Clarified that an adequate Markdown navigation surface cannot replace a host-required diagram link. When a host requires a linked node, its Markdown fallback preserves renderer-independent navigation without creating an unrelated Links catalog entry. Focused diagram-target/fallback, content, task-record, and whitespace checks passed; Mermaid rendering remains untested.
 
 - 2026-08-13: Clarified that a host-required Markdown fallback for a Mermaid-linked target does not justify repeating that target in an unrelated Links catalog unless it adds distinct working context. Focused contract inspection, `bun skills/managing-as-is-document/content-test.ts`, `python3 components/task-record-validator/task_record_validator.py .`, and `git diff --check` passed; Mermaid rendering remains untested.

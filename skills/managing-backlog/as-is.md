@@ -11,7 +11,7 @@ tasks, using durable recording tables and a deterministic query-time display.
 
 The component is organized around the following relationships and flow.
 
-Parent: [Skills](../as-is.md#design)
+[as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Managing Backlog**
 
 ```mermaid
 flowchart TD
@@ -61,9 +61,3 @@ review.
 - [scripts/query.ts](scripts/query.ts) — deterministic parser, weight query, renderer, and response validator.
 - [query.test.ts](query.test.ts) — schema, weighting, cycle, repository, and response-shape tests.
 - [../../backlog.md](../../backlog.md) — repository backlog index.
-
-## Changelog
-
-- 2026-08-08: Added the table schema, query-time weighting, repository migration, and focused tests.
-- 2026-08-08: Recorded and corrected the fresh Pi response-shape defect by requiring the complete eight-column representation.
-- 2026-08-02: Separated backlog management from task implementation and lifecycle.

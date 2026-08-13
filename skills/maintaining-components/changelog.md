@@ -1,5 +1,7 @@
 # Changelog
 
+- Created the missing `skills/maintaining-components/as-is.md` durable record, preserved the existing skill ownership and first concrete maintenance backlog, and left the user's second backlog unspecified pending clarification rather than inventing an extra substantive item.
+
 ## 2026-08-15 — Legacy record migration
 
 - **Component:** Maintaining Components.
