@@ -15,6 +15,7 @@ The collection separates broad principles, durable component/task protocol, mach
 ## Links
 
 - [`design-principles.md`](design-principles.md) — repository-wide authority and design principles.
+- [`architecture-vocabulary.md#scope-and-authority`](architecture-vocabulary.md#scope-and-authority) — shared current-system architecture definitions and authority boundary.
 - [`component-task-record-protocol.md`](component-task-record-protocol.md) — durable component and transient task-record protocol.
 - [`configuration.md`](configuration.md) — machine-configuration structure.
 - [`execution-contract.md`](execution-contract.md) — host-neutral lifecycle and execution boundary.

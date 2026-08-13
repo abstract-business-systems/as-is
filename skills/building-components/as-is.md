@@ -15,6 +15,7 @@ The skill is reusable procedure, not authority. The configured agent remains res
 ## Links
 
 - [`SKILL.md`](SKILL.md) — authoritative build procedure.
+- [`../../docs/architecture-vocabulary.md#component-boundary`](../../docs/architecture-vocabulary.md#component-boundary) — current-system boundary and ownership definitions used by the build procedure.
 - [`../../agents/component-builder/agent.md`](../../agents/component-builder/agent.md) — role that retains build authority.
 - [`../implementing-component-tasks/SKILL.md`](../implementing-component-tasks/SKILL.md) — task lifecycle.
 - [`../verification-discipline/SKILL.md`](../verification-discipline/SKILL.md) — validation evidence.

@@ -69,4 +69,5 @@ Only areas with their own `as-is.md` are components in this record. Other reposi
 ## Links
 
 - [`docs/design-principles.md`](docs/design-principles.md) — repository-wide authority and design principles.
+- [`docs/architecture-vocabulary.md`](docs/architecture-vocabulary.md#scope-and-authority) — shared current-system architecture definitions and authority boundary.
 - [`docs/configuration.md`](docs/configuration.md) — machine-configuration boundary.
