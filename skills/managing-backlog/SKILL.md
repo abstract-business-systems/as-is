@@ -117,8 +117,7 @@ the display as complete.
 
 ## Cleanup Of Implemented Items
 
-Backlog cleanup is a separate, evidence-gated operation. It may remove a row
-only when all of the following are true:
+Backlog cleanup is a separate, evidence-gated operation. It requires one exact fully-qualified `component:id` selection and may remove only that selected row when all of the following are true:
 
 | Condition | Required evidence |
 | --- | --- |
@@ -134,20 +133,22 @@ ambiguous or belongs to another component, leave the row in place and report it
 for review. Cleanup is not task management: it does not create completion
 status, rewrite changelogs, or replace the reconciliation requirements above.
 
-Run the deterministic cleanup with `cleanupCompletedBacklogs` via:
+Run the deterministic cleanup with `cleanupCompletedBacklogs` by supplying the exact identity. Replace the target-neutral `component:id` placeholder with the exact selected identity:
 
 ```bash
-bun skills/managing-backlog/scripts/query.ts --cleanup .
+bun skills/managing-backlog/scripts/query.ts --cleanup=component:id .
 ```
 
+The optional final argument is the repository root. Bare `--cleanup`, a missing
+or malformed selection, an identity without changelog-evidenced completion, or
+an identity from another component fails before any backlog row is changed.
 Task management invokes cleanup only after the selected task's acceptance,
 terminal descendant closure, changelog handoff, and scoped durable handoff have
-all been verified. It must compare the output with the exact selected
-`component:id`; any additional reported rows require separate review. The
-deterministic `cleanupCompletedBacklogs` operation reports each removed
-`component:id` and its changelog evidence. Use
-version control or a focused diff to review the removal before handoff; the
-cleaned item's concise history remains in the owning changelog.
+all been verified. The deterministic `cleanupCompletedBacklogs` operation
+reports only the selected `component:id` and its evidence, and removes no
+neighboring or other-component rows. Use version control or a focused diff to
+review the removal before handoff; the cleaned item's concise history remains
+in the owning changelog.
 
 ## Priority And Project Sequence
 

@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-08-13: Completed backlog item `reconciling-as-is-records` by extending the existing `managing-as-is-document` skill with an optional target-neutral hierarchical record-reconciliation application mode. No standalone reconciling-as-is-records skill, agent, task executor, scheduler, or runtime behavior was created. The contract defines the parent evidence firewall and same-baseline post-order readiness; the identity-scoped backlog-cleanup safety change prevents unrelated rows from being removed. Focused validation passed for managing-as-is-document and managing-backlog content, backlog query tests (11 tests, 38 expectations), orientation tests (2 tests, 9 expectations), integration content, task-record validation (`VALID`), and `git diff --check`; the exact preflight reported only unrelated canonical rows, which remain untouched. Deep, cyclic, shared-child, concurrent, interrupted, and cross-project cases remain unproven.
+
 - 2026-08-12: Completed `integrate-as-is-documentation`. Added the reusable skill, durable record, focused content validation, and linked catalog entry. The procedure now covers review-first semantic candidate identification, whole-project and directory-scoped boundaries, approved record creation, parent navigation, bounded diagrams, and validation. No external project was modified by the skill itself.
 
 - 2026-08-22: Updated as-is setup and record management to inspect existing

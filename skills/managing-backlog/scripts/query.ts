@@ -264,23 +264,41 @@ export function loadChangelogs(root: string): Map<string, string> {
   }));
 }
 
-export function cleanupCompletedBacklogs(root: string): CompletedBacklogItem[] {
-  const completed = findCompletedItems(loadBacklogs(root), loadChangelogs(root));
-  for (const file of backlogFiles(root)) {
-    const component = componentForBacklog(root, file);
-    const ids = new Set(completed.filter((item) => item.component === component).map((item) => item.id));
-    if (ids.size > 0) writeFileSync(file, removeCompletedRows(readFileSync(file, "utf8"), ids));
+function parseCleanupIdentity(selection: string | undefined): string {
+  if (!selection || !/^[^:\s]+:[^:\s]+$/.test(selection)) {
+    throw new Error("cleanup requires one exact fully-qualified selection in component:id form");
   }
-  return completed;
+  return selection;
+}
+
+export function cleanupCompletedBacklogs(root: string, selection?: string): CompletedBacklogItem[] {
+  const identity = parseCleanupIdentity(selection);
+  const [component, id] = identity.split(":");
+  const completed = findCompletedItems(loadBacklogs(root), loadChangelogs(root));
+  const selected = completed.filter((item) => item.component === component && item.id === id);
+  if (selected.length === 0) throw new Error(`cleanup selection ${JSON.stringify(identity)} has no changelog-evidenced completion`);
+  for (const file of backlogFiles(root)) {
+    if (componentForBacklog(root, file) !== component) continue;
+    writeFileSync(file, removeCompletedRows(readFileSync(file, "utf8"), new Set([id])));
+  }
+  return selected;
 }
 
 if (import.meta.main) {
-  const rootArgument = process.argv.find((argument, index) => index >= 2 && argument !== "--cleanup" && argument !== "--all" && !argument.startsWith("--limit="));
-  const root = resolve(rootArgument ?? process.cwd());
-  if (process.argv.includes("--cleanup")) {
-    const completed = cleanupCompletedBacklogs(root);
-    console.log(completed.map((item) => `${item.component}:${item.id} — ${item.evidence}`).join("\n") || "No changelog-evidenced completed backlog items found.");
+  const cleanupArguments = process.argv.filter((argument) => argument.startsWith("--cleanup="));
+  if (cleanupArguments.length > 0 || process.argv.includes("--cleanup")) {
+    if (process.argv.includes("--cleanup") || cleanupArguments.length !== 1) {
+      throw new Error("cleanup requires exactly one --cleanup=component:id selection; bare --cleanup is not allowed");
+    }
+    const cleanupArgument = cleanupArguments[0];
+    const rootArguments = process.argv.filter((argument, index) => index >= 2 && !argument.startsWith("--cleanup=") && argument !== "--all" && !argument.startsWith("--limit="));
+    if (rootArguments.length > 1) throw new Error("cleanup accepts at most one repository root argument");
+    const root = resolve(rootArguments[0] ?? process.cwd());
+    const completed = cleanupCompletedBacklogs(root, cleanupArgument.slice("--cleanup=".length));
+    console.log(completed.map((item) => `${item.component}:${item.id} — ${item.evidence}`).join("\n"));
   } else {
+    const rootArgument = process.argv.find((argument, index) => index >= 2 && argument !== "--all" && !argument.startsWith("--limit="));
+    const root = resolve(rootArgument ?? process.cwd());
     const limitArgument = process.argv.find((argument) => argument.startsWith("--limit="));
     const limit = process.argv.includes("--all") ? null : limitArgument ? Number(limitArgument.slice("--limit=".length)) : 10;
     if (limit !== null && (!Number.isInteger(limit) || limit < 1)) throw new Error("--limit must be a positive integer");

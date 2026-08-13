@@ -89,18 +89,24 @@ test("does not remove a stale item from a different component or an unverified c
   ]))).toEqual([]);
 });
 
-test("cleans evidenced completed rows and leaves other rows intact", () => {
+test("cleans only the selected evidenced identity and rejects missing or malformed selections", () => {
   const root = mkdtempSync(join(tmpdir(), "backlog-cleanup-"));
   const component = join(root, "component");
   mkdirSync(component);
   Bun.write(join(component, "as-is.md"), "# Component\n");
-  writeFileSync(join(component, "backlog.md"), schema.replace("skills/managing-backlog/backlog.md", "component/backlog-table-schema"));
-  writeFileSync(join(component, "changelog.md"), "# Changelog\n- Completed `prerequisite`; tests passed.\n");
-  const completed = cleanupCompletedBacklogs(root);
-  expect(completed.map((item) => item.id)).toEqual(["prerequisite"]);
+  writeFileSync(join(component, "backlog.md"), `${schema.replace("skills/managing-backlog/backlog.md", "component/backlog-table-schema")}\n| uncompleted | open | 0 | 0 | Uncompleted | No completion evidence | - | It remains | - |\n`);
+  writeFileSync(join(component, "changelog.md"), "# Changelog\n- Completed `prerequisite`; tests passed.\n- Completed `dependent`; tests passed.\n");
+
+  const completed = cleanupCompletedBacklogs(root, "component:prerequisite");
+  expect(completed.map((item) => `${item.component}:${item.id}`)).toEqual(["component:prerequisite"]);
   const remaining = readFileSync(join(component, "backlog.md"), "utf8");
   expect(remaining).not.toContain("| prerequisite | open |");
   expect(remaining).toContain("| dependent | selected |");
+
+  for (const selection of [undefined, "", "prerequisite", "component:", ":prerequisite", "component:prerequisite:extra"]) {
+    expect(() => cleanupCompletedBacklogs(root, selection)).toThrow(/exact.*component:id|malformed|selection/i);
+  }
+  expect(() => cleanupCompletedBacklogs(root, "component:missing")).toThrow(/changelog-evidenced completion|completion.*evidence|not found|selected/i);
 });
 
 test("breaks dependency cycles deterministically", () => {

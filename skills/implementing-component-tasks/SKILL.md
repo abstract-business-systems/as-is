@@ -64,13 +64,13 @@ completion from process exit or a private runtime artifact.
 
 A selected backlog row is not cleared by changing its status or by process
 exit. After the task record is terminal and the durable handoff is complete,
-task management invokes the deterministic cleanup in the owning repository:
+task management invokes the deterministic cleanup in the owning repository with the exact selected identity:
 
 ```bash
-bun skills/managing-backlog/scripts/query.ts --cleanup .
+bun skills/managing-backlog/scripts/query.ts --cleanup=component:id .
 ```
 
-The cleanup result must be checked against the exact selected `component:id`.
+Replace `component:id` with the exact selected backlog identity. The cleanup result must be checked against that exact selected `component:id`.
 The owning changelog must name that ID on a completion-evidence line. Failed,
 blocked, cancelled, or otherwise unreconciled work receives no completion
 changelog evidence and remains in its backlog. If cleanup reports additional

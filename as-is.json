@@ -54,41 +54,5 @@
         "local-directory": ".as-is/tracing.jsonl"
       }
     }
-  },
-  "task": {
-    "status": "active",
-    "worker": "as-is",
-    "updated": "2026-08-13T12:08:59Z",
-    "constraints": {
-      "cost": {
-        "currency": "USD",
-        "allocated": 3,
-        "spent": 0,
-        "reserve": 0.6,
-        "source": "host-reported",
-        "fallback-metric": "unavailable"
-      },
-      "delegation": {
-        "maximum-depth": 2,
-        "maximum-children": 1
-      },
-      "execution": {
-        "wall-clock": {
-          "allocated-seconds": 1800,
-          "spent-seconds": 0,
-          "reserve-seconds": 360,
-          "source": "host-reported"
-        }
-      },
-      "external-effects": "prohibited"
-    },
-    "acceptance": [
-      "A root-owned, manual, serial post-order pilot is recorded for the validation-fixtures vertical slice.",
-      "The pilot aligns each target component only from its owned evidence, then reconciles validation-fixtures only from its own evidence and final immediate-child as-is.md records.",
-      "Root coordination does not edit child as-is.md records, and child implementation, tests, task narratives, transcripts, and grandchildren are not parent semantic inputs.",
-      "The manual pilot does not invoke implementing-component-tasks or building-components as execution procedures.",
-      "The root task hands bounded pilot evidence to the skills-owned reconciling-as-is-records decision without claiming or creating a new skill prematurely.",
-      "The completed validation-fixtures twig demonstrates named diagram headings, at least one diagram per record, interactive immediate-child diagram links with Components-table Markdown fallback, contextual Links without changelog entries or unrelated duplicate-navigation catalogs, routine code/test links only under an explicit exception, and experimental trimmed as-is-rooted breadcrumbs only within that twig; no later twig begins before user review."
-    ]
   }
 }

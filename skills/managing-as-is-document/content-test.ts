@@ -1,6 +1,6 @@
 // This is an as-is repository dogfood validator, not a portable skill conformance suite.
 // Its repository-wide navigation assertions implement this repository's approved adoption policy.
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, relative, sep } from "node:path";
 
 type BunFile = {
@@ -10,9 +10,10 @@ type BunFile = {
 
 const bun = (globalThis as typeof globalThis & { Bun: { file(path: URL): BunFile } }).Bun;
 const file = (relativePath: string) => bun.file(new URL(relativePath, import.meta.url));
-const [skill, record, backlog, examples, mermaidSkill, mermaidRecord, integrationSkill, integrationRecord, setupSkill, setupRecord] = await Promise.all([
+const [skill, record, skillsRecord, backlog, examples, mermaidSkill, mermaidRecord, integrationSkill, integrationRecord, setupSkill, setupRecord] = await Promise.all([
   file("./SKILL.md").text(),
   file("./as-is.md").text(),
+  file("../as-is.md").text(),
   file("./backlog.md").text(),
   file("./diagram-examples.md").text(),
   file("../designing-mermaid-diagrams/SKILL.md").text(),
@@ -151,6 +152,35 @@ if (!skill.includes("ordinary direct-child contracts")) throw new Error("SKILL.m
 if (skill.includes("resolving nearby Markdown `Parent:` link")) throw new Error("SKILL.md must replace the legacy Parent link rule with breadcrumbs");
 
 const repositoryRoot = dirname(dirname(dirname(new URL(import.meta.url).pathname)));
+const reconciliationStart = skill.indexOf("\n## Hierarchical Record Reconciliation\n");
+if (reconciliationStart < 0) throw new Error("skill is missing hierarchical record reconciliation guidance");
+const reconciliationEnd = skill.indexOf("\n## ", reconciliationStart + 1);
+if (reconciliationEnd < 0) throw new Error("skill is missing the section after hierarchical record reconciliation guidance");
+const reconciliation = skill.slice(reconciliationStart, reconciliationEnd);
+const requiredReconciliationPhrases = [
+  "host-approved reconciliation boundary and explicit exclusions",
+  "declared canonical record graph and direct-child relationships",
+  "stable evidence baseline",
+  "final immediate-child record",
+  "all immediate-child records are final for the same baseline",
+  "only its own applicable evidence and the final immediate-child records",
+  "child source, tests, task narratives, transcripts, runtime artifacts, or grandchildren",
+  "child record, direct-child relationship, or baseline changes",
+  "target-project-defined reconciliation handoff",
+  "does not require a task record, task-tree topology, task lifecycle, scheduling, budgets, commits, changelogs",
+];
+for (const phrase of requiredReconciliationPhrases) {
+  if (!reconciliation.includes(phrase)) throw new Error(`reconciliation contract is missing required phrase: ${phrase}`);
+}
+for (const localConvention of ["tasks.md", "as-is.json", "changelog.md"]) {
+  if (reconciliation.includes(localConvention)) throw new Error(`reconciliation contract must not prescribe repository-local ${localConvention}`);
+}
+if (existsSync(join(repositoryRoot, "skills", "reconciling-as-is-records"))) {
+  throw new Error("repository must not create a standalone reconciling-as-is-records skill");
+}
+if (skillsRecord.includes("reconciling-as-is-records/as-is.md#design")) {
+  throw new Error("Skills catalog must not add reconciling-as-is-records as a component");
+}
 const excludedPrompt = join(repositoryRoot, ".pi", "prompts", "as-is.md");
 const canonicalTitle = (text: string) => text.match(/^# (.+?) - as-is\s*$/m)?.[1];
 const canonicalRecords = (directory: string): string[] => readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {

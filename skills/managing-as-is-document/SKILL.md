@@ -109,6 +109,28 @@ flowchart TB
 | Material reorganization with unchanged component identity and boundary | In-place revision is the default. A controlled replacement is justified only when incremental revision cannot retain coherent purpose, structure, or navigation and preservation needs have been assessed. |
 | Changed component identity or boundary | The change is a migration or retirement decision rather than ordinary alignment; its owner, consumers, direct-link disposition, recovery or audit value, and replacement path require explicit resolution before relocation or removal. |
 
+## Hierarchical Record Reconciliation
+
+Use this optional application mode when an approved bounded set of canonical records must be aligned from leaves toward parents. It coordinates record meaning; it is not a task executor, component-discovery procedure, or agent workflow.
+
+### Inputs And Preconditions
+
+A caller establishes a host-approved reconciliation boundary and explicit exclusions, a declared canonical record graph and direct-child relationships, a stable evidence baseline appropriate to the target project, applicable target-project instructions and owner boundaries, and a final immediate-child record for each child. Stop when the graph, baseline, ownership, direct-child relationship, finality, or allowed evidence is ambiguous.
+
+### Ordered Reconciliation
+
+1. Build bounded context for the graph, baseline, exclusions, and applicable authority.
+2. Each component owner aligns only its own record through this individual-record procedure.
+3. Admit a parent only when all immediate-child records are final for the same baseline and no unresolved child issue materially changes parent meaning.
+4. Reconcile the parent from only its own applicable evidence and the final immediate-child records.
+5. Do not use child source, tests, task narratives, transcripts, runtime artifacts, or grandchildren as parent semantic inputs.
+6. Apply the target project's selected validation and retain a target-project-defined reconciliation handoff with the baseline, final-record references, outcome, blockers, validation, residual risk, and recovery point.
+7. If a child record, direct-child relationship, or baseline changes, re-evaluate the lowest affected parent and then its affected ancestors.
+
+### Outputs And Limits
+
+The output is a bounded set of owner-revised records or explicit blockers. It does not require a task record, task-tree topology, task lifecycle, scheduling, budgets, commits, changelogs, a particular filename, section placement, retention rule, agent selection, or an external effect. Context-building and verification procedures may be composed where needed; task and component-building procedures remain optional target-project composition rather than prerequisites.
+
 ## Applying The Model
 
 1. Before a durable revision is treated as complete, its bounded reader problem, owning record, applicable instructions, direct links, sibling vocabulary, implementation evidence when alignment is in scope, acceptance conditions, assumptions, contradictions, and recovery path are explicit.

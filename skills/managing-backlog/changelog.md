@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-08-13: Made implemented-backlog cleanup identity-scoped: `--cleanup=component:id` and `cleanupCompletedBacklogs(root, selection)` require one exact fully-qualified selection, refuse missing, malformed, or unevidenced identities, and remove only the selected owning row. Existing unfiltered queries and other backlog behavior remain unchanged; unrelated rows are not claimed or cleaned.
+
 - 2026-08-02: Separated backlog management from task implementation and lifecycle.
 
 - 2026-08-14: Default backlog queries to the top 10 weighted items, with explicit `--limit=N` and `--all` view overrides; added focused coverage.
