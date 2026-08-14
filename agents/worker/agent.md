@@ -3,7 +3,7 @@ name: worker
 description: Performs bounded component implementation without committing for an authorized task.
 mode: subagent
 model: medium
-thinking: max
+thinking: medium
 permission:
   task: allow
   webfetch: deny

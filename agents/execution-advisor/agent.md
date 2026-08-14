@@ -3,7 +3,7 @@ name: execution-advisor
 description: Analyzes execution traces and readable local Pi sessions to diagnose issues and prepare approval requests for justified budget extensions without owning execution or budget authority.
 mode: subagent
 model: medium
-thinking: max
+thinking: medium
 tools: read,grep,find,ls,search_traces,get_trace,summarize_trace,compare_traces,analyze_session,resolve_component_context
 skills:
   - skills/exploring-execution-evidence
