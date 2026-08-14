@@ -12,6 +12,8 @@ This component retains the durable navigation and concise history for a complete
 
 ### Explicit mediation handoff
 
+- Pre-render layout plan: repository Markdown consumers with no fixed dimensions or configured renderer; narrow top-to-bottom handoff progression; three visible nodes, two short-labeled edges, and concise labels; route explicit mediation from orchestrator to implementer and then outcome as temporal progression; renderer-specific geometry remains untested.
+
 ```mermaid
 ---
 config:

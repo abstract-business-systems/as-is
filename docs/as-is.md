@@ -10,6 +10,23 @@ Documentation is an ordinary document collection rather than a set of independen
 
 [as-is](../as-is.md#design) / **Documentation**
 
+- Pre-render layout plan: use the repository Markdown render surface without assuming fixed dimensions; arrange six short-labeled nodes and five directed edges as a taller-than-wide TB/ELK-style context map. Route from reader through the documentation collection to its normative subjects without implying reading order or authority transfer; renderer geometry remains untested.
+
+### Normative documentation context
+
+```mermaid
+---
+config:
+  layout: elk
+---
+flowchart TB
+    Reader["Repository reader"] -->|uses| Documentation["Documentation"]
+    Documentation -->|provides| Principles["Design principles"]
+    Documentation -->|provides| Protocol["Component and task protocol"]
+    Documentation -->|provides| Configuration["Machine configuration"]
+    Documentation -->|provides| Execution["Execution and host-adapter guidance"]
+```
+
 The collection separates broad principles, durable component/task protocol, machine configuration, host-neutral execution, and host-specific adapter guidance. It is read-only context for implementation and does not replace component records or task authority.
 
 ## Links

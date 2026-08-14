@@ -10,6 +10,21 @@ The skill checks completion preconditions, stages only declared durable artifact
 
 [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Committing Completed Work**
 
+- Pre-render layout plan: use the repository Markdown render surface without assuming fixed dimensions; arrange four short-labeled nodes and three directed edges as a taller-than-wide TB/ELK-style progression from validated work through scoped staging to one commit. Keep one ungrouped route; renderer geometry remains untested.
+
+### Scoped commit handoff
+
+```mermaid
+---
+config:
+  layout: elk
+---
+flowchart TB
+    Evidence["Validated, descendant-closed work"] -->|authorizes| Scope["Declared durable handoff"]
+    Scope -->|validates| Patch["Staged scoped patch"]
+    Patch -->|provides| Commit["One Git commit"]
+```
+
 The completion procedure is downstream of task authority and validation. The owning agent decides semantic completion; the skill supplies mechanical scope and evidence gates.
 
 ## Links

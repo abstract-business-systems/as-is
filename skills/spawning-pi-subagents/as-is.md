@@ -54,6 +54,10 @@ The component is organized around the following relationships and flow.
 
 [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Launcher Host-Config Resolution And Run Observability**
 
+- Pre-render layout plan: use the repository Markdown render surface without assuming fixed dimensions; arrange three visible nodes and two directed edges as a compact top-to-bottom TB/ELK-style delegation flow from request through launcher to detached child observation. Keep one ungrouped linear route with short labels; renderer geometry and ELK support remain untested.
+
+### Delegation launch and observation flow
+
 ```mermaid
 flowchart TD
     A["Delegation request"] --> B["Pi subprocess launcher"]

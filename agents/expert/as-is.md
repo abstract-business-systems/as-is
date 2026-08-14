@@ -10,6 +10,8 @@ The expert reads the supplied context, separates observations from inference, an
 
 [as-is](../../as-is.md#design) / [agents](../as-is.md#design) / **expert**
 
+- Pre-render layout plan: Use the Markdown Mermaid render surface with no fixed dimensions; use a TB/ELK progression for 4 visible nodes and 3 edges, keeping question, consultation, analysis, and conclusion as a sparse route. Route downward and group the analysis concerns within the consultation progression; rendered geometry and label fit remain untested because no local renderer is configured.
+
 ### Bounded second perspective
 
 ```mermaid

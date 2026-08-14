@@ -13,6 +13,10 @@ The component is organized around the following relationships and flow.
 
 [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Managing Backlog**
 
+- Pre-render layout plan: use the repository Markdown render surface without assuming fixed dimensions; arrange three visible nodes and two directed edges as a compact top-to-bottom TB/ELK-style progression from backlog entries through deterministic prioritization to selected task input. Keep one ungrouped linear route with short labels; renderer geometry and ELK support remain untested.
+
+### Backlog prioritization flow
+
 ```mermaid
 flowchart TD
     A["Backlog entries"] --> B["Deterministic prioritization"]
@@ -58,6 +62,4 @@ review.
 ## Links
 
 - [SKILL.md](SKILL.md) — authoritative backlog procedure.
-- [scripts/query.ts](scripts/query.ts) — deterministic parser, weight query, renderer, and response validator.
-- [query.test.ts](query.test.ts) — schema, weighting, cycle, repository, and response-shape tests.
 - [../../backlog.md](../../backlog.md) — repository backlog index.

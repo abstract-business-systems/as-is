@@ -14,7 +14,7 @@ Organize independent configured agent roles and their durable capability and aut
 | [evidence-validator](evidence-validator/as-is.md#design) | Validate bounded controlled-worktree evidence. |
 | [expert](expert/as-is.md#design) | Provide read-only cross-domain consultation and review. |
 | [thinking-companion](thinking-companion/as-is.md#design) | Help humans examine questions and ideas. |
-| [worker](worker/as-is.md#design) | Provide bounded read-only in-process assistance. |
+| [worker](worker/as-is.md#design) | Perform authorized bounded component implementation with structured reporting, without committing or delegating. |
 
 ## Design
 
@@ -23,6 +23,8 @@ Agents maps independent role boundaries, supported role connections, and capabil
 [as-is](../as-is.md#design) / **agents**
 
 ### Independent role container
+
+- Pre-render layout plan: use the available repository Markdown Mermaid surface without assuming fixed dimensions; keep the seven child boxes as a balanced relationship map in a top-to-bottom container, with the existing seven supported arrows and short labels as the edge-density budget. Rendered geometry and link behavior remain untested because no local renderer is configured.
 
 ```mermaid
 ---
@@ -55,7 +57,7 @@ flowchart TB
     class AsIs,ComponentBuilder,ExecutionAdvisor,EvidenceValidator,Expert,ThinkingCompanion,Worker child
 ```
 
-The child boxes link directly to the seven child records, and the Components table is the required Markdown and renderer fallback. The arrows show supported role connections rather than a mandatory execution sequence: `as-is` connects to independently selectable roles when their admitted capabilities fit, and thinking-companion uses expert only for materially complex consultation. Reusable skills, host admission, and durable task records provide procedure, capability, and current-authority context without becoming Agents children. Roles remain independently selectable; agents and orchestrators retain authority to select, authorize, start, observe, recover, cancel, and delegate, while a mechanical adapter does not transfer that authority. Component-builder owns component-work integration, evidence-validator and expert provide bounded read-only review, and worker assistance remains report-only. The diagram shows only documented immediate role components.
+The child boxes link directly to the seven child records, and the Components table is the required Markdown and renderer fallback. The arrows show supported role connections rather than a mandatory execution sequence: `as-is` connects to independently selectable roles when their admitted capabilities fit, and thinking-companion uses expert only for materially complex consultation. Reusable skills, host admission, and durable task records provide procedure, capability, and current-authority context without becoming Agents children. Roles remain independently selectable; agents and orchestrators retain authority to select, authorize, start, observe, recover, cancel, and delegate, while a mechanical adapter does not transfer that authority. Component-builder owns component-work integration, evidence-validator and expert provide bounded read-only review, and worker performs authorized bounded component implementation with structured reporting while not committing or delegating. The diagram shows only documented immediate role components.
 
 ## Boundary
 

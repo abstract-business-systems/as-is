@@ -13,6 +13,8 @@ The fixture contains three deterministic local Bun tests: one rehearses an as-is
 
 ### Local delegation rehearsal
 
+- Pre-render layout plan: repository Markdown consumers with no fixed dimensions or configured renderer; taller-than-wide top-to-bottom relationship map; four visible nodes, three labeled edges, and short labels; route caller and child evidence vertically while the integration relationship remains a cross-branch connection, without implying execution order; renderer-specific geometry remains untested.
+
 ```mermaid
 ---
 config:

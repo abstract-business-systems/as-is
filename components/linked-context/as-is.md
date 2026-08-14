@@ -10,20 +10,27 @@ is the bounded `resolve_component_context` tool.
 
 ## Design
 
-The component is organized around the following relationships and flow.
+The component is organized around explicit local-link resolution and untrusted
+bounded context.
+
+- Pre-render layout plan: use the repository's Markdown Mermaid surface without assuming fixed dimensions; arrange three visible nodes and two labeled edges as a compact top-to-bottom context flow, using supported relationship labels and no grouping. Rendered geometry remains untested because no local renderer is configured.
 
 [as-is](../../as-is.md#design) / [Components](../as-is.md#design) / **Linked Context**
 
+### Explicit linked context resolution
+
 ```mermaid
 flowchart TD
-    A["Explicit as-is link"] --> B["resolve_component_context"]
-    B --> C["Bounded untrusted context"]
+    A["Explicit as-is link"] -->|uses| B["resolve_component_context"]
+    B -->|provides| C["Bounded untrusted context"]
 ```
 
 - An exact inline link exposes one file; a trailing `/` exposes a bounded,
   non-recursive directory index.
 - Canonicalization rejects traversal, symlink escapes, absolute paths, URI
-  schemes, unexposed directories, task records, and oversized content.
+  schemes, unexposed directories, configured task-narrative filenames, and
+  oversized content; it does not treat other JSON metadata files as task
+  narratives.
 - Results include bounded UTF-8 content, provenance, hash, media type,
   diagnostics, and completion status.
 - Returned text is untrusted context; the resolver follows no links and uses no
@@ -40,6 +47,4 @@ failure before considering raw-tool mediation or broader link types.
 
 ## Links
 
-- [`resolver.ts`](resolver.ts) — bounded explicit local-link resolution.
-- [`resolver.test.ts`](resolver.test.ts) — deterministic policy tests.
-- [`../../designs/component-scoped-context-resolution.md`](../../designs/component-scoped-context-resolution.md) — broader context-resolution design.
+- [`../../designs/component-scoped-context-resolution.md`](../../designs/component-scoped-context-resolution.md) — broader context-resolution design and staged boundary decisions.

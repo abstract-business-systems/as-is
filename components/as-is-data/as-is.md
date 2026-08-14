@@ -9,9 +9,14 @@ human-facing Markdown context.
 
 ## Design
 
-The component is organized around the following relationships and flow.
+The component is organized around preparation-time configuration and task
+metadata resolution.
+
+- Pre-render layout plan: use the repository's Markdown Mermaid surface without assuming fixed dimensions; arrange three visible nodes and two labeled edges as a compact top-to-bottom resolution flow. Rendered geometry remains untested because no local renderer is configured.
 
 [as-is](../../as-is.md#design) / [Components](../as-is.md#design) / **as-is Data Resolution**
+
+### Effective configuration resolution
 
 ```mermaid
 flowchart TD
@@ -25,9 +30,3 @@ flowchart TD
 - Parse present `configuration` and `task` values strictly as objects.
 - Report malformed JSON, unsafe paths, and invalid configuration as incomplete
   diagnostics rather than silently recovering.
-
-## Links
-
-- [`resolver.ts`](resolver.ts) — bounded preparation-time resolver.
-- [`resolver.test.ts`](resolver.test.ts) — deterministic resolution tests.
-- [`../as-is-setup/as-is.md`](../as-is-setup/as-is.md) — related setup component.

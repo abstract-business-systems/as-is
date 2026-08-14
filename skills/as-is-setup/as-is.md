@@ -12,7 +12,9 @@ The setup skill separates project adoption from individual record maintenance:
 
 [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **As-Is Setup**
 
-- Pre-render layout plan: repository Markdown consumers with no fixed dimensions or configured renderer; taller-than-wide setup flow; five short-labeled nodes and five edges; top-to-bottom routing represents setup progression; renderer-specific geometry remains untested.
+### Setup adoption progression
+
+- Pre-render layout plan: repository Markdown consumers with no fixed dimensions or configured renderer; use a sparse taller-than-wide TB/ELK-style setup flow with five short-labeled nodes and five edges, direct top-to-bottom routing, and no grouping or subgraphs; renderer-specific geometry remains untested.
 
 ```mermaid
 flowchart TD

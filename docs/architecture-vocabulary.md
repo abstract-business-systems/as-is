@@ -44,22 +44,24 @@ Evidence is an observable implementation, test, configuration, runtime, or docum
 
 Use the narrowest label that expresses a material relationship. Labels describe the stated relationship; they do not by themselves prove chronology, ownership, authority, deployment, or implementation detail.
 
-| Label | Use when | Do not infer |
-| --- | --- | --- |
-| `provides` | One component makes a capability, contract, data, or service available to another. | That the provider owns every consumer or controls its execution order. |
-| `uses` | One component relies on a capability or contract supplied by another without a more specific interaction being needed. | A direct call, runtime sequence, or reciprocal dependency. |
-| `calls` | One component directly invokes or requests an operation from another. | That the caller owns, authorizes, or contains the target. |
-| `delegates-to` | One component transfers a bounded responsibility, attempt, or decision to another component under an explicit handoff. | That the receiving component loses its own boundary or that delegation is merely a function call. |
-| `publishes` | One component makes events, messages, or information available for independent consumers. | That a consumer receives every publication or that delivery is synchronous. |
-| `subscribes-to` | One component registers to receive publications from another. | That publication establishes authority or a required execution order. |
-| `reads` | One component obtains information from data or a state owned or exposed by another. | That it may modify the source or that the source is its parent. |
-| `writes` | One component creates or changes data or state exposed by another. | That the writer owns the data model or is authorized beyond the stated contract. |
-| `validates` | One component checks another component's input, output, record, or state against a stated rule. | That validation grants approval, owns the target, or proves complete correctness. |
-| `observes` | One component collects or consumes supplementary evidence about another. | That observations are authoritative task state, architecture, or user intent. |
-| `authorizes` | One component grants a bounded permission, admission, or state transition to another. | That authorization is equivalent to implementation, invocation, or ownership. |
-| `connects-to` | Two components have a material integration whose more specific relationship is not supported by available evidence. | A particular protocol, direction, lifecycle, or dependency that has not been established. |
+| Label | Use when | Do not infer | Illustrative statement |
+| --- | --- | --- | --- |
+| `provides` | One component makes a capability, contract, data, or service available to another. | That the provider owns every consumer or controls its execution order. | A provider provides a capability. |
+| `uses` | One component relies on a capability or contract supplied by another without a more specific interaction being needed. | A direct call, runtime sequence, or reciprocal dependency. | A consumer uses a capability. |
+| `calls` | One component directly invokes or requests an operation from another. | That the caller owns, authorizes, or contains the target. | A caller calls an operation. |
+| `delegates-to` | One component transfers a bounded responsibility, attempt, or decision to another component under an explicit handoff. | That the receiving component loses its own boundary or that delegation is merely a function call. | A coordinator delegates-to a worker. |
+| `publishes` | One component makes events, messages, or information available for independent consumers. | That a consumer receives every publication or that delivery is synchronous. | A publisher publishes an event. |
+| `subscribes-to` | One component registers to receive publications from another. | That publication establishes authority or a required execution order. | A consumer subscribes-to an event. |
+| `reads` | One component obtains information from data or a state owned or exposed by another. | That it may modify the source or that the source is its parent. | A reader reads component state. |
+| `writes` | One component creates or changes data or state exposed by another. | That the writer owns the data model or is authorized beyond the stated contract. | A writer writes a record. |
+| `validates` | One component checks another component's input, output, record, or state against a stated rule. | That validation grants approval, owns the target, or proves complete correctness. | A validator validates an input. |
+| `observes` | One component collects or consumes supplementary evidence about another. | That observations are authoritative task state, architecture, or user intent. | A monitor observes an outcome. |
+| `authorizes` | One component grants a bounded permission, admission, or state transition to another. | That authorization is equivalent to implementation, invocation, or ownership. | A gate authorizes a transition. |
+| `connects-to` | Two components have a material integration whose more specific relationship is not supported by available evidence. | A particular protocol, direction, lifecycle, or dependency that has not been established. | A component connects-to an integration. |
 
-Containment remains structural rather than an arrow label. Use relationship arrows for supported sibling, peer, dependency, authority, or collaboration facts; omit an arrow when the relationship is not material to the reader's question.
+Containment remains structural rather than an arrow label. Use relationship arrows for supported sibling, peer, dependency, authority, or collaboration facts; omit an arrow when the relationship is not material to the reader's question. The illustrative statements explain label meaning only; they do not add components or architecture facts to the canonical graph.
+
+Use the canonical label in prose or as the Mermaid edge label when space permits. A short reader-oriented edge phrase may stand in for a canonical label only when its mapping is explicit in the record or nearby diagram metadata; an unmatched phrase is not evidence for a new relationship type. Abstract capability labels are preferred by default. Concrete provider identity must be disclosed when it materially changes the reader's interpretation of trust, security, ownership, deployment, cost, compliance, availability, performance, or recovery; otherwise the record may name only the capability.
 
 ## Linking And Consumers
 

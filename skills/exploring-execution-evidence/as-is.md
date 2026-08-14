@@ -15,6 +15,10 @@ The component is organized around the following relationships and flow.
 
 [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Exploring Execution Evidence**
 
+### Evidence Exploration Flow
+
+Pre-render layout plan: the Markdown render surface is host-controlled with no fixed dimensions; use the existing top-to-bottom (TB), ELK-compatible progression shape from trace or session evidence through the evidence exploration procedure to the source-labelled report; keep visible density to three nodes, two edges, and short labels; use direct top-to-bottom routing with no grouping; the renderer has not been tested, so final spacing, routing, and label legibility remain residual risks.
+
 ```mermaid
 flowchart TD
     A["Trace or session evidence"] --> B["Evidence exploration procedure"]

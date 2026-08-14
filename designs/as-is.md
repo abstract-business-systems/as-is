@@ -9,6 +9,21 @@ execution design documents.
 
 [as-is](../as-is.md#design) / **Designs**
 
+- Pre-render layout plan: use the repository Markdown render surface without assuming fixed dimensions; arrange four short-labeled nodes and three directed edges as a taller-than-wide TB/ELK-style context map. Route from reader through the design collection to architecture and execution work without implying execution order; renderer geometry remains untested.
+
+### Design-document discovery context
+
+```mermaid
+---
+config:
+  layout: elk
+---
+flowchart TB
+    Reader["Repository reader"] -->|uses| Designs["Designs"]
+    Designs -->|provides| Topics["Enduring architecture, protocol, and execution design"]
+    Topics -->|connects-to| Work["Architecture and execution work"]
+```
+
 This component has no independently documented child components. The design
 artifacts in this directory are ordinary documents rather than child
 `as-is.md` components, so no container diagram is included.

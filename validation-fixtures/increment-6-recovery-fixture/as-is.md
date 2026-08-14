@@ -12,6 +12,8 @@ This component preserves concise evidence for a completed record-only recovery r
 
 ### Record-only recovery rehearsal
 
+- Pre-render layout plan: repository Markdown consumers with no fixed dimensions or configured renderer; narrow top-to-bottom recovery progression; three visible nodes, two unlabeled transition edges, and concise labels; route interruption through durable recovery to bounded evidence as temporal progression; renderer-specific geometry remains untested.
+
 ```mermaid
 ---
 config:

@@ -51,6 +51,10 @@ The Skills component groups its immediate documented skill components; deeper sk
 
 [as-is](../as-is.md#design) / **Skills**
 
+- Pre-render layout plan: the Markdown render surface has no fixed dimensions; keep this as a balanced relationship map with 16 child boxes and eight labeled arrows, using LR grouping and routing; renderer-specific layout remains untested residual risk.
+
+### Skills relationship map
+
 ```mermaid
 %%{init: {"securityLevel": "loose"}}%%
 flowchart LR

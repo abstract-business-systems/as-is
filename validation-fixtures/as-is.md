@@ -19,6 +19,8 @@ Validation fixtures are independent evidence boundaries. They retain determinist
 
 [as-is](../as-is.md#design) / **Validation Fixtures**
 
+- Pre-render layout plan: use the repository Markdown render surface without assuming fixed dimensions; keep the four child boxes as a balanced relationship map in a top-to-bottom container, with the existing three supported sibling arrows and concise labels as the edge-density budget; rendered geometry and link behavior remain untested because no local renderer is configured.
+
 ### Fixture containment map
 
 ```mermaid

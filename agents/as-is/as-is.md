@@ -10,6 +10,8 @@ The router answers only bounded direct requests and otherwise routes work to an 
 
 [as-is](../../as-is.md#design) / [agents](../as-is.md#design) / **as-is**
 
+- Pre-render layout plan: Use the Markdown Mermaid render surface with no fixed dimensions; retain a TB/ELK progression from request through router to the two outcomes, with 4 visible nodes and 3 edges kept sparse. Route downward and group the direct-response and admitted-target outcomes as sibling leaves; rendered geometry and label fit remain untested because no local renderer is configured.
+
 ### Routing authority boundary
 
 ```mermaid
@@ -27,6 +29,8 @@ flowchart TB
 - Use durable repository context for orientation without inventing task authority for simple queries.
 - Leave task records, implementation, delegation, validation, and completion to the selected target's contract.
 - Avoid imposing a universal mediation chain.
+
+- Pre-render layout plan: Use the Markdown Mermaid render surface with no fixed dimensions; use a TB/ELK progression for the roughly 12 visible nodes and 13 directed edges, keeping the authority decision and request-type branches readable without adding detail. Route downward from request through recovery or classification, grouping alternate paths before converging on target/contract/report outcomes; rendered geometry, crossings, and label fit remain untested because no local renderer is configured.
 
 ### Status and work routing
 

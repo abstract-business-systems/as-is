@@ -10,9 +10,14 @@ locations.
 
 ## Design
 
-The component is organized around the following relationships and flow.
+The component is organized around deterministic client detection and
+canonical-resource wiring.
+
+- Pre-render layout plan: use the repository's Markdown Mermaid surface without assuming fixed dimensions; arrange three visible nodes and two labeled edges as a compact top-to-bottom setup flow. Rendered geometry remains untested because no local renderer is configured.
 
 [as-is](../../as-is.md#design) / [Components](../as-is.md#design) / **as-is Setup**
+
+### Deterministic client setup
 
 ```mermaid
 flowchart TD
@@ -31,5 +36,4 @@ flowchart TD
 
 ## Links
 
-- [`setup.ts`](setup.ts) — detection, wiring, and JSON-safe configuration update.
-- [`setup.test.ts`](setup.test.ts) — focused deterministic filesystem tests.
+- [`setup.ts`](setup.ts) — detection, wiring, and JSON-safe configuration update as the stable executable setup boundary.

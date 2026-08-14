@@ -12,6 +12,8 @@ This component retains the durable navigation and concise history for a complete
 
 ### Adapter-dogfood evidence
 
+- Pre-render layout plan: repository Markdown consumers with no fixed dimensions or configured renderer; compact top-to-bottom context flow; three visible nodes, two labeled edges, and short labels; route the fixture through its adapter boundary and guardrail outcome as contextual relationships rather than runtime chronology; renderer-specific geometry remains untested.
+
 ```mermaid
 ---
 config:

@@ -2,16 +2,19 @@
 
 ## Purpose
 
-Provide fast, reusable, read-only in-process assistance to authorized agents
-without becoming a durable component subprocess or task authority.
+Perform one authorized, bounded component implementation without committing,
+delegating, launching subprocesses, using credentials, or communicating
+externally.
 
 ## Design
 
-The worker is a leaf role for one authorized, bounded assistance request. It uses the assigned scope, task requirements, and acceptance conditions as its behavioral authority, returns a structured report, and does not acquire authority through caller identity, delegation ancestry, telemetry, commits, subprocesses, credentials, or external communication.
+The worker is a leaf role for one authorized, bounded component implementation. It uses the assigned scope, task requirements, and acceptance conditions as its behavioral authority, may inspect and edit only the assigned component scope, returns a structured report, and does not acquire authority through caller identity, delegation ancestry, telemetry, commits, subprocesses, credentials, or external communication.
 
 [as-is](../../as-is.md#design) / [agents](../as-is.md#design) / **worker**
 
 ### Bounded worker assistance
+
+- Pre-render layout plan: use the repository's Markdown Mermaid surface without assuming fixed dimensions; arrange nine visible nodes and ten edges, including two labeled decision branches, in a top-to-bottom progression with one Worker agent boundary subgraph. Route the primary work path downward and return both report outcomes to the caller; keep the authority and scope edges as supporting context, and note that rendered geometry remains untested because no local renderer is configured.
 
 ```mermaid
 ---
@@ -23,7 +26,7 @@ flowchart TB
 
     subgraph WorkerBoundary["Worker agent boundary"]
         Request --> Boundary{"Within worker boundary?"}
-        Boundary -->|authorized bounded work| Inspect["Read assigned component and task context"]
+        Boundary -->|authorized bounded work| Inspect["Inspect assigned component and task context"]
         Inspect --> Work["Perform only authorized bounded work"]
         Work --> Report["Return finding, evidence, recommendation, and residual risk"]
         Boundary -->|forbidden capability or out-of-scope work| Refuse["Report limitation and take no outside action"]
@@ -35,7 +38,7 @@ flowchart TB
     Refuse --> Caller
 ```
 
-The primary path is bounded inspection, work, and evidence reporting. The alternate path preserves the boundary by returning a limitation instead of committing, delegating, launching a subprocess, using credentials, or communicating externally. The admitted capabilities determine what the work step can do; the current live-tested profile is read-only. The caller remains responsible for integration, downstream validation, and task completion.
+The primary path is bounded inspection, implementation within assigned component scope, and evidence reporting. The alternate path preserves the boundary by returning a limitation instead of committing, delegating, launching a subprocess, using credentials, communicating externally, or editing outside assigned scope. The caller remains responsible for integration, downstream validation, and task completion.
 
 ## Links
 

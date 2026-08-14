@@ -10,6 +10,8 @@ The thinking companion answers directly, distinguishes facts from assumptions an
 
 [as-is](../../as-is.md#design) / [agents](../as-is.md#design) / **thinking-companion**
 
+- Pre-render layout plan: Use the Markdown Mermaid render surface with no fixed dimensions; use a TB/ELK progression for 4 visible nodes and 3 edges, keeping the human question, companion, context, and response as a sparse sequential route. Route downward with no extra grouping beyond the consultation context; rendered geometry and label fit remain untested because no local renderer is configured.
+
 ### Agency-preserving consultation
 
 ```mermaid

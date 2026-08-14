@@ -21,6 +21,8 @@ is proved; failed or incomplete child work remains recoverable in the task recor
 
 [as-is](../../as-is.md#design) / [agents](../as-is.md#design) / **component-builder**
 
+- Pre-render layout plan: Use the Markdown Mermaid render surface with no fixed dimensions; use a TB/ELK progression for the roughly 13 visible nodes and 14 directed edges, preserving the delivery sequence while keeping the child decision and evidence branches legible. Route downward through context, review, implementation, handoff/integration, validation, closure, and commit; group alternate blocker and integration paths around their decisions. Rendered geometry, crossings, and label fit remain untested because no local renderer is configured.
+
 ### Component delivery and child integration
 
 ```mermaid

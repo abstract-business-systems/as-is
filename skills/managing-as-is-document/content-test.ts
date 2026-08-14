@@ -1,6 +1,7 @@
 // This is an as-is repository dogfood validator, not a portable skill conformance suite.
 // Its repository-wide navigation assertions implement this repository's approved adoption policy.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { validateAsIsDiagramsAndNavigation } from "./scripts/validate-as-is-diagrams-and-navigation";
 import { dirname, join, relative, sep } from "node:path";
 
 type BunFile = {
@@ -10,12 +11,13 @@ type BunFile = {
 
 const bun = (globalThis as typeof globalThis & { Bun: { file(path: URL): BunFile } }).Bun;
 const file = (relativePath: string) => bun.file(new URL(relativePath, import.meta.url));
-const [skill, record, skillsRecord, backlog, examples, mermaidSkill, mermaidRecord, integrationSkill, integrationRecord, setupSkill, setupRecord] = await Promise.all([
+const [skill, record, skillsRecord, backlog, examples, vocabulary, mermaidSkill, mermaidRecord, integrationSkill, integrationRecord, setupSkill, setupRecord] = await Promise.all([
   file("./SKILL.md").text(),
   file("./as-is.md").text(),
   file("../as-is.md").text(),
   file("./backlog.md").text(),
   file("./diagram-examples.md").text(),
+  file("../../docs/architecture-vocabulary.md").text(),
   file("../designing-mermaid-diagrams/SKILL.md").text(),
   file("../designing-mermaid-diagrams/as-is.md").text(),
   file("../integrate-as-is-documentation/SKILL.md").text(),
@@ -48,6 +50,9 @@ const requiredSkillPhrases = [
   "Direction semantics",
   "Failure and recovery disclosure",
   "Authority and divergence",
+  "The relationship vocabulary is `provides`, `uses`, `calls`, `delegates-to`, `publishes`, `subscribes-to`, `reads`, `writes`, `validates`, `observes`, `authorizes`, and `connects-to`",
+  "Abstract capability labels are preferred",
+  "Concrete provider identity must be disclosed",
   "descriptive `### <diagram name>` heading",
   "trimmed root-to-current breadcrumb",
   "taller, narrower ELK/TB flowchart",
@@ -124,8 +129,12 @@ for (const phrase of requiredRecordPhrases) {
   if (!record.includes(phrase)) throw new Error(`record is missing required phrase: ${phrase}`);
 }
 
-const dependency = "skills/managing-as-is-document:formalize-as-is-relationship-vocabulary, skills/managing-as-is-document:define-as-is-flow-view-rules";
-if (!backlog.includes(dependency)) throw new Error("backlog dependencies must use scoped component:id references");
+for (const completedIdentity of [
+  "skills/managing-as-is-document:formalize-as-is-relationship-vocabulary",
+  "skills/managing-as-is-document:validate-as-is-diagrams-and-navigation",
+]) {
+  if (backlog.includes(completedIdentity)) throw new Error(`completed backlog item must not remain as a dependency: ${completedIdentity}`);
+}
 
 for (const heading of ["## Structural container", "### Complete parent-record example", "### Structural container", "### Why this representation", "## Context map", "### Context map", "## Scenario or sequence flow", "### Scenario sequence", "## Data flow", "### Data flow", "## State flow", "### State flow", "## Decision flow", "### Decision flow", "## Recovery flow", "### Recovery flow", "## Actor journey", "### Actor journey"]) {
   if (!examples.includes(heading)) throw new Error(`diagram examples are missing ${heading}`);
@@ -149,6 +158,16 @@ for (const phrase of [
   "Child box labels target the corresponding `Components` table entries",
 ]) {
   if (!examples.includes(phrase)) throw new Error(`structural container example is missing required phrase: ${phrase}`);
+}
+for (const phrase of [
+  "## Relationship Labels",
+  "| Label | Use when | Do not infer | Illustrative statement |",
+  "| `delegates-to` | One component transfers a bounded responsibility",
+  "The illustrative statements explain label meaning only; they do not add components or architecture facts to the canonical graph.",
+  "A short reader-oriented edge phrase may stand in for a canonical label only when its mapping is explicit",
+  "Concrete provider identity must be disclosed when it materially changes",
+]) {
+  if (!vocabulary.includes(phrase)) throw new Error(`architecture vocabulary is missing required phrase: ${phrase}`);
 }
 
 const structuralExample = examples.slice(examples.indexOf("## Structural container"), examples.indexOf("\n## Context map"));
@@ -268,4 +287,19 @@ for (const phrase of [
 }
 if (componentsDesign.includes("flowchart LR") || componentsDesign.includes("direction LR")) throw new Error("Components diagram must not retain wide LR layout");
 
-console.log("managing-as-is-document content validation passed");
+const diagramValidation = validateAsIsDiagramsAndNavigation(repositoryRoot, {
+  rootRecordPath: "as-is.md",
+  recordPaths: canonicalRecords(repositoryRoot).map((path) => relative(repositoryRoot, path)),
+  requireDiagrams: false,
+  requireNamedDiagramHeadings: false,
+});
+if (diagramValidation.issues.length > 0) {
+  throw new Error(`as-is diagram and navigation validation failed: ${JSON.stringify(diagramValidation.issues)}`);
+}
+if (diagramValidation.records !== canonicalRecords(repositoryRoot).length) {
+  throw new Error("as-is diagram and navigation validation did not inspect every canonical record");
+}
+if (diagramValidation.diagrams.some((diagram) => diagram.expectedHrefs?.some((target) => target.includes("<") || target.includes(">")))) {
+  throw new Error("repository-wide rendered diagram inputs must not include placeholder href targets");
+}
+console.log(`managing-as-is-document content validation passed (${diagramValidation.records} records, ${diagramValidation.diagrams.length} diagrams)`);

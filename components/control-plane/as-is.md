@@ -1,22 +1,30 @@
 
-# Control Plane Implementation Conversion - as-is
+# Control Plane - as-is
 
 ## Purpose
 
-Convert the initiative-1 host-neutral control-plane implementation from its
-reported Python form to the repository-preferred Bun/TypeScript or compatible
-form without changing authority, task-record semantics, or the protected
-historical fixture.
+Enforce host-neutral task lifecycle and launch authority from durable task
+records without becoming a host-specific runtime or replacing record
+authority.
 
 
 ## Design
 
-The component is organized around the following relationships and flow.
+The component owns dependency-free Bun/TypeScript operations for durable
+record lifecycle, launch admission, approval boundaries, completion closure,
+and the host-neutral control-plane CLI. It consumes task records and related
+configuration while leaving host execution and runtime observation to their
+own boundaries.
 
-[as-is](../../as-is.md#design) / [Components](../as-is.md#design) / **Control Plane Implementation Conversion**
+- Pre-render layout plan: use the repository's Markdown Mermaid surface without assuming fixed dimensions; arrange four visible nodes and three labeled edges as a compact top-to-bottom authority flow from durable records through lifecycle/admission operations to bounded launch and completion evidence. Rendered geometry remains untested because no local renderer is configured.
+
+[as-is](../../as-is.md#design) / [Components](../as-is.md#design) / **Control Plane**
+
+### Durable lifecycle and launch authority
 
 ```mermaid
 flowchart TD
-    A["Host-neutral control-plane source"] --> B["Implementation conversion"]
-    B --> C["Protected task semantics and fixture"]
+    A["Durable task records"] -->|authorizes| B["Lifecycle and launch operations"]
+    B -->|authorizes| C["Detached launch foundation"]
+    B -->|publishes| D["Completion and handoff evidence"]
 ```
