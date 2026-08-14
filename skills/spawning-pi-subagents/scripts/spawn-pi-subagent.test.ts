@@ -599,14 +599,13 @@ test("detach returns a handle immediately and the supervisor kills the child on 
 test("child commit handoff is explicitly pending parent integration", async () => {
   const dir = mkdtempSync(join(tmpdir(), "as-is-handoff-test-"));
   try {
+    const localUserConfigBefore = ["user.name", "user.email"].map((key) => spawnSync("git", ["config", "--local", "--get", key], { encoding: "utf8" }).stdout.trim());
     const stubPi = join(dir, "pi-commit-stub.sh");
     writeFileSync(stubPi, [
       "#!/usr/bin/env bash",
-      "git config user.email test@example.invalid",
-      "git config user.name test",
       "printf '\\n// handoff fixture\\n' >> skills/managing-as-is-document/scripts/orient.ts",
       "git add skills/managing-as-is-document/scripts/orient.ts",
-      "git commit --allow-empty -m 'test(launcher): record child handoff' >/dev/null",
+      "git -c user.email=test@example.invalid -c user.name=test commit --allow-empty -m 'test(launcher): record child handoff' >/dev/null",
       "exit 0",
       "",
     ].join("\n"), { mode: 0o755 });
@@ -631,6 +630,8 @@ test("child commit handoff is explicitly pending parent integration", async () =
     expect(finished?.integrationStatus).toBe("pending-parent-integration");
     const jobs = await runLauncher(["--jobs"], { ...process.env, AS_IS_JOBS_REGISTRY: registry });
     expect(jobs.stdout).toContain("pending-parent-integration");
+    const localUserConfigAfter = ["user.name", "user.email"].map((key) => spawnSync("git", ["config", "--local", "--get", key], { encoding: "utf8" }).stdout.trim());
+    expect(localUserConfigAfter).toEqual(localUserConfigBefore);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
@@ -1034,7 +1035,7 @@ test("caller-worktree ancestry distinguishes pending integration from integrated
   try {
     expect(git(["init", "-q"]).status).toBe(0);
     writeFileSync(join(dir, "base.txt"), "base\n"); git(["add", "."]); git(["-c", "user.email=test@example.invalid", "-c", "user.name=test", "commit", "-qm", "base"]);
-    writeFileSync(join(dir, "child.txt"), "child\n"); git(["add", "."]); git(["commit", "-qm", "child"]);
+    writeFileSync(join(dir, "child.txt"), "child\n"); git(["add", "."]); git(["-c", "user.email=test@example.invalid", "-c", "user.name=test", "commit", "-qm", "child"]);
     const childSha = git(["rev-parse", "HEAD"]).stdout.trim();
     const callerSha = git(["rev-parse", "HEAD~1"]).stdout.trim();
     expect(git(["merge-base", "--is-ancestor", childSha, "HEAD"]).status).toBe(0);

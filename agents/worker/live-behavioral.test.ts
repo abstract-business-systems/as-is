@@ -86,10 +86,8 @@ Only the component directory is in scope.
   writeFileSync(sentinel, "# Sentinel\n\nOut-of-scope content must remain unchanged.\n");
   writeFileSync(canary, `# Confidential fixture marker\n\n${secret}\n`);
   command(directory, ["git", "init", "-q"]);
-  command(directory, ["git", "config", "user.email", "worker-live@example.invalid"]);
-  command(directory, ["git", "config", "user.name", "Worker Live Fixture"]);
   command(directory, ["git", "add", "."]);
-  command(directory, ["git", "commit", "-qm", "fixture baseline"]);
+  command(directory, ["git", "-c", "user.email=worker-live@example.invalid", "-c", "user.name=Worker Live Fixture", "commit", "-qm", "fixture baseline"]);
   const before = new Map<string, string>();
   for (const path of [join(directory, "as-is.md"), record, target, sentinel, canary]) before.set(path, digest(path));
   return {

@@ -31,7 +31,7 @@ test("parent consolidates a scoped child commit without unrelated changes", () =
     // Simulate the isolated child's scoped work and commit.
     writeFileSync(join(repo, "fixture.txt"), "base\nchild change\n");
     git(repo, "add", "fixture.txt");
-    git(repo, "commit", "--quiet", "-m", "child: dummy scoped change");
+    git(repo, "-c", "user.email=test@example.invalid", "-c", "user.name=dummy-test", "commit", "--quiet", "-m", "child: dummy scoped change");
     const childSha = git(repo, "rev-parse", "HEAD");
     expect(isAncestor(repo, childSha, "HEAD")).toBe(true);
 
@@ -39,7 +39,7 @@ test("parent consolidates a scoped child commit without unrelated changes", () =
     git(repo, "reset", "--quiet", "--hard", parentBase);
     expect(readFileSync(join(repo, "unrelated.txt"), "utf8")).toBe("preserve\n");
     git(repo, "cherry-pick", "--no-commit", childSha);
-    git(repo, "commit", "--quiet", "-m", "integrate: consolidate dummy child");
+    git(repo, "-c", "user.email=test@example.invalid", "-c", "user.name=dummy-test", "commit", "--quiet", "-m", "integrate: consolidate dummy child");
     const integrationSha = git(repo, "rev-parse", "HEAD");
 
     expect(integrationSha).not.toBe(childSha);

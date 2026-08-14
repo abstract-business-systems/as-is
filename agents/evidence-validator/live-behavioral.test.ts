@@ -106,10 +106,8 @@ Only the expert fixture component is in scope.
   }
 
   command(directory, ["git", "init", "-q"]);
-  command(directory, ["git", "config", "user.email", "expert-live@example.invalid"]);
-  command(directory, ["git", "config", "user.name", "Expert Live Fixture"]);
   command(directory, ["git", "add", "."]);
-  command(directory, ["git", "commit", "-qm", "fixture baseline"]);
+  command(directory, ["git", "-c", "user.email=expert-live@example.invalid", "-c", "user.name=Expert Live Fixture", "commit", "-qm", "fixture baseline"]);
   if (change) writeFileSync(target, change.content);
   const before = new Map<string, string>();
   for (const path of [asIs, record, agentCopy, extensionCopy, join(directory, "as-is.md")]) before.set(path, digest(path));
