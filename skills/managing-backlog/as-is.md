@@ -20,6 +20,7 @@ The component is organized around the following relationships and flow.
 flowchart TD
     A["Backlog entries"] --> B["Deterministic<br/>prioritization"]
     B --> C["Selected task input"]
+    C --> D["Exact cleanup prepared<br/>for one finalization commit"]
 ```
 
 The backlog is a planning index, not task authority. Each component backlog uses
@@ -52,11 +53,13 @@ contract after a fresh Pi validation found a five-column summary that omitted
 description, dependencies, and notes.
 
 Cleanup is evidence-gated and component-owned. `cleanupCompletedBacklogs`
-removes only rows whose exact IDs occur in the owning `changelog.md` alongside a
-completion term; it preserves ambiguous, cross-component, and merely mentioned
-items. It does not replace task-management reconciliation or invent completion
-status. The cleanup command reports each removed item and its evidence for
-review.
+prepares removal only for rows whose exact IDs occur in the owning
+`changelog.md` alongside a completion term; it preserves ambiguous,
+cross-component, and merely mentioned items. The prepared row removal is part
+of the same finalization patch as the changelog summary and configured task
+cleanup, and must not be committed separately. It does not replace
+task-management reconciliation or invent completion status. The cleanup
+command reports each selected item and its evidence for review.
 
 ## Links
 

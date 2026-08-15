@@ -6,7 +6,10 @@ description: Creates a scoped Git commit for a completed as-is task without stag
 # Committing Completed Work
 
 Commit a completed task's durable handoff as one reviewable, recoverable Git
-change. This skill is a completion procedure, not permission to commit partial,
+change. The finalization unit includes the owning changelog summary, exact
+evidence-gated backlog-row removal, and configured transient task-artifact
+cleanup; task cleanup and backlog clearance must not be committed separately.
+This skill is a completion procedure, not permission to commit partial,
 unrelated, or unvalidated work.
 
 ## Preconditions
@@ -22,33 +25,40 @@ unrelated, or unvalidated work.
 
 1. Inspect `git status`, the relevant unstaged diff, the staged diff, and recent
    commit-message style.
-2. Identify only the completed component's declared changed artifacts, its
-   durable `as-is.md`, and `changelog.md`. Do not stage transient task metadata
-   or the configured Markdown narrative. For a parent integration task, include
-   only parent-scoped integration artifacts.
+2. Identify the completed component's declared changed artifacts, its durable
+   `as-is.md`, `changelog.md`, exact selected backlog row, and configured task
+   artifacts. The finalization patch must include the changelog summary, the
+   exact backlog removal, and task metadata/narrative cleanup together. For a
+   parent integration task, include only parent-scoped integration artifacts.
 3. Leave pre-existing, unrelated, and out-of-boundary changes unstaged. If task
    changes cannot be separated safely, leave the record non-completed, record
    the blocker, and request the responsible component-builder's direction.
 4. Run the smallest relevant validation, then verify the proposed staged patch
    with `git diff --cached --check`.
 5. Set the local JSON `task` object to `completed`, write its concise summary
-   to `changelog.md`, remove the configured Markdown task narrative, stage only
-   the identified durable handoff, and create one concise commit matching
-   established repository style. When consolidating
+   to `changelog.md`, and prepare the exact selected backlog cleanup without
+   treating either working-tree mutation as durable completion. Stage the
+   changelog summary, exact backlog-row removal, task metadata/narrative
+   cleanup, and declared durable handoff as one finalization patch. Verify the
+   complete staged patch and create one concise commit matching established
+   repository style; never create a task-deletion-only or backlog-clearance-only
+   commit. If staging or commit fails, restore the task and backlog to a
+   recoverable non-terminal/unreconciled state before retrying. When consolidating
    related local handoff commits, preserve their full source SHAs in the task
    evidence or commit message and record the resulting integration SHA in the
    durable parent task/changelog evidence after the commit exists; never attempt
    self-referential inclusion of the new commit's own SHA.
-6. After the durable handoff exists, reconcile the exact selected backlog item
-   through the owning backlog procedure. Run
-   `bun skills/managing-backlog/scripts/query.ts --cleanup=component:id .`,
-   replacing `component:id` with the exact selected backlog identity. Verify
-   that the result names that exact selected `component:id`, and leave failed,
-   blocked, or otherwise unreconciled rows untouched. Review any additional
-   reported rows separately; cleanup is evidence-gated and is not authorization
-   to infer completion.
-7. Reinspect `git status` and report the commit identifier, staged scope,
-   validation evidence, and any unrelated work left untouched.
+6. Before committing, invoke the owning backlog procedure with the exact
+   selected identity and require its changelog-evidence result. Apply only the
+   selected row removal to the final staged patch; verify that the result names
+   that exact `component:id`, and leave failed, blocked, or otherwise
+   unreconciled rows untouched. Do not commit the cleanup command's result
+   separately. Review any additional reported rows separately; cleanup is
+   evidence-gated and is not authorization to infer completion.
+7. Reinspect the complete staged finalization patch, commit once, then verify
+   the commit contains the changelog summary, exact backlog removal, and task
+   cleanup together. Report the commit identifier, staged scope, validation
+   evidence, and any unrelated work left untouched.
 
 ## Boundaries
 
@@ -65,7 +75,9 @@ unrelated, or unvalidated work.
 
 ## Quality Checks
 
-- The commit contains the completed record and only its scoped handoff.
+- One finalization commit contains the completed component handoff, changelog
+  summary, exact selected backlog removal, and configured task-artifact cleanup.
+- No separate task-deletion or backlog-clearance commit is created.
 - `git diff --cached --check` passes before the commit.
 - The worktree confirms unrelated changes remain unstaged.
-- The task was eligible for completion before the commit was attempted.
+- The task was eligible for completion before finalization was attempted.

@@ -6,7 +6,7 @@ Provide the reusable completion procedure for creating one scoped Git handoff fr
 
 ## Design
 
-The skill checks completion preconditions, stages only declared durable artifacts, validates the staged patch, creates one concise commit, preserves unrelated work, and reconciles the exact selected backlog item after the handoff exists. It does not authorize partial or unvalidated commits.
+The skill checks completion preconditions, stages the declared durable handoff together with the owning changelog summary, exact evidence-gated backlog-row removal, and configured task-artifact cleanup, validates the complete finalization patch, creates one concise commit, and preserves unrelated work. It does not authorize partial or unvalidated commits or separate task-deletion/backlog-clearance commits. The changelog evidence is written before backlog cleanup eligibility is evaluated, and all three cleanup artifacts become durable together at the Git commit boundary.
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Committing Completed Work**
 
@@ -20,7 +20,8 @@ config:
 ---
 flowchart TB
     Evidence["Validated,<br/>descendant-closed work"] -->|authorizes| Scope["Declared durable handoff"]
-    Scope -->|validates| Patch["Staged scoped patch"]
+    Scope -->|prepares| Finalization["Changelog + exact backlog<br/>cleanup + task cleanup"]
+    Finalization -->|validates| Patch["Staged finalization<br/>patch"]
     Patch -->|provides| Commit["One Git commit"]
 ```
 

@@ -117,7 +117,12 @@ the display as complete.
 
 ## Cleanup Of Implemented Items
 
-Backlog cleanup is a separate, evidence-gated operation. It requires one exact fully-qualified `component:id` selection and may remove only that selected row when all of the following are true:
+Backlog cleanup is a separate, evidence-gated preparation step within the
+single completion finalization unit. It requires one exact fully-qualified
+`component:id` selection and may prepare removal of only that selected row when
+all of the following are true. The row removal, owning changelog completion
+evidence, and configured task-artifact cleanup must be staged and committed
+together; cleanup must not produce a standalone commit.
 
 | Condition | Required evidence |
 | --- | --- |
@@ -143,12 +148,15 @@ The optional final argument is the repository root. Bare `--cleanup`, a missing
 or malformed selection, an identity without changelog-evidenced completion, or
 an identity from another component fails before any backlog row is changed.
 Task management invokes cleanup only after the selected task's acceptance,
-terminal descendant closure, changelog handoff, and scoped durable handoff have
-all been verified. The deterministic `cleanupCompletedBacklogs` operation
-reports only the selected `component:id` and its evidence, and removes no
-neighboring or other-component rows. Use version control or a focused diff to
-review the removal before handoff; the cleaned item's concise history remains
-in the owning changelog.
+terminal descendant closure, changelog handoff, and declared scoped
+finalization patch have all been verified. The finalization patch is prepared
+but not yet durable: the combined commit is what makes the changelog, exact
+backlog removal, and task-artifact cleanup durable together. The deterministic
+`cleanupCompletedBacklogs` operation reports only the selected `component:id`
+and its evidence, and removes no neighboring or other-component rows. Use
+version control or a focused diff to review the prepared removal before the
+single finalization commit; the cleaned item's concise history remains in the
+owning changelog.
 
 ## Priority And Project Sequence
 
@@ -194,16 +202,21 @@ item from the planning index only when all of these inputs agree:
 | Terminal task | The owning configured task record is terminal `completed`, with its result and required validation recorded |
 | Descendant closure | Every descendant is terminal and the completion result accounts for each failed or cancelled descendant; active, blocked, or approval-waiting descendants prevent removal |
 | Changelog handoff | The owning component `changelog.md` contains a concise summary of the completed result, written before task-record cleanup |
-| Durable scoped handoff | The declared changes are within the selected owning component and the scoped durable handoff has completed successfully |
+| Durable scoped handoff | The declared changes are within the selected owning component, the changelog summary is written, and the one finalization patch contains the durable handoff, exact backlog removal, and task-artifact cleanup; the patch is not yet durable until its single commit succeeds |
 
-Task management performs this reconciliation, then removes the selected item;
-the implementation worker does not remove it. Reconciliation must use the
-current task record and owning changelog as evidence and must not invent status,
-validation, ownership, or completion. If any input is missing, mismatched,
-non-terminal, failed, blocked, deferred, or otherwise incomplete, leave the
-backlog item in place for recovery or later selection. Open and deferred items
-remain in the planning index. Removal occurs only after reconciliation
-succeeds, not merely because an invocation exited successfully.
+Task management performs this reconciliation as part of the finalization
+patch; the implementation worker does not independently remove the row.
+Reconciliation must use the current task record and owning changelog as
+evidence and must not invent status, validation, ownership, or completion. If
+any input is missing, mismatched, non-terminal, failed, blocked, deferred, or
+otherwise incomplete, leave the backlog item in place for recovery or later
+selection. Open and deferred items remain in the planning index. The cleanup
+result is staged with the changelog and task-artifact cleanup and becomes
+ durable only when that single scoped finalization commit succeeds. An
+interrupted or failed finalization restores or preserves the unreconciled row;
+leave the
+backlog item in place until the finalization can be retried; no
+task-deletion-only or backlog-clearance-only commit is valid.
 
 ## Boundaries
 

@@ -19,10 +19,14 @@ The component is organized around the following relationships and flow.
 flowchart TD
     A["Selected backlog item"] --> B["Component task lifecycle"]
     B --> C["Validated durable<br/>handoff"]
+    C --> D["One finalization commit:<br/>changelog + backlog + task cleanup"]
 ```
 
 This skill owns transient task creation, scoped implementation, child-boundary
-delegation, deterministic validation, changelog handoff, and task cleanup.
+delegation, deterministic validation, changelog handoff, and preparation of the
+single completion finalization unit. The owning completion procedure commits
+changelog evidence, exact backlog cleanup, task-artifact cleanup, and the
+scoped durable handoff together.
 
 ## Links
 

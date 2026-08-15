@@ -251,12 +251,17 @@ every ancestor non-completed. The responsible worker or orchestrator validates
 this closure before changing a record to `completed`.
 
 After a task qualifies for completion, invoke task management, then
-`committing-completed-work`. The procedure stages only the completed task's
-declared scoped changes and its task record, cleans up and removes the configured
-transient task file after all tasks in the record qualify for completion, then
-commits the durable handoff, and
-leaves unrelated work untouched. A failed commit leaves the task non-completed
-and records the failure for recovery.
+`committing-completed-work`. The completion procedure prepares one finalization
+patch containing the completed task's declared scoped changes, concise owning
+`changelog.md` summary, exact evidence-gated backlog-row removal, and cleanup
+of the configured task metadata and transient task file. These completion
+artifacts are staged and committed together as one scoped durable handoff;
+there must be no separate task-deletion-only or backlog-clearance-only commit.
+The changelog summary is written before backlog eligibility is evaluated, and
+its exact identity evidence is included in the same finalization commit. A
+failed or interrupted finalization preserves or restores the terminal task and
+unreconciled backlog row for recovery; it must not claim cleanup from an
+uncommitted working-tree mutation. Unrelated work remains untouched.
 
 On interruption, the orchestrator rereads the component record and delegates it
 to the configured worker. That worker decides whether to continue an atomic
