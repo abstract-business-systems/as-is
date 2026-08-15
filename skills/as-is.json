@@ -1,0 +1,35 @@
+{
+  "task": {
+    "status": "completed",
+    "worker": "as-is",
+    "updated": "2026-08-15T22:06:00Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.25,
+        "spent": 0,
+        "reserve": 0.05,
+        "source": "unavailable",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 300,
+          "spent-seconds": 0,
+          "reserve-seconds": 45,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "prohibited"
+    },
+    "acceptance": [
+      "Confirm all as-is record updates are routed through managing-as-is-document while generic Mermaid mechanics remain delegated to designing-mermaid-diagrams.",
+      "Preserve component ownership, record authority, Mermaid composition, and existing contracts without implementation or runtime changes.",
+      "Record exact completion evidence, validate the scoped durable handoff, and reconcile only skills:route-as-is-updates-through-managing-skill."
+    ]
+  }
+}
