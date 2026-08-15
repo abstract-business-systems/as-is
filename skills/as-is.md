@@ -33,6 +33,17 @@ operational contract.
 
 The Skills component groups immediate documented skill components; deeper records remain owned by those components. The container diagram uses the actual Skills name and linked child boxes. `**Lineage**: ` provides reverse navigation, while the Components table provides renderer-independent child navigation.
 
+**As-is guidance ownership**
+
+| Concern | Canonical owner | Boundary and unresolved work |
+| --- | --- | --- |
+| Project adoption, setup scope, and approved component identification | [`As-is setup`](as-is-setup/SKILL.md) and [`Integrating as-is documentation`](integrate-as-is-documentation/SKILL.md) | Setup owns whole-project or directory-scoped adoption and its reviewable plan; integration composes setup with reviewable decomposition and record creation. Existing-project host wiring remains implementation evidence in [`components/as-is-setup`](../components/as-is-setup/as-is.md). |
+| Durable as-is record shape, component meaning, hierarchy, navigation, and as-is-specific diagram meaning | [`Managing as-is documents`](managing-as-is-document/SKILL.md) | This skill owns record-specific structure and meaning; it does not select components or own generic Mermaid mechanics. |
+| Generic Mermaid representation, view selection, functional framing, labels, readability, and render checks | [`Designing Mermaid diagrams`](designing-mermaid-diagrams/SKILL.md) | The generic skill is target-neutral; host-specific record and navigation rules remain with `managing-as-is-document`. |
+| General repository instruction and durable-document disposition | Root [`AGENTS.md`](../AGENTS.md) and root backlog/design tasks | The temporary `As-Is Guidance` section and the root `dissolve-documents-into-as-is-records` review remain unresolved root-owned work; this map does not retire or relocate them. |
+
+The table is an ownership map, not a second procedure or task authority. The linked skill contracts remain authoritative.
+
 | Concept | Meaning |
 | --- | --- |
 | Capability domain | Groups related competence for navigation. |

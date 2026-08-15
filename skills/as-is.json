@@ -1,0 +1,35 @@
+{
+  "task": {
+    "status": "completed",
+    "worker": "as-is",
+    "updated": "2026-08-15T20:31:00Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.3,
+        "spent": 0,
+        "reserve": 0.05,
+        "source": "unavailable",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 360,
+          "spent-seconds": 0,
+          "reserve-seconds": 60,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "prohibited"
+    },
+    "acceptance": [
+      "Record one discoverable ownership mapping for setup, as-is record management, and generic Mermaid guidance without duplicating their procedures.",
+      "Identify unresolved routing or root-document disposition as separately bounded backlog work; do not retire root documents or broaden scope.",
+      "Validate and commit the scoped documentation handoff, then reconcile only skills:migrate-as-is-guidance-owners."
+    ]
+  }
+}
