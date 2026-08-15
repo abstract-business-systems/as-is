@@ -1,0 +1,35 @@
+{
+  "task": {
+    "status": "completed",
+    "worker": "as-is",
+    "updated": "2026-08-15T21:12:00Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.2,
+        "spent": 0,
+        "reserve": 0.04,
+        "source": "unavailable",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 240,
+          "spent-seconds": 0,
+          "reserve-seconds": 45,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "prohibited"
+    },
+    "acceptance": [
+      "Confirm current naming guidance is discoverable and applied by as-is setup and record management through sibling/local vocabulary rather than an unnecessary direct dependency.",
+      "Preserve the naming, setup, record-management, and catalog contracts without implementation or runtime changes.",
+      "Record exact completion evidence, validate the scoped durable handoff, and reconcile only skills:add-naming-guidance-to-as-is."
+    ]
+  }
+}
