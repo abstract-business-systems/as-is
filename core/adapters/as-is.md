@@ -9,6 +9,7 @@ Organize approved host- or transport-specific implementations that map core cont
 | Component | Purpose |
 | --- | --- |
 | [Process](process/as-is.md#design) | Adapt bounded process-group execution and observation behind the host-neutral execution boundary. |
+| [Host setup](host-setup/as-is.md#design) | Adapt persisted-client detection and canonical-resource setup without owning host-integration approval or target-project state. |
 
 ## Design
 
@@ -23,10 +24,11 @@ flowchart TB
     subgraph Adapters["core Adapters"]
         direction TB
         Process["<a href='./process/as-is.md#design'>process</a>"]
+        HostSetup["<a href='./host-setup/as-is.md#design'>host-setup</a>"]
     end
 ```
 
-Adapters are added only when a concrete host or transport boundary is established. The process adapter is the first approved family. Pi session and host-setup adapters remain separately bounded work.
+Adapters are added only when a concrete host or transport boundary is established. The process and host-setup adapters are approved concrete families. Pi session adapters remain separately bounded work.
 
 ## Links
 

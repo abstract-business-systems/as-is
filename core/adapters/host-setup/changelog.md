@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-08-16: Relocated the deterministic setup adapter from the retired `components/as-is-setup/` path to `core/adapters/host-setup/` with history-preserving moves. Setup behavior, focused tests, collision preservation, client detection, and canonical-resource linking remain unchanged; host-integration remains a separate planning and approval boundary. Final root dissolution remains pending reference-evidence relocation and topology reconciliation.
+
 - Initial component extracted from the setup skill; canonical skills and agents are linked only from their respective bundle folders.
 - Replaced the former `skills/setting-up-as-is` skill with the component-owned `as-is-setup` skill and added the component backlog.
 
