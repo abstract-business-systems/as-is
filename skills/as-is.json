@@ -1,0 +1,35 @@
+{
+  "task": {
+    "status": "completed",
+    "worker": "as-is",
+    "updated": "2026-08-15T21:39:00Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.2,
+        "spent": 0,
+        "reserve": 0.04,
+        "source": "unavailable",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 240,
+          "spent-seconds": 0,
+          "reserve-seconds": 45,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "prohibited"
+    },
+    "acceptance": [
+      "Confirm the as-is-setup procedure supports both whole-project default and explicit directory-scoped independent setup.",
+      "Preserve boundary, instruction, candidate, record, validation, and no-parent-discovery rules without implementation or runtime changes.",
+      "Record exact completion evidence, validate the scoped durable handoff, and reconcile only skills:bounded-directory-or-project-as-is-setup."
+    ]
+  }
+}
