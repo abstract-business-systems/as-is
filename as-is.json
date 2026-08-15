@@ -1,0 +1,92 @@
+{
+  "configuration": {
+    "records": {
+      "filenames": {
+        "backlog": "backlog.md",
+        "changelog": "changelog.md",
+        "task": "tasks.md"
+      }
+    },
+    "tasks": {
+      "unitBudget": {
+        "wallClockSeconds": 600,
+        "costUsd": 1
+      }
+    },
+    "scheduling": {
+      "wakeSeconds": 60,
+      "checkInSeconds": 300,
+      "maxConcurrentTasks": 1,
+      "retryBackoffSeconds": 300,
+      "maxRecoveryAttempts": 2
+    },
+    "notifications": {
+      "materialEvents": true
+    },
+    "agents": {
+      "defaultRole": "as-is",
+      "defaultModel": "small",
+      "provider": "openrouter",
+      "models": {
+        "small": "@preset/abs-small",
+        "medium": "@preset/abs-medium",
+        "large": "@preset/abs-large",
+        "xlarge": "@preset/abs-xlarge"
+      }
+    },
+    "technology-preferences": {
+      "runtime": "bun",
+      "package-manager": "bun"
+    },
+    "hitl": {
+      "onBlocked": true,
+      "onBudgetExceeded": true,
+      "onExternalEffect": true
+    },
+    "logging": {
+      "level": "info",
+      "retainDays": 30
+    },
+    "observability": {
+      "tracing": {
+        "backend": "file",
+        "enabled": true,
+        "local-directory": ".as-is/tracing.jsonl"
+      }
+    }
+  },
+  "task": {
+    "status": "active",
+    "worker": "as-is",
+    "updated": "2026-08-24T00:00:00Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.8,
+        "spent": 0,
+        "reserve": 0.1,
+        "source": "unavailable",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 600,
+          "spent-seconds": 0,
+          "reserve-seconds": 120,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "prohibited"
+    },
+    "acceptance": [
+      "Restructure the approved implementation families toward the recorded agents, skills, core modules, core adapters, and tools layout without changing task authority, host setup, target writes, or runtime semantics.",
+      "Move only families with established ownership and consumers: agent resolution, observability implementation, the process adapter, and bounded agent-facing tool implementations; preserve host-required .pi extension entry points as thin adapters where needed.",
+      "Update proven imports, package and host entry points, focused tests, component records, architecture navigation, and migration evidence atomically; retain execution-contract, host-setup, browser, environment, and speculative broad regrouping as separately bounded work.",
+      "Validate focused behavioral suites, builds, task-record and content/navigation checks, JSON parsing, stale-path/reference searches, and whitespace; obtain expert review; complete with a clean worktree and durable changelog evidence."
+    ]
+  }
+}
