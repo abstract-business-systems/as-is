@@ -1,33 +1,34 @@
 # Task
 
 ## Requirement
-Create a readiness-only contract for `package-owned-subagent-extension`. Define the smallest stable package-to-host boundary, dependency/distribution model, supported Pi loading paths, compatibility-shim policy, focused validation, recovery, and scope exclusions needed before implementing package-owned worker-tool registration. Do not move files, change `.pi/settings.json`, alter launcher behavior, install packages, change trust policy, relocate Mermaid/evidence-validator functionality, or change task/runtime authority.
+Implement the narrowed Option A for `package-owned-subagent-extension`: add a package-owned generic Pi registration/runtime boundary and route the existing repository worker implementation through an explicit static host adapter. Preserve worker semantics, role-declared admission, launcher `--no-extensions` loading, project trust behavior, Mermaid separation, and evidence-validator isolation. Do not claim independent installed-package operation.
 
 ## Plan
-1. Inspect the current package, extension topology, launcher explicit loading, repository-owned tool semantics, and Pi package/trust documentation.
-2. Record the expert advice and the bounded readiness decision in this task and the durable component record.
-3. Define the implementation-ready host-services contract and distinguish package-owned generic registration from repository-owned authority and adapters.
-4. Record exact future artifacts, tests, compatibility conditions, recovery, residual risks, and exclusions.
-5. Validate task records, content/navigation, backlog, JSON, and whitespace; obtain configured-preset final expert review; complete through the two-commit flow.
+1. Add the lower-level package-owned registration/runtime boundary with a narrow versioned host-services contract and no repository-relative or environment-selected host imports.
+2. Adapt the repository implementation through a static host adapter while preserving existing exports and focused worker semantics.
+3. Keep `.pi/settings.json`, Mermaid registration, evidence-validator loading, and launcher explicit extension suppression/selection behavior unchanged except for the explicit adapter path if needed.
+4. Add focused package/adapter tests and update existing launcher/worker tests only where the ownership boundary changes.
+5. Validate package builds, focused behavioral suites, launcher dry-run, evidence-validator and Mermaid non-regressions, records/content/JSON/whitespace, and final configured-preset review.
+6. Complete through the two-commit lifecycle; retain the lower-preference `standalone-package-worker-host` backlog item for future independent package operation.
 
 ## Progress
-Task-start selection is being prepared for the component-local readiness task. The configured expert (`large` → `@preset/abs-large`) advised that the implementation is blocked until a stable host-services contract is chosen. Current semantic implementation remains in `tools/agent/subagent-tools.ts` with repository-relative imports for role/configuration/context/tracing/evidence behavior; `.pi/extensions/worker-tools.ts` remains a thin registration adapter; the launcher explicitly loads the tools entry under `--no-extensions`; `.pi/settings.json` separately loads the worker and Mermaid extensions. Pi supports local packages with a `pi.extensions` manifest, but package loading is trust-gated and the current launcher must not silently switch to ambient project discovery.
+Task selected after the completed readiness contract and expert trade-off review. The user chose the easier Option A and requested that the larger independent-package goal remain backlogged with lesser user preference. Current worker semantics are in `tools/agent/subagent-tools.ts`; `.pi/extensions/worker-tools.ts` is the interactive registration adapter; the launcher explicitly loads `tools/agent/subagent-tools.ts` under `--no-extensions`; Mermaid and evidence-validator remain separate. No implementation changes have yet been made.
 
-The recommended readiness boundary is a versioned `SubagentHostServices` contract. The future package owns Pi-facing schemas, registration, bounded call mechanics, and configured-tool exposure. The repository host retains canonical role resolution, model/provider/configuration policy, component-context authority, task budget observation, trace persistence, and evidence scope policy. Environment-driven dynamic imports are rejected. The preferred future distribution path is a local/package-owned Pi manifest plus an explicit launcher entry, with the existing `.pi` adapter retained until package loading and no-duplicate behavior are proven. Mermaid and evidence-validator remain separate.
+The implementation boundary must be explicit and static: package code owns generic Pi registration/runtime mechanics and public service types; repository code supplies existing role/configuration/context/budget/tracing/evidence services through a static adapter. No package code may infer host services from cwd, environment module paths, or hidden relative imports. A bare package registration must fail closed or remain a library entry until services are injected.
 
-No implementation move or runtime change has been made. No descendants are authorized.
+No descendants are authorized.
 
 ## Validation
-Pending final record reconciliation. The expert plan review passed using only the configured `large` preset and identified implementation readiness blockers rather than authorizing a move. Pi documentation was read for extensions, packages, settings, and security/trust behavior. Validation scope for this readiness task is record/content/JSON/whitespace integrity; package loading and behavioral implementation tests belong to the later implementation task.
+Pending implementation. Readiness expert review concluded that direct installed-package operation is blocked by Pi's `ExtensionAPI`-only factory and the absence of a documented service injection channel. The chosen bounded Option A is implementable without changing worker semantics, but does not claim independent package operation. The lower-preference future backlog item records that larger scope.
 
 ## Result
-Completed as a readiness-only contract. Final configured-preset expert review reported PASS and judged the documentation handoff safe to complete. No descendants were authorized; closure is vacuously terminal. The later package-owned extension implementation remains blocked pending this contract and a separately authorized implementation task.
+Pending.
 
 ## Blockers And Escalations
-The later package implementation remains blocked until this contract is accepted and a concrete host-services injection/loading route is implemented. The current Pi extension factory receives only `ExtensionAPI`; repository-specific services cannot be made self-contained by retaining hidden relative imports or environment-selected dynamic imports. No external service, provider, target write, package installation, or trust override is authorized.
+Do not expand into a separately distributed host-services package, broad tools relocation, project settings/trust change, automatic package installation, Mermaid migration, evidence-validator merge, task/runtime redesign, or provider/live-network validation. If the package/adapter boundary cannot be implemented without duplicating authority or hidden host discovery, stop and record the blocker rather than weakening the contract.
 
 ## Recovery
-Preserve `skills/spawning-pi-subagents/as-is.json`, this configured task narrative, and the selected backlog row until the readiness changelog evidence and completion commit are durable. If the host API or distribution decision remains ambiguous, leave the task active or blocked and do not authorize the package implementation. A future implementation must retain the current `.pi/extensions/worker-tools.ts` compatibility surface until package loading, launcher explicit loading, trust behavior, and duplicate-registration checks pass.
+Retain the current `.pi/extensions/worker-tools.ts` and direct repository worker implementation until focused package, adapter, duplicate-registration, launcher, and existing worker tests pass. On package import, service-version, build, or behavioral failure, restore the adapter's direct registration path without changing settings, trust, launcher safety profiles, Mermaid, or evidence-validator behavior. Keep this task record and the selected backlog row until the changelog completion evidence and second commit are durable.
 
 ## Next Action
-Remove only the exact selected readiness backlog row, delete this component's `as-is.json` and `tasks.md`, and create the second completion commit.
+Implement the package boundary and static adapter, then validate and obtain final configured-preset expert review before completion cleanup.

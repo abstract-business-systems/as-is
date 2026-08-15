@@ -1,8 +1,8 @@
 {
   "task": {
-    "status": "completed",
+    "status": "active",
     "worker": "component-builder",
-    "updated": "2026-08-15T21:34:00Z",
+    "updated": "2026-08-15T22:00:00Z",
     "constraints": {
       "cost": {
         "currency": "USD",
@@ -27,10 +27,11 @@
       "external-effects": "prohibited"
     },
     "acceptance": [
-      "A durable readiness contract defines the smallest stable package-to-host boundary for the future package-owned subagent extension, including ownership, versioning, dependency, loading, trust, and failure decisions.",
-      "The contract preserves role-declared tool admission, task/configuration/context/tracer authority, evidence-validator isolation, Mermaid separation, explicit launcher loading, and project-trust boundaries without implementing a package move or runtime change.",
-      "The contract identifies exact implementation artifacts, focused validation, compatibility-shim removal conditions, recovery, residual risks, and explicit exclusions for a later implementation task.",
-      "Durable component navigation and changelog handoff identify this readiness result as a prerequisite for `package-owned-subagent-extension`."
+      "The private spawning package owns a generic Pi registration/runtime boundary with no repository-relative or environment-selected host imports.",
+      "The repository host adapter statically injects the existing worker-tool implementation into that package boundary without changing role-declared admission, worker semantics, task authority, or evidence scope.",
+      "The launcher explicitly loads the repository adapter under --no-extensions; Mermaid remains separate; the evidence-validator profile remains separate; interactive project trust behavior is unchanged.",
+      "Focused package, adapter, launcher, worker, evidence-validator, Mermaid, package build, record, JSON, content, and whitespace validation passes.",
+      "The future independent installed-package host-services work is recorded as a lower-user-preference backlog item and is not claimed complete."
     ]
   }
 }
