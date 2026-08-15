@@ -145,7 +145,7 @@ test.skipIf(!liveIntegrationEnabled)("live follow-up delegation answers from the
 - referent: the first row of that result
 - facts:
   - itemId: host-wiring-adapters
-  - component: components/as-is-setup
+  - component: core/adapters/host-setup
   - weight: 12
   - purpose: Keep client-specific setup wiring explicit and separate from shared detection
 User follow-up: What's the first item?
@@ -162,7 +162,7 @@ Answer from the supplied facts. Do not inspect an unrelated listing or infer a n
     });
     const response = output(result) as Record<string, any>;
     expect(response.text).toMatch(/host-wiring-adapters/);
-    expect(response.text).toMatch(/components\/as-is-setup/);
+    expect(response.text).toMatch(/core\/adapters\/host-setup/);
     expect(response.text).toMatch(/12/);
     expect(response.text).toMatch(/recommendation|first item|backlog/i);
     expect(response.text).not.toMatch(/cannot determine|insufficient facts|ambiguous/i);

@@ -1,6 +1,6 @@
-# Task-Record Validator Backlog
+# Task-Record Validator Reference Backlog
 
-Open or deferred planning items owned by this component. Completed items are
+Open or deferred planning items owned by this retained reference fixture. Completed items are
 removed after their concise summary is recorded in `changelog.md`.
 
 | id | status | user preference | system preference | purpose | description | dependencies | acceptance | notes |

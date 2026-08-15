@@ -216,7 +216,6 @@ const normalizeTarget = (target: string) => target.replace(/(^|\/)\.\//g, "$1");
 const linkTargets = (text: string) => Array.from(text.matchAll(/(?:href=['"]|\]\()([^'")\s]+as-is\.md#design)/g), (match) => normalizeTarget(match[1]));
 const markdownTargets = (text: string) => Array.from(text.matchAll(/\]\(([^)\s]+)\)/g), (match) => normalizeTarget(match[1]));
 const rootRecord = join(repositoryRoot, "as-is.md");
-const componentsRecord = join(repositoryRoot, "components", "as-is.md");
 const expectedBreadcrumb = (recordPath: string) => {
   if (recordPath === rootRecord) return "**Lineage**: **as-is**";
   const ancestors: string[] = [];
@@ -265,17 +264,12 @@ for (const recordPath of canonicalRecords(repositoryRoot)) {
 }
 if (readFileSync(rootRecord, "utf8").includes(".pi/as-is.md")) throw new Error("root record must not map the projected .pi prompt as a nonexistent component");
 
-const componentsText = readFileSync(componentsRecord, "utf8");
-const componentsDesign = componentsText.slice(componentsText.indexOf("\n## Design\n"), componentsText.indexOf("\n## Links\n"));
-for (const phrase of [
-  "### Component relationship map",
-  "### Component relationship map",
-  "config:\n  layout: elk",
-  "flowchart TB",
-]) {
-  if (!componentsDesign.includes(phrase)) throw new Error(`Components diagram must include ${phrase}`);
+const adapterRecord = join(repositoryRoot, "core", "adapters", "as-is.md");
+const adapterText = readFileSync(adapterRecord, "utf8");
+const adapterDesign = adapterText.slice(adapterText.indexOf("\n## Design\n"), adapterText.indexOf("\n## Links\n"));
+for (const phrase of ["### Adapter hierarchy", "flowchart TB", "host-setup"]) {
+  if (!adapterDesign.includes(phrase)) throw new Error(`Core adapter diagram must include ${phrase}`);
 }
-if (componentsDesign.includes("flowchart LR") || componentsDesign.includes("direction LR")) throw new Error("Components diagram must not retain wide LR layout");
 
 const diagramValidation = validateAsIsDiagramsAndNavigation(repositoryRoot, {
   rootRecordPath: "as-is.md",

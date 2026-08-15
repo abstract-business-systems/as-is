@@ -23,7 +23,7 @@ flowchart TB
 
 - Root `skills/` and `agents/` remain canonical host-neutral resources. A projected prompt, extension, or host resource is not thereby canonical source or a component.
 - `host-integration/` owns future approved installed-host integration context: the resource manifest, supported-host matrix, adapter boundary, target-write allowlist, capability prerequisites, collision/recovery contract, and cross-host validation plan.
-- [`components/as-is-setup`](../components/as-is-setup/as-is.md#design) retains executable client discovery, deterministic inventory, adapter planning, linking, collision handling, idempotence, and its focused tests. Current setup behavior is evidence, not a transfer of ownership.
+- [`core/adapters/host-setup`](../core/adapters/host-setup/as-is.md#design) owns executable client discovery, deterministic inventory, adapter planning, linking, collision handling, idempotence, and its focused tests. Current setup behavior is evidence for this future integration boundary, not a transfer of manifest, projection, or target-write authority.
 - Pi, OpenCode, and generic-agent mappings may translate only an explicitly approved manifest. This record does not authorize projection, registration, installation, or host behavior.
 - Target projects own persisted host state, existing files, consent, and acceptance of writes. Existing targets must remain protected by future collision and recovery rules.
 - Current deterministic modules and agent-facing tools retain their semantics and owners. This record grants no relocation, regrouping, registration, or task/tool authority.
@@ -39,6 +39,6 @@ flowchart TB
 
 ## Links
 
-- [`../components/as-is-setup/as-is.md#design`](../components/as-is-setup/as-is.md#design) — deterministic setup boundary and current projection evidence.
+- [`../core/adapters/host-setup/as-is.md#design`](../core/adapters/host-setup/as-is.md#design) — deterministic setup adapter boundary and current projection evidence.
 - [`../docs/architecture-vocabulary.md#scope-and-authority`](../docs/architecture-vocabulary.md#scope-and-authority) — shared authority and evidence terms.
 - [`../docs/opencode-adapter.md`](../docs/opencode-adapter.md) — host-specific OpenCode mapping evidence, not general ownership authority.

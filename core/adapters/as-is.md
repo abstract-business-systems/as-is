@@ -25,6 +25,7 @@ flowchart TB
         direction TB
         Process["<a href='./process/as-is.md#design'>process</a>"]
         HostSetup["<a href='./host-setup/as-is.md#design'>host-setup</a>"]
+        Process -.->|independent adapter boundary| HostSetup
     end
 ```
 

@@ -29,7 +29,7 @@ The shared family is a structural home, not a merged authority. The control-plan
 - Budget arithmetic is consumed by the control plane, subprocess foundation, launcher, and Pi worker adapter while task records remain authoritative.
 - The validator is invoked by repository validation and remains independent of control-plane mutation.
 - Handoff eligibility is consumed by the launcher after host adapters collect immutable facts.
-- The Python validator reference remains at [`../../../components/task-record-validator/task_record_validator.py`](../../../components/task-record-validator/task_record_validator.py) until a separately authorized retirement decision.
+- The Python validator reference remains at [`../../../validation-fixtures/task-record-validator-reference/task_record_validator.py`](../../../validation-fixtures/task-record-validator-reference/task_record_validator.py) as non-runtime compatibility evidence until a separately authorized retirement decision.
 
 ## Links
 

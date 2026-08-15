@@ -155,12 +155,12 @@ report the missing target-local context instead.
 
 ## Existing-project integration
 
-When the project adopts a `components/` layout, place approved initial records
-under the corresponding component directories. This is a convention, not a
+When the project adopts a component layout, place approved initial records
+under the corresponding component boundaries. This is a convention, not a
 mechanical relocation rule: preserve an existing project layout when it is
-clearer and safer. The existing [`components/as-is-setup`](../../components/as-is-setup/as-is.md)
-component describes host/client resource wiring; it is implementation evidence
-for setup concerns, not a replacement for this documentation-adoption skill.
+clearer and safer. The repository's [`core/adapters/host-setup`](../../core/adapters/host-setup/as-is.md)
+adapter provides implementation evidence for host/client resource wiring; it
+is not a replacement for this documentation-adoption skill.
 
 ## Links
 
