@@ -23,6 +23,7 @@ record.
 | [Components](components/as-is.md#design) | Organize implementation boundaries and their focused tests. |
 | [Documentation](docs/as-is.md#design) | Organize normative repository protocols and guidance. |
 | [Validation Fixtures](validation-fixtures/as-is.md#design) | Organize retained delegation, adapter, and recovery evidence. |
+| [Host Integration](host-integration/as-is.md#design) | Define the future installed-host integration boundary and its approval gates. |
 
 ## Design
 
@@ -47,24 +48,25 @@ flowchart LR
         Components["<a href='./components/as-is.md#design'>Components</a>"]
         Documentation["<a href='./docs/as-is.md#design'>Documentation</a>"]
         Fixtures["<a href='./validation-fixtures/as-is.md#design'>Validation Fixtures</a>"]
+        HostIntegration["<a href='./host-integration/as-is.md#design'>Host Integration</a>"]
         Agents -->|uses procedures from| Skills
         Components -->|follows protocols from| Documentation
     end
     classDef component fill:#f8fafc,fill-opacity:0.1,stroke:#334155,stroke-width:2px
     classDef child fill:#2563eb,fill-opacity:0.1,stroke:#64748b,stroke-width:1px
     class Root component
-    class Agents,Designs,Skills,Components,Documentation,Fixtures child
+    class Agents,Designs,Skills,Components,Documentation,Fixtures,HostIntegration child
 ```
 
 The Components table is the required Markdown and renderer fallback for the linked immediate-child boxes.
 
-Only areas with their own `as-is.md` are components in this record. Other repository directories remain navigable through their own files or links but are not listed as components here. `docs/` is a documented collection rather than a set of child components. `.pi/` remains a projected bundle artifact until the deferred host-integration component is separately established; `.opencode/`, `scripts/`, `temp/`, and `.agents/` also remain ordinary or projected artifacts without independent records.
+Only areas with their own `as-is.md` are components in this record. Other repository directories remain navigable through their own files or links but are not listed as components here. `docs/` is a documented collection rather than a set of child components. `.pi/` remains a projected bundle artifact; the new `host-integration/` record provides durable context for its future installed-host boundary without making `.pi/` canonical or granting projection authority. `.opencode/`, `scripts/`, `temp/`, and `.agents/` also remain ordinary or projected artifacts without independent records.
 
 - The repository is composed of filesystem areas and components with durable
   `as-is.md` records.
 - This root record maps immediate areas; each area owns the detailed records for
   its descendants.
-- The `.pi/` directory remains a projected bundle artifact rather than a component until the deferred `establish-host-integration-component` proposal is selected.
+- The `.pi/` directory remains a projected bundle artifact rather than a canonical resource component; `host-integration/` owns only the future installed-host integration boundary and its approval gates.
 - Explicit links provide bounded context; parent context is never ambient.
 - Machine configuration belongs in `as-is.json`, and active task state belongs
   in the configured task record.
