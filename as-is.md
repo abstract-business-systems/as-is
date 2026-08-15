@@ -33,7 +33,7 @@ connects the repository component to its immediate documented child areas.
 
 **Lineage**: **as-is**
 
-The repository's composition model separates authority-bearing agents and workflows from reusable skills. Agents and workflows compose the child areas; explicit links and each area's Design section provide the bounded context for their relationships.
+The repository's composition model separates authority-bearing agents from reusable skills and bounded tools. Roles select and apply skills and tools to produce workflows at runtime; explicit links and each area's Design section provide the bounded context for their relationships.
 
 
 ### Repository child relationship map

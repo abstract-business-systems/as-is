@@ -1,5 +1,7 @@
 # Changelog
 
+- Completion evidence: `root:aspirational-architecture-handoff` completed. Added a durable current-to-future architecture handoff covering execution-contract, Pi adapter, task-facing tools, setup replacement, host integration, browser capability, environment inventory, package-host boundaries, standalone worker hosting, and broader tools/modules regrouping. Each item has proposed ownership, bounded responsibility, sequencing/readiness gates, a distinct recovery boundary, and explicit non-authorizations. Reconciled the dissolved `components/` wording and clarified that workflows are runtime outcomes rather than a repository directory. Validation passed: task-record `VALID`; as-is/content navigation (49 records, 47 diagrams); backlog content; JSON; reference and Mermaid source checks; `git diff --check`; and final configured large expert review. No runtime, host, target, package, browser, environment, schema, authority, or physical migration behavior changed.
+
 - 2026-08-02: Added `model-simplicity-guidance.md`; its bounded implementation item is recorded and linked in the root `backlog.md`.
 - 2026-08-02: Merged the completed execution-accounting design task into this Designs component. The permanent design remains authoritative at `execution-accounting-design.md`; the task was design-only, and a future implementation requires a new bounded task under the responsible component.
   - Defined `component-path/task-revision/attempt` as durable observation identity and removed runtime JobId authority from current task context.
