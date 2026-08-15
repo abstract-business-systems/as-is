@@ -66,10 +66,10 @@ flowchart TD
 ## Links
 
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
-- [scripts/agent-resolution.ts](scripts/agent-resolution.ts) — shared canonical role, front-matter, declared-tool, and identity resolution functionality.
+- [../../core/modules/agent-resolution/agent-resolution.ts](../../core/modules/agent-resolution/agent-resolution.ts) — shared canonical role, front-matter, declared-tool, and identity resolution functionality.
 - [scripts/spawn-pi-subagent.ts](scripts/spawn-pi-subagent.ts) — subprocess launcher and detached supervisor adapter; it collects handoff observations but delegates pure eligibility to task control.
 - [`../../core/modules/task-control/handoff-eligibility.ts`](../../core/modules/task-control/handoff-eligibility.ts) — pure task-control handoff decision consumed by the launcher.
 - [`../../core/modules/context-resolution/configuration-resolver.ts`](../../core/modules/context-resolution/configuration-resolver.ts) — shared configuration-resolution functionality consumed by launcher and worker configuration adapters.
-- [scripts/bounded-process-supervisor.ts](scripts/bounded-process-supervisor.ts) — shared mechanical process-group, timer, signal, stdio, and exit-observation boundary.
-- [../../.pi/extensions/worker-tools-observability.ts](../../.pi/extensions/worker-tools-observability.ts) — focused bounded session and trace query functionality consumed by the Pi registration adapter.
-- [../../.pi/extensions/worker-tools.ts](../../.pi/extensions/worker-tools.ts) — thin Pi registration and delegation adapter that retains role admission and call-subagent authority.
+- [../../core/adapters/process/bounded-process-supervisor.ts](../../core/adapters/process/bounded-process-supervisor.ts) — shared mechanical process-group, timer, signal, stdio, and exit-observation boundary.
+- [../../tools/evidence/worker-tools-observability.ts](../../tools/evidence/worker-tools-observability.ts) — focused bounded session and trace query functionality consumed by the Pi registration adapter.
+- [../../tools/agent/subagent-tools.ts](../../tools/agent/subagent-tools.ts) — bounded agent-tool implementation and delegation adapter composition that retains role admission and call-subagent authority.

@@ -16,5 +16,5 @@
 
 - **Component:** Worker Agent.
 - **Result:** The worker role and first blocking in-process delegation path are implemented. The component-build tracer is configurable and propagated to subprocesses, with local launch observations. Collector/shared observation remains future bounded work.
-- **Validation retained:** - `bun build --no-bundle --target bun --outfile /tmp/worker-tools.js .pi/extensions/worker-tools.ts` passed. - `bun build --no-bundle --target bun --outfile /tmp/spawn.js skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts` passed. - `bun test skills/managing-as-is-document/scripts/orient.test.ts` passed. - `bun test skills/spawning-pi-subagents/scripts/spawn-pi-subagent.test.ts` passed: 8 tests. - `bun test…
+- **Validation retained:** - `bun build --no-bundle --target bun --outfile /tmp/worker-tools.js tools/agent/subagent-tools.ts` passed. - `bun build --no-bundle --target bun --outfile /tmp/spawn.js skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts` passed. - `bun test skills/managing-as-is-document/scripts/orient.test.ts` passed. - `bun test skills/spawning-pi-subagents/scripts/spawn-pi-subagent.test.ts` passed: 8 tests. - `bun test…
 - **Record migration:** Removed completed transient task narrative from `as-is.md`; Git history retains the original detailed evidence.

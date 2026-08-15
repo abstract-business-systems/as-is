@@ -43,4 +43,4 @@ flowchart TB
 - [`../../skills/exploring-execution-evidence/SKILL.md`](../../skills/exploring-execution-evidence/SKILL.md) — bounded execution evidence procedure.
 - [`../../docs/component-task-record-protocol.md`](../../docs/component-task-record-protocol.md) — task and budget authority.
 - [`../../docs/execution-contract.md`](../../docs/execution-contract.md) — host-neutral execution boundary.
-- [`../../components/observability/tracing-design.md`](../../components/observability/tracing-design.md) — session-reference-first policy.
+- [`../../core/modules/observability/tracing-design.md`](../../core/modules/observability/tracing-design.md) — session-reference-first policy.

@@ -24,7 +24,8 @@ record.
 | [Documentation](docs/as-is.md#design) | Organize normative repository protocols and guidance. |
 | [Validation Fixtures](validation-fixtures/as-is.md#design) | Organize retained delegation, adapter, and recovery evidence. |
 | [Host Integration](host-integration/as-is.md#design) | Define the future installed-host integration boundary and its approval gates. |
-| [Core](core/as-is.md#design) | Organize approved host-neutral deterministic implementation families. |
+| [Core](core/as-is.md#design) | Organize approved host-neutral deterministic implementation families and adapters. |
+| [Tools](tools/as-is.md#design) | Organize bounded agent-facing tool implementations. |
 
 ## Design
 
@@ -51,13 +52,14 @@ flowchart LR
         Fixtures["<a href='./validation-fixtures/as-is.md#design'>Validation Fixtures</a>"]
         HostIntegration["<a href='./host-integration/as-is.md#design'>Host Integration</a>"]
         Core["<a href='./core/as-is.md#design'>Core</a>"]
+        Tools["<a href='./tools/as-is.md#design'>Tools</a>"]
         Agents -->|uses procedures from| Skills
         Components -->|follows protocols from| Documentation
     end
     classDef component fill:#f8fafc,fill-opacity:0.1,stroke:#334155,stroke-width:2px
     classDef child fill:#2563eb,fill-opacity:0.1,stroke:#64748b,stroke-width:1px
     class Root component
-    class Agents,Designs,Skills,Components,Documentation,Fixtures,HostIntegration,Core child
+    class Agents,Designs,Skills,Components,Documentation,Fixtures,HostIntegration,Core,Tools child
 ```
 
 The Components table is the required Markdown and renderer fallback for the linked immediate-child boxes.

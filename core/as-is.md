@@ -9,6 +9,7 @@ Organize host-neutral deterministic implementation families and their focused mo
 | Component | Purpose |
 | --- | --- |
 | [Modules](modules/as-is.md#design) | Organize host-neutral deterministic functionality families. |
+| [Adapters](adapters/as-is.md#design) | Map approved core contracts to host or transport execution surfaces. |
 
 ## Design
 
@@ -21,6 +22,8 @@ flowchart TB
     subgraph Core["core"]
         direction TB
         Modules["<a href='./modules/as-is.md#design'>modules</a>"]
+        Adapters["<a href='./adapters/as-is.md#design'>adapters</a>"]
+        Modules -->|mapped by| Adapters
     end
 ```
 

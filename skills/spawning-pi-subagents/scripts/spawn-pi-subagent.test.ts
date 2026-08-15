@@ -235,7 +235,7 @@ test("normal component-builder launches forward the bounded in-process gate budg
   ]);
   expect(result.exitCode).toBe(0);
   const parsed = JSON.parse(result.stdout);
-  expect(parsed.args).toContain(`${process.cwd()}/.pi/extensions/worker-tools.ts`);
+  expect(parsed.args).toContain(`${process.cwd()}/tools/agent/subagent-tools.ts`);
   expect(parsed.tools).toBe("read,grep,find,ls,bash,edit,write,call_subagent,resolve_component_context");
   expect(parsed.args).toContain("read,grep,find,ls,bash,edit,write,call_subagent,resolve_component_context");
   expect(parsed.budget["wall-clock-seconds"]).toBe(900);
@@ -261,7 +261,7 @@ test("evidence validation uses the fixed read-only same-worktree capability prof
   expect(parsed.sessionPath).toBe(null);
   expect(parsed.args).toContain("--no-extensions");
   expect(parsed.args).toContain("--no-approve");
-  expect(parsed.args).not.toContain(`${process.cwd()}/.pi/extensions/worker-tools.ts`);
+  expect(parsed.args).not.toContain(`${process.cwd()}/tools/agent/subagent-tools.ts`);
   expect(parsed.args).not.toContain("bash,write,edit,webfetch");
   expect(parsed.args).not.toContain("--no-tools");
   expect(parsed.skills).toEqual([]);

@@ -532,7 +532,7 @@ acceptance conditions.
 
 The accepted current implementation for the execution-foundation boundary is
 the dependency-free subprocess supervisor recorded by the terminal
-`components/subprocess-execution-foundation/as-is.md` handoff and commit `e8fb1da`. The
+`core/adapters/process/as-is.md` handoff and commit `e8fb1da`. The
 previous systemd user-job flow is retired/superseded and is not a fallback,
 active sequencing dependency, or separate recovery path. Its historical
 baseline is recoverable only through Git and the canonical `Changelog` section.

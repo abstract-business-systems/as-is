@@ -4,8 +4,8 @@ import { appendFile, mkdtemp, open, readFile, rm, writeFile } from "node:fs/prom
 import { tmpdir } from "node:os";
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { boundedLimit } from "../../../core/modules/task-control/budget.ts";
-import { runBoundedProcess } from "./bounded-process-supervisor.ts";
-import { emitTrace, startSpan, serializeSessionReference, type SessionReference } from "../../../components/observability/tracer.ts";
+import { runBoundedProcess } from "../../../core/adapters/process/bounded-process-supervisor.ts";
+import { emitTrace, startSpan, serializeSessionReference, type SessionReference } from "../../../core/modules/observability/tracer.ts";
 import { evaluateHandoffEligibility, type HandoffFacts } from "../../../core/modules/task-control/handoff-eligibility.ts";
 import { resolveInstructionContext } from "../../../core/modules/context-resolution/instruction-resolver.ts";
 import { findConfigurationRootSync, isTaskNarrativeFilename, parseAsIsJson, resolveConfigurationSync } from "../../../core/modules/context-resolution/configuration-resolver.ts";
@@ -15,7 +15,7 @@ import {
   parseDeclaredTools,
   identityFromAgent,
   type AgentDefinition,
-} from "./agent-resolution.ts";
+} from "../../../core/modules/agent-resolution/agent-resolution.ts";
 
 type Options = {
   agent?: string;
@@ -939,7 +939,7 @@ const main = async() => {
     noExtensions: true,
     extensionPath: resolve(cwd, isEvidenceValidation
       ? "skills/spawning-pi-subagents/scripts/evidence-validator-inspection-extension.ts"
-      : ".pi/extensions/worker-tools.ts"),
+      : "tools/agent/subagent-tools.ts"),
     noApprove: isEvidenceValidation || Boolean(options.noApprove),
     worktree: isEvidenceValidation ? false : !(options.noWorktree ?? false),
   };

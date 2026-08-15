@@ -1,5 +1,5 @@
 
-# Subprocess Execution Foundation - as-is
+# process adapter - as-is
 
 ## Purpose
 
@@ -10,15 +10,13 @@ wait for worker completion.
 
 ## Design
 
-The component is organized around detached launch and lifecycle boundaries for
-bounded worker attempts. The Pi launcher currently consumes the shared
-mechanical process boundary in
-[`skills/spawning-pi-subagents/scripts/bounded-process-supervisor.ts`](../../skills/spawning-pi-subagents/scripts/bounded-process-supervisor.ts)
-without transferring task-record, Git, worktree, or handoff authority into that
-module; this is an adapter relationship, not a second task authority.
+The adapter is organized around detached launch and lifecycle boundaries for
+bounded worker attempts. The Pi launcher consumes the shared mechanical process
+boundary without transferring task-record, Git, worktree, or handoff authority
+into this adapter; this is an adapter relationship, not a second task authority.
 
 
-**Lineage**: [as-is](../../as-is.md#design) / [Components](../as-is.md#design) / **Subprocess Execution Foundation**
+**Lineage**: [as-is](../../../as-is.md#design) / [core](../../as-is.md#design) / [core Adapters](../as-is.md#design) / **process adapter**
 
 ### Detached bounded worker launch
 
@@ -43,4 +41,4 @@ flowchart TD
 
 - [`supervisor.ts`](supervisor.ts) — host-neutral detached lifecycle implementation.
 - [`supervisor.test.ts`](supervisor.test.ts) — provider-free lifecycle and durable-record behavioral tests.
-- [`../../skills/spawning-pi-subagents/scripts/bounded-process-supervisor.ts`](../../skills/spawning-pi-subagents/scripts/bounded-process-supervisor.ts) — launcher adapter's shared mechanical process boundary.
+- [`bounded-process-supervisor.ts`](bounded-process-supervisor.ts) — launcher adapter's shared mechanical process boundary.

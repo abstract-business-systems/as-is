@@ -2,8 +2,8 @@ import { describe, expect, test } from "bun:test";
 import { mkdtemp, mkdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createAgentSession, createExtensionRuntime, ModelRuntime, SessionManager } from "@earendil-works/pi-coding-agent";
-import workerTools, { analyzeProjectSession, resolveWorkerThinkingLevel, workerSessionOptions } from "../../../.pi/extensions/worker-tools";
+import { createAgentSession, createExtensionRuntime, ModelRuntime, SessionManager } from "../../skills/spawning-pi-subagents/node_modules/@earendil-works/pi-coding-agent";
+import workerTools, { analyzeProjectSession, resolveWorkerThinkingLevel, workerSessionOptions } from "../../.pi/extensions/worker-tools";
 
 const rootRecord = "# Root\n";
 
@@ -91,7 +91,9 @@ describe("capability-based worker extension", () => {
     const expert = await Bun.file(join(cwd, "agents", "expert", "agent.md")).text();
     const extension = await Bun.file(join(cwd, ".pi", "extensions", "worker-tools.ts")).text();
     expect(worker).not.toEqual(expert);
-    expect(extension).toContain("resolveCanonicalTarget");
+    const implementation = await Bun.file(join(cwd, "tools", "agent", "subagent-tools.ts")).text();
+    expect(extension).toContain("agentTools");
+    expect(implementation).toContain("resolveCanonicalTarget");
     expect(extension).not.toContain("rolePaths");
     expect(extension).not.toContain("AS_IS_ALLOW_CALL_SUBAGENT");
     expect(JSON.stringify({ role: "worker", caller: "arbitrary", parentJobId: "arbitrary" })).toContain("worker");

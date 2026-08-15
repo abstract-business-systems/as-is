@@ -1,4 +1,4 @@
-# Observability - as-is
+# observability - as-is
 
 ## Purpose
 
@@ -13,7 +13,7 @@ surface; this component does not hold task, job, validation, recovery, or
 completion authority.
 
 
-**Lineage**: [as-is](../../as-is.md#design) / [Components](../as-is.md#design) / **Observability**
+**Lineage**: [as-is](../../../as-is.md#design) / [core](../../as-is.md#design) / [core Modules](../as-is.md#design) / **observability**
 
 ### Supplementary telemetry and query boundaries
 
@@ -38,7 +38,7 @@ flowchart TD
   store references.
 - Own tracing implementation and observability backlog items; bounded query
   support is implemented as a focused Pi adapter functionality in
-  `.pi/extensions/worker-tools-observability.ts`, outside this component's
+  `tools/evidence/worker-tools-observability.ts`, outside this module's
   tracer boundary.
 - Do not let trace failures, malformed events, unavailable sinks, or size
   limits change durable task decisions.
@@ -52,4 +52,4 @@ flowchart TD
 - [`tracer.ts`](tracer.ts) — stable tracing implementation boundary whose bounded event and sink behavior is indispensable to understand the component.
 - [`tracing-design.md`](tracing-design.md) — broader tracing design and staged
   rollout boundaries.
-- [`../../.pi/extensions/worker-tools-observability.ts`](../../.pi/extensions/worker-tools-observability.ts) — bounded session and trace query functionality.
+- [`../../../tools/evidence/worker-tools-observability.ts`](../../../tools/evidence/worker-tools-observability.ts) — bounded session and trace query functionality.

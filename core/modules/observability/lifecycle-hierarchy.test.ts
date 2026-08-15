@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { startSpan, type TraceEvent } from "./tracer";
+import { startSpan, type TraceEvent } from "./tracer.ts";
 
 describe("lifecycle hierarchy seam", () => {
   test("keeps session as the deterministic parent of delegation without raw content", async () => {

@@ -3,9 +3,9 @@ import { appendFile, chmod, mkdir, open, readFile, rename, rm, stat, unlink, wri
 import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { emitTrace, startSpan, type TracerConfig, type SpanLifecycle } from "../observability/tracer.ts";
-import { isExhausted } from "../../core/modules/task-control/budget.ts";
-import { parseAsIsJson } from "../../core/modules/context-resolution/configuration-resolver.ts";
+import { emitTrace, startSpan, type TracerConfig, type SpanLifecycle } from "../../modules/observability/tracer.ts";
+import { isExhausted } from "../../modules/task-control/budget.ts";
+import { parseAsIsJson } from "../../modules/context-resolution/configuration-resolver.ts";
 
 /**
  * A small, host-neutral execution boundary.

@@ -36,7 +36,7 @@ flowchart TD
 
 - [`SKILL.md`](SKILL.md) — authoritative procedure and output contract.
 - [`../../agent-skills.md`](../../agent-skills.md) — concise capability catalog.
-- [`../../components/observability/as-is.md`](../../components/observability/as-is.md) — trace ownership and boundaries.
-- [`../../components/observability/tracing-design.md`](../../components/observability/tracing-design.md) — session-reference-first and privacy policy.
+- [`../../core/modules/observability/as-is.md`](../../core/modules/observability/as-is.md) — trace ownership and boundaries.
+- [`../../core/modules/observability/tracing-design.md`](../../core/modules/observability/tracing-design.md) — session-reference-first and privacy policy.
 - [`../context-building/SKILL.md`](../context-building/SKILL.md) — bounded context and provenance procedure.
 - [`../verification-discipline/SKILL.md`](../verification-discipline/SKILL.md) — evidence and residual-risk guidance.
