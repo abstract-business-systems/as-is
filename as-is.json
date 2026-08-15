@@ -54,5 +54,38 @@
         "local-directory": ".as-is/tracing.jsonl"
       }
     }
+  },
+  "task": {
+    "status": "active",
+    "worker": "as-is",
+    "updated": "2026-08-15T19:12:08Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.5,
+        "spent": 0,
+        "reserve": 0.1,
+        "source": "unavailable",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 600,
+          "spent-seconds": 0,
+          "reserve-seconds": 90,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "prohibited"
+    },
+    "acceptance": [
+      "Move the approved TypeScript task-control family into core/modules/task-control with focused tests and preserved boundaries.",
+      "Update proven imports and durable navigation while retaining the Python validator reference.",
+      "Validate and commit one scoped physical migration; no descendants are authorized."
+    ]
   }
 }

@@ -135,12 +135,12 @@ launched; a supervisor does the same for the children it supervises.
   `.agents/agents/orchestrator.md` and `.agents/agents/implementer.md` are
   removed; `.agents/agents/component-builder/agent.md` is added. References in
   `.agents/agents/as-is/agent.md`, [docs/configuration.md](../docs/configuration.md),
-  `components/control-plane/control-plane.ts`, and the
+  `core/modules/task-control/control-plane.ts`, and the
   [spawning-pi-subagents](../skills/spawning-pi-subagents/SKILL.md) skill are
   updated accordingly.
 - **Control-plane identifiers**: `parent-orchestrator` becomes
   `parent-builder` and the default worker `implementer` becomes
-  `component-builder` in `components/control-plane/control-plane.ts`. The hard
+  `component-builder` in `core/modules/task-control/control-plane.ts`. The hard
   `delegatedBy !== "parent-orchestrator"` check and the default must change
   together or the delegation path throws.
 - **Chain references** in [orchestration-design.md](orchestration-design.md)

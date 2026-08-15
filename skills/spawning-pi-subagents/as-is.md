@@ -68,7 +68,7 @@ flowchart TD
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
 - [scripts/agent-resolution.ts](scripts/agent-resolution.ts) — shared canonical role, front-matter, declared-tool, and identity resolution functionality.
 - [scripts/spawn-pi-subagent.ts](scripts/spawn-pi-subagent.ts) — subprocess launcher and detached supervisor adapter; it collects handoff observations but delegates pure eligibility to task control.
-- [`../../components/control-plane/handoff-eligibility.ts`](../../components/control-plane/handoff-eligibility.ts) — pure task-control handoff decision consumed by the launcher.
+- [`../../core/modules/task-control/handoff-eligibility.ts`](../../core/modules/task-control/handoff-eligibility.ts) — pure task-control handoff decision consumed by the launcher.
 - [`../../core/modules/context-resolution/configuration-resolver.ts`](../../core/modules/context-resolution/configuration-resolver.ts) — shared configuration-resolution functionality consumed by launcher and worker configuration adapters.
 - [scripts/bounded-process-supervisor.ts](scripts/bounded-process-supervisor.ts) — shared mechanical process-group, timer, signal, stdio, and exit-observation boundary.
 - [../../.pi/extensions/worker-tools-observability.ts](../../.pi/extensions/worker-tools-observability.ts) — focused bounded session and trace query functionality consumed by the Pi registration adapter.

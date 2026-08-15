@@ -9,6 +9,7 @@ Organize approved host-neutral deterministic functionality families under `core`
 | Component | Purpose |
 | --- | --- |
 | [Context Resolution](context-resolution/as-is.md#design) | Resolve configuration, instructions, and explicitly linked local context through distinct focused APIs. |
+| [Task Control](task-control/as-is.md#design) | Coordinate durable task lifecycle, budget arithmetic, mechanical validation, and pure handoff eligibility through distinct focused APIs. |
 
 ## Design
 
@@ -21,6 +22,8 @@ flowchart TB
     subgraph Modules["core Modules"]
         direction TB
         Context["<a href='./context-resolution/as-is.md#design'>context-resolution</a>"]
+        TaskControl["<a href='./task-control/as-is.md#design'>task-control</a>"]
+        Context -->|remains separate from| TaskControl
     end
 ```
 

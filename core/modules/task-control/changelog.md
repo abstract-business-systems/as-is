@@ -1,0 +1,3 @@
+# Changelog
+
+- 2026-08-15: Established the documented task-control family and moved the approved TypeScript control-plane, budget-arithmetic, task-record-validator, and handoff-eligibility implementations and focused tests with history-preserving paths. Proven repository-local consumers and durable navigation were updated while the Python validator reference remained in `components/task-record-validator/`. Distinct mutation, arithmetic, read-only validation, fail-closed handoff, task-record, host-neutral, and recovery boundaries were preserved; no setup, projection, host, target, browser, environment, or broad tools/adapters relocation was included.

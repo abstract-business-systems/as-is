@@ -16,7 +16,7 @@ import {
   createSessionAnalysisTool as createFocusedSessionAnalysisTool,
   createTraceQueryTools as createFocusedTraceQueryTools,
 } from "./worker-tools-observability.ts";
-import { boundedLimit } from "../../components/budget-control/budget.ts";
+import { boundedLimit } from "../../core/modules/task-control/budget.ts";
 import { parseThinkingLevel, resolveThinkingLevel, type ThinkingLevel } from "../../skills/spawning-pi-subagents/scripts/agent-thinking.ts";
 import { resolveCanonicalAgent } from "../../skills/spawning-pi-subagents/scripts/agent-resolution.ts";
 import { readAsIsJson, resolveConfigurationFromCwdSync } from "../../core/modules/context-resolution/configuration-resolver.ts";

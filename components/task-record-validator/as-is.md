@@ -10,10 +10,9 @@ runtime enforcement.
 ## Design
 
 The component is organized around mechanical task-record invariant checks.
-It is one current implementation boundary within the readiness contract for a
-future `core/modules/task-control/` family; until a separately authorized move,
-this component retains source, focused tests, and the Python transition
-reference.
+The TypeScript implementation and focused tests moved to the task-control
+family. This component retains the Python transition/reference implementation
+and its historical component context.
 
 **Lineage**: [as-is](../../as-is.md#design) / [Components](../as-is.md#design) / **Task-Record Validator**
 
@@ -29,10 +28,10 @@ flowchart TD
   enforcement.
 - Keep validation ownership here without becoming task authority or runtime
   enforcement.
-- [`validator.ts`](validator.ts) provides the dependency-free Bun/TypeScript
-  validator; it preserves the Python reference's configured narrative, schema,
-  budget, delegation, policy, and descendant-closure checks without mutating
-  records.
-- [`validator.test.ts`](validator.test.ts) provides focused Bun parity coverage;
-  [`task_record_validator.py`](task_record_validator.py) remains the reference
-  implementation and compatibility check during the port.
+- [`../../core/modules/task-control/task-record-validator.ts`](../../core/modules/task-control/task-record-validator.ts)
+  provides the dependency-free Bun/TypeScript validator and preserves the
+  Python reference's configured narrative, schema, budget, delegation, policy,
+  and descendant-closure checks without mutating records.
+- [`../../core/modules/task-control/task-record-validator.test.ts`](../../core/modules/task-control/task-record-validator.test.ts)
+  provides focused Bun parity coverage; [`task_record_validator.py`](task_record_validator.py)
+  remains the retained reference implementation and compatibility check.
