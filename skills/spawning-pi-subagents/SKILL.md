@@ -222,14 +222,20 @@ the registry, joined to the task-record status and recomputed handoff
 eligibility. A finished exit-0 job with failed or missing handoff evidence is
 reported as `incomplete`, never `completed`; pending-parent-integration and
 unreachable caller ancestry remain explicit blockers. A runner that is no
-longer alive with no completion line is reported as `crashed (recovery
-candidate)` — a dead process whose record is still non-terminal. A finished
-job whose worktree was preserved (uncommitted changes without a commit) is
-reported with `preserved: <reason> @ <path>` so the worktree can be inspected
-and recovered. The `caller`/`identity` columns reconstruct the logical
-delegation tree (OS parentage is broken by the runner). This is the on-query
-observation surface for the fire-and-forget model; it is read-only and never
-contacts a provider.
+longer alive with no completion line is reconciled as `recovery-candidate` when its child record is non-terminal or
+unavailable. The launcher appends one idempotent, source-labelled recovery
+observation containing the job, observation time, reason, record state,
+task-record path, worktree/preservation reference, and explicit
+`automaticRestart: false` / `retryAuthority: parent-or-user` context. Terminal
+records and jobs with completion lines are not reconciled. This observation
+does not mutate task authority or initiate restart. A finished job whose
+worktree was preserved (uncommitted changes without a commit) is reported with
+`preserved: <reason> @ <path>` so the worktree can be inspected and recovered.
+The `caller`/`identity` columns reconstruct the logical delegation tree (OS
+parentage is broken by the runner). This is the on-query observation surface
+for the fire-and-forget model; it writes only the idempotent recovery-candidate
+observation to the configured best-effort registry, remains read-only with
+respect to task records and processes, and never contacts a provider.
 
 ## Process Rules
 
@@ -283,9 +289,11 @@ contacts a provider.
   the `as-is budget-stopped` stderr marker means the wall-clock budget stopped
   the child; account for that as a budget-stopped return rather than a normal
   completion.
-- This skill does not provide restart reconciliation, cancellation ownership
-  for whole subtrees, watchdog enforcement beyond the wall-clock budget timer,
-  or cost-budget enforcement at the launcher. A best-effort job registry and
+- This skill provides bounded restart reconciliation only as a durable
+  recovery-candidate observation. It does not provide automatic restart,
+  cancellation ownership for whole subtrees, task-status mutation, budget
+  reallocation, watchdog enforcement beyond the wall-clock budget timer, or
+  cost-budget enforcement at the launcher. A best-effort job registry and
   on-query `--jobs` status are available; non-blocking launch is available via
   `--detach`. Cost enforcement is forwarded to the child for self-limiting
   because Pi cost is not directly observable from the launcher; record that

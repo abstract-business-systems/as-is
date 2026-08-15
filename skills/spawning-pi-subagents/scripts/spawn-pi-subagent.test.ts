@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { evaluateHandoffEligibility, type HandoffFacts } from "../../../core/modules/task-control/handoff-eligibility.ts";
 import { assertPiVersionCompatible, contractFromPackageManifest, parsePiVersionOutput, versionProbeArguments, type PiInvocation } from "./pi-version.ts";
+import { recoveryCandidateFor } from "./recovery-reconciliation.ts";
 
 const SCRIPT = resolve("skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts");
 const AGENT = "agents/as-is/agent.md";
@@ -904,6 +905,101 @@ test("integration status distinguishes an unreachable child commit", () => {
     expect(git(["-c", "user.email=test@example.invalid", "-c", "user.name=test", "commit", "-qm", "base"]).status).toBe(0);
     const unreachableSha = "0".repeat(40);
     expect(spawnSync(Bun.which("bun") ?? "bun", ["-e", `import { integrationStatusFor } from ${JSON.stringify(join(process.cwd(), "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts"))}; console.log(integrationStatusFor(${JSON.stringify(unreachableSha)}, ${JSON.stringify(dir)}));`], { encoding: "utf8" }).stdout.trim()).toBe("unreachable");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("recovery candidates are bounded, terminal-aware, and idempotent by job identity", () => {
+  const launch = {
+    jobId: "recovery-job",
+    recordPath: "/tmp/component/as-is.md",
+    worktreePath: "/tmp/component-worktree",
+    preserveReason: "uncommitted changes without a commit (recovery candidate)",
+  };
+  expect(recoveryCandidateFor(launch, null, "active", false)).toMatchObject({
+    event: "recovery-candidate",
+    source: "spawning-pi-subagents:jobs-observation",
+    jobId: "recovery-job",
+    reason: "runner-not-alive-with-non-terminal-task-record",
+    recordState: "non-terminal",
+    retryContext: { automaticRestart: false, retryAuthority: "parent-or-user", configuredBackoff: "not-applied" },
+  });
+  expect(recoveryCandidateFor(launch, null, "completed", false)).toBeNull();
+  expect(recoveryCandidateFor(launch, { event: "finished" }, "active", false)).toBeNull();
+  expect(recoveryCandidateFor(launch, null, "active", true)).toBeNull();
+  expect(recoveryCandidateFor(launch, null, null, false)).toMatchObject({
+    reason: "runner-not-alive-with-unavailable-task-record",
+    recordState: "unavailable",
+  });
+});
+
+test("--jobs records one recovery candidate for a dead non-terminal runner", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "as-is-recovery-candidate-test-"));
+  try {
+    const registry = join(dir, "jobs.jsonl");
+    const recordPath = join(dir, "as-is.md");
+    writeFileSync(recordPath, "# Temp component\n");
+    writeFileSync(join(dir, "as-is.json"), JSON.stringify({
+      task: { status: "active" },
+    }));
+    writeFileSync(registry, `${JSON.stringify({
+      event: "launched",
+      jobId: "dead-runner",
+      pid: 999999,
+      identity: "component-builder",
+      caller: "user",
+      recordPath,
+      worktreePath: join(dir, "worktree"),
+      budgetWallClockSeconds: 120,
+    })}\n`);
+    const env = { ...process.env, AS_IS_JOBS_REGISTRY: registry };
+    const first = await runLauncher(["--jobs"], env);
+    expect(first.exitCode).toBe(0);
+    expect(first.stdout).toContain("recovery-candidate");
+    expect(first.stdout).toContain("runner-not-alive-with-non-terminal-task-record");
+    const second = await runLauncher(["--jobs"], env);
+    expect(second.exitCode).toBe(0);
+    const events = readRegistryLines(registry).filter((line) => (line as { event?: string }).event === "recovery-candidate");
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({ jobId: "dead-runner", recordStatus: "active", recordState: "non-terminal" });
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("--jobs records unavailable records and preserves recovery references", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "as-is-recovery-unavailable-test-"));
+  try {
+    const registry = join(dir, "jobs.jsonl");
+    const preserved = join(dir, "preserved-worktree");
+    writeFileSync(registry, `${JSON.stringify({
+      event: "launched",
+      jobId: "unreadable-runner",
+      pid: 999996,
+      recordPath: join(dir, "missing-as-is.md"),
+      worktreePath: preserved,
+      preserveReason: "uncommitted changes without a commit (recovery candidate)",
+    })}\n`);
+    const result = await runLauncher(["--jobs"], { ...process.env, AS_IS_JOBS_REGISTRY: registry });
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain("runner-not-alive-with-unavailable-task-record");
+    expect(result.stdout).toContain(preserved);
+    const event = readRegistryLines(registry).find((line) => (line as { event?: string }).event === "recovery-candidate") as Record<string, unknown> | undefined;
+    expect(event).toMatchObject({ recordState: "unavailable", worktreePath: preserved, preserveReason: "uncommitted changes without a commit (recovery candidate)" });
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("--jobs does not reconcile terminal or completed registry entries", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "as-is-recovery-terminal-test-"));
+  try {
+    const registry = join(dir, "jobs.jsonl");
+    const recordPath = join(dir, "as-is.md");
+    writeFileSync(recordPath, "# Temp component\n");
+    writeFileSync(join(dir, "as-is.json"), JSON.stringify({ task: { status: "completed" } }));
+    writeFileSync(registry, `${JSON.stringify({ event: "launched", jobId: "terminal-runner", pid: 999998, recordPath })}\n`);
+    const finished = { event: "finished", jobId: "completed-runner", pid: 999997, exitCode: 0, committed: false, budgetStopped: false, wallClockSeconds: 0 };
+    writeFileSync(registry, `${JSON.stringify({ event: "launched", jobId: "completed-runner", pid: 999997, recordPath })}\n${JSON.stringify(finished)}\n`, { flag: "a" });
+    const result = await runLauncher(["--jobs"], { ...process.env, AS_IS_JOBS_REGISTRY: registry });
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).not.toContain("recovery-candidate");
+    expect(readRegistryLines(registry).filter((line) => (line as { event?: string }).event === "recovery-candidate")).toHaveLength(0);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 

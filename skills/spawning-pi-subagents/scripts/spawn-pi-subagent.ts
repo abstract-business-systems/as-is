@@ -11,6 +11,7 @@ import { evaluateHandoffEligibility, type HandoffFacts } from "../../../core/mod
 import { resolveInstructionContext } from "../../../core/modules/context-resolution/instruction-resolver.ts";
 import { findConfigurationRootSync, isTaskNarrativeFilename, parseAsIsJson, resolveConfigurationSync } from "../../../core/modules/context-resolution/configuration-resolver.ts";
 import { parseThinkingLevel, resolveThinkingLevel, type ThinkingLevel } from "./agent-thinking.ts";
+import { recoveryCandidateFor, type RecoveryCandidateObservation } from "./recovery-reconciliation.ts";
 import {
   parseAgentFrontMatter,
   parseDeclaredTools,
@@ -763,6 +764,42 @@ const buildBudgetLines = (options: Options): string[] => {
 // recorded, else from the recordPath on disk). A dead supervisor with no
 // completion line is flagged as a recovery candidate. Read-only.
 /** Derive handoff integration only from ancestry in the caller repository. */
+export const recoveryObservationExists = (lines: Record<string, unknown>[], jobId: string): boolean =>
+  lines.some((line) => line.event === "recovery-candidate" && line.jobId === jobId);
+
+const appendRecoveryObservation = async (path: string, observation: RecoveryCandidateObservation): Promise<boolean> => {
+  try {
+    const current = (await readFile(path, "utf8")).split("\n").filter((line) => line.trim()).map((line) => {
+      try { return JSON.parse(line) as Record<string, unknown>; } catch { return {}; }
+    });
+    if (recoveryObservationExists(current, observation.jobId)) return false;
+    await appendFile(path, `${JSON.stringify(observation)}\n`, "utf8");
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const readJoinedRecordStatus = async (recordPath: string | null, commitSha: string | null): Promise<string | null> => {
+  if (!recordPath) return null;
+  try {
+    let raw: string | null = null;
+    if (commitSha) raw = await gitIn(process.cwd(), ["show", `${commitSha}:${recordPath}`]);
+    if (raw === null && existsSync(recordPath)) raw = await readFile(recordPath, "utf8");
+    if (!raw) return null;
+    const companionPath = join(dirname(recordPath), "as-is.json");
+    if (!existsSync(companionPath)) return null;
+    const companion = parseAsIsJson(await readFile(companionPath, "utf8"), companionPath);
+    const task = companion.task;
+    if (!task || typeof task !== "object" || Array.isArray(task)) return null;
+    const status = (task as Record<string, unknown>).status;
+    return typeof status === "string" ? status : null;
+  } catch {
+    return null;
+  }
+};
+
+/** Derive handoff integration only from ancestry in the caller repository. */
 export const integrationStatusFor = (commitSha: string | null, callerCwd: string): string => {
   if (!commitSha) return "not-committed";
   const exists = spawnSync("git", ["cat-file", "-e", `${commitSha}^{commit}`], { cwd: callerCwd, stdio: "ignore" });
@@ -834,7 +871,7 @@ const printJobs = async (): Promise<void> => {
     }
     // Read the task-record status: prefer the captured commit (durable, no
     // filesystem race), else the recordPath on disk.
-    let recordStatus = "-";
+    let recordStatus: string | null = null;
     const recordPath = launch.recordPath as string | null;
     const commitSha = finished?.commitSha as string | null | undefined;
     if (recordPath) {
@@ -860,13 +897,21 @@ const printJobs = async (): Promise<void> => {
         /* leave "-" */
       }
     }
+    const runnerAlive = typeof pid === "number" && pid > 0 && alive(pid);
+    const recovery = recoveryCandidateFor(launch, finished, recordStatus, runnerAlive);
+    if (recovery) {
+      await appendRecoveryObservation(path, recovery);
+      status = "recovery-candidate";
+    }
     const integrationStatus = finishedIntegrationStatus;
     const detail = finished
       ? `exit=${finished.exitCode} wall=${finished.wallClockSeconds}s${finished.committed ? ` sha=${(finished.commitSha as string)?.slice(0, 8)}` : ""}${integrationStatus ? ` integration=${integrationStatus}` : ""}${!currentHandoff.eligible ? ` handoff=incomplete blockers=${currentHandoff.blockers.join(",")}` : ""}${finished.worktreePreserved ? ` preserved: ${finished.preserveReason ?? "uncommitted changes"} @ ${launch.worktreePath ?? "?"}` : ""}`
-      : `budget=${launch.budgetWallClockSeconds ?? "-"}s`;
+      : recovery
+        ? `reason=${recovery.reason} record=${recovery.recordState} retry=parent-or-user automatic-restart=false worktree=${recovery.worktreePath ?? "-"}`
+        : `budget=${launch.budgetWallClockSeconds ?? "-"}s`;
     const identity = (launch.identity as string | undefined) ?? "?";
     const caller = (launch.caller as string | undefined) ?? "?";
-    rows.push([id, identity, caller, status, recordStatus, pid != null ? String(pid) : "-", detail].join("\t"));
+    rows.push([id, identity, caller, status, recordStatus ?? "-", pid != null ? String(pid) : "-", detail].join("\t"));
   }
   process.stdout.write(["jobId", "identity", "caller", "proc-status", "record-status", "pid", "detail"].join("\t") + "\n");
   process.stdout.write(rows.join("\n") + "\n");
