@@ -20,7 +20,7 @@ In scope: `designs/core-modules-tools-and-skills.md`, the completed target's `co
 - No implementation, runtime, schema, host, or physical layout behavior changes; no descendants are authorized.
 
 ## Progress
-Started from clean committed migration baseline `6914fa4`. The physical migration and its completion evidence are durable, but the Phase 9C section used readiness-only wording that said the target was future or absent. The section now distinguishes the completed readiness contract from the completed physical migration and retains the current target, Python reference, boundaries, validation, recovery, and residual-risk evidence.
+Started from clean committed migration baseline `6914fa4` and the completed migration handoff commit `56557ad`. The physical migration and its completion evidence are durable, but the Phase 9C section used readiness-only wording that said the target was future or absent. The section now distinguishes the completed readiness contract from the completed physical migration and retains the current target, Python reference, boundaries, validation, recovery, and residual-risk evidence.
 
 ## Validation
 Passed: `bun ./skills/managing-as-is-document/content-test.ts` reported 45 records and 46 diagrams; the target-record design link now resolves to the renamed completed Phase 9C heading; `bun ./skills/managing-backlog/content-test.ts` passed; `python3 components/task-record-validator/task_record_validator.py .` reported `VALID`; `python3 -m json.tool as-is.json` passed; the current-reference audit found no Phase 9C claim that the completed target is absent or that the physical migration remains future work; and `git diff --check` passed. No implementation or runtime checks were rerun because this task changes only durable design/backlog/task-record documentation. The physical migration's focused evidence remains in the root changelog and the completed migration commits.
@@ -35,4 +35,4 @@ No blocker currently. If reconciling the design would require changing implement
 Retain this task if the record cannot be reconciled without changing historical evidence or introducing new authority. Restore only this task's documentation edits if validation fails; do not revert the completed physical migration.
 
 ## Next Action
-Obtain final read-only review, commit this scoped documentation reconciliation, reconcile `root:reconcile-task-control-migration-records`, remove the paired transient task artifacts, and pause.
+Record the exact completion evidence in the root changelog, then reconcile `root:reconcile-task-control-migration-records` and remove the paired transient task artifacts.
