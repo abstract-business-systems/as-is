@@ -299,6 +299,46 @@ After each phase commit, retain the phase result in the owning changelog, remove
 - No restructuring phase may treat behavioral tests as optional or substitute static checks when an affected agent or skill test exists.
 - No component-building or restructuring handoff may omit relevant durable `as-is.md` updates when component purpose, design, relationships, boundaries, ownership, or links change.
 
+## Phase 9A — Context-resolution migration readiness
+
+This readiness phase creates a migration contract only. It does not create `core/`, move or rename files, change imports, alter runtime behavior, update setup or projections, or authorize target-machine writes.
+
+### Current bounded inventory
+
+| Current owner | Implementation and focused tests | Responsibility and authority boundary | Direct consumers and classification |
+| --- | --- | --- | --- |
+| `components/as-is-data` | [`resolver.ts`](../components/as-is-data/resolver.ts), [`resolver.test.ts`](../components/as-is-data/resolver.test.ts) | Root-to-target `configuration` cascade with provenance and diagnostics; local `task` isolation; strict JSON and repository/symlink boundaries. Read-only preparation functionality with no task-transition or delegation authority. | [`components/control-plane/control-plane.ts`](../components/control-plane/control-plane.ts) reads task-data/parser helpers (direct); [`components/subprocess-execution-foundation/supervisor.ts`](../components/subprocess-execution-foundation/supervisor.ts) reads parser functionality (direct); [`skills/managing-as-is-document/scripts/orient.ts`](../skills/managing-as-is-document/scripts/orient.ts) reads task-narrative helpers (direct); [`skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts`](../skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts) resolves configuration and task context (direct); [`.pi/extensions/worker-tools.ts`](../.pi/extensions/worker-tools.ts) resolves worker configuration (direct). |
+| `components/instruction-context` | [`resolver.ts`](../components/instruction-context/resolver.ts), [`resolver.test.ts`](../components/instruction-context/resolver.test.ts) | Root-to-target ancestor `AGENTS.md` resolution in bounded order; missing files are normal; traversal and symlink escapes are rejected. Read-only instruction context with no authority to interpret, mutate, or delegate. | [`skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts`](../skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts) is the proven direct consumer; other host-loaded or dynamic consumers are not established by this inventory and require revalidation during migration. |
+| `components/linked-context` | [`resolver.ts`](../components/linked-context/resolver.ts), [`resolver.test.ts`](../components/linked-context/resolver.test.ts) | Explicit local links only; bounded files/directories; canonical path, task-record, child-boundary, traversal, symlink, URI, UTF-8, size, provenance, hash, and untrusted-content protections. The resolver and exposed tool do not grant authority. | [`.pi/extensions/worker-tools.ts`](../.pi/extensions/worker-tools.ts) exposes the bounded `resolve_component_context` tool (host registration/exposure compatibility consumer); [`agents/component-builder/live-behavioral.test.ts`](../agents/component-builder/live-behavioral.test.ts) exercises linked-context behavior through the agent surface (behavioral/indirect); additional runtime consumers are not established and require revalidation. |
+
+### Proposed family and migration contract
+
+Naming review supports `context-resolution` as the narrow family name. The first physical migration should create one documented module family with focused APIs rather than three independently documented child components or a broad merged resolver:
+
+```text
+core/
+    modules/
+        context-resolution/
+            as-is.md
+            configuration-resolver.ts
+            instruction-resolver.ts
+            linked-context-resolver.ts
+```
+
+The concrete filenames and whether compatibility aliases are needed remain decisions for the physical migration task immediately before tracked renames. No destination directory is created by this readiness phase. The family remains host-neutral and retains the three security-distinct API partitions; shared naming does not merge their trust, provenance, containment, or local-task rules.
+
+### Required physical migration sequence
+
+1. Re-inventory the committed baseline and run the naming procedure for the destination and concrete API filenames.
+2. Use tracked-path-preserving renames or equivalent history-preserving moves, keeping focused tests beside or explicitly linked to the migrated functionality according to the approved component shape.
+3. Update all proven imports and references atomically; search again for old paths and classify any dynamic, generated, projected, or external consumers instead of assuming the static search is complete. Add a compatibility alias only if a then-current consumer requires it and record its removal boundary.
+4. Run the three focused resolver suites, direct-consumer tests, affected launcher/worker-tool behavioral suites, and the repository's content, task-record, syntax, JSON, and whitespace checks.
+5. Update affected durable component, agent, skill, and architecture records in the same scoped handoff when ownership, links, or paths change. Preserve host-neutral semantics and do not transfer task, delegation, setup, projection, or target-write authority.
+
+### Recovery and residual risk
+
+The migration must remain reversible through one scoped commit: retain current paths until references and behavior checks pass, keep a pre-move inventory, and restore the prior paths/references or revert the single migration commit if interrupted. A future migration task must account for any failed or partial move in its task record before retrying. Current evidence does not prove every generated, dynamically loaded, projected, or external consumer, and no host, browser, environment, or target behavior is validated by this readiness contract.
+
 ## Open implementation decisions
 
 - Select the precise module and tool directory names through the naming procedure immediately before each bounded rename or extraction task.
