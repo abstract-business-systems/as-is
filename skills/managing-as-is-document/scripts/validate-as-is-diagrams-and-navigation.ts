@@ -63,7 +63,8 @@ type StructuralView = {
 const designLinkPattern = /(?:href\s*=\s*['"]|\]\()([^'"\s)]+as-is\.md#design)/g;
 const markdownDesignLinkPattern = /\]\(([^)\s]+as-is\.md#design)/g;
 const mermaidFencePattern = /```mermaid\s*\n([\s\S]*?)\n```/g;
-const breadcrumbPattern = /^(?:(?:\[([^\]]+)\]\(([^)\s]+as-is\.md#design)\)\s*\/\s*))*\*\*([^*]+)\*\*$/;
+const breadcrumbPattern = /^\*\*Lineage\*\*:\s*(?:(?:\[([^\]]+)\]\(([^)\s]+as-is\.md#design)\)\s*\/\s*))*\*\*([^*]+)\*\*$/;
+const allowedRecordSections = new Set(["Purpose", "Components", "Design", "Relationships", "Links"]);
 
 const canonicalTitle = (text: string): string | undefined => {
   const firstContentLine = text.split(/\r?\n/).find((line) => line.trim().length > 0);
@@ -266,6 +267,10 @@ export function validateAsIsDiagramsAndNavigation(repositoryRoot: string, option
   for (const path of suppliedRecordPaths(root, options.recordPaths, issues)) {
     const text = readFileSync(path, "utf8");
     const title = canonicalTitle(text);
+    for (const match of text.matchAll(/^## ([^\n]+)$/gm)) {
+      if (!allowedRecordSections.has(match[1].trim())) addIssue(issues, root, path, "record-shape", `canonical record contains unsupported section: ${match[1].trim()}`);
+    }
+    if (/^\s*-?\s*Pre-render layout plan:/im.test(text)) addIssue(issues, root, path, "record-shape", "canonical record must not contain a render layout plan");
     if (!title) {
       addIssue(issues, root, path, "strict-title", "the first content line must use `# <component-name> - as-is`");
       continue;
@@ -279,7 +284,7 @@ export function validateAsIsDiagramsAndNavigation(repositoryRoot: string, option
     const componentTable = components === undefined ? undefined : parseComponentsTable(components);
     if (components !== undefined && componentTable === undefined) addIssue(issues, root, path, "components-fallback", "Components must contain a two-column Component/Purpose Markdown table");
     const breadcrumb = parseBreadcrumb(design, title);
-    if (!breadcrumb) addIssue(issues, root, path, "breadcrumb", "Design must contain one root-to-current breadcrumb ending at the canonical title");
+    if (!breadcrumb) addIssue(issues, root, path, "breadcrumb", "Design must contain one `**Lineage**: ` root-to-current line ending at the canonical title");
     if (breadcrumb && design.split(breadcrumb.line).length - 1 !== 1) addIssue(issues, root, path, "breadcrumb", "Design must contain exactly one root-to-current breadcrumb");
     records.set(path, { path, relativePath: relativePath(root, path), title, text, design, components, componentTable, breadcrumb });
   }

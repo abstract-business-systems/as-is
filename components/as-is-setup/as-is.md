@@ -13,9 +13,8 @@ locations.
 The component is organized around deterministic client detection and
 canonical-resource wiring.
 
-- Pre-render layout plan: use the repository's Markdown Mermaid surface without assuming fixed dimensions; arrange three visible nodes and two labeled edges as a compact top-to-bottom setup flow. Rendered geometry remains untested because no local renderer is configured.
 
-[as-is](../../as-is.md#design) / [Components](../as-is.md#design) / **as-is Setup**
+**Lineage**: [as-is](../../as-is.md#design) / [Components](../as-is.md#design) / **as-is Setup**
 
 ### Deterministic client setup
 

@@ -54,15 +54,17 @@ const requiredSkillPhrases = [
   "Abstract capability labels are preferred",
   "Concrete provider identity must be disclosed",
   "descriptive `### <diagram name>` heading",
-  "trimmed root-to-current breadcrumb",
+  "one `**Lineage**: ` line",
   "taller, narrower ELK/TB flowchart",
   "pre-render layout plan",
   "Authoritative prose and links define",
   "only when it improves scanability",
   "## Example Structure",
+  "Prefer a table for stable repeated facts and a list for short homogeneous rules",
+  "Use tables for stable repeated ownership",
   "# <component-name> - as-is",
   "[`<immediate child>`](<child-path>/as-is.md#design)",
-  "[as-is](<root-relative-path>/as-is.md#design) / [<parent component>](<parent-relative-path>/as-is.md#design) / **<component-name>**",
+  "**Lineage**: [as-is](<root-relative-path>/as-is.md#design) / [<parent component>](<parent-relative-path>/as-is.md#design) / **<component-name>**",
   "CHILD[\"<a href='<child-path>/as-is.md#design'><immediate child></a>\"]",
   "### Structural container",
   "config:",
@@ -90,37 +92,24 @@ const requiredMermaidPhrases = [
   "intended orientation or shape",
   "visible-node, edge, and label density budget",
   "grouping and routing direction",
-  "Do not invent a numeric width, height, or\naspect ratio",
+  "Do not invent a numeric width, height, or aspect ratio",
 ];
 for (const phrase of requiredMermaidPhrases) {
   if (!mermaidSkill.includes(phrase)) throw new Error(`generic Mermaid skill is missing required phrase: ${phrase}`);
 }
 for (const [name, text, phrase] of [
-  ["integration skill", integrationSkill, "pre-render layout plan for every planned diagram"],
-  ["setup skill", setupSkill, "pre-render layout plan for every planned diagram"],
+  ["integration skill", integrationSkill, "critical or host-constrained planned diagram"],
+  ["setup skill", setupSkill, "critical or host-constrained planned diagram"],
 ] as const) {
   if (!text.includes(phrase)) throw new Error(`${name} is missing required phrase: ${phrase}`);
-}
-const requiredLayoutPlanRecordPhrases = [
-  "- Pre-render layout plan:",
-  "renderer-specific geometry remains untested",
-];
-for (const [name, text] of [
-  ["generic Mermaid record", mermaidRecord],
-  ["integration record", integrationRecord],
-  ["setup record", setupRecord],
-] as const) {
-  for (const phrase of requiredLayoutPlanRecordPhrases) {
-    if (!text.includes(phrase)) throw new Error(`${name} is missing required phrase: ${phrase}`);
-  }
 }
 
 const requiredRecordPhrases = [
   "# Managing As-Is Documents - as-is",
-  "[as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Managing As-Is Documents**",
-  "Structural views explain stable containment or neighborhood",
+  "**Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Managing As-Is Documents**",
+  "Structural views explain containment or neighborhood",
   "temporal views explain one bounded consequential flow",
-  "durable flow views disclose material failure or recovery behavior",
+  "Disclose material failure or recovery",
   "does not select, authorize, start, observe, recover, cancel, or delegate agents",
   "no live test can exercise record-maintenance execution",
   "Residual risk:",
@@ -179,7 +168,10 @@ if (skill.includes("container-diagram-example.md")) throw new Error("SKILL.md mu
 if (await legacyContainerExample.exists()) throw new Error("container-diagram-example.md must be consolidated into diagram-examples.md");
 if (skill.lastIndexOf("\n## Links") > skill.indexOf("\n## Outputs")) throw new Error("SKILL.md must place supporting links beside the rules they support rather than in a trailing Links catalog");
 if (!skill.includes("ordinary direct-child contracts")) throw new Error("SKILL.md must keep ordinary direct-child contracts out of a parent Links catalog");
-if (skill.includes("resolving nearby Markdown `Parent:` link")) throw new Error("SKILL.md must replace the legacy Parent link rule with breadcrumbs");
+if (skill.includes("resolving nearby Markdown `Parent:` link")) throw new Error("SKILL.md must replace the legacy Parent link rule with Lineage");
+if (!skill.includes("**Lineage**: `")) throw new Error("SKILL.md must define the bold prefixed Lineage navigation line");
+if (skill.includes("pre-render layout plan for each planned record diagram")) throw new Error("SKILL.md must keep render planning out of canonical as-is records");
+if (!skill.includes("**Lineage**: `")) throw new Error("SKILL.md must define the prefixed Lineage navigation line");
 
 const repositoryRoot = dirname(dirname(dirname(new URL(import.meta.url).pathname)));
 const reconciliationStart = skill.indexOf("\n## Hierarchical Record Reconciliation\n");
@@ -226,7 +218,7 @@ const markdownTargets = (text: string) => Array.from(text.matchAll(/\]\(([^)\s]+
 const rootRecord = join(repositoryRoot, "as-is.md");
 const componentsRecord = join(repositoryRoot, "components", "as-is.md");
 const expectedBreadcrumb = (recordPath: string) => {
-  if (recordPath === rootRecord) return "**as-is**";
+  if (recordPath === rootRecord) return "**Lineage**: **as-is**";
   const ancestors: string[] = [];
   let directory = dirname(recordPath);
   while (true) {
@@ -238,23 +230,23 @@ const expectedBreadcrumb = (recordPath: string) => {
   ancestors.reverse();
   const title = canonicalTitle(readFileSync(recordPath, "utf8"));
   if (!title) throw new Error(`canonical record has no title: ${recordPath}`);
-  return [...ancestors.map((ancestor) => {
+  return `**Lineage**: ${[...ancestors.map((ancestor) => {
     const ancestorTitle = canonicalTitle(readFileSync(ancestor, "utf8"));
     if (!ancestorTitle) throw new Error(`ancestor has no title: ${ancestor}`);
     return `[${ancestorTitle}](${relative(dirname(recordPath), ancestor).split(sep).join("/")}#design)`;
-  }), `**${title}**`].join(" / ");
+  }), `**${title}**`].join(" / ")}`;
 };
 for (const recordPath of canonicalRecords(repositoryRoot)) {
   const text = readFileSync(recordPath, "utf8");
   const relativeRecord = relative(repositoryRoot, recordPath);
   const breadcrumb = expectedBreadcrumb(recordPath);
-  if (text.split(breadcrumb).length - 1 !== 1) throw new Error(`canonical record must contain exactly one root-to-current breadcrumb: ${relativeRecord}`);
+  if (text.split(breadcrumb).length - 1 !== 1) throw new Error(`canonical record must contain exactly one **Lineage** line: ${relativeRecord}`);
   if (/^Parent: /m.test(text)) throw new Error(`canonical record must not retain legacy Parent navigation: ${relativeRecord}`);
   const designStart = text.indexOf("\n## Design\n");
   if (designStart < 0) throw new Error(`canonical record must have Design: ${relativeRecord}`);
   const nextSection = text.indexOf("\n## ", designStart + 1);
   const design = text.slice(designStart, nextSection < 0 ? undefined : nextSection);
-  if (!design.includes(breadcrumb)) throw new Error(`breadcrumb must occur in Design: ${relativeRecord}`);
+  if (!design.includes(breadcrumb)) throw new Error(`**Lineage** must occur in Design: ${relativeRecord}`);
   const firstDiagram = design.indexOf("```mermaid");
   if (firstDiagram >= 0 && design.indexOf(breadcrumb) > firstDiagram) throw new Error(`breadcrumb must precede first diagram: ${relativeRecord}`);
   if (!text.includes("\n## Components\n")) continue;
@@ -277,9 +269,7 @@ const componentsText = readFileSync(componentsRecord, "utf8");
 const componentsDesign = componentsText.slice(componentsText.indexOf("\n## Design\n"), componentsText.indexOf("\n## Links\n"));
 for (const phrase of [
   "### Component relationship map",
-  "- Pre-render layout plan:",
-  "taller-than-wide balanced relationship map",
-  "nine child boxes, seven labeled relationship arrows",
+  "### Component relationship map",
   "config:\n  layout: elk",
   "flowchart TB",
 ]) {

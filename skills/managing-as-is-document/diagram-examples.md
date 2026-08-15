@@ -20,7 +20,7 @@ Use for a parent component with independently documented immediate children. Con
 
 ### Complete parent-record example
 
-The `Checkout` component owns three documented child components. The diagram shows only `Checkout` and those immediate children. The trimmed root-to-current breadcrumb supports reverse navigation; it is not a synthetic diagram node or edge.
+The `Checkout` component owns three documented child components. The diagram shows only `Checkout` and those immediate children. The `**Lineage**: ` line supports reverse navigation; it is not a synthetic diagram node or edge.
 
 ```markdown
 ## Components
@@ -44,7 +44,7 @@ The `Checkout` component owns three documented child components. The diagram sho
 - Exception or residual risk: renderer-specific geometry remains untested
 - Arrow meaning: labeled sibling capability or responsibility relationship
 
-[Commerce Platform](../../as-is.md#design) / **Checkout**
+**Lineage**: [Commerce Platform](../../as-is.md#design) / **Checkout**
 
 ### Structural container
 ```
@@ -78,7 +78,7 @@ flowchart TB
 - The subgraph title is the actual component name, not `Parent` or a synthetic parent node.
 - Child components are boxes nested inside the parent container.
 - Sibling relationships use explicit, semantically labeled arrows.
-- The breadcrumb is root-to-current Markdown navigation rather than a diagram edge.
+- The `**Lineage**: ` line is root-to-current Markdown navigation rather than a diagram edge.
 - The ELK/TB layout prefers a taller, narrower relationship map; it does not imply a runtime sequence.
 - Child box labels target the corresponding `Components` table entries.
 

@@ -8,9 +8,8 @@ Provide the repository's normative human documentation for design principles, co
 
 Documentation is an ordinary document collection rather than a set of independently owned child components. Each document owns its subject while this record provides the collection's navigation and architectural context.
 
-[as-is](../as-is.md#design) / **Documentation**
+**Lineage**: [as-is](../as-is.md#design) / **Documentation**
 
-- Pre-render layout plan: use the repository Markdown render surface without assuming fixed dimensions; arrange six short-labeled nodes and five directed edges as a taller-than-wide TB/ELK-style context map. Route from reader through the documentation collection to its normative subjects without implying reading order or authority transfer; renderer geometry remains untested.
 
 ### Normative documentation context
 

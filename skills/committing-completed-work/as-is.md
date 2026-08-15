@@ -8,9 +8,8 @@ Provide the reusable completion procedure for creating one scoped Git handoff fr
 
 The skill checks completion preconditions, stages only declared durable artifacts, validates the staged patch, creates one concise commit, preserves unrelated work, and reconciles the exact selected backlog item after the handoff exists. It does not authorize partial or unvalidated commits.
 
-[as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Committing Completed Work**
+**Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Committing Completed Work**
 
-- Pre-render layout plan: use the repository Markdown render surface without assuming fixed dimensions; arrange four short-labeled nodes and three directed edges as a taller-than-wide TB/ELK-style progression from validated work through scoped staging to one commit. Keep one ungrouped route; renderer geometry remains untested.
 
 ### Scoped commit handoff
 

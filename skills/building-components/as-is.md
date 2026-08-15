@@ -8,9 +8,8 @@ Provide the reusable procedure for building one bounded component and producing 
 
 The skill composes task implementation, validation, recovery, and completion procedures. It guides a builder through context, expert review, bounded implementation, child handoff, acceptance evidence, descendant closure, and durable handoff without selecting or launching agents itself.
 
-[as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Building Components**
+**Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Building Components**
 
-- Pre-render layout plan: use the repository Markdown render surface without assuming fixed dimensions; arrange four short-labeled nodes and three directed edges as a taller-than-wide TB/ELK-style progression from builder procedure through component work to durable handoff. Keep one ungrouped route; renderer geometry remains untested.
 
 ### Bounded build handoff
 

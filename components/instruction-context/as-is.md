@@ -11,9 +11,8 @@ sandbox or exposing unrelated repository content.
 
 The component is organized around bounded ancestor instruction resolution.
 
-- Pre-render layout plan: use the repository's Markdown Mermaid surface without assuming fixed dimensions; arrange three visible nodes and two labeled edges as a compact top-to-bottom resolution flow. Rendered geometry remains untested because no local renderer is configured.
 
-[as-is](../../as-is.md#design) / [Components](../as-is.md#design) / **Instruction Context**
+**Lineage**: [as-is](../../as-is.md#design) / [Components](../as-is.md#design) / **Instruction Context**
 
 ### Ancestor instruction resolution
 

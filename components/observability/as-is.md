@@ -13,9 +13,8 @@ correlation. Bounded local session inspection is a separate read-only host
 surface; this component does not hold task, job, validation, recovery, or
 completion authority.
 
-- Pre-render layout plan: use the repository's Markdown Mermaid surface without assuming fixed dimensions; arrange four visible nodes and three labeled edges in a compact top-to-bottom flow from local tracing through supplementary evidence and opaque external correlation. Keep labels short, use only the stated relationships, and note that rendered geometry remains untested because no local renderer is configured.
 
-[as-is](../../as-is.md#design) / [Components](../as-is.md#design) / **Observability**
+**Lineage**: [as-is](../../as-is.md#design) / [Components](../as-is.md#design) / **Observability**
 
 ### Supplementary telemetry and query boundaries
 

@@ -11,9 +11,8 @@ tasks, using durable recording tables and a deterministic query-time display.
 
 The component is organized around the following relationships and flow.
 
-[as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Managing Backlog**
+**Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Managing Backlog**
 
-- Pre-render layout plan: use the repository Markdown render surface without assuming fixed dimensions; arrange three visible nodes and two directed edges as a compact top-to-bottom TB/ELK-style progression from backlog entries through deterministic prioritization to selected task input. Keep one ungrouped linear route with short labels; renderer geometry and ELK support remain untested.
 
 ### Backlog prioritization flow
 

@@ -12,9 +12,8 @@ are currently defined. The reusable procedure covers skills, agents, files,
 directories, APIs, configuration, and domain concepts while preserving
 host-required names such as `AGENTS.md` and `SKILL.md`.
 
-[as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Naming Software Concepts**
+**Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Naming Software Concepts**
 
-- Pre-render layout plan: use the repository Markdown render surface without assuming fixed dimensions; arrange three short-labeled nodes and two directed edges as a taller-than-wide TB/ELK-style progression from concept through naming method to accurate repository name. Keep one ungrouped route; renderer geometry remains untested.
 
 ### Concept naming method
 

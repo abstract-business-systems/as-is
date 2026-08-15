@@ -1,19 +1,6 @@
 
 # Launcher Host-Config Resolution And Run Observability - as-is
 
-## Delegation Design
-
-Delegation is capability-based and intentionally no-holds-barred: any agent
-that declares the `call_subagent` capability may target any canonical agent
-role under `agents/<role>/agent.md`. Caller name, parent job ID, target
-identity, and runtime lineage are diagnostic metadata only; they are not
-authorization gates. The target contract and host safety profile still govern
-the target's tools and behavior, while task records, budgets, worktree/session
-boundaries, and completion gates remain authoritative for execution and
-handoff. The in-process Pi extension is an explicit host implementation
-consumer of this design; it resolves canonical targets independently of caller
-identity. The expert target retains its fixed read-only inspection profile.
-
 ## Purpose
 
 The `spawning-pi-subagents` launcher is the repository's bridge between an agent
@@ -52,9 +39,8 @@ observable by default.
 
 The component is organized around the following relationships and flow.
 
-[as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Launcher Host-Config Resolution And Run Observability**
+**Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Launcher Host-Config Resolution And Run Observability**
 
-- Pre-render layout plan: use the repository Markdown render surface without assuming fixed dimensions; arrange three visible nodes and two directed edges as a compact top-to-bottom TB/ELK-style delegation flow from request through launcher to detached child observation. Keep one ungrouped linear route with short labels; renderer geometry and ELK support remain untested.
 
 ### Delegation launch and observation flow
 
@@ -65,6 +51,15 @@ flowchart TD
 ```
 
 
+
+| Concern | Rule |
+| --- | --- |
+| Admission | Any agent declaring `call_subagent` may target any canonical role under `agents/<role>/agent.md`. |
+| Diagnostic metadata | Caller name, parent job ID, target identity, and runtime lineage are diagnostic only, not authorization gates. |
+| Target behavior | The target contract and host safety profile govern tools and behavior. |
+| Execution authority | Task records, budgets, worktree/session boundaries, and completion gates remain authoritative for execution and handoff. |
+| In-process adapter | The Pi extension resolves canonical targets independently of caller identity. |
+| Expert profile | The expert target retains its fixed read-only inspection profile.
 ## Links
 
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.

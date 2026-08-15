@@ -11,7 +11,7 @@ Own the ${name.toLowerCase()} responsibility.
 
 ## Design
 
-[${parentName}](../as-is.md#design) / **${name}**
+**Lineage**: [${parentName}](../as-is.md#design) / **${name}**
 
 ### Local view
 
@@ -35,7 +35,7 @@ ${children.map((name) => `| [${name}](./${name.toLowerCase()}/as-is.md#design) |
 
 ## Design
 
-**Root**
+**Lineage**: **Root**
 
 ### Structural container
 
@@ -136,7 +136,7 @@ test("rejects a root-involved component cycle", () => {
       "",
       "## Design",
       "",
-      "**Root**",
+      "**Lineage**: **Root**",
       "",
       "### Structural container",
       "",

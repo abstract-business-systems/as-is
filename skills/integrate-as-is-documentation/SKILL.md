@@ -44,18 +44,34 @@ Before any write, produce a dry-run plan containing:
 4. The root `as-is.md` path and whether it exists, will be created, or will be preserved.
 5. Every candidate path, evidence summary, confidence, assumptions, and proposed disposition.
 6. The exact planned writes, including parent maps, approved child records, and the canonical-use instruction.
-7. A pre-render layout plan for every planned diagram: available render-surface constraint, intended shape, visible-node/edge/label density budget, grouping and routing direction, and any supported exception or residual risk.
+7. For each critical or host-constrained planned diagram, a working pre-render
+   layout plan: available render-surface constraint, intended shape,
+   visible-node/edge/label density budget, grouping and routing direction, and
+   any supported exception or residual risk. Supplementary diagrams use the
+   smallest supported view and need no plan by default.
 8. Explicitly excluded paths, including enclosing roots, siblings, runtime state, generated artifacts, and rejected candidates.
 
 Human confirmation is required before accepting the decomposition or creating records. The human may accept, merge, rename, reject, or defer each candidate. A recommendation or backlog row is not confirmation and does not authorize a write.
 
 ## Record creation and navigation
 
-After confirmation, update or create only the approved records inside the effective boundary. Use the strict title form `# <component-name> - as-is`. Route each individual record through `managing-as-is-document` and keep purpose, design, relationships, boundaries, and links in the durable record. A `## Links` section adds only distinct working context absent from the root-to-current breadcrumb or required Markdown fallback for a diagram-linked target; the Components table is the sole immediate-child catalog and intentionally accompanies linked structural child boxes rather than creating a separate Links entry. Do not catalog ordinary direct-child contracts in Links unless an artifact adds distinct parent-level operational or normative context. Source and test files remain omitted unless they meet the managing skill's reader-facing or indispensable-behavior exception. Keep active task state, acceptance evidence, budget, and recovery in the configured task record; follow the target project's applicable history-placement convention for completion or task history.
+After confirmation, update or create only the approved records inside the effective boundary. Use the strict title form `# <component-name> - as-is`. Route each individual record through `managing-as-is-document` and keep purpose, design, relationships, boundaries, and links in the durable record. A `## Links` section adds only distinct working context absent from the `**Lineage**: ` line or required Markdown fallback for a diagram-linked target; the Components table is the sole immediate-child catalog and intentionally accompanies linked structural child boxes rather than creating a separate Links entry. Do not catalog ordinary direct-child contracts in Links unless an artifact adds distinct parent-level operational or normative context. Source and test files remain omitted unless they meet the managing skill's reader-facing or indispensable-behavior exception. Keep active task state, acceptance evidence, budget, and recovery in the configured task record; follow the target project's applicable history-placement convention for completion or task history.
 
-Every record has at least one reader-oriented Mermaid diagram. A parent record lists only immediate children that have their own `as-is.md`; its `Components` table links to each child's `as-is.md#design`, while its `Design` begins with a bounded box-oriented container diagram using the actual parent name as the container title and child boxes that link to the same targets using host-supported syntax. The Components table is the required Markdown fallback if a renderer suppresses diagram navigation. A non-parent record uses the smallest supported view of its own responsibility, interaction, boundary, lifecycle, or outcome. Introduce each Mermaid fence with a descriptive `### <diagram name>` heading, not a literal `### Relevant diagrams` heading or a separate caption line. Do not add a synthetic parent node, a `contains` edge, or a one-node placeholder. Use balanced child placement and explicit labeled arrows only for supported sibling or dependency relationships. Before rendering, retain the planned diagram's available render-surface constraint, intended shape, visible-node/edge/label density budget, grouping and routing direction, and any supported exception or residual risk in the reviewable plan or nearby Design prose. Prefer a taller, narrower ELK/TB flowchart when that improves readability; the Components table and nearby Markdown links remain authoritative navigation in every renderer.
+Every record has at least one reader-oriented Mermaid diagram. A parent record lists only immediate children that have their own `as-is.md`; its `Components` table links to each child's `as-is.md#design`, while its `Design` begins with a bounded box-oriented container diagram using the actual parent name as the container title and child boxes that link to the same targets using host-supported syntax. The Components table is the required Markdown fallback if a renderer suppresses diagram navigation. A non-parent record uses the smallest supported view of its own responsibility, interaction, boundary, lifecycle, or outcome. Introduce each Mermaid fence with a descriptive `### <diagram name>` heading, not a literal `### Relevant diagrams` heading or a separate caption line. Do not add a synthetic parent node, a `contains` edge, or a one-node placeholder. Use balanced child placement and explicit labeled arrows only for supported sibling or dependency relationships. Before rendering a critical or host-constrained view, retain its available
+render-surface constraint, intended shape, visible-node/edge/label density
+budget, grouping and routing direction, and any supported exception or residual
+risk in the reviewable adoption plan. Do not copy that working metadata into the
+resulting `as-is.md`; the canonical record contains only the agreed record
+structure and durable component meaning. Supplementary views use the smallest
+supported view and source-level validation. Prefer a taller, narrower ELK/TB
+flowchart when that improves readability; the Components table and nearby
+Markdown links remain authoritative navigation in every renderer.
 
-Immediately above the first diagram, add one resolving trimmed root-to-current breadcrumb: link each documented ancestor from the selected setup root through the immediate parent in order, omit filesystem levels without a canonical record, and end with the current component title in bold. A setup-root record uses only its bold current title and never a self-link. Use the smallest suitable non-parent view; a structural container view is not a flow. Use a key or complex flow view for consequential decisions, failures, retries, cancellation, recovery, authority changes, or outcomes; leave routine standard behavior under its abstraction and record the omission rationale when the distinction matters. Do not invent relationships to fill a diagram.
+Immediately above the first diagram, add one resolving `**Lineage**: ` line:
+link each documented ancestor from the selected setup root through the
+immediate parent in order, omit filesystem levels without a canonical record,
+and end with the current component title in bold. A setup-root record uses only
+`**Lineage**: **<current component>**` and never a self-link. Use the smallest suitable non-parent view; a structural container view is not a flow. Use a key or complex flow view for consequential decisions, failures, retries, cancellation, recovery, authority changes, or outcomes; leave routine standard behavior under its abstraction and record the omission rationale when the distinction matters. Do not invent relationships to fill a diagram.
 
 Add the canonical architecture instruction exactly once to the applicable target-local instruction file, without replacing existing guidance:
 
@@ -65,7 +81,8 @@ Add the canonical architecture instruction exactly once to the applicable target
 
 - A reviewable setup plan with the selected mode, target, effective boundary,
   instruction and root-record dispositions, candidate evidence, planned writes,
-  one pre-render layout plan per planned diagram, and excluded paths.
+  any required critical-view layout plan in the working adoption plan, and
+  excluded paths.
 - Approved records and required target-local instruction updates only after
   human confirmation and only within the effective boundary.
 
@@ -77,10 +94,10 @@ Validate the selected plan and resulting records with the smallest relevant dete
 - Components tables list immediate approved children only and link to resolving `as-is.md#design` anchors.
 - Every record has a named diagram subsection and no literal `### Relevant diagrams`, empty diagram subsection, or placeholder diagram.
 - Parent diagrams use nested containment, resolving linked child-box targets with matching Components-table Markdown fallback, balanced child boxes, supported labeled relationships, and no synthetic parent node or containment edge.
-- Every record has one resolving trimmed root-to-current breadcrumb before its first diagram or remaining Design content.
+- Every record has one resolving `**Lineage**: ` line before its first diagram or remaining Design content.
 - Record placement distinguishes current architecture context, active task authority, and historical material according to the target project's applicable conventions.
-- Each `## Links` section contains only distinct working context not already navigable through Components, the breadcrumb, or required Markdown diagram fallback; it does not catalog ordinary direct-child contracts, and any source or test target meets the explicit exception.
-- Each planned diagram has a pre-render layout plan covering render-surface constraint, intended shape, density budget, grouping and routing direction, and any supported exception or residual risk; it does not invent numeric dimensions without host authority.
+- Each `## Links` section contains only distinct working context not already navigable through Components, the `**Lineage**: ` line, or required Markdown diagram fallback; it does not catalog ordinary direct-child contracts, and any source or test target meets the explicit exception.
+- Each critical or host-constrained planned diagram has a working layout plan covering render-surface constraint, intended shape, density budget, grouping and routing direction, and any supported exception or residual risk; supplementary diagrams need no plan by default, and no numeric dimensions are invented without host authority.
 - Applicable flowcharts prefer a taller, narrower ELK/TB layout.
 - Markdown links, Mermaid syntax and configured layout support where available, canonical instruction uniqueness, and `git diff --check` pass.
 - A before/after path comparison proves that all writes remain inside the effective boundary; directory-scoped mode also proves enclosing and sibling paths are unchanged.

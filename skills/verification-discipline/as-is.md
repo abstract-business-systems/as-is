@@ -11,9 +11,8 @@ acceptance conditions using appropriate evidence.
 
 The component is organized around the following relationships and flow.
 
-[as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Verification Discipline**
+**Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Verification Discipline**
 
-- Pre-render layout plan: use the repository Markdown render surface without assuming fixed dimensions; arrange three visible nodes and two directed edges as a compact top-to-bottom TB/ELK-style progression from acceptance conditions through risk-matched validation to evidence and residual risk. Keep one ungrouped linear route with short labels; renderer geometry and ELK support remain untested.
 
 ### Acceptance-evidence flow
 

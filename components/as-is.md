@@ -22,11 +22,10 @@ Own the repository's implementation components: focused runtime, resolution, con
 
 The Components area groups implementation boundaries by responsibility rather than by execution order. Each child owns its source, focused tests, durable record, and component-specific history.
 
-[as-is](../as-is.md#design) / **Components**
+**Lineage**: [as-is](../as-is.md#design) / **Components**
 
 ### Component relationship map
 
-- Pre-render layout plan: repository Markdown consumers with no fixed dimensions or configured renderer; taller-than-wide balanced relationship map; nine child boxes, seven labeled relationship arrows, and concise labels; immediate children are nested in Components while arrows express supported relationships rather than execution order; renderer-specific geometry remains untested.
 
 ```mermaid
 ---

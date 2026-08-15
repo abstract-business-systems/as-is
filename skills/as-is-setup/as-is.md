@@ -10,11 +10,10 @@ creation of approved canonical component records.
 
 The setup skill separates project adoption from individual record maintenance:
 
-[as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **As-Is Setup**
+**Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **As-Is Setup**
 
 ### Setup adoption progression
 
-- Pre-render layout plan: repository Markdown consumers with no fixed dimensions or configured renderer; use a sparse taller-than-wide TB/ELK-style setup flow with five short-labeled nodes and five edges, direct top-to-bottom routing, and no grouping or subgraphs; renderer-specific geometry remains untested.
 
 ```mermaid
 flowchart TD
@@ -27,7 +26,7 @@ flowchart TD
 
 The setup record is a process view, not a parent container view. It uses a
 vertical layout because the arrows represent progression from discovery through
-approval to durable setup outcomes. The reusable procedure requires a comparable pre-render layout plan for each planned target diagram so render-surface constraints, shape, density, grouping, routing, and exceptions are decided before a fence is written. Setup selects whole-project mode by default
+approval to durable setup outcomes. The reusable procedure requires a working layout plan only for a critical or host-constrained planned target diagram, so render-surface constraints, shape, density, grouping, routing, and exceptions are decided before a fence is written. Supplementary diagrams use the smallest supported source-level check, and renderer metadata does not enter the canonical record. Setup selects whole-project mode by default
 and treats an explicit directory as an independent bounded target; the selected
 mode, target, effective boundary, and excluded paths are preserved in the
 reviewable plan before any write.

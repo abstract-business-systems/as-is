@@ -7,23 +7,6 @@ This record is also the concise capability catalog for discovering the skill
 components below; each component's `SKILL.md` remains authoritative for its
 operational contract.
 
-## Capability model
-
-- A **capability domain** groups related competence for navigation.
-- An **atomic skill** has one primary purpose and can be independently invoked,
-  assessed, improved, permissioned, and reused.
-- An **operational skill** applies one or more capabilities to a recurring
-  bounded procedure.
-- An **agent role** combines shared skills with tools, permissions, model
-  settings, and a bounded responsibility; agents do not own skill definitions.
-- A **workflow or orchestrator** composes agents and skills, preserves state,
-  applies policy, and coordinates human input.
-
-Prefer canonical atomic skills over tool-specific procedures or duplicated role
-instructions. Use the smallest reusable skill that has enough independent value
-to assign, test, improve, observe, or govern. Keep domain-specific playbooks
-extensible and preserve authority in the owning agent, workflow, or task record.
-
 ## Components
 
 | Component | Purpose |
@@ -47,11 +30,27 @@ extensible and preserve authority in the owning agent, workflow, or task record.
 
 ## Design
 
-The Skills component groups its immediate documented skill components; deeper skill records are owned and described by those components. The container diagram uses the actual Skills component name and linked child boxes. Reverse navigation to the parent is kept as a nearby Markdown link. Skills remain focused, reusable procedures and may be composed by an agent or workflow. Reusable flow logic belongs in skills rather than duplicated role prompts. A skill may describe a handoff or subagent contract as an input or output, but authority to select, launch, observe, recover, or cancel a subagent remains with the agent or orchestrator. Repository-local skills are preferred for setup, naming, and knowledge organization; external or installed skills fit only when their assumptions, tools, and output contracts match this repository.
+The Skills component groups immediate documented skill components; deeper records remain owned by those components. The container diagram uses the actual Skills name and linked child boxes. `**Lineage**: ` provides reverse navigation, while the Components table provides renderer-independent child navigation.
 
-[as-is](../as-is.md#design) / **Skills**
+| Concept | Meaning |
+| --- | --- |
+| Capability domain | Groups related competence for navigation. |
+| Atomic skill | Has one primary purpose and can be independently invoked, assessed, improved, permissioned, and reused. |
+| Operational skill | Applies one or more capabilities to a recurring bounded procedure. |
+| Agent role | Combines shared skills with tools, permissions, model settings, and bounded responsibility; agents do not own skill definitions. |
+| Workflow or orchestrator | Composes agents and skills, preserves state, applies policy, and coordinates human input. |
 
-- Pre-render layout plan: the Markdown render surface has no fixed dimensions; keep this as a balanced relationship map with 16 child boxes and eight labeled arrows, using LR grouping and routing; renderer-specific layout remains untested residual risk.
+Prefer canonical atomic skills over tool-specific procedures or duplicated role instructions. Use the smallest reusable skill with enough independent value to assign, test, improve, observe, or govern. Keep domain playbooks extensible and preserve authority in the owning agent, workflow, or task record.
+
+| Concern | Rule |
+| --- | --- |
+| Skill composition | Skills remain focused, reusable procedures composed by agents or workflows. |
+| Flow ownership | Reusable flow logic belongs in skills rather than duplicated role prompts. |
+| Handoff contracts | A skill may describe a handoff or subagent contract, but agent or orchestrator authority remains separate. |
+| Repository preference | Prefer repository-local skills for setup, naming, and knowledge organization. |
+| External skills | Use installed or external skills only when their assumptions, tools, and output contracts fit. |
+
+**Lineage**: [as-is](../as-is.md#design) / **Skills**
 
 ### Skills relationship map
 
@@ -95,7 +94,6 @@ flowchart LR
 
 If the host Markdown renderer suppresses Mermaid navigation, use the component
 names in the table above; those Markdown links remain authoritative.
-
 ## Links
 
 - [../agent-skills.md](../agent-skills.md) — migration-era conceptual catalog retained as a linked reference.

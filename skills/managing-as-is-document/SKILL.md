@@ -18,36 +18,52 @@ This skill defines the durable record contract for an individual `as-is.md` comp
 
 ## Record Model
 
-An `as-is.md` holds stable component context for readers. It contains no active task state, runtime observation, budget, or temporary recovery details. Its title is `# <component-name> - as-is`, using the component's actual name rather than a generic placeholder. Apply the target project's record-placement and history conventions rather than imposing a file or section placement rule.
+An `as-is.md` holds stable component context for readers. It contains no active task state, runtime observation, budget, or temporary recovery details. Its title is `# <component-name> - as-is`, using the component's actual name rather than a generic placeholder. Apply the target project's record-placement and history conventions rather than imposing a file or section placement rule. Prefer a table for stable repeated facts and a list for short homogeneous rules; rewrite long prose when either form improves scanning without losing authority.
 
 | Section | Applicability | Durable content |
 | --- | --- | --- |
 | `## Purpose` | Required | Why the component exists and the responsibility it owns. |
 | `## Components` | Only for immediate documented children | Direct child `as-is.md#design` links and concise child purposes; no grandchildren. |
-| `## Design` | Required | A concise orientation, stable composition and responsibility facts, a resolving trimmed root-to-current breadcrumb, and one or more applicable diagrams. |
+| `## Design` | Required | A concise orientation, one resolving lineage line, stable composition and responsibility facts, and one or more applicable diagrams. |
 | `### <diagram name>` | One per Mermaid diagram | A descriptive heading naming the view, followed by the Mermaid fence it introduces. |
 | `## Relationships` | When direction or dependency matters | Parent, peer, dependency, authority, or collaboration facts not already clear in Design. |
-| Focused ownership section | Only when needed | A non-repetitive ownership or authority limit. |
 | `## Links` | When distinct direct working context is needed beyond nearby navigation; otherwise omit | Resolving repository-relative links needed to understand or operate within the component; omit duplicate navigation, changelogs, and other historical-summary artifacts. |
 
-A parent component has one or more immediate child components with their own `as-is.md` records. Its Design starts with a structural container view of the actual parent and only those children. Every record has at least one reader-oriented diagram: a parent uses its structural container view, while a non-parent uses the smallest supported view of its own responsibility, interaction, boundary, lifecycle, or outcome. A one-node placeholder and a heatmap are not acceptable substitutes.
+A parent component has one or more immediate child components with their own `as-is.md` records. Its Design starts with a structural container view of the actual parent and only those children. Every record has at least one reader-oriented diagram: a parent uses its structural container view, while a non-parent uses the smallest supported view of its own responsibility, interaction, boundary, lifecycle, or outcome. A one-node placeholder and a heatmap are not acceptable substitutes. Put ownership and authority limits in Design or Relationships rather than creating another top-level section.
 
-Links are direct, resolving repository-relative context needed to understand or operate within the component or its immediate children that is not already supplied by the trimmed root-to-current breadcrumb or required Markdown fallback. A `Components` table is the required Markdown fallback for each immediate child target rendered as a linked structural-container node and the sole Markdown catalog of those immediate children; the intentional diagram-link and Markdown-fallback pair is not a duplicated `## Links` catalog. Do not repeat a child target or ordinary direct-child contracts in `## Links` merely as a catalog. A child-owned artifact may remain linked only when it adds distinct parent-level operational or normative context, and its reason states that distinction. A Mermaid-only target still needs the host-required Markdown fallback. Link normative protocols and reader-facing operational documentation when they materially support that work. Source and test files are omitted by default; link one only when it is a stable reader-facing operational interface or its exact behavior is indispensable to understand or operate the component and no existing prose or documentation provides equivalent context. Do not link changelogs, task narratives, backlogs, runtime artifacts, or host projections merely as historical summaries; a link never duplicates the authority of its target. Omit `## Links` when no qualifying direct context exists; never retain an empty Links section or add a placeholder statement.
+Links are direct, resolving repository-relative context needed to understand or operate within the component or its immediate children that is not already supplied by the `**Lineage**: ` line or required Markdown fallback. A `Components` table is the required Markdown fallback for each immediate child target rendered as a linked structural-container node and the sole Markdown catalog of those immediate children; the intentional diagram-link and Markdown-fallback pair is not a duplicated `## Links` catalog. Do not repeat a child target or ordinary direct-child contracts in `## Links` merely as a catalog. A child-owned artifact may remain linked only when it adds distinct parent-level operational or normative context, and its reason states that distinction. A Mermaid-only target still needs the host-required Markdown fallback. Link normative protocols and reader-facing operational documentation when they materially support that work. Source and test files are omitted by default; link one only when it is a stable reader-facing operational interface or its exact behavior is indispensable to understand or operate the component and no existing prose or documentation provides equivalent context. Do not link changelogs, task narratives, backlogs, runtime artifacts, or host projections merely as historical summaries; a link never duplicates the authority of its target. Omit `## Links` when no qualifying direct context exists; never retain an empty Links section or add a placeholder statement.
 
 ## Diagram And Navigation Model
 
 - Structural and temporal views answer different reader questions. A structural container view represents stable ownership and immediate children; a flow, sequence, state, decision, recovery, data, context, or journey view represents a separately scoped consequential behavior.
 - Every Design contains one or more diagrams. Introduce each Mermaid fence with a descriptive `### <diagram name>` heading that names the view for navigation, such as `### Local delegation rehearsal`; do not use a literal `### Relevant diagrams` heading or a separate caption line. A record with several views uses one named subsection per view.
-- Every Design has one resolving trimmed root-to-current breadcrumb. It links each documented ancestor from the repository root through the immediate parent in order, omits filesystem levels without a canonical record, and ends with the current component title in bold. A root record uses only its bold current title and never a self-link. Place the breadcrumb immediately before the first named diagram subsection; when no diagram follows, place it before the remaining Design content. It is Markdown navigation, never a synthetic diagram node or edge.
+- Every Design has one resolving trimmed root-to-current lineage line prefixed exactly
+with `**Lineage**: `. It links each documented ancestor from the repository root
+through the immediate parent in order, omits filesystem levels without a
+canonical record, and ends with the current component title in bold. A root
+record uses only `**Lineage**: **as-is**` and never a self-link. Place the lineage
+line immediately before the first named diagram subsection; when no diagram
+follows, place it before the remaining Design content. It is Markdown
+navigation, never a synthetic diagram node or edge.
 - A view includes only the purpose, actors or users, immediate responsibilities, relationships, interactions, boundaries, authority changes, consequential paths, and outcomes needed for its stated reader question. Routine standard behavior remains abstract unless an exception changes interpretation.
+- Use tables for stable repeated ownership, relationship, status, or comparison facts and lists for short responsibilities, constraints, assumptions, or rules. Prefer these forms over long Design prose when they reduce interpretation cost; retain prose for rationale and relationships that a table or list would obscure.
 - A structural container is a box-oriented Mermaid `flowchart` whose subgraph title is the actual parent component. Child components are nested labeled boxes whose names target their `as-is.md#design` sections using the host-supported link syntax; the corresponding `Components` table is the sole Markdown catalog and required renderer fallback for those immediate children. Containment is nesting, not a synthetic parent node or a `contains` edge. The first structural-container view may contain only the actual parent container and its declared immediate-child nodes; every linked child target must resolve to a canonical record and appear once in both the diagram and the Components table.
 - Parent child boxes are balanced relationship-map elements rather than an implied top-to-bottom runtime sequence. Explicit sibling arrows have supported labels, connect only declared immediate-child nodes, and remain readable; lightweight styling is used only when it improves scanability.
 - The relationship vocabulary is `provides`, `uses`, `calls`, `delegates-to`, `publishes`, `subscribes-to`, `reads`, `writes`, `validates`, `observes`, `authorizes`, and `connects-to`. Labels describe the stated relationship but do not by themselves prove chronology, ownership, authority, deployment, or implementation detail. Abstract capability labels are preferred by default. Concrete provider identity must be disclosed when it materially changes trust, security, ownership, deployment, cost, compliance, availability, performance, or recovery interpretation.
-- Before a Mermaid fence is written, record a pre-render layout plan with the available render-surface constraint, intended shape, visible-node/edge/label density budget, grouping and routing direction, and any supported exception or residual risk. The plan may be concise Design prose or a nearby diagram metadata block; it narrows the view before rendering and does not impose a numeric size without host authority.
+
+Use a table for stable repeated relationships and a list for short responsibilities, constraints, or assumptions. Rewrite long prose into those forms when they improve scanning; retain prose only for rationale or relationships that would lose meaning in a table or list.
+- Before a Mermaid fence is written, decide whether rendering materially affects
+  the reader question or an acceptance condition. For a critical or
+  host-constrained view, record the pre-render layout plan in the owning task,
+  setup plan, review artifact, or other working context. Do not put renderer
+  status, layout plans, or residual rendering risk in `as-is.md`: the canonical
+  record contains only the agreed record structure and durable component
+  meaning. A supplementary view uses the smallest supported diagram and
+  source-level check without a plan unless its host explicitly requires one.
 - Diagram layout follows the generic Mermaid skill: prefer a taller, narrower ELK/TB flowchart when it improves readability, while preserving a supported exception where host rendering or stated diagram meaning requires it.
 - Authoritative prose and links define durable purpose, boundaries, relationships, and decisions. A diagram communicates the selected architecture view and neither contradicts the prose nor invents an unapproved relationship. Component tables provide required Markdown fallback for linked structural-container children when a renderer suppresses diagram navigation; this intentional pair is not duplicated in `## Links`, which also does not catalog ordinary direct-child contracts. Markdown links remain the fallback for any separately linked diagram target; do not repeat a fallback target in `## Links` unless it adds distinct working context. Source-level validation and browser-rendered SVG validation are separate evidence: the former checks declared records and links, while the latter may check only the caller-supplied diagram source and expected hrefs when a local renderer is configured.
 
-The [diagram examples](diagram-examples.md) start with the structural-container example for parent containment, sibling relationships, root-to-current breadcrumbs, and renderer fallback, then illustrate separately scoped non-container views. These references occur with the rules they support; a trailing Links catalog in this procedure would duplicate that context and is intentionally omitted.
+The [diagram examples](diagram-examples.md) start with the structural-container example for parent containment, sibling relationships, `**Lineage**: ` navigation, and renderer fallback, then illustrate separately scoped non-container views. These references occur with the rules they support; a trailing Links catalog in this procedure would duplicate that context and is intentionally omitted.
 
 ## Flow View Rules
 
@@ -82,9 +98,7 @@ The optional Components, Relationships, and Links sections appear below to show 
 
 <One-sentence orientation.>
 
-- Pre-render layout plan: available render-surface constraint, intended shape, visible-node/edge/label density budget, grouping and routing direction, and any supported exception or residual risk.
-
-[as-is](<root-relative-path>/as-is.md#design) / [<parent component>](<parent-relative-path>/as-is.md#design) / **<component-name>**
+**Lineage**: [as-is](<root-relative-path>/as-is.md#design) / [<parent component>](<parent-relative-path>/as-is.md#design) / **<component-name>**
 
 ### Structural container
 
@@ -115,7 +129,7 @@ flowchart TB
 
 | Situation | Record treatment |
 | --- | --- |
-| Approved component boundary without an `as-is.md` | An initial record contains supported durable purpose, design, relationships, and direct context. Component identification and approval remain owned by `as-is-setup` or `integrate-as-is-documentation`. A child record contains only its own context and root-to-current breadcrumb; applicable parent maps and container views remain parent-owned. |
+| Approved component boundary without an `as-is.md` | An initial record contains supported durable purpose, design, relationships, and direct context. Component identification and approval remain owned by `as-is-setup` or `integrate-as-is-documentation`. A child record contains only its own context and `**Lineage**: ` line; applicable parent maps and container views remain parent-owned. |
 | Implementation evidence changes reader-relevant context | Alignment is semantic rather than file-by-file. It covers purpose, boundary, immediate composition, material relationship or authority, and consequential lifecycle, failure, or recovery behavior; private helpers, generated artifacts, routine control flow, and non-material refactoring detail remain outside the record. |
 | Record and implementation conflict | Implementation is evidence rather than automatic record authority. An intended or approved behavior change makes the record stale; unexpected implementation divergence remains an implementation or escalation concern; unresolved ambiguity leaves the record unchanged. |
 | Material reorganization with unchanged component identity and boundary | In-place revision is the default. A controlled replacement is justified only when incremental revision cannot retain coherent purpose, structure, or navigation and preservation needs have been assessed. |
@@ -148,9 +162,20 @@ The output is a bounded set of owner-revised records or explicit blockers. It do
 1. Before a durable revision is treated as complete, its bounded reader problem, owning record, applicable instructions, direct links, sibling vocabulary, implementation evidence when alignment is in scope, acceptance conditions, assumptions, contradictions, and recovery path are explicit.
 2. Supported durable facts reside in their named section: composition in Design, material parent, peer, or dependency direction in Relationships, and deferred limitations in a linked follow-up. Linked material remains reference context rather than inherited instructions or authority.
 3. The applicable creation, alignment, or replacement treatment is limited to affected sections and views. Component labels align with the target parent's established sibling vocabulary unless semantic evidence supports a documented departure; child records do not expose hidden providers or distant descendants, and a parent mediates external and sibling connections.
-4. Completion requires heading and authority separation, record shape, the target project's record-placement and history conventions, resolving changed links, one trimmed root-to-current breadcrumb, omission of `## Links` when no qualifying distinct context exists, no duplicated child navigation or ordinary direct-child contract catalog, no source or test link without the stated exception, at least one named diagram subsection where a diagram is used, a pre-render layout plan for each planned diagram, diagram syntax and configured layout support where applicable, supported nodes and edges, consistency between diagrams and prose, and the stated acceptance conditions. Assumptions, unknowns, omitted detail, residual risk, and the smallest relevant deterministic checks, including `git diff --check`, are recorded. Unclear ownership, contradictory sources, an unresolved link target, or an unauthorized boundary crossing is a blocker rather than a reason to infer architecture or broaden scope.
+4. Completion requires heading and authority separation, the agreed record shape,
+  the target project's record-placement and history conventions, resolving
+  changed links, one `**Lineage**: ` line, omission of `## Links` when no
+  qualifying distinct context exists, no duplicated child navigation or
+  ordinary direct-child contract catalog, no source or test link without the
+  stated exception, at least one named diagram subsection where a diagram is
+  used, diagram syntax and configured layout support where applicable,
+  supported nodes and edges, consistency between diagrams and prose, and the
+  stated acceptance conditions. Layout plans belong in working or review
+  artifacts only when rendering is material. Assumptions, unknowns, omitted detail, residual risk, and the smallest relevant deterministic checks, including `git diff --check`, are recorded. Unclear ownership, contradictory sources, an unresolved link target, or an unauthorized boundary crossing is a blocker rather than a reason to infer architecture or broaden scope.
 
 ## Outputs
 
 - A durable `as-is.md` whose applicable sections provide purpose, design, relationships, and navigable context through an initial record, semantic alignment, or controlled replacement.
-- A bounded diagram and its pre-render layout plan only where the view materially reduces interpretation cost, with prose and links remaining authoritative.
+- A bounded diagram only where the view materially reduces interpretation
+  cost, with prose and links remaining authoritative. A layout plan is a
+  working or review artifact only when rendering is material.

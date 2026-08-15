@@ -13,11 +13,10 @@ analysis.
 
 The component is organized around the following relationships and flow.
 
-[as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Exploring Execution Evidence**
+**Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Exploring Execution Evidence**
 
 ### Evidence Exploration Flow
 
-Pre-render layout plan: the Markdown render surface is host-controlled with no fixed dimensions; use the existing top-to-bottom (TB), ELK-compatible progression shape from trace or session evidence through the evidence exploration procedure to the source-labelled report; keep visible density to three nodes, two edges, and short labels; use direct top-to-bottom routing with no grouping; the renderer has not been tested, so final spacing, routing, and label legibility remain residual risks.
 
 ```mermaid
 flowchart TD
@@ -25,19 +24,14 @@ flowchart TD
     B --> C["Source-labelled report"]
 ```
 
-- Start from a supplied trace or session selector and progressively inspect
-  only the evidence needed for the question.
-- Report source-labelled observations with explicit uncertainty.
-- Treat session IDs as opaque correlation metadata.
-- Keep runtime capture, task status, budgets, and allocation outside this skill.
-
-## Boundary
-
-This skill owns the investigation procedure and report contract. Observability
-owns tracer implementation, while the worker extension owns bounded query
-surfaces. Task records and the control plane remain authoritative for status,
-validation, recovery, completion, limits, and allocation.
-
+| Concern | Rule |
+| --- | --- |
+| Investigation | Start from a supplied trace or session selector and inspect only evidence needed for the question. |
+| Reporting | Use source-labelled observations with explicit uncertainty. |
+| Correlation | Treat session IDs as opaque correlation metadata. |
+| Excluded state | Keep runtime capture, task status, budgets, and allocation outside this skill. |
+| Ownership | This skill owns investigation and reporting; observability owns tracing; the worker extension owns bounded query surfaces. |
+| Authority | Task records and the control plane remain authoritative for status, validation, recovery, completion, limits, and allocation. |
 ## Links
 
 - [`SKILL.md`](SKILL.md) — authoritative procedure and output contract.

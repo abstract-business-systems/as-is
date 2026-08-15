@@ -7,9 +7,8 @@ execution design documents.
 
 ## Design
 
-[as-is](../as-is.md#design) / **Designs**
+**Lineage**: [as-is](../as-is.md#design) / **Designs**
 
-- Pre-render layout plan: use the repository Markdown render surface without assuming fixed dimensions; arrange four short-labeled nodes and three directed edges as a taller-than-wide TB/ELK-style context map. Route from reader through the design collection to architecture and execution work without implying execution order; renderer geometry remains untested.
 
 ### Design-document discovery context
 

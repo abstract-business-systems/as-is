@@ -9,11 +9,10 @@ budget bubbling, child commit handoff, parent integration, and cleanup.
 
 The fixture contains three deterministic local Bun tests: one rehearses an as-is caller that launches exactly one component-builder child through the launcher using local shell stubs and registry evidence; one verifies launcher prompt construction reaches a local child without model latency; and one simulates a parent integrating a scoped child commit while preserving an unrelated file. It retains the completed task-record pair as historical protocol evidence rather than treating process exit as completion authority.
 
-[as-is](../../as-is.md#design) / [Validation Fixtures](../as-is.md#design) / **Dummy Delegation Fixture**
+**Lineage**: [as-is](../../as-is.md#design) / [Validation Fixtures](../as-is.md#design) / **Dummy Delegation Fixture**
 
 ### Local delegation rehearsal
 
-- Pre-render layout plan: repository Markdown consumers with no fixed dimensions or configured renderer; taller-than-wide top-to-bottom relationship map; four visible nodes, three labeled edges, and short labels; route caller and child evidence vertically while the integration relationship remains a cross-branch connection, without implying execution order; renderer-specific geometry remains untested.
 
 ```mermaid
 ---

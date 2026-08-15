@@ -52,9 +52,11 @@ task. Apply the same rule to durable Markdown artifacts and live responses. Omit
 | Rationale, explanation, or relationship | Prose |
 | Large or deeply structured data | Linked artifact or focused subsection, not an oversized table |
 
-Tables are a preference, not an obligation. Use prose when a table would obscure
-meaning, and use lists when a table would add ceremony without improving
-scanning. Do not duplicate the same authoritative fact in multiple formats.
+Tables are a preference, not an obligation. Use a table for stable repeated
+facts and comparisons, and use a list for short homogeneous facts or bounded
+rules. Prefer these forms over long prose when they improve scanning. Use prose
+for rationale, interpretation, and relationships that a table or list would
+obscure. Do not duplicate the same authoritative fact in multiple formats.
 
 ## Live Response Presentation
 
@@ -189,6 +191,8 @@ unambiguous rule or create an alternate source of truth.
 
 ## Quality Checks
 
+- Prefer tables and lists over long prose for stable repeated facts, short
+  collections, ordered rules, and bounded ownership or authority statements.
 - Prefer one authoritative home for a decision or rule; do not maintain two
   sources of truth for the same current decision or task state.
 - Preserve meaningful context, source, and rationale when compressing notes.

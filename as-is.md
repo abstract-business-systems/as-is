@@ -29,11 +29,10 @@ record.
 This is a component map, not a mandatory execution sequence. The root record
 connects the repository component to its immediate documented child areas.
 
-**as-is**
+**Lineage**: **as-is**
 
 The repository's composition model separates authority-bearing agents and workflows from reusable skills. Agents and workflows compose the child areas; explicit links and each area's Design section provide the bounded context for their relationships.
 
-Pre-render layout plan: Use the Markdown render surface with no fixed dimensions; preserve a balanced relationship-map intent with six child boxes and two labeled arrows. Keep the children grouped in the root subgraph with LR routing, and retain untested-renderer behavior as residual risk.
 
 ### Repository child relationship map
 

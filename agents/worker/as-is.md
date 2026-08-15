@@ -10,11 +10,10 @@ externally.
 
 The worker is a leaf role for one authorized, bounded component implementation. It uses the assigned scope, task requirements, and acceptance conditions as its behavioral authority, may inspect and edit only the assigned component scope, returns a structured report, and does not acquire authority through caller identity, delegation ancestry, telemetry, commits, subprocesses, credentials, or external communication.
 
-[as-is](../../as-is.md#design) / [agents](../as-is.md#design) / **worker**
+**Lineage**: [as-is](../../as-is.md#design) / [agents](../as-is.md#design) / **worker**
 
 ### Bounded worker assistance
 
-- Pre-render layout plan: use the repository's Markdown Mermaid surface without assuming fixed dimensions; arrange nine visible nodes and ten edges, including two labeled decision branches, in a top-to-bottom progression with one Worker agent boundary subgraph. Route the primary work path downward and return both report outcomes to the caller; keep the authority and scope edges as supporting context, and note that rendered geometry remains untested because no local renderer is configured.
 
 ```mermaid
 ---

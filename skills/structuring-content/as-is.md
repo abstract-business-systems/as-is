@@ -14,9 +14,8 @@ record; it does not physically move existing fixtures. The procedure also omits 
 
 The component is organized around the following relationships and flow.
 
-[as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Structuring Content**
+**Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Structuring Content**
 
-- Pre-render layout plan: use the repository Markdown render surface without assuming fixed dimensions; arrange three visible nodes and two directed edges as a compact top-to-bottom TB/ELK-style progression from repository concept through the procedure to a discoverable authoritative artifact. Keep one ungrouped linear route with short labels; renderer geometry and ELK support remain untested.
 
 ### Content structuring flow
 

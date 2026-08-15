@@ -8,9 +8,8 @@ Provide reusable guidance for concise, agency-preserving consultation that helps
 
 The skill shapes consultation around direct conclusions, progressive disclosure, explicit uncertainty, material trade-offs, and the smallest necessary clarifying question. It preserves human responsibility and does not grant professional authority or task execution permission.
 
-[as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Human-Centered Consulting**
+**Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Human-Centered Consulting**
 
-- Pre-render layout plan: use the repository Markdown render surface without assuming fixed dimensions; arrange four short-labeled nodes and three directed edges as a taller-than-wide TB/ELK-style progression from question through consultation to human judgment. Keep one ungrouped route; renderer geometry remains untested.
 
 ### Agency-preserving consultation
 

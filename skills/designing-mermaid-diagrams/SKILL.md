@@ -43,7 +43,10 @@ data structures; use a separate technical view when those details are needed.
 
 ## Pre-render layout plan
 
-Before writing Mermaid, record a compact layout plan for the selected view:
+Before writing Mermaid, decide whether rendering materially affects the reader
+question or an acceptance condition. For a critical or host-constrained view,
+record a compact layout plan in the owning task, setup plan, review artifact, or
+other working context:
 
 - the available render-surface constraint, including any host, viewport, export,
   or embedding limit that materially affects readability;
@@ -57,10 +60,14 @@ Before writing Mermaid, record a compact layout plan for the selected view:
 - a supported exception or residual risk when the host renderer, diagram type,
   or stated meaning prevents the preferred shape.
 
-Use the plan to reduce scope, split unrelated questions into separate views, or
-shorten labels before rendering. Do not invent a numeric width, height, or
-aspect ratio unless the target host supplies one; the plan records constraints
-and reader intent, not a generic display contract.
+For a supplementary or non-critical view, use the smallest supported diagram
+and the smallest relevant source-level check. Do not add a render plan,
+renderer status, or layout rationale to a canonical `as-is.md` record unless
+its host explicitly makes that information part of the agreed record
+structure. Use any plan to reduce scope, split unrelated questions, or shorten
+labels before rendering. Do not invent a numeric width, height, or aspect ratio
+unless the target host supplies one; a plan records constraints and reader
+intent, not a generic display contract.
 
 ## Method
 
@@ -77,11 +84,13 @@ and reader intent, not a generic display contract.
      scope matter more than chronology.
    Do not force one diagram type when a different type communicates the bounded
    decision more clearly.
-4. Record the pre-render layout plan. Name nodes with reader-oriented functional
-   labels. Include only the subcomponents, neighbors, and edges that fit the
-   stated scope and density budget. When a host document requests an even
-   relationship map, choose a balanced layout rather than implying sequence;
-   the host document owns any domain-specific container or hierarchy convention.
+4. When the view is critical or host-constrained, record the pre-render layout
+   plan in the selected working or review artifact. Name nodes with
+   reader-oriented functional labels. Include only the subcomponents, neighbors,
+   and edges that fit the stated scope and any density budget. When a host
+   document requests an even relationship map, choose a balanced layout rather
+   than implying sequence; the host document owns any domain-specific
+   container or hierarchy convention.
 5. Prefer a taller, narrower readable view over a wide one when the plan and
    host constraints support it. For a Mermaid flowchart that benefits from
    automatic placement, use a fence-local ELK frontmatter block (`config:
@@ -92,7 +101,7 @@ and reader intent, not a generic display contract.
 6. Draw the primary path first, then add consequential alternate, rejected, or
    recovery paths. Show boundaries where responsibility or authority changes;
    explain dense detail in prose.
-7. Add only resolving links required by the diagram's host document. Keep repository-specific component-linking, breadcrumb navigation, and container rules in the host document's owning procedure; do not make them generic Mermaid mechanics. Prose remains authoritative if a diagram diverges. Do not infer that an adequate Markdown navigation surface replaces a host-required diagram link. When a linked Mermaid node is required by the host, use the host-supported link syntax and preserve a Markdown fallback outside the diagram. Once that fallback exists, do not repeat the target or ordinary direct-child contracts in an unrelated link list unless they add distinct working context.
+7. Add only resolving links required by the diagram's host document. Keep repository-specific component-linking, `**Lineage**: ` navigation, and container rules in the host document's owning procedure; do not make them generic Mermaid mechanics. Prose remains authoritative if a diagram diverges. Do not infer that an adequate Markdown navigation surface replaces a host-required diagram link. When a linked Mermaid node is required by the host, use the host-supported link syntax and preserve a Markdown fallback outside the diagram. Once that fallback exists, do not repeat the target or ordinary direct-child contracts in an unrelated link list unless they add distinct working context.
 8. Validate syntax, configured layout support where applicable, link targets,
    supported edge meanings, readable labels, bounded scope, and consistency
    with authoritative prose.
@@ -109,8 +118,9 @@ paths. Do not install a renderer or contact external services.
 
 Return or record:
 
-- a Mermaid diagram and its subject, audience, purpose, scope, and pre-render
-  layout plan;
+- a Mermaid diagram and its subject, audience, purpose, scope, and, when
+  material, the working or review artifact containing its pre-render layout
+  plan;
 - a short interpretation of responsibilities, interactions, boundaries, and the
   primary and consequential alternate paths;
 - source links or provenance for non-obvious relationships;
@@ -126,12 +136,13 @@ Return or record:
   are understandable without implementation knowledge.
 - Every edge expresses a supported functional relationship.
 - The selected Mermaid type fits the question and the diagram is readable.
-- A pre-render layout plan states the available render-surface constraint,
-  intended shape, density budget, grouping and routing direction, and any
-  supported exception or residual risk.
+- When rendering is material, a pre-render layout plan states the available
+  render-surface constraint, intended shape, density budget, grouping and
+  routing direction, and any supported exception or residual risk; a
+  supplementary view may omit the plan.
 - A flowchart uses a taller, narrower ELK/TB layout when that preference improves readability; any exception is supported by the host or the diagram's stated meaning.
 - Generic diagram guidance does not impose a host document's hierarchy, title,
-  breadcrumb, or container-view rules.
+  `**Lineage**: `, or container-view rules.
 - Host-specific link syntax and fallback behavior are not presented as generic
   Mermaid requirements.
 - Technical architecture has not displaced functional context.
