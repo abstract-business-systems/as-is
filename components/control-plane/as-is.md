@@ -16,7 +16,10 @@ completion/handoff eligibility, and the host-neutral control-plane CLI. It
 consumes task records and related configuration while leaving host execution,
 Git observation, process supervision, and runtime observation to their own
 boundaries. Handoff eligibility is a pure decision function; adapters collect
-facts and the control plane does not mutate records through that function.
+facts and the control plane does not mutate records through that function. This
+component is one current implementation boundary within the readiness contract
+for a future `core/modules/task-control/` family; no physical move is implied
+until a separate migration task is authorized.
 
 
 **Lineage**: [as-is](../../as-is.md#design) / [Components](../as-is.md#design) / **Control Plane**

@@ -341,10 +341,59 @@ Phase 9B completed this sequence for the context-resolution family. The destinat
 
 The migration must remain reversible through one scoped commit: retain current paths until references and behavior checks pass, keep a pre-move inventory, and restore the prior paths/references or revert the single migration commit if interrupted. A future migration task must account for any failed or partial move in its task record before retrying. Current evidence does not prove every generated, dynamically loaded, projected, or external consumer, and no host, browser, environment, or target behavior is validated by this readiness contract.
 
+## Phase 9C — Task-control migration readiness
+
+This readiness phase establishes the contract for a future physical task-control migration. It does not create `core/modules/task-control/`, move or rename source or test files, change imports, alter task-record schema or runtime behavior, replace the Python reference, or change setup, projection, host, browser, environment, target-machine, tool, or adapter surfaces.
+
+### Current bounded inventory
+
+| Current owner | Implementation and focused tests | Responsibility and authority boundary | Direct consumers and classification |
+| --- | --- | --- | --- |
+| `components/control-plane` | [`control-plane.ts`](../components/control-plane/control-plane.ts), [`control-plane.test.ts`](../components/control-plane/control-plane.test.ts) | Host-neutral durable task lifecycle, record mutation, launch admission, approval/question/cancellation checkpoints, atomic persistence, and control-plane CLI operations. It owns task-transition authority but not host process, session, network, Git, telemetry, or target-project state. | [`skills/managing-as-is-document/scripts/orient.ts`](../skills/managing-as-is-document/scripts/orient.ts) reads snapshots (direct); [`components/subprocess-execution-foundation/supervisor.ts`](../components/subprocess-execution-foundation/supervisor.ts) uses record operations (direct); [`components/control-plane/control-plane.test.ts`](../components/control-plane/control-plane.test.ts) and CLI fixtures (focused); launcher and host callers may invoke the CLI and require dynamic/entry-point revalidation. |
+| `components/budget-control` | [`budget.ts`](../components/budget-control/budget.ts), [`budget.test.ts`](../components/budget-control/budget.test.ts) | Policy-light arithmetic for remaining allocation, exhaustion, admission, continuation limits, and bounded launch budgets. It does not own allocation, approval, task mutation, host observations, or a second budget store; unavailable observations remain unavailable. | [`components/control-plane/control-plane.ts`](../components/control-plane/control-plane.ts), [`components/subprocess-execution-foundation/supervisor.ts`](../components/subprocess-execution-foundation/supervisor.ts), [`skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts`](../skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts), and [`.pi/extensions/worker-tools.ts`](../.pi/extensions/worker-tools.ts) import focused arithmetic directly; focused budget and consumer tests provide regression evidence. |
+| `components/task-record-validator` | [`validator.ts`](../components/task-record-validator/validator.ts), [`validator.test.ts`](../components/task-record-validator/validator.test.ts), and [`task_record_validator.py`](../components/task-record-validator/task_record_validator.py) as the transition/reference implementation | Read-only mechanical validation of JSON task metadata, configured Markdown narrative shape, constraints, policy, budgets, and descendant closure. It never mutates records, admits launches, interprets host state, or grants completion authority. The Python implementation remains reference evidence, not a second runtime authority. | Repository validation commands and focused Bun/Python tests invoke the validator directly; no production runtime import is established. README and CI/automation entry points require revalidation before a move; static search does not prove external callers. |
+| `components/control-plane` | [`handoff-eligibility.ts`](../components/control-plane/handoff-eligibility.ts), [`handoff-eligibility.test.ts`](../components/control-plane/handoff-eligibility.test.ts) | Pure fail-closed evaluation of adapter-collected durable, descendant, commit-scope, integration, and caller-ancestry facts. It decides eligibility only from supplied immutable facts and does not collect observations, mutate records, integrate commits, or authorize task transitions. | [`skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts`](../skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts) imports and applies the decision (direct); launcher and control-plane focused tests cover the blocker vocabulary; host callers remain observational adapters. |
+
+The inventory confirms one task-control responsibility family with four distinct boundaries: mutation authority, policy-light arithmetic, read-only invariant validation, and pure handoff evaluation. Shared task-record concepts do not merge their authority, trust, observation, or lifecycle rules.
+
+### Selected family shape and migration contract
+
+The smallest supported target is one documented family with focused APIs and tests:
+
+```text
+core/
+    modules/
+        task-control/
+            as-is.md
+            control-plane.ts
+            control-plane.test.ts
+            budget.ts
+            budget.test.ts
+            task-record-validator.ts
+            task-record-validator.test.ts
+            handoff-eligibility.ts
+            handoff-eligibility.test.ts
+```
+
+The target family is a structural home, not a new authority. The control-plane API remains the only task-transition owner; budget arithmetic remains policy-light; the validator remains read-only and mechanically independent; handoff eligibility remains pure and fail-closed. The existing Python validator reference remains outside the target runtime family until a separately authorized reference-retirement decision. Concrete target filenames must be rechecked with `naming-software-concepts` immediately before a physical move; no compatibility alias is justified by the current repository-local consumer inventory, but that conclusion must be revalidated against dynamic, generated, projected, CLI, and external entry points.
+
+### Required physical migration sequence
+
+1. Re-inventory the committed baseline, run the naming procedure for the target family and filenames, and inspect Git-tracked, generated, projected, package, CLI, and test entry points.
+2. Preserve the four focused API boundaries and move only the approved TypeScript implementations and tests with history-preserving tracked paths; retain the Python validator reference until its replacement or retirement is separately evidenced.
+3. Update proven repository-local imports, scripts, documentation links, component maps, and test paths atomically. Classify dynamic, generated, projected, package, CLI, and external consumers rather than assuming a static search is complete; add a compatibility alias only if a current consumer requires one.
+4. Run focused control-plane, budget, validator, handoff, supervisor, launcher, worker-tool, orientation, and affected agent/skill behavioral suites. Run task-record, content/navigation, syntax, JSON, reference, and whitespace checks; compare source-labelled unavailable observations and fail-closed blockers before and after the move.
+5. Reconcile the `core`, `core/modules`, task-control, components, launcher, supervisor, skill, agent, and architecture records in the same scoped handoff when ownership, links, or paths change. Retain recovery evidence and do not transfer setup, projection, host, target-write, or agent-delegation authority.
+
+### Recovery and residual risk
+
+The physical migration must remain reversible through one scoped commit: retain the pre-move inventory, use tracked-path-preserving moves, update references atomically, and restore the prior paths or revert the migration commit if interrupted. A partial move leaves its task record non-terminal until all references and focused behavior checks are reconciled. Current evidence does not prove every generated, dynamically loaded, projected, package, CLI, or external consumer, and this readiness contract does not validate provider, host, browser, environment, setup, target, or installation behavior.
+
+The readiness contract selects one documented `core/modules/task-control/` family rather than four child components because the four APIs share the durable task-record domain, migration lifecycle, focused validation gate, and nearest common ownership while retaining explicit authority boundaries. Further physical migration requires a separate selected task from this contract.
+
 ## Open implementation decisions
 
 - Select the precise module and tool directory names through the naming procedure immediately before each bounded rename or extraction task.
-- Decide whether context-resolution and task-control families are one documented component with focused APIs or several documented child components based on implementation ownership and lifecycle evidence.
 - Decide the smallest stable execution-contract API after Phase 1 and Phase 2 evidence; do not design a broad abstraction before the current overlap is measured.
 - Decide whether an ad hoc task needs a dedicated skill only after Phase 7 exercises a real bounded use case.
 

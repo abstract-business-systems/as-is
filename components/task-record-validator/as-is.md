@@ -10,7 +10,10 @@ runtime enforcement.
 ## Design
 
 The component is organized around mechanical task-record invariant checks.
-
+It is one current implementation boundary within the readiness contract for a
+future `core/modules/task-control/` family; until a separately authorized move,
+this component retains source, focused tests, and the Python transition
+reference.
 
 **Lineage**: [as-is](../../as-is.md#design) / [Components](../as-is.md#design) / **Task-Record Validator**
 

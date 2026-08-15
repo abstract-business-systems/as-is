@@ -9,8 +9,8 @@ Own the repository's implementation components: focused runtime, resolution, con
 | Component | Purpose |
 | --- | --- |
 | [as-is setup](as-is-setup/as-is.md#design) | Detect clients and wire canonical resources without copying them. |
-| [budget arithmetic](budget-control/as-is.md#design) | Provide shared budget admission and exhaustion arithmetic. |
-| [control plane](control-plane/as-is.md#design) | Enforce host-neutral task lifecycle and launch authority. |
+| [budget arithmetic](budget-control/as-is.md#design) | Provide shared budget admission and exhaustion arithmetic; future task-control migration target. |
+| [control plane](control-plane/as-is.md#design) | Enforce host-neutral task lifecycle and launch authority; future task-control migration target. |
 | [observability](observability/as-is.md#design) | Emit supplementary execution telemetry and bounded trace evidence. |
 | [subprocess execution foundation](subprocess-execution-foundation/as-is.md#design) | Run bounded worker attempts through a detached host-neutral foundation. |
 | [task-record validator](task-record-validator/as-is.md#design) | Check task-record invariants mechanically. |
