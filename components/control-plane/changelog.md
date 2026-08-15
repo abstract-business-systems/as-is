@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-08-23: Moved pure handoff eligibility from the spawning launcher into `handoff-eligibility.ts` under the control-plane component. The launcher still collects Git, durable-record, descendant, commit-scope, and caller-ancestry observations; the moved function only evaluates immutable facts and preserves the existing fail-closed blocker vocabulary. Added direct control-plane tests for complete facts, missing gates, commit scope, ancestry, and integration blockers. No task mutation or integration authority moved. Validation and residual evidence are recorded in the root Phase 4B task handoff.
+
 ## 2026-08-15 — Legacy record migration
 
 - **Component:** Control Plane Implementation Conversion.

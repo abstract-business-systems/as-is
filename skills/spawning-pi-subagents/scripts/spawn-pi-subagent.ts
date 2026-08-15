@@ -6,7 +6,7 @@ import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "nod
 import { boundedLimit } from "../../../components/budget-control/budget.ts";
 import { runBoundedProcess } from "./bounded-process-supervisor.ts";
 import { emitTrace, startSpan, serializeSessionReference, type SessionReference } from "../../../components/observability/tracer.ts";
-import { evaluateHandoffEligibility, type HandoffFacts } from "./handoff-eligibility.ts";
+import { evaluateHandoffEligibility, type HandoffFacts } from "../../../components/control-plane/handoff-eligibility.ts";
 import { resolveInstructionContext } from "../../../components/instruction-context/resolver.ts";
 import { isTaskNarrativeFilename, parseAsIsJson } from "../../../components/as-is-data/resolver.ts";
 import { parseThinkingLevel, resolveThinkingLevel, type ThinkingLevel } from "./agent-thinking.ts";

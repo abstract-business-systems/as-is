@@ -3,7 +3,7 @@ import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import { evaluateHandoffEligibility, type HandoffFacts } from "./handoff-eligibility.ts";
+import { evaluateHandoffEligibility, type HandoffFacts } from "../../../components/control-plane/handoff-eligibility.ts";
 
 const SCRIPT = resolve("skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts");
 const AGENT = "agents/as-is/agent.md";
