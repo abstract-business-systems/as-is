@@ -44,6 +44,8 @@ The Skills component groups immediate documented skill components; deeper record
 
 The table is an ownership map, not a second procedure or task authority. The linked skill contracts remain authoritative.
 
+The [`building-components-consolidation.md`](building-components-consolidation.md) assessment records the current comparison and recommendation for keeping component maintenance, task lifecycle, and builder composition separate; it is planning evidence, not another operational skill.
+
 | Concept | Meaning |
 | --- | --- |
 | Capability domain | Groups related competence for navigation. |
