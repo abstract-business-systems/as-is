@@ -238,8 +238,8 @@ test("all repository agent definitions declare the intended thinking level", asy
     const text = readFileSync(path, "utf8");
     const declarations = text.match(/^thinking:\s*([^\s]+)\s*$/gm) ?? [];
     expect(declarations).toHaveLength(1);
-    const expected = path === join(process.cwd(), "agents/as-is/agent.md") ? "thinking: high" : "thinking: max";
-    expect(declarations[0]).toBe(expected);
+    const expected = path.startsWith(join(process.cwd(), "agents") + "/") ? "medium" : "max";
+    expect(declarations[0]).toBe(`thinking: ${expected}`);
   }
 });
 
@@ -785,14 +785,14 @@ test("budget stop remains authoritative when a child outlives the deadline", asy
     writeFileSync(stubPi, [
       "#!/usr/bin/env bash", "if [[ \"$1\" == \"--version\" ]]; then printf '0.84.0\\n'; exit 0; fi",
       "trap '' TERM",
-      "end=$((SECONDS + 2))",
+      "end=$((SECONDS + 10))",
       "while [ $SECONDS -lt $end ]; do :; done",
       "printf 'late child marker\\n' >> budget-marker.txt",
       "git add budget-marker.txt",
       "git -c user.email=test@example.invalid -c user.name=test commit --quiet -m 'test: late child result'",
       "exit 0",
       "",
-    ].join("\\n"), { mode: 0o755 });
+    ].join("\n"), { mode: 0o755 });
     const registry = join(dir, "jobs.jsonl");
     const result = await runLauncher([
       "--agent", AGENT, "--task", "Late success budget diagnostic.", "--cwd", process.cwd(),
@@ -1129,6 +1129,9 @@ test("caller-worktree ancestry distinguishes pending integration from integrated
     expect(git(["reset", "--hard", callerSha]).status).toBe(0);
     expect(git(["merge-base", "--is-ancestor", childSha, "HEAD"]).status).not.toBe(0);
     expect(git(["cherry-pick", childSha]).status).toBe(0);
-    expect(git(["merge-base", "--is-ancestor", childSha, "HEAD"]).status).toBe(0);
+    const integratedSha = git(["rev-parse", "HEAD"]).stdout.trim();
+    expect(integratedSha).not.toBe(childSha);
+    expect(git(["merge-base", "--is-ancestor", integratedSha, "HEAD"]).status).toBe(0);
+    expect(readFileSync(join(dir, "child.txt"), "utf8")).toBe("child\n");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });

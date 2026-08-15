@@ -11,15 +11,13 @@ Fix the three known unrelated launcher regression fixtures: align the repository
 5. Obtain configured-preset final expert review, record concise changelog evidence, remove the exact selected backlog row, delete task artifacts, and create the completion commit.
 
 ## Progress
-Task-start selection is pending. The three failures are reproducible in the current launcher suite: the thinking test expects `high`/`max` while all current agent declarations are `medium`; the late-success fixture constructs its script with `.join("\\n")`, producing literal backslash-newline text instead of shell line breaks; and the ancestry fixture expects the original child SHA to remain an ancestor after cherry-pick, although cherry-pick creates a new commit.
-
-No implementation edits have been made. No descendants are authorized.
+Task-start selection commit `72ca64f` is complete. Updated only the three identified launcher fixtures: canonical `agents/*` declarations now expect `medium` while the validation probe retains `max`; the late-success shell fixture now joins actual newlines and preserves SIGTERM-ignore budget escalation; and the ancestry fixture validates the distinct post-cherry-pick integrated SHA and preserved content. No production launcher files or task authority were changed. No descendants are authorized.
 
 ## Validation
-Pending implementation. Baseline individual observations: the thinking test fails on `agents/component-builder/agent.md` with expected `max` and received `medium`; the late-success test times out after 15 seconds; and the ancestry test fails its final ancestry assertion after cherry-pick. These are fixture failures, not production behavior observations.
+The three repaired regression tests passed individually: thinking declarations, late-success budget stop, and caller-worktree ancestry. The full launcher suite passed with 47 tests, 0 failures, and 295 expectations in 48.71 seconds. Repository checks passed: task-record validation `VALID`; as-is/content navigation 52 records and 50 diagrams; backlog content validation; JSON parsing; and `git diff --check`. The changed-file diff contains only `skills/spawning-pi-subagents/scripts/spawn-pi-subagent.test.ts`; generated `.as-is/tracing.jsonl` was removed before completion preparation.
 
 ## Result
-Pending.
+Completed within the bounded launcher-fixture scope. The configured-preset final review could inspect the fixture repairs but could not independently execute or inspect Git state in its read-only environment; local authoritative validation above provides the observed executable evidence. No descendants were authorized; closure is vacuously terminal. No production launcher, task-authority, Pi/provider, extension-placement, or host-integration behavior changed.
 
 ## Blockers And Escalations
 None currently. The scope is limited to the launcher test file and its durable task/changelog records. No provider or external service is required.
@@ -28,4 +26,4 @@ None currently. The scope is limited to the launcher test file and its durable t
 Preserve `as-is.json`, `tasks.md`, and the selected backlog row until the completion patch is ready. If the budget fixture remains non-terminating after newline correction, inspect the process-group escalation evidence without weakening the supervisor. If the ancestry fixture still fails, record the observed Git graph and stop before changing production integration logic.
 
 ## Next Action
-Mark the dedicated backlog item selected, commit the task-start pair, and obtain configured-preset expert plan review.
+Write concise changelog evidence, remove the exact selected backlog row, delete `as-is.json` and `tasks.md`, and create the second completion commit.
