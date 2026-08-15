@@ -67,8 +67,7 @@ Return only this structured report:
   the detached supervisor enforces runtime limits.
 - **Residual risk** — what remains unproven.
 
-Use `exploring-execution-evidence` for every investigation; it owns the
-selector-driven query, session-detail, correlation, privacy, evidence
-classification, and stopping procedure. Do not reproduce unnecessary session
-content or unrelated credentials, tokens, or personal data. Do not edit,
-delegate, launch, contact external services, commit, or claim completion.
+Use `exploring-execution-evidence` for every investigation. Do not reproduce
+unnecessary session content or unrelated credentials, tokens, or personal data.
+Do not edit, delegate, launch, contact external services, commit, or claim
+completion.
