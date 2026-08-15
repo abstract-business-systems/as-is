@@ -17,16 +17,19 @@ The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
-    A["Selected backlog item"] --> B["Component task lifecycle"]
+    A["Selected backlog item"] --> Start["First commit:<br/>selected + active task"]
+    Start --> B["Component task lifecycle"]
     B --> C["Validated durable<br/>handoff"]
-    C --> D["One finalization commit:<br/>changelog + backlog + task cleanup"]
+    C --> D["Second commit:<br/>changelog + backlog + task cleanup"]
 ```
 
-This skill owns transient task creation, scoped implementation, child-boundary
-delegation, deterministic validation, changelog handoff, and preparation of the
-single completion finalization unit. The owning completion procedure commits
-changelog evidence, exact backlog cleanup, task-artifact cleanup, and the
-scoped durable handoff together.
+This skill owns task-start preparation, transient task creation, scoped
+implementation, child-boundary delegation, deterministic validation, changelog
+handoff, and preparation of the second completion commit. The task-start
+handoff records selected backlog status and active task artifacts; the owning
+completion procedure commits changelog evidence, exact backlog cleanup,
+task-artifact cleanup, and the scoped durable handoff together in the second
+commit.
 
 ## Links
 

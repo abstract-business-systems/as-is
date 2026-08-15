@@ -446,12 +446,13 @@ attempts but does not redefine these decisions.
   artifacts that are not required by the configured audit or recovery
   boundary. Component records, declared project artifacts, and evidence needed
   to recover or explain the attempt are retained.
-- Completion finalization is one scoped durable transaction at the Git-handoff
-  boundary: the owning changelog summary, exact evidence-gated backlog-row
-  removal, and configured task-artifact cleanup are prepared and committed
-  together. A task-deletion-only or backlog-clearance-only commit is not a
-  valid completion state; interruption preserves or restores the unreconciled
-  task/backlog state for retry.
+- Task lifecycle has two intentional Git handoffs: the task-start commit
+  records the selected backlog status and active task metadata/narrative; the
+  second completion commit records the owning changelog summary, exact
+  evidence-gated backlog-row removal, configured task-artifact cleanup, and
+  declared durable result together. A task-deletion-only or backlog-clearance-
+  only commit is not a valid completion state; interruption preserves or
+  restores the unreconciled task/backlog pair and task artifacts for retry.
 
 ## State And Checkpoint Rules
 

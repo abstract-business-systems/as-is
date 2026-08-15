@@ -56,7 +56,7 @@ Cleanup is evidence-gated and component-owned. `cleanupCompletedBacklogs`
 prepares removal only for rows whose exact IDs occur in the owning
 `changelog.md` alongside a completion term; it preserves ambiguous,
 cross-component, and merely mentioned items. The prepared row removal is part
-of the same finalization patch as the changelog summary and configured task
+of the second completion patch with the changelog summary and configured task
 cleanup, and must not be committed separately. It does not replace
 task-management reconciliation or invent completion status. The cleanup
 command reports each selected item and its evidence for review.

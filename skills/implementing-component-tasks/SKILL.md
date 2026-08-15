@@ -47,12 +47,14 @@ writes the parent summary only after child closure and parent integration.
    terminal closure.
 8. Only after acceptance validation passes and descendant closure is verified,
    mark the task `completed` and write its concise summary to `changelog.md`.
-   Invoke `committing-completed-work` for one finalization unit containing the
-   changelog summary, exact evidence-gated backlog-row removal, configured task
-   metadata/narrative cleanup, and the declared durable handoff. The completion
-   procedure must stage and commit these together; it must not create a
-   task-deletion-only or backlog-clearance-only commit. Changelog writing and
-   task/backlog cleanup are completion steps, never progress steps.
+   Invoke `committing-completed-work` for the second completion commit,
+   containing the changelog summary, exact evidence-gated backlog-row removal,
+   configured task metadata/narrative cleanup, and the declared durable
+   handoff. The task-start commit already contains the selected backlog status
+   and active task artifacts; the completion procedure must keep the two
+   commits distinguishable and must not create a standalone task-deletion or
+   backlog-clearance commit. Changelog writing and task/backlog cleanup are
+   completion steps, never progress steps.
 
 ## Boundaries
 
@@ -63,8 +65,8 @@ completion from process exit or a private runtime artifact.
 ## Backlog Completion Handoff
 
 A selected backlog row is not cleared by changing its status or by process
-exit. After the task record is terminal and the finalization patch is prepared,
-task management invokes the deterministic cleanup in the owning repository with the exact selected identity so its one-row result can be staged in the same commit:
+exit. After the task record is terminal and the completion patch is prepared,
+task management invokes the deterministic cleanup in the owning repository with the exact selected identity so its one-row result can be staged in the second commit:
 
 ```bash
 bun skills/managing-backlog/scripts/query.ts --cleanup=component:id .
@@ -75,10 +77,9 @@ The owning changelog must name that ID on a completion-evidence line before
 cleanup eligibility is evaluated. Failed, blocked, cancelled, or otherwise
 unreconciled work receives no completion changelog evidence and remains in its
 backlog. If cleanup reports additional rows, task management must review them
-separately rather than attributing them to the current task. A cleanup result
-must never be committed separately from the changelog and task-artifact
-cleanup; an interrupted finalization restores the active task and unreconciled
-backlog row before retry.
+separately rather than attributing them to the current task. A cleanup result must never be committed separately from the changelog and
+task-artifact cleanup; an interrupted completion restores the active task,
+unreconciled backlog row, and task artifacts before retry.
 
 ## Quality Checks
 
@@ -87,5 +88,5 @@ backlog row before retry.
 | Bounded task | Explicit component scope and acceptance conditions |
 | Child boundary | Configured component-builder handoff |
 | Deterministic behavior | Repeatable validation where practical |
-| Changelog handoff | Acceptance validation and terminal descendant closure recorded before the summary is written; the summary is staged with exact backlog cleanup and task-artifact cleanup |
-| Completion | Task is marked completed only after acceptance evidence and descendant closure; one finalization commit contains changelog, exact backlog removal, task cleanup, and the scoped durable handoff |
+| Changelog handoff | Acceptance validation and terminal descendant closure recorded before the summary is written; the summary is staged with exact backlog cleanup and task-artifact cleanup for the second commit |
+| Completion | The first commit records selection and active task artifacts; the second commit contains changelog, exact backlog removal, task cleanup, and the scoped durable handoff |

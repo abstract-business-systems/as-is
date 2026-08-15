@@ -202,21 +202,22 @@ item from the planning index only when all of these inputs agree:
 | Terminal task | The owning configured task record is terminal `completed`, with its result and required validation recorded |
 | Descendant closure | Every descendant is terminal and the completion result accounts for each failed or cancelled descendant; active, blocked, or approval-waiting descendants prevent removal |
 | Changelog handoff | The owning component `changelog.md` contains a concise summary of the completed result, written before task-record cleanup |
-| Durable scoped handoff | The declared changes are within the selected owning component, the changelog summary is written, and the one finalization patch contains the durable handoff, exact backlog removal, and task-artifact cleanup; the patch is not yet durable until its single commit succeeds |
+| Durable scoped handoff | The declared changes are within the selected owning component, the changelog summary is written, and the second completion patch contains the durable handoff, exact backlog removal, and task-artifact cleanup; the patch is not durable until the second commit succeeds |
 
-Task management performs this reconciliation as part of the finalization
-patch; the implementation worker does not independently remove the row.
+Task management performs this reconciliation as part of the second
+completion patch; the implementation worker does not independently remove the
+row.
 Reconciliation must use the current task record and owning changelog as
 evidence and must not invent status, validation, ownership, or completion. If
 any input is missing, mismatched, non-terminal, failed, blocked, deferred, or
-otherwise incomplete, leave the backlog item in place for recovery or later
-selection. Open and deferred items remain in the planning index. The cleanup
+otherwise incomplete, leave the
+backlog item in place for recovery or later selection. Open and deferred items remain in the planning index. The cleanup
 result is staged with the changelog and task-artifact cleanup and becomes
- durable only when that single scoped finalization commit succeeds. An
-interrupted or failed finalization restores or preserves the unreconciled row;
-leave the
-backlog item in place until the finalization can be retried; no
-task-deletion-only or backlog-clearance-only commit is valid.
+durable only when the second completion commit succeeds. An interrupted or
+failed completion restores or preserves the unreconciled row and task
+artifacts; leave the backlog item in place until the second commit can be
+retried; no standalone task-deletion-only or backlog-clearance-only commit is
+valid.
 
 ## Boundaries
 

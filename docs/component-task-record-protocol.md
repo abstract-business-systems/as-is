@@ -250,17 +250,21 @@ cancelled descendant. An active, blocked, or awaiting-approval descendant keeps
 every ancestor non-completed. The responsible worker or orchestrator validates
 this closure before changing a record to `completed`.
 
-After a task qualifies for completion, invoke task management, then
-`committing-completed-work`. The completion procedure prepares one finalization
-patch containing the completed task's declared scoped changes, concise owning
-`changelog.md` summary, exact evidence-gated backlog-row removal, and cleanup
-of the configured task metadata and transient task file. These completion
-artifacts are staged and committed together as one scoped durable handoff;
-there must be no separate task-deletion-only or backlog-clearance-only commit.
-The changelog summary is written before backlog eligibility is evaluated, and
-its exact identity evidence is included in the same finalization commit. A
-failed or interrupted finalization preserves or restores the terminal task and
-unreconciled backlog row for recovery; it must not claim cleanup from an
+At task start, task management commits one task-start handoff containing the
+selected backlog status and the active `as-is.json` task metadata plus
+configured Markdown narrative. After validation qualifies completion, invoke
+task management and then `committing-completed-work` for a second completion
+handoff. The completion procedure prepares a patch containing the completed
+task's declared scoped changes, concise owning `changelog.md` summary, exact
+evidence-gated backlog-row removal, and cleanup of the configured task metadata
+and transient task file. These completion artifacts are staged and committed
+together as the second scoped durable handoff; there must be no separate
+task-deletion-only or backlog-clearance-only commit. The changelog summary is
+written before backlog eligibility is evaluated, and its exact identity evidence
+is included in the second completion commit. A failed or interrupted first
+handoff preserves the selected backlog and active task pair. A failed or
+interrupted completion preserves or restores the terminal task, task artifacts,
+and unreconciled backlog row for recovery; it must not claim cleanup from an
 uncommitted working-tree mutation. Unrelated work remains untouched.
 
 On interruption, the orchestrator rereads the component record and delegates it
