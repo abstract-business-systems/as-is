@@ -42,6 +42,14 @@ async function fixture(parentTask = task(), childTask?: ReturnType<typeof task>,
   return root;
 }
 
+test("accepts a configuration-only root after task cleanup", async () => {
+  const root = await mkdtemp(join(tmpdir(), "as-is-validator-config-only-"));
+  try {
+    await writeFile(join(root, "as-is.json"), JSON.stringify({ configuration: { records: { filenames: { task: "tasks.md" } } } }));
+    expect(validateTree(root)).toEqual([]);
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
+
 test("accepts a valid completed tree", async () => {
   const root = await fixture({ ...task("completed"), constraints: task("completed").constraints }, { ...task("completed", 4, 40, 0, 0), constraints: task("completed", 4, 40, 0, 0).constraints });
   try { expect(validateTree(root)).toEqual([]); } finally { await rm(root, { recursive: true, force: true }); }

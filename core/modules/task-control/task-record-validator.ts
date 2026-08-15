@@ -122,7 +122,10 @@ export function validateTree(root: string): string[] {
   try {
     for (const directory of directories) { if (mapping(JSON.parse(readFileSync(`${directory}/as-is.json`, "utf8"))) && "task" in JSON.parse(readFileSync(`${directory}/as-is.json`, "utf8"))) records.push(loadRecord(directory, taskName)); }
   } catch (error) { return [String(error)]; }
-  if (!records.some((record) => record.directory === rootPath)) return [`${rootPath}: no root JSON task record`];
+  if (!records.some((record) => record.directory === rootPath)) {
+    if (rootData.task === undefined) return [];
+    return [`${rootPath}: no root JSON task record`];
+  }
   const errors: string[] = [];
   for (const record of records) validateShape(record, errors);
   for (const parent of records) {

@@ -66,6 +66,13 @@ class TaskRecordValidatorTests(unittest.TestCase):
     def run_validator(self):
         return subprocess.run(["python3", str(VALIDATOR), str(self.temp)], text=True, capture_output=True)
 
+    def test_accepts_configuration_only_root_after_task_cleanup(self):
+        directory = self.temp
+        (directory / "as-is.json").write_text(json.dumps({"configuration": {"records": {"filenames": {"task": "tasks.md"}}}}))
+        result = self.run_validator()
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertEqual(result.stdout, "VALID\n")
+
     def test_accepts_valid_tree(self):
         self.write(".", record(status="completed", result="- Child `child` completed normally."))
         self.write("child", record(status="completed", cost=4, wall=40, depth=0, children=0))

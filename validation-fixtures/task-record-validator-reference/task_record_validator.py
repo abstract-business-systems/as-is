@@ -151,6 +151,8 @@ def validate_tree(root: Path) -> list[str]:
         if isinstance(data, dict) and "task" in data:
             records[path.parent] = load_record(path.parent, task_name)
     if root not in records:
+        if "task" not in root_data:
+            return []
         return [f"{root}: no root JSON task record"]
     errors: list[str] = []
     for record in records.values():
