@@ -54,5 +54,38 @@
         "local-directory": ".as-is/tracing.jsonl"
       }
     }
+  },
+  "task": {
+    "status": "completed",
+    "worker": "as-is",
+    "updated": "2026-08-15T23:15:00Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.25,
+        "spent": 0,
+        "reserve": 0.05,
+        "source": "unavailable",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 300,
+          "spent-seconds": 0,
+          "reserve-seconds": 45,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "prohibited"
+    },
+    "acceptance": [
+      "Identify the canonical root instruction owner and add concise general guardrails for naming consultation, preservation-aware tracked renames, and atomic reference updates.",
+      "Distinguish tracked renames from new-file creation and untracked/generated artifacts without duplicating or weakening component-specific procedures.",
+      "Validate, obtain review, commit one scoped finalization handoff, and reconcile only root:general-developmental-guardrails."
+    ]
   }
 }
