@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-08-23: Clarified the component-builder role's use of context-building through building-components. The role retains authority for objective selection, linked-context selection, implementation, task state, delegation, validation, descendant closure, and completion; context-building contributes only bounded provenance-bearing reference context and escalation. Front matter and tool admission are unchanged. Phase 5B validation recorded 76 passing tests with 4 live skips; three known unrelated failures remain documented in the task handoff.
+
 - 2026-08-13: Aligned the durable role record with the named-diagram convention. The ELK/TB component-delivery view preserves the current task-authority, child-handoff, recoverable-blocker, parent-integration, validation, closure, and commit flow. Existing distinct role, procedure, and protocol Links remain because they provide direct operational context. No role behavior changed; static record/link checks and `git diff --check` passed. Provider-gated behavior and Mermaid rendering remain unexercised by this documentation-only alignment.
 
 - 2026-08-15: Updated the `as-is.md` design diagram to show explicit child handoff, evidence gating, parent-side integration, ancestry proof, recoverable blockers, terminal closure, and scoped durable commit. Validation: Mermaid structure inspection and `git diff --check` passed. Residual risk: the diagram documents the role flow but does not exercise provider-gated runtime behavior.

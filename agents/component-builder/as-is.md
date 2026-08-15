@@ -3,11 +3,13 @@
 ## Purpose
 
 The `component-builder` role builds one bounded component from its durable
-context and current task authority. It owns implementation within that
-component, explicit handoffs to separately owned descendants, risk-matched
-validation, semantic completion, and the scoped durable handoff. It may use an
-orientation snapshot for speed, but the snapshot does not replace judgment or
-grant task authority.
+context and current task authority. It uses `context-building` through the
+building-components procedure to assemble bounded, provenance-bearing decision
+context without creating task or access authority. It owns implementation
+within that component, explicit handoffs to separately owned descendants,
+risk-matched validation, semantic completion, and the scoped durable handoff.
+It may use an orientation snapshot for speed, but the snapshot does not replace
+judgment or grant task authority.
 
 ## Design
 
@@ -61,6 +63,7 @@ flowchart TB
 ## Links
 
 - [`agent.md`](agent.md) — canonical role authority, tools, and required flow.
+- [`../../skills/context-building/SKILL.md`](../../skills/context-building/SKILL.md) — bounded context composition applied through the build procedure.
 - [`../../.agents/skills/building-components/SKILL.md`](../../.agents/skills/building-components/SKILL.md) — component build procedure.
 - [`../../skills/implementing-component-tasks/SKILL.md`](../../skills/implementing-component-tasks/SKILL.md) — task lifecycle and child boundaries.
 - [`../../skills/verification-discipline/SKILL.md`](../../skills/verification-discipline/SKILL.md) — validation and evidence selection.
