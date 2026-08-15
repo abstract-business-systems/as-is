@@ -4,6 +4,7 @@ import { appendFile, mkdtemp, open, readFile, rm, writeFile } from "node:fs/prom
 import { tmpdir } from "node:os";
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { boundedLimit } from "../../../components/budget-control/budget.ts";
+import { runBoundedProcess } from "./bounded-process-supervisor.ts";
 import { emitTrace, startSpan, serializeSessionReference, type SessionReference } from "../../../components/observability/tracer.ts";
 import { evaluateHandoffEligibility, type HandoffFacts } from "./handoff-eligibility.ts";
 import { resolveInstructionContext } from "../../../components/instruction-context/resolver.ts";
@@ -520,11 +521,6 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
   }
 
   phaseEnded("worktree", worktreePhase);
-  const logFilePhase = phaseStarted("log-setup");
-  const logFile = config.mode === "detach" && config.logPath
-    ? await open(config.logPath, "w")
-    : null;
-  phaseEnded("log-setup", logFilePhase);
 
   const sessionStoreScope = {
     cwd: process.env.PI_SESSION_FILE ? config.callerCwd : undefined,
@@ -565,76 +561,32 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     taskRecord: config.recordPath,
   });
 
-  const spawnPhase = phaseStarted("child-spawn");
   const workerSpan = startSpan("worker.lifecycle", {
     cwd: config.callerCwd,
     traceId: delegationSpan.traceId,
     parentSpanId: delegationSpan.spanId,
     sessionReference: sessionReferenceFromEnvironment(),
   });
-  const child = spawn(config.command, config.args, {
+
+  const processResult = await runBoundedProcess({
+    command: config.command,
+    args: config.args,
     cwd: childCwd,
     env: childEnv,
-    shell: false,
-    detached: true,
-    stdio: logFile ? ["ignore", logFile.fd, logFile.fd] : ["ignore", "inherit", "inherit"],
+    logPath: config.mode === "detach" ? config.logPath : null,
+    budgetWallClockSeconds: config.budgetWallClockSeconds === null
+      ? null
+      : boundedLimit(config.budgetWallClockSeconds, config.budgetWallClockSeconds, config.budgetWallClockSeconds),
+    killGraceSeconds: BUDGET_KILL_GRACE_SECONDS,
+    startedAtMs: startedMonotonic,
+    phaseTimings,
   });
-  const childPid = child.pid as number;
-  phaseEnded("child-spawn", spawnPhase);
+  const { childPid, exitCode, budgetStopped, budgetStopElapsedMs, wallClockSeconds } = processResult;
 
-  const signalGroup = (signal: NodeJS.Signals) => {
-    try {
-      process.kill(-childPid, signal);
-    } catch {
-      /* group already gone */
-    }
-  };
-
-  const effectiveWallClockSeconds = config.budgetWallClockSeconds === null
-    ? null
-    : boundedLimit(config.budgetWallClockSeconds, config.budgetWallClockSeconds, config.budgetWallClockSeconds);
-  let budgetStopped = false;
-  let budgetStopElapsedMs: number | null = null;
-  let budgetTimer: NodeJS.Timeout | undefined;
-  let killTimer: NodeJS.Timeout | undefined;
-  const clearTimers = () => {
-    if (budgetTimer) clearTimeout(budgetTimer);
-    if (killTimer) clearTimeout(killTimer);
-    budgetTimer = undefined;
-    killTimer = undefined;
-  };
-
-  if (effectiveWallClockSeconds && effectiveWallClockSeconds > 0) {
-    budgetTimer = setTimeout(() => {
-      budgetStopped = true;
-      budgetStopElapsedMs = Date.now() - startedMonotonic;
-      phaseTimings["budget-stop"] = budgetStopElapsedMs;
-      signalGroup("SIGTERM");
-      killTimer = setTimeout(() => signalGroup("SIGKILL"), BUDGET_KILL_GRACE_SECONDS * 1000);
-    }, effectiveWallClockSeconds * 1000);
-  }
-
-  const onTerm = () => signalGroup("SIGTERM");
-  const onInt = () => signalGroup("SIGINT");
-  process.once("SIGTERM", onTerm);
-  process.once("SIGINT", onInt);
-
-  const waitPhase = phaseStarted("child-wait");
-  const exitCode: number = await new Promise((resolveExit) => {
-    child.once("error", () => resolveExit(1));
-    child.once("close", (code) => resolveExit(code ?? 1));
-  });
-
-  phaseEnded("child-wait", waitPhase);
   await workerSpan.finish(budgetStopped || exitCode !== 0 ? "failure" : "success", {
     workerRole: config.identity,
     outcomeClass: budgetStopped ? "budget-stopped" : exitCode === 0 ? "success" : "failure",
   });
-  clearTimers();
-  process.removeListener("SIGTERM", onTerm);
-  process.removeListener("SIGINT", onInt);
-  await logFile?.close().catch(() => undefined);
-
   await recordComponentTrace(config.callerCwd, {
     name: "subprocess.exit",
     backend: process.env.AS_IS_COMPONENT_BUILD_TRACER ?? "file",
@@ -646,8 +598,6 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     exitCode,
     outcome: budgetStopped ? "budget-stopped" : exitCode === 0 ? "success" : "failure",
   });
-
-  const wallClockSeconds = (Date.now() - startedMonotonic) / 1000;
 
   // Capture the child's final commit so the parent can read the record via
   // `git show <sha>:<path>` without a filesystem race on the worktree.

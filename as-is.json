@@ -54,17 +54,5 @@
         "local-directory": ".as-is/tracing.jsonl"
       }
     }
-  },
-  "task": {
-    "status": "completed",
-    "worker": "as-is",
-    "updated": "2026-08-23T00:00:00Z",
-    "constraints": {
-      "cost": { "currency": "USD", "allocated": 0.3, "spent": 0, "reserve": 0.06, "source": "unavailable", "fallback-metric": "validation elapsed-seconds" },
-      "delegation": { "maximum-depth": 0, "maximum-children": 0 },
-      "execution": { "wall-clock": { "allocated-seconds": 180, "spent-seconds": 0, "reserve-seconds": 30, "source": "unavailable" } },
-      "external-effects": "prohibited"
-    },
-    "acceptance": ["Amend the phased handoff so affected agent and skill behavioral tests anchor restructuring validation.", "Require relevant durable as-is records to be reviewed and updated during component-building and restructuring activities.", "Amend the prior scoped commit without changing runtime behavior."]
   }
 }
