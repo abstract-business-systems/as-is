@@ -2,8 +2,7 @@
 
 ## Purpose
 
-Provide supplementary execution telemetry and bounded trace evidence without
-becoming task, job, validation, recovery, or completion authority.
+Provide supplementary execution telemetry and bounded trace evidence without becoming task, job, validation, recovery, or completion authority.
 
 
 ## Design
@@ -32,12 +31,15 @@ flowchart TD
   task or audit authority.
 - Keep trace content under configured retention and failure controls.
 - Local Pi session inspection remains a separate read-only exact-ID host
-  surface; this component supplies opaque session correlation rather than the
-  query implementation.
+  surface; the focused worker-tools observability functionality supplies the
+  bounded query implementation while this component supplies opaque session
+  correlation rather than task or completion authority.
 - Send external sinks only opaque session IDs, never local session content or
   store references.
 - Own tracing implementation and observability backlog items; bounded query
-  support remains staged outside this component's tracer boundary.
+  support is implemented as a focused Pi adapter functionality in
+  `.pi/extensions/worker-tools-observability.ts`, outside this component's
+  tracer boundary.
 - Do not let trace failures, malformed events, unavailable sinks, or size
   limits change durable task decisions.
 - Evaluate budget extensions from task records and bounded evidence, never from
@@ -50,3 +52,4 @@ flowchart TD
 - [`tracer.ts`](tracer.ts) — stable tracing implementation boundary whose bounded event and sink behavior is indispensable to understand the component.
 - [`tracing-design.md`](tracing-design.md) — broader tracing design and staged
   rollout boundaries.
+- [`../../.pi/extensions/worker-tools-observability.ts`](../../.pi/extensions/worker-tools-observability.ts) — bounded session and trace query functionality.

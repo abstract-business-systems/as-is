@@ -66,6 +66,14 @@ describe("capability-based worker extension", () => {
   test("rejects invalid in-process thinking declarations", () => {
     expect(() => resolveWorkerThinkingLevel(process.cwd(), "extreme", "worker")).toThrow("max");
   });
+  test("call_subagent requires an explicit target role", async () => {
+    let registered: { name: string; parameters: unknown } | undefined;
+    workerTools({ registerTool: (tool: { name: string; parameters: unknown }) => { if (tool.name === "call_subagent") registered = tool; } } as never);
+    expect(registered).toBeDefined();
+    expect(JSON.stringify(registered?.parameters)).toContain("role");
+    expect(JSON.stringify(registered?.parameters)).not.toContain("Optional");
+  });
+
   test("canonical target contracts are present and distinct", async () => {
     const cwd = process.cwd();
     const roles = ["as-is", "component-builder", "execution-advisor", "evidence-validator", "expert", "worker"];

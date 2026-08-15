@@ -69,3 +69,5 @@ flowchart TD
 - [scripts/agent-resolution.ts](scripts/agent-resolution.ts) — shared canonical role, front-matter, declared-tool, and identity resolution functionality.
 - [scripts/spawn-pi-subagent.ts](scripts/spawn-pi-subagent.ts) — subprocess launcher and detached supervisor adapter.
 - [scripts/bounded-process-supervisor.ts](scripts/bounded-process-supervisor.ts) — shared mechanical process-group, timer, signal, stdio, and exit-observation boundary.
+- [../../.pi/extensions/worker-tools-observability.ts](../../.pi/extensions/worker-tools-observability.ts) — focused bounded session and trace query functionality consumed by the Pi registration adapter.
+- [../../.pi/extensions/worker-tools.ts](../../.pi/extensions/worker-tools.ts) — thin Pi registration and delegation adapter that retains role admission and call-subagent authority.
