@@ -63,9 +63,8 @@ skills cannot make.
    `active`, formulate the plan, and obtain attributable expert plan review
    before edits. The review covers scope, dependencies, acceptance, and
    recovery; revise or record a blocker when it fails.
-2. Apply `building-components`, `implementing-component-tasks`, and
-   `verification-discipline`. Before child launch, verify the child revision has
-   no active attempt, subtract local spent/reserve from available cost and time,
+2. Before child launch, verify the child revision has no active attempt,
+   subtract local spent/reserve from available cost and time,
    and obtain the normalized wall-clock limit from the control plane's
    `admitLaunch()` operation. Forward that approved limit to
    `spawn-pi-subagent.ts` as `--budget-wall-clock-seconds`; do not make the

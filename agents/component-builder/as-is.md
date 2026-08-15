@@ -16,8 +16,10 @@ judgment or grant task authority.
 The builder keeps durable component purpose separate from current task state:
 `as-is.md` describes the component, `tasks.md` governs the active task, and
 `changelog.md` records completed handoffs. It composes focused skills for task
-lifecycle, validation, recovery, and committing while retaining role authority
-for planning, delegation, descendant closure, and completion. Component-building
+lifecycle, context, validation, recovery, and committing while retaining role
+authority for planning, delegation, descendant closure, and completion. The
+role contract keeps only the authority-bearing launch, integration, and
+completion decisions that reusable procedures must not own. Component-building
 and restructuring work must update the relevant durable `as-is.md` record(s)
 when purpose, design, relationships, boundaries, ownership, or links change;
 those record updates are part of the scoped handoff. A separately owned child is
