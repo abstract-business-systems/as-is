@@ -1,0 +1,35 @@
+{
+  "task": {
+    "status": "completed",
+    "worker": "as-is",
+    "updated": "2026-08-15T19:43:00Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.25,
+        "spent": 0,
+        "reserve": 0.05,
+        "source": "unavailable",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 300,
+          "spent-seconds": 0,
+          "reserve-seconds": 45,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "prohibited"
+    },
+    "acceptance": [
+      "Reconcile skills:as-is-setup-skill only when current implementation evidence satisfies its recorded acceptance.",
+      "Preserve child skill ownership and make no implementation or runtime changes.",
+      "Record exact completion evidence, validate the scoped durable handoff, and remove only the reconciled backlog row."
+    ]
+  }
+}
