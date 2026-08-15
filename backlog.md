@@ -26,8 +26,9 @@ not repeated here:
 
 - Skills: `skills/backlog.md` (`deterministic-skills`, `presentation-guidance`,
   `building-components`).
-- Task-record validator: `components/task-record-validator/backlog.md`
-  (`task-record-validator-bun`).
+- Task-record validator: `components/task-record-validator/backlog.md` (no
+  remaining selected Phase 4A item; the Bun validator port is recorded in its
+  component changelog).
 - Observability: `components/observability/backlog.md` (Jaeger, tracing,
   Collector, all-in design, and richer observability items).
 

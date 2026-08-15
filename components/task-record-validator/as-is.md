@@ -26,3 +26,10 @@ flowchart TD
   enforcement.
 - Keep validation ownership here without becoming task authority or runtime
   enforcement.
+- [`validator.ts`](validator.ts) provides the dependency-free Bun/TypeScript
+  validator; it preserves the Python reference's configured narrative, schema,
+  budget, delegation, policy, and descendant-closure checks without mutating
+  records.
+- [`validator.test.ts`](validator.test.ts) provides focused Bun parity coverage;
+  [`task_record_validator.py`](task_record_validator.py) remains the reference
+  implementation and compatibility check during the port.

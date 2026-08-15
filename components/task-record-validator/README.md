@@ -1,21 +1,34 @@
 # Task-Record Validator
 
-`task_record_validator.py` is a dependency-free, deterministic validator for a
-version 2 JSON-companion task tree. It finds local `as-is.json.task` objects,
+`validator.ts` is the dependency-free Bun/TypeScript validator for a version 2
+JSON-companion task tree. `task_record_validator.py` remains the transition
+reference implementation and compatibility check. It finds local `as-is.json.task` objects,
 reads their configured front-matter-free task narratives, and uses directory
 placement to determine parentage. Durable `as-is.md` files provide component
 context but are not task metadata.
 
 ## Run
 
-From this directory, validate a task tree with:
+From this directory, validate a task tree with Bun:
+
+```sh
+bun validator.ts /path/to/component
+```
+
+The Python transition reference remains available:
 
 ```sh
 python3 task_record_validator.py /path/to/component
 ```
 
 It prints `VALID` and exits zero on success; otherwise it prints every detected
-invariant violation and exits one. Run the focused automated checks with:
+invariant violation and exits one. Run the focused Bun parity checks with:
+
+```sh
+bun test validator.test.ts
+```
+
+Run the Python reference checks with:
 
 ```sh
 python3 -m unittest -v test_task_record_validator.py

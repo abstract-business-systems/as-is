@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-08-23: Completed the bounded Bun/TypeScript task-record validator port. Added dependency-free `validator.ts` and parity fixtures covering valid trees, weakened policy and delegation limits, child budget excess, and completed-parent descendant closure. The Bun implementation remains read-only and independent of control-plane mutation authority; the Python validator remains the semantic reference during transition. Validation passed: Bun parity 6 tests and 15 expectations, Python reference 6 tests, control-plane and budget suites 19 tests and 69 expectations, as-is content validation (43 records, 44 diagrams), task-record validation, JSON/Bun syntax, and `git diff --check`. README usage documents both Bun and Python transition-reference commands.
+
 ## 2026-08-15 — Legacy record migration
 
 - **Component:** Task-Record Validator.
