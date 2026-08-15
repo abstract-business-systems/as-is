@@ -16,6 +16,14 @@ export type DataSource = {
   scope: "repository" | "component";
 };
 
+export type ConfigurationResolution = {
+  configuration: JsonObject;
+  sources: DataSource[];
+  provenance: Record<string, DataSource>;
+  diagnostics: ResolutionDiagnostic[];
+  complete: boolean;
+};
+
 export type AsIsDataResult = {
   target: string;
   effective: JsonObject;
@@ -74,6 +82,64 @@ export function readAsIsJson(path: string): JsonObject {
 
 async function readJson(path: string): Promise<JsonObject> {
   return parseAsIsJson(await readFile(path, "utf8"), path);
+}
+
+export async function resolveConfiguration(repositoryRoot: string, targetComponent = "."): Promise<ConfigurationResolution> {
+  const result = await resolveAsIsData(repositoryRoot, targetComponent);
+  return {
+    configuration: isObject(result.effective.configuration) ? result.effective.configuration : {},
+    sources: result.sources,
+    provenance: result.provenance,
+    diagnostics: result.diagnostics,
+    complete: result.complete,
+  };
+}
+
+export function findConfigurationRootSync(clientCwd: string): string | undefined {
+  let current = resolve(clientCwd);
+  while (true) {
+    try {
+      if (isObject(readAsIsJson(resolve(current, "as-is.json")).configuration)) return current;
+    } catch { /* continue upward */ }
+    const parent = dirname(current);
+    if (parent === current) return undefined;
+    current = parent;
+  }
+}
+
+export function resolveConfigurationFromCwdSync(clientCwd: string): ConfigurationResolution & { root?: string } {
+  const root = findConfigurationRootSync(clientCwd);
+  if (!root) return { configuration: {}, sources: [], provenance: {}, diagnostics: [{ severity: "error", code: "configuration-root-not-found", message: "No ancestor as-is.json declares configuration." }], complete: false };
+  const target = relative(root, resolve(clientCwd)) || ".";
+  return { ...resolveConfigurationSync(root, target), root };
+}
+
+export function resolveConfigurationSync(repositoryRoot: string, targetComponent = "."): ConfigurationResolution {
+  const root = realpathSync(resolve(repositoryRoot));
+  const requested = resolve(root, targetComponent);
+  const diagnostics: ResolutionDiagnostic[] = [];
+  if (!within(root, requested)) return { configuration: {}, sources: [], provenance: {}, diagnostics: [{ severity: "error", code: "target-outside-repository", message: "Target component is outside the repository root." }], complete: false };
+  let target: string;
+  try { target = realpathSync(requested); } catch { return { configuration: {}, sources: [], provenance: {}, diagnostics: [{ severity: "error", code: "target-not-found", message: "Target component does not exist." }], complete: false }; }
+  if (!within(root, target)) return { configuration: {}, sources: [], provenance: {}, diagnostics: [{ severity: "error", code: "target-symlink-escape", message: "Target component resolves outside the repository root." }], complete: false };
+  const directories: string[] = [];
+  for (let current = target; within(root, current); current = dirname(current)) { directories.unshift(current); if (current === root) break; }
+  const configuration: JsonObject = {};
+  const sources: DataSource[] = [];
+  const provenance: Record<string, DataSource> = {};
+  for (const directory of directories) {
+    const path = resolve(directory, "as-is.json");
+    let value: JsonObject;
+    try { value = readAsIsJson(path); } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") continue;
+      diagnostics.push({ severity: "error", code: "invalid-json", path, message: error instanceof Error ? error.message : "Unable to read as-is.json." });
+      continue;
+    }
+    const sourceInfo: DataSource = { path, scope: directory === root ? "repository" : "component" };
+    sources.push(sourceInfo);
+    if (isObject(value.configuration)) mergeConfiguration(configuration, value.configuration, sourceInfo, provenance);
+  }
+  return { configuration, sources, provenance, diagnostics, complete: diagnostics.every((diagnostic) => diagnostic.severity !== "error") };
 }
 
 export async function resolveAsIsData(repositoryRoot: string, targetComponent: string): Promise<AsIsDataResult> {

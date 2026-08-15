@@ -8,7 +8,7 @@ import { runBoundedProcess } from "./bounded-process-supervisor.ts";
 import { emitTrace, startSpan, serializeSessionReference, type SessionReference } from "../../../components/observability/tracer.ts";
 import { evaluateHandoffEligibility, type HandoffFacts } from "../../../components/control-plane/handoff-eligibility.ts";
 import { resolveInstructionContext } from "../../../components/instruction-context/resolver.ts";
-import { isTaskNarrativeFilename, parseAsIsJson } from "../../../components/as-is-data/resolver.ts";
+import { findConfigurationRootSync, isTaskNarrativeFilename, parseAsIsJson, resolveConfigurationSync } from "../../../components/as-is-data/resolver.ts";
 import { parseThinkingLevel, resolveThinkingLevel, type ThinkingLevel } from "./agent-thinking.ts";
 import {
   parseAgentFrontMatter,
@@ -314,21 +314,12 @@ const string = (value: unknown): string | undefined => typeof value === "string"
 
 // The launching client's cwd is the project-context origin. A project root is
 // the nearest ancestor whose companion data declares a configuration object.
-const findProjectRoot = async (clientCwd: string): Promise<string | undefined> => {
-  let current = resolve(clientCwd);
-  while (true) {
-    try {
-      if (object(parseAsIsJson(await readFile(join(current, "as-is.json"), "utf8"), join(current, "as-is.json")).configuration)) return current;
-    } catch { /* continue upward */ }
-    const parent = dirname(current);
-    if (parent === current) return undefined;
-    current = parent;
-  }
-};
+const findProjectRoot = async (clientCwd: string): Promise<string | undefined> => findConfigurationRootSync(clientCwd);
 
 const readProjectModelConfig = async (projectRoot: string): Promise<ProjectModelConfig> => {
-  const data = parseAsIsJson(await readFile(join(projectRoot, "as-is.json"), "utf8"), join(projectRoot, "as-is.json"));
-  const config = object(data.configuration);
+  const resolution = resolveConfigurationSync(projectRoot, ".");
+  if (!resolution.complete) throw new Error(resolution.diagnostics.map((diagnostic) => diagnostic.message).join("; "));
+  const config = object(resolution.configuration);
   const agents = object(config.agents);
   const records = object(object(config.records).filenames);
   const tracing = object(object(config.observability).tracing);

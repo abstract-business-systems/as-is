@@ -29,3 +29,9 @@ flowchart TD
 - Parse present `configuration` and `task` values strictly as objects.
 - Report malformed JSON, unsafe paths, and invalid configuration as incomplete
   diagnostics rather than silently recovering.
+- [`resolver.ts`](resolver.ts) exposes reusable asynchronous and synchronous
+  configuration-resolution views so launchers, worker tools, task control, and
+  non-component flows can consume the same root-to-target cascade without
+  inheriting local task data.
+- [`resolver.test.ts`](resolver.test.ts) covers cascade, provenance, local task
+  isolation, malformed data, and repository/symlink boundaries.

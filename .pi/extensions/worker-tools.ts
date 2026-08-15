@@ -1,5 +1,4 @@
-import { dirname, join, resolve } from "node:path";
-import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { createHash, randomUUID } from "node:crypto";
 import {
   createAgentSession,
@@ -20,7 +19,7 @@ import {
 import { boundedLimit } from "../../components/budget-control/budget.ts";
 import { parseThinkingLevel, resolveThinkingLevel, type ThinkingLevel } from "../../skills/spawning-pi-subagents/scripts/agent-thinking.ts";
 import { resolveCanonicalAgent } from "../../skills/spawning-pi-subagents/scripts/agent-resolution.ts";
-import { readAsIsJson } from "../../components/as-is-data/resolver.ts";
+import { readAsIsJson, resolveConfigurationFromCwdSync } from "../../components/as-is-data/resolver.ts";
 import { resolveLocalLinkedContext } from "../../components/linked-context/resolver.ts";
 import {
   emitTrace,
@@ -143,28 +142,22 @@ const object = (value: unknown): Record<string, unknown> =>
 const string = (value: unknown): string | undefined => typeof value === "string" ? value : undefined;
 
 function projectAgentConfig(cwd: string): ProjectAgentConfig {
-  let current = resolve(cwd);
-  while (true) {
-    const path = join(current, "as-is.json");
-    if (existsSync(path)) {
-      const data = readAsIsJson(path);
-      if (data.configuration !== undefined) {
-        const agents = object(object(data.configuration).agents);
-        const models: Record<string, string> = {};
-        for (const [name, value] of Object.entries(object(agents.models))) {
-          if (typeof value === "string") models[name] = value;
-        }
-        return {
-          defaultModel: string(agents.defaultModel),
-          defaultThinkingLevel: parseThinkingLevel(agents.defaultThinkingLevel, "configuration.agents.defaultThinkingLevel"),
-          models,
-          provider: string(agents.provider),
-        };
-      }
+  try {
+    const resolution = resolveConfigurationFromCwdSync(cwd);
+    if (!resolution.complete) return { models: {} };
+    const agents = object(resolution.configuration.agents);
+    const models: Record<string, string> = {};
+    for (const [name, value] of Object.entries(object(agents.models))) {
+      if (typeof value === "string") models[name] = value;
     }
-    const parent = dirname(current);
-    if (parent === current) return { models: {} };
-    current = parent;
+    return {
+      defaultModel: string(agents.defaultModel),
+      defaultThinkingLevel: parseThinkingLevel(agents.defaultThinkingLevel, "configuration.agents.defaultThinkingLevel"),
+      models,
+      provider: string(agents.provider),
+    };
+  } catch {
+    return { models: {} };
   }
 }
 

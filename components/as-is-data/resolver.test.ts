@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { resolveAsIsData } from "./resolver";
+import { resolveAsIsData, resolveConfigurationFromCwdSync, resolveConfigurationSync } from "./resolver";
 
 function fixture() {
   const root = mkdtempSync(join(tmpdir(), "as-is-data-"));
@@ -41,6 +41,35 @@ test("keeps missing optional files valid and reports malformed applicable data",
   const root = fixture();
   writeFileSync(join(root, "as-is.json"), "not json");
   const result = await resolveAsIsData(root, "components/child");
+  expect(result.complete).toBe(false);
+  expect(result.diagnostics[0]?.code).toBe("invalid-json");
+  rmSync(root, { recursive: true, force: true });
+});
+
+test("resolves effective configuration synchronously without cascading local task data", () => {
+  const root = fixture();
+  writeJson(join(root, "as-is.json"), { configuration: { agents: { defaultModel: "small" } }, task: { status: "active" } });
+  writeJson(join(root, "components", "child", "as-is.json"), { configuration: { agents: { defaultThinkingLevel: "high" } }, task: { status: "ready" } });
+  const result = resolveConfigurationSync(root, "components/child");
+  expect(result.complete).toBe(true);
+  expect(result.configuration).toEqual({ agents: { defaultModel: "small", defaultThinkingLevel: "high" } });
+  expect(result.provenance["configuration.agents"]?.scope).toBe("repository");
+  rmSync(root, { recursive: true, force: true });
+});
+
+test("finds the configuration root from a nested client directory", () => {
+  const root = fixture();
+  writeJson(join(root, "as-is.json"), { configuration: { agents: { defaultModel: "small" } } });
+  const result = resolveConfigurationFromCwdSync(join(root, "components", "child"));
+  expect(result.root).toBe(root);
+  expect(result.configuration.agents).toEqual({ defaultModel: "small" });
+  rmSync(root, { recursive: true, force: true });
+});
+
+test("reports malformed configuration for an explicit root", () => {
+  const root = fixture();
+  writeFileSync(join(root, "as-is.json"), "not json");
+  const result = resolveConfigurationSync(root, ".");
   expect(result.complete).toBe(false);
   expect(result.diagnostics[0]?.code).toBe("invalid-json");
   rmSync(root, { recursive: true, force: true });
