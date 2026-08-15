@@ -953,7 +953,7 @@ const main = async() => {
     noExtensions: true,
     extensionPath: resolve(cwd, isEvidenceValidation
       ? "skills/spawning-pi-subagents/scripts/evidence-validator-inspection-extension.ts"
-      : "tools/agent/subagent-tools.ts"),
+      : ".pi/extensions/worker-tools.ts"),
     noApprove: isEvidenceValidation || Boolean(options.noApprove),
     worktree: isEvidenceValidation ? false : !(options.noWorktree ?? false),
   };

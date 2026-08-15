@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createAgentSession, createExtensionRuntime, ModelRuntime, SessionManager } from "../../skills/spawning-pi-subagents/node_modules/@earendil-works/pi-coding-agent";
 import workerTools, { analyzeProjectSession, resolveWorkerThinkingLevel, workerSessionOptions } from "../../.pi/extensions/worker-tools";
+import { registerWorkerTools } from "../../skills/spawning-pi-subagents/extensions/worker-tools.ts";
 
 const rootRecord = "# Root\n";
 
@@ -28,6 +29,22 @@ function componentContextTool() {
   return registered;
 }
 describe("capability-based worker extension", () => {
+  test("registers host tools through the versioned package boundary", () => {
+    const registered: string[] = [];
+    registerWorkerTools({ registerTool: (tool: { name: string }) => registered.push(tool.name) }, {
+      version: 1,
+      getTools: () => [{ name: "example", label: "Example", description: "Example", parameters: {}, execute: async () => ({ content: [] }) } as never],
+    });
+    expect(registered).toEqual(["example"]);
+  });
+
+  test("fails closed for unsupported host services", () => {
+    expect(() => registerWorkerTools({ registerTool: () => undefined }, {
+      version: 2 as never,
+      getTools: () => [],
+    })).toThrow("unsupported subagent host services version");
+  });
+
   test("resolves the declared thinking level for in-process workers", () => {
     expect(resolveWorkerThinkingLevel(process.cwd(), "max", "worker")).toBe("max");
   });
