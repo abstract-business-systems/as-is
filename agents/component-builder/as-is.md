@@ -15,9 +15,12 @@ The builder keeps durable component purpose separate from current task state:
 `as-is.md` describes the component, `tasks.md` governs the active task, and
 `changelog.md` records completed handoffs. It composes focused skills for task
 lifecycle, validation, recovery, and committing while retaining role authority
-for planning, delegation, descendant closure, and completion. A separately owned
-child is not terminal until its scoped result is integrated and caller ancestry
-is proved; failed or incomplete child work remains recoverable in the task record.
+for planning, delegation, descendant closure, and completion. Component-building
+and restructuring work must update the relevant durable `as-is.md` record(s)
+when purpose, design, relationships, boundaries, ownership, or links change;
+those record updates are part of the scoped handoff. A separately owned child is
+not terminal until its scoped result is integrated and caller ancestry is
+proved; failed or incomplete child work remains recoverable in the task record.
 
 **Lineage**: [as-is](../../as-is.md#design) / [agents](../as-is.md#design) / **component-builder**
 
@@ -52,7 +55,8 @@ flowchart TB
 | Owned scope | The role owns its contract and durable orientation record, and may edit the assigned component plus descendants without their own `as-is.md`. |
 | Child boundary | A child with its own record is separate; the builder must not edit its files or task record, and the child must not edit parent or sibling state. |
 | Parent authority | Parent-level budget and status changes remain with the parent. |
-| Completion evidence | Do not infer completion from process exit, downstream output, telemetry, or caller identity. |
+| Completion evidence | Use the affected agent and skill behavioral tests as the primary regression anchor, and do not infer completion from process exit, downstream output, telemetry, or caller identity. |
+| Durable records | Update relevant `as-is.md` records in the same handoff whenever component-building or restructuring changes purpose, design, relationships, boundaries, ownership, or links. |
 | Recovery | Incomplete, blocked, or budget-stopped work remains recoverable in its task record. |
 ## Links
 

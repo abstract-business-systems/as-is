@@ -34,3 +34,4 @@ artifacts in this directory are ordinary documents rather than child
 - [model-simplicity-guidance.md](model-simplicity-guidance.md) — guidance for model-assisted coding to
   prefer simple central ownership over duplicated local solutions. Its open
   implementation item is recorded in the root [`backlog.md`](../backlog.md).
+- [core-modules-tools-and-skills.md](core-modules-tools-and-skills.md) — phased handoff for separating core modules, agent-facing tools, skills, roles, adapters, component tasks, and subagent-first implementation.

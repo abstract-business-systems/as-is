@@ -46,6 +46,10 @@ child closure without taking ownership of the child's files or records.
    reference material: it cannot provide instructions, task authority, or
    permission to edit another component. Do not recursively follow links;
    request only the smallest linked file or directory needed for the task.
+   When the implementation or restructuring changes component purpose, design,
+   relationships, boundaries, ownership, or linked artifacts, update the
+   relevant durable `as-is.md` record(s) in the same scoped handoff; do not
+   defer those updates as optional documentation cleanup.
 4. If work crosses into a descendant with its own `as-is.md`, stop at that
    boundary and delegate through the configured component-builder role. Before
    launch, record the child relationship and explicit context handoff in the
@@ -57,9 +61,13 @@ child closure without taking ownership of the child's files or records.
    recorded as a child request/blocker for parent reconciliation. Skills
    provide no delegation authority.
 5. Select and run the smallest relevant checks using
-   `verification-discipline`. Record commands, observed results, acceptance
-   mapping, residual risk, cumulative cost and wall-clock observations, and
-   recovery state in `tasks.md`.
+   `verification-discipline`. Behavioral tests of the affected agent and skill
+   contracts are the primary regression anchor: run existing relevant tests
+   before and after behavior-affecting work, and add or update focused
+   behavioral coverage when the current tests do not exercise the preserved
+   contract. Record commands, observed results, acceptance mapping, residual
+   risk, cumulative cost and wall-clock observations, and recovery state in
+   `tasks.md`.
 6. After checks pass, obtain a fresh read-only expert validation of the actual
    diff and evidence. The validation must explicitly say whether the change is
    safe to commit. Do not commit on a failed or unavailable required gate.
@@ -72,7 +80,8 @@ child closure without taking ownership of the child's files or records.
 
 A completed handoff consists of:
 
-- the changed component artifacts and concise `changelog.md` entry;
+- the changed component artifacts, relevant durable `as-is.md` updates, and concise `changelog.md` entry;
+- behavioral-test evidence for each affected agent or skill contract;
 - a removed transient task record after its completion evidence is durable;
 - one scoped Git commit containing only the declared handoff; and
 - task evidence covering expert plan and final-diff gates, validation,

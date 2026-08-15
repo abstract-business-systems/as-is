@@ -6,7 +6,7 @@ Provide the reusable procedure for building one bounded component and producing 
 
 ## Design
 
-The skill composes task implementation, validation, recovery, and completion procedures. It guides a builder through context, expert review, bounded implementation, child handoff, acceptance evidence, descendant closure, and durable handoff without selecting or launching agents itself.
+The skill composes task implementation, validation, recovery, and completion procedures. It guides a builder through context, expert review, bounded implementation, child handoff, acceptance evidence, descendant closure, and durable handoff without selecting or launching agents itself. Behavioral tests of affected agent and skill contracts are the primary regression anchor for component-building and restructuring work. When a build or restructuring change alters a component's purpose, design, relationships, boundary, ownership, or links, the relevant durable `as-is.md` record is updated in the same handoff.
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Building Components**
 
@@ -33,3 +33,4 @@ The skill is reusable procedure, not authority. The configured agent remains res
 - [`../../agents/component-builder/agent.md`](../../agents/component-builder/agent.md) — role that retains build authority.
 - [`../implementing-component-tasks/SKILL.md`](../implementing-component-tasks/SKILL.md) — task lifecycle.
 - [`../verification-discipline/SKILL.md`](../verification-discipline/SKILL.md) — validation evidence.
+- [`../../agents/component-builder/live-behavioral.test.ts`](../../agents/component-builder/live-behavioral.test.ts) — live behavioral contract checks for component-builder behavior when the live integration gate is enabled.
