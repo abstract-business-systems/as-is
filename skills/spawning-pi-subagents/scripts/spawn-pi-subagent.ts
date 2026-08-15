@@ -595,7 +595,7 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
   const finalSha = childCwd !== config.callerCwd ? await gitIn(childCwd, ["rev-parse", "HEAD"]) : null;
   const committed = finalSha !== null && finalSha !== baseSha;
   // Read the transient task record from the child commit. The durable
-  // `as-is.md` path identifies the component; `tasks.md` owns current task
+  // `as-is.md` path identifies the component; its local JSON `task` object owns current machine task state
   // status and handoff evidence. A disk copy or exit code is not durable
   // handoff evidence and must not make a result eligible.
   const taskRecordPath = config.recordPath ? taskRecordPathFor(config.recordPath, config.contextTaskRecordNames) : null;

@@ -86,7 +86,7 @@ mechanism; explicit Pi approval flags remain host controls.
 ```bash
 bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
   --agent agents/component-builder/agent.md \
-  --task "Delegate the bounded component task recorded in the named component as-is.md." \
+  --task "Delegate the bounded component task recorded in the named component's local as-is.json task object and configured Markdown narrative." \
   --cwd "$PWD" \
   --approve
 ```

@@ -14,8 +14,10 @@ judgment or grant task authority.
 ## Design
 
 The builder keeps durable component purpose separate from current task state:
-`as-is.md` describes the component, `tasks.md` governs the active task, and
-`changelog.md` records completed handoffs. It composes focused skills for task
+`as-is.md` describes the component, the local `task` object in `as-is.json`
+governs machine task state, the configured Markdown narrative (normally
+`tasks.md`) carries human task context and evidence, and `changelog.md` records
+completed handoffs. It composes focused skills for task
 lifecycle, context, validation, recovery, and committing while retaining role
 authority for planning, delegation, descendant closure, and completion. The
 role contract keeps only the authority-bearing launch, integration, and

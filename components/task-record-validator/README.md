@@ -2,7 +2,7 @@
 
 `validator.ts` is the dependency-free Bun/TypeScript validator for a version 2
 JSON-companion task tree. `task_record_validator.py` remains the transition
-reference implementation and compatibility check. It finds local `as-is.json.task` objects,
+reference implementation and compatibility check. It finds local `task` objects in `as-is.json` files,
 reads their configured front-matter-free task narratives, and uses directory
 placement to determine parentage. Durable `as-is.md` files provide component
 context but are not task metadata.
@@ -36,7 +36,7 @@ python3 -m unittest -v test_task_record_validator.py
 
 ## Enforced Version 2 Invariants
 
-- strict `as-is.json.task` core fields, supported statuses, non-negative
+- strict local `as-is.json` `task` object fields, supported statuses, non-negative
   resource values, RFC 3339 UTC checkpoints, and required narrative sections;
 - a safe root-configured task-narrative basename and a narrative beside every
   discovered task companion;

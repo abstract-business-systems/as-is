@@ -17,8 +17,8 @@ does not redefine the contract.
   The requested component `cwd` identifies the worker's target and default
   relative execution context; it does not redefine the project root or act as a
   security sandbox. Git metadata is not required for project-context discovery.
-- A component task's authoritative state is its local `as-is.json.task` machine
-  metadata plus its configured front-matter-free Markdown task narrative. Root
+- A component task's authoritative state is its local `task` object in
+  `as-is.json` plus its configured front-matter-free Markdown task narrative. Root
   and component `as-is.md` records remain durable human context. No runtime
   index or backlog is a second authority. The orchestrator supplies the worker
   those task artifacts plus centrally supplied repository instructions,
@@ -373,7 +373,7 @@ attempts but does not redefine these decisions.
 
 - An active record is a stale candidate only when the durable `task.updated`
   checkpoint exists and the observer's current UTC clock is later than that
-  checkpoint by more than the effective `config.scheduling.checkInSeconds`.
+  checkpoint by more than the effective `configuration.scheduling.checkInSeconds`.
   The checkpoint, configured interval, and observation clock are recorded as
   the sources of the decision.
 - A missing or malformed checkpoint, an unavailable observation clock, or a
@@ -387,7 +387,7 @@ attempts but does not redefine these decisions.
 
 ### Attempts, Backoff, And Budget
 
-- `config.scheduling.maxRecoveryAttempts` is the finite maximum number of
+- `configuration.scheduling.maxRecoveryAttempts` is the finite maximum number of
   recovery attempts after the initial launch. The default effective value for
   this increment is `2`; a host must not start a further attempt after that
   bound, even if private state suggests that one might help.

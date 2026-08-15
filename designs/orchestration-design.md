@@ -4,8 +4,8 @@
 
 This permanent design specification defines the architecture and staged
 implementation direction for a durable, filesystem-oriented knowledge-work
-automation system. It distinguishes settled design from the transient current
-task state in `as-is.md`.
+automation system. It distinguishes settled design from transient current task state held in
+the local JSON `task` object and configured Markdown narrative.
 
 ## Goal
 
@@ -47,30 +47,36 @@ taxonomy and definitions.
   restart after interruption or failure.
 - Durable task intent, scoped policy, decisions, progress summaries, results,
   blockers, and next actions belong in the root or relevant component's
-  `as-is.md`. Private runtime state belongs in a user-level state
-  directory; it includes session links, leases, caches, detailed logs, and
-  secrets. The project receives no generated runtime-state files by default.
+  configured Markdown task narrative, while machine status, constraints, and
+  acceptance belong in the local `task` object in `as-is.json`. The durable
+  component `as-is.md` remains architecture context. Private runtime state
+  belongs in a user-level state directory; it includes session links, leases,
+  caches, detailed logs, and secrets. The project receives no generated
+  runtime-state files by default.
 - Transient execution artifacts, including session links, leases, caches,
   detailed logs, and temporary prompts, are removed after successful task
   completion. Retain them only while needed for active work, recovery, audit,
   or an explicitly configured retention period; retain durable outcomes in the
   task record instead.
-- Current task state is kept in the root or component `as-is.md`. Historical
-  committed state is recovered from Git history and concise entries in
-  the canonical `Changelog` section; the repository does not create a `task-archives/` tree or a
-  host-specific historical recovery path. The change log records the reason for
-  deferral, cancellation, supersession, or retirement, relevant commits, and a
-  recovery point without becoming task authority or duplicating full records.
+- Current machine task state is kept in the root or component `as-is.json` `task`
+  object; human task intent and evidence are kept in the configured Markdown
+  narrative. Historical committed state is recovered from Git history and
+  concise entries in the canonical `Changelog` section; the repository does not
+  create a `task-archives/` tree or a host-specific historical recovery path.
+  The changelog records the reason for deferral, cancellation, supersession, or
+  retirement, relevant commits, and a recovery point without becoming task
+  authority or duplicating full records.
 - Before removing a historical artifact, the orchestrator checks tracked,
   untracked, and ignored contents, consumers, ownership, audit/recovery value,
   and recreation cost. Git does not preserve uncommitted content, so necessary
-  concise facts are retained in the change log/current record or an authorized
+  concise facts are retained in the changelog/current records or an authorized
   scoped evidence commit is made before removal. No byte-level recovery claim is
   made without a commit.
-- Component `as-is.md` records remain the sole authoritative task state. There
-  is no second authoritative backlog or task tree. A private future runtime
-  index may hold discardable references, but it cannot replace, mirror as
-  authority, or supersede repository-backed records.
+- The local JSON `task` object plus configured Markdown narrative are the task
+  authority and evidence pair. Durable component `as-is.md` remains architecture
+  context; there is no second authoritative backlog or task tree. A private
+  future runtime index may hold discardable references, but it cannot replace,
+  mirror as authority, or supersede repository-backed records.
 - Private transient runtime state may use
   `${TMPDIR:-/tmp}/as-is/<project-key>/<run-id>/<component-key>/`, or an
   equivalent secure host temporary root. It must be collision-resistant,
@@ -99,10 +105,11 @@ taxonomy and definitions.
 - At most one active worker attempt may modify a component at a time. A later
   runtime implementation must enforce this with a per-component lease or lock;
   the lease controls exclusivity but does not become task authority.
-- Subtasks are recorded in an `as-is.md` in the relevant component directory,
-  not as an arbitrarily deep nested structure inside the parent task record.
-  The component-directory hierarchy is the durable task tree; private runtime
-  state may mirror it for implementation convenience but is not authoritative.
+- Subtasks are recorded in the local JSON `task` object and configured Markdown
+  narrative in the relevant component directory, not as an arbitrarily deep
+  nested structure inside the parent task record. The component-directory
+  hierarchy is the durable task tree; private runtime state may mirror it for
+  implementation convenience but is not authoritative.
 - Work that spans multiple components is performed at their nearest common
   ancestor rather than by cross-component delegation.
 - A parent orchestrator may update its own or root record, observe child
@@ -148,8 +155,9 @@ session/event behavior remains at the adapter boundary.
 - Once defined, the component task-record protocol is the canonical field list
   for delegated work. Repository instructions and project decisions state only
   its applicable behavioral requirement and refer to the protocol for fields.
-- Task records use the component's `as-is.md`. Their protocol is defined in
-  [Component Task-Record Protocol](../docs/component-task-record-protocol.md).
+- Task records use the local `task` object in `as-is.json` plus the configured
+  Markdown narrative beside the component's `as-is.md`. Their protocol is
+  defined in [Component Task-Record Protocol](../docs/component-task-record-protocol.md).
 - The record identifies the configured worker suitable for recovery, not a mutable
   owner or lease. When recovery is required, the orchestrator rereads the record
   and delegates it to that role; the resumed worker decides whether to continue
@@ -191,10 +199,10 @@ session/event behavior remains at the adapter boundary.
   invokes it without copying the core into every target project.
 - A target project has an authored `as-is.md` at its root for project policy and
   project-level task context. When work is first delegated to a component
-  directory, the orchestrator generates its `as-is.md` task record atomically
-  before launch; the worker then maintains it as durable scoped task context and
-  any permitted policy narrowing. A generated component record is not private
-  runtime state.
+  directory, the orchestrator generates its durable `as-is.md` context and
+  local JSON `task` object plus Markdown narrative before launch; the worker
+  then maintains the task pair as durable scoped task state and any permitted
+  policy narrowing. Generated task artifacts are not private runtime state.
 - The core provides a versioned default for every supported setting. Common
   policy is supplied centrally as read-only execution context; the root and
   component records contain only their task-specific effective constraints.
@@ -202,13 +210,14 @@ session/event behavior remains at the adapter boundary.
 - A component may narrow applicable policy only within its authority. Protocol
   validation rejects lower-authority values that weaken a higher-authority
   constraint.
-- Root `config.technology-preferences` provides project-specific, centrally
+- Root `configuration.technology-preferences` provides project-specific, centrally
   supplied guidance for laying a new component's foundation. It is a preference,
   not a constraint: implementers use it when it fits the bounded requirement and
   established local patterns, and record a material departure with its reason.
 - Extensions are supplied by the selected bundle and are declared, ordered, and
-  configured through the root `as-is.md`. Changing a project's bundle is the
-  controlled way to change its available extension set.
+  configured through the root machine configuration and host adapter boundary.
+  Changing a project's bundle is the controlled way to change its available
+  extension set.
 - The configuration API is strict and versioned. Unknown core fields fail
   validation rather than silently changing automation behavior.
 - Schema validation, separation of generated state from project policy, and
@@ -224,7 +233,7 @@ session/event behavior remains at the adapter boundary.
 See `docs/configuration.md` for the superseded JSON-manifest design,
 `docs/component-task-record-protocol.md` for the component record contract, and
 `docs/execution-contract.md` for the host-neutral worker lifecycle contract.
-See `as-is.md` for transient current project task state.
+See the configured JSON `task` object and Markdown narrative for transient current project task state.
 
 ### Orchestration and Control
 
@@ -268,7 +277,7 @@ See `as-is.md` for transient current project task state.
 ### User Check-Ins And Control
 
 - The root project context configures a periodic check-in interval under
-  `config.scheduling.checkInSeconds`. The interval is a positive duration and
+  `configuration.scheduling.checkInSeconds`. The interval is a positive duration and
   applies to the orchestrator's durable observation cycle; it does not grant a
   worker additional execution time or replace the task wall-clock budget.
 - A check-in is due when the configured interval has elapsed from the latest
@@ -277,7 +286,7 @@ See `as-is.md` for transient current project task state.
   without a private scheduler or session cache. A host may wake earlier for a
   material event.
 - Material-event notification is enabled by the root
-  `config.notifications.materialEvents` setting. When enabled, the
+  `configuration.notifications.materialEvents` setting. When enabled, the
   orchestrator immediately reports delegation, blocking, budget risk or
   exhaustion, completion, failure, cancellation, and approval-required external
   effects. The event is observable from the durable task status, checkpoint,
@@ -323,7 +332,7 @@ See `as-is.md` for transient current project task state.
 
 ### Concurrency Boundary
 
-- The current effective `config.scheduling.maxConcurrentTasks` remains `1`.
+- The current effective `configuration.scheduling.maxConcurrentTasks` remains `1`.
   No runtime concurrency increase is part of the current design-context task.
 - Future `maxConcurrentTasks: 3` semantics count active leaf worker attempts,
   not parent control-plane orchestrators. Parent orchestrators submit and
@@ -463,7 +472,7 @@ not begin a later increment until the preceding increment meets its stated
 acceptance conditions.
 
 1. **Define the durable task-record protocol.** Completed. The protocol defines
-   filesystem-derived placement and parentage, strict `as-is.json.task`
+   filesystem-derived placement and parentage, strict local `task` objects in `as-is.json`
    metadata plus front-matter-free Markdown narrative sections, status values,
    configured-worker recovery routing, host-reported
    component cost, child-record handoffs, pre-handoff validation, and safe

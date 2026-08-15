@@ -645,7 +645,7 @@ export class ControlPlane {
       answer,
       "read-only": true,
       changed: false,
-      sources: ["root and component as-is.md task records"],
+      sources: ["root and component as-is.json task objects plus configured Markdown narratives"],
     };
   }
 

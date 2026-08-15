@@ -12,7 +12,7 @@ root `as-is.json`. `as-is.md` remains the human-facing durable component map.
 | Bundle | Installed as-is distribution | Agents, skills, references, schemas, extensions, and host adapters. |
 | Project configuration | Repository root `as-is.json` | Project machine configuration under `configuration`. |
 | Component context | Component `as-is.md` | Durable human purpose, design, boundaries, and links. |
-| Task metadata | Component `as-is.json` | Local transient task metadata under `task`; never cascades. |
+| Task metadata | Component `as-is.json` | Local transient task metadata under `task`; never cascades. The root `as-is.json` may also hold the root task object. |
 | Task narrative | Component configured task-record filename (default `tasks.md`) | Human-readable transient task context. |
 | Runtime | Private user or temporary state | Resolved runtime metadata, handles, logs, and disposable artifacts. |
 
@@ -43,7 +43,9 @@ The root companion contains repository configuration under `configuration`:
 
 `configuration` holds effective project settings. `task`, when present, is
 local transient metadata and is never inherited by descendants. The root
-companion is authoritative for machine-readable values; this document describes
+companion is authoritative for machine-readable configuration and root task
+metadata; component companions are authoritative for their local task metadata;
+this document describes
 their meaning only.
 
 ## Configuration Areas

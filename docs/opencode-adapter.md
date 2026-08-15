@@ -195,13 +195,13 @@ adapter requires a supervisor-owned detached job or supported server job that
 returns a launch checkpoint before worker completion; no such capability is
 validated here. The historical direct-subagent and wrong-role mediation attempts
 below remain blocked evidence; the role topology and supported mediation chain
-are validated only by the fresh root `as-is.json.task` metadata and its configured Markdown task narrative.
+are validated only by the fresh root `as-is.json` `task` metadata and its configured Markdown task narrative.
 
 | Contract operation | OpenCode mapping | Durable requirement |
 | --- | --- | --- |
 | `launch` | No supported non-blocking mapping is established. A foreground `opencode run` is synchronous; a future supervisor/server job may submit it and preserve `as-is -> orchestrator -> implementer` | Create the child record in `ready`, write a durable launch checkpoint before returning, then require job ownership, task events, and parent-linked sessions naming `orchestrator` and `implementer`; a fallback, `general`, or `explore` task is not a valid handoff. |
 | `resume` | Submit a fresh attempt through the same validated supervisor/server job; a fresh bounded foreground `opencode run` is historical evidence only | Reread the component record; do not depend on a prior session or replay a private prompt. |
-| `observe` | Read root and component `as-is.md` context plus local `as-is.json.task` metadata and task narrative, then poll supervisor/job and process/session health; CLI output is supplementary and source-labelled | Report status, checkpoint, budget, blockers, and next action from durable task artifacts; keep health observations separate. |
+| `observe` | Read root and component `as-is.md` context plus local `as-is.json` `task` metadata and configured task narrative, then poll supervisor/job and process/session health; CLI output is supplementary and source-labelled | Report status, checkpoint, budget, blockers, and next action from durable task artifacts; keep health observations separate. |
 | `question` | Record the question or approval requirement before presenting it; a CLI prompt is not authoritative | Keep the record `blocked` or `awaiting-approval` until a durable answer exists. |
 | `cancel` | Record the user-authorized cancellation and checkpoint, then ask the supervisor/job to stop the process group; the foreground CLI has no validated non-blocking mapping | A process stop alone cannot create a cancelled task; later observation confirms termination. |
 | `recover` | Reread the configured worker and submit a fresh attempt through the validated supervisor/server job; otherwise record a capability blocker | Preserve remaining budget, descendants, and acceptance conditions; no role replacement or silent stale-task inference is permitted. |

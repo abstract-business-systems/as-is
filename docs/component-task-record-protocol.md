@@ -5,12 +5,14 @@
 This permanent specification defines the durable human `as-is.md` component
 record and the split transient task record used to change a component. An
 `as-is.md` describes the component's purpose, design, boundary, and related
-artifacts. Local `as-is.json.task` holds one active task's machine metadata and
-the configured Markdown task file holds its human narrative; both are removed
-by task management after completion and its concise summary is retained in
-`changelog.md`. The task filename is configurable through
-`configuration.records.filenames.task` in root `as-is.json`; `tasks.md` is the
-repository default.
+artifacts. The local `task` object in the component's `as-is.json` holds one
+active task's machine metadata and the configured Markdown task file holds its
+human narrative; both are removed by task management after completion and its
+concise summary is retained in `changelog.md`. The task filename is configurable
+through `configuration.records.filenames.task` in root `as-is.json`;
+`tasks.md` is the repository default. The root `as-is.json` remains the project
+configuration authority and may also hold the root task object; component task
+objects remain local and never cascade.
 
 ## Placement And Hierarchy
 
@@ -20,11 +22,13 @@ files and folders. The directory containing `as-is.md`, together with descendant
 that do not contain their own `as-is.md`, is one component boundary. The directory
 path is authoritative for the component's scope and parent relationship.
 
-A component change is recorded through local `as-is.json.task` and its
-transient configured Markdown narrative beside `as-is.md` by default. If work
-must cross into a subcomponent with its own `as-is.md`, the component builder
-delegates a new component-builder task for that subcomponent rather than editing
-across the boundary.
+A component change is recorded through the local `task` object in `as-is.json`
+and its transient configured Markdown narrative beside `as-is.md` by default.
+The JSON companion is the machine-readable task authority; the Markdown file is
+human-readable transient task context and evidence. If work must cross into a
+subcomponent with its own `as-is.md`, the component builder delegates a new
+component-builder task for that subcomponent rather than editing across the
+boundary.
 
 When a bounded document later becomes a directory, use the host pattern
 `<xyz>.md -> <xyz>/index.md` for the authoritative entry point. Place extracted
@@ -38,7 +42,7 @@ The root and component `as-is.md` files are durable human component context.
 They describe purpose, design, boundaries, and links; they do not contain the
 current task's transient status, budget, plan, or recovery state. When work
 starts, task management creates the configured Markdown task narrative and its
-local `as-is.json.task` metadata in the target component directory. When the orchestrator delegates
+local `task` object metadata in the target component directory. When the orchestrator delegates
 work to a component directory that has no task record, it generates that
 component's `as-is.md` atomically from this protocol before launching the worker.
 It supplies the bounded requirement, effective constraints, cost allocation,
@@ -53,7 +57,7 @@ updates only the delegation information it is responsible for.
 
 ## Task Metadata
 
-The local `as-is.json.task` object is strict and machine-validatable:
+The local `as-is.json` `task` object is strict and machine-validatable:
 
 ```json
 {
@@ -163,12 +167,13 @@ The local `as-is.json.task` object is strict and machine-validatable:
 
 ## Historical Recovery And Retirement
 
-Current task authority remains in the root or component configured task-record
-file (default `tasks.md`). Historical
-task recovery uses Git history plus the repository's concise history entries;
+Current machine task authority remains in the root or component `as-is.json`
+`task` object. The configured task-record file (default `tasks.md`) remains the
+human narrative and evidence companion. Historical task recovery uses Git
+history plus the repository's concise history entries;
 it does not use a `task-archives/` directory, a second task tree, or a separate
-host-specific recovery path. Legacy YAML-front-matter task records are unsupported. Every task uses JSON
-metadata and a front-matter-free Markdown narrative. Historical notes are succinct by default and use the configured sibling `changelog.md` with the canonical `Changelog` heading. It is never a parallel task authority. Project-specific verbosity configuration, such as
+host-specific recovery path. Legacy YAML-front-matter task records are unsupported. Every task uses a JSON `task` object in its local `as-is.json` companion and a
+front-matter-free Markdown narrative. Historical notes are succinct by default and use the configured sibling `changelog.md` with the canonical `Changelog` heading. It is never a parallel task authority. Project-specific verbosity configuration, such as
 a repository logging setting in `docs/configuration.md`, controls how much detail
 is retained in the history entry, but only within its historical-overview role;
 it is not task authority and must not duplicate verbose records or secrets.
@@ -194,14 +199,14 @@ The durable `as-is.md` body describes the component's purpose, design, relations
 ## Companion/Narrative Recovery
 
 Companion JSON and the configured task narrative are individually atomic writes,
-not one crash-atomic transaction. A present `as-is.json.task` without its
-configured narrative is an invalid blocked state: task execution must stop until
-the narrative is restored from Git/history or a newly authorized task replaces
-both artifacts. A narrative without `task` has no task authority and must not
-be executed. Completion follows the same rule: do not claim completion after
-only one artifact is removed; restore the missing counterpart or finish the
-paired cleanup before handoff. This rule makes partial writes visible and
-recoverable without pretending they are atomic.
+not one crash-atomic transaction. A present `task` object in `as-is.json` without its configured narrative is an
+invalid blocked state: task execution must stop until the narrative is restored
+from Git/history or a newly authorized task replaces both artifacts. A narrative
+without a local `task` object has no task authority and must not be executed.
+Completion follows the same rule: do not claim completion after only one artifact
+is removed; restore the missing counterpart or finish the paired cleanup before
+handoff. This rule makes partial writes visible and recoverable without
+pretending they are atomic.
 
 ## Transient Task Body
 

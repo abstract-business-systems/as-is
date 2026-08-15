@@ -9,12 +9,12 @@ human-facing component map:
 | --- | --- |
 | `as-is.md` | durable human purpose, design, boundary, and explicit links; no YAML front matter |
 | `as-is.json.configuration` | durable machine configuration; cascades only through the approved resolver view |
-| `as-is.json.task` | local transient machine task metadata; never cascades |
+| `as-is.json` `task` object | local transient machine task metadata; never cascades |
 | configured task Markdown file | human transient task narrative; no YAML front matter |
 | `backlog.md` | human unstarted planning |
 | `changelog.md` | human concise completed history |
 
-The companion's `task` object owns status, worker, update timestamp,
+The local companion's `task` object owns status, worker, update timestamp,
 constraints, and acceptance. The task Markdown file owns the explanatory
 Requirement, Plan, Progress, Validation, Result, Blockers And Escalations,
 Recovery, and Next Action sections. Completion removes both the task narrative

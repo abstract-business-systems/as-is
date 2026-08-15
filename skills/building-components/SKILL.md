@@ -13,16 +13,18 @@ without transferring authority into the skill.
 
 ## Inputs
 
-- The assigned component's durable `as-is.md` and current `tasks.md`.
+- The assigned component's durable `as-is.md`, local `as-is.json` `task` object, and configured Markdown task narrative (default `tasks.md`).
 - A bounded requirement with explicit acceptance conditions and component
   boundary.
 - Named dependencies, configured worker, effective cost and wall-clock
   constraints, and any approved plan or external read-only context.
 
 The component directory is the default read/write boundary. Read outside it
-only for dependencies explicitly named by the requirement. Task state and
-budget observations remain authoritative in the component task record. The
-builder owns the operational relationship with descendants: it decides when a
+only for dependencies explicitly named by the requirement. Machine task state
+and budget observations remain authoritative in the component `as-is.json`
+`task` object; human task context and evidence remain in the configured Markdown
+narrative. The builder owns the operational relationship with descendants: it
+decides when a
 child boundary requires handoff, supplies explicit linked context, and verifies
 child closure without taking ownership of the child's files or records.
 
@@ -74,13 +76,15 @@ child closure without taking ownership of the child's files or records.
    before and after behavior-affecting work, and add or update focused
    behavioral coverage when the current tests do not exercise the preserved
    contract. Record commands, observed results, acceptance mapping, residual
-   risk, cumulative cost and wall-clock observations, and recovery state in
-   `tasks.md`.
+   risk, cumulative cost and wall-clock observations, and recovery state in the
+   configured Markdown task narrative; update machine observations in the local
+   `as-is.json` `task` object.
 6. After checks pass, obtain a fresh read-only expert validation of the actual
    diff and evidence. The validation must explicitly say whether the change is
    safe to commit. Do not commit on a failed or unavailable required gate.
 7. When the task and all descendants are terminal, write the concise durable
-   summary to `changelog.md`, remove `tasks.md` through task management, and
+   summary to `changelog.md`, remove the configured Markdown task narrative
+   through task management, and
    invoke `committing-completed-work`. Stage only the declared component
    handoff and create one scoped commit; leave unrelated work untouched.
 
@@ -90,7 +94,7 @@ A completed handoff consists of:
 
 - the changed component artifacts, relevant durable `as-is.md` updates, and concise `changelog.md` entry;
 - behavioral-test evidence for each affected agent or skill contract;
-- a removed transient task record after its completion evidence is durable;
+- removed transient task metadata and Markdown narrative after its completion evidence is durable;
 - one scoped Git commit containing only the declared handoff; and
 - task evidence covering expert plan and final-diff gates, validation,
   descendant closure, budgets, residual risk, recovery checkpoint, result, and
@@ -106,7 +110,8 @@ for incomplete work.
 | Concern | Authority |
 | --- | --- |
 | Component purpose, design, and links | `as-is.md` |
-| Current task, acceptance, budget, and recovery | component `tasks.md` |
+| Current machine task, acceptance, budget, and recovery | component `as-is.json` `task` object |
+| Human task context and evidence | configured Markdown task narrative (default `tasks.md`) |
 | Implementation lifecycle and child closure | `implementing-component-tasks` |
 | Validation selection and evidence | `verification-discipline` |
 | Scoped durable commit | `committing-completed-work` |

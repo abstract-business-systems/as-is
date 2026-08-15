@@ -54,5 +54,21 @@
         "local-directory": ".as-is/tracing.jsonl"
       }
     }
+  },
+  "task": {
+    "status": "active",
+    "worker": "as-is",
+    "updated": "2026-08-15T19:20:00Z",
+    "constraints": {
+      "cost": { "currency": "USD", "allocated": 0.35, "spent": 0, "reserve": 0.07, "source": "unavailable", "fallback-metric": "validation elapsed-seconds" },
+      "delegation": { "maximum-depth": 0, "maximum-children": 0 },
+      "execution": { "wall-clock": { "allocated-seconds": 300, "spent-seconds": 0, "reserve-seconds": 45, "source": "unavailable" } },
+      "external-effects": "prohibited"
+    },
+    "acceptance": [
+      "Align current task-record guidance with embedded as-is.json task metadata authority.",
+      "Preserve executable semantics and make no runtime implementation changes.",
+      "Validate, create one scoped documentation commit, reconcile the exact backlog identity, and clean up the task pair."
+    ]
   }
 }
