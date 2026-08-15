@@ -120,13 +120,7 @@ this order:
    explicitly supplied by the skill package;
 4. Bun's package runner for the skill's declared Pi peer-compatible package.
 
-The launcher must resolve the Pi executable and the package-owned extension from
-the same compatible Pi version. A future version-preflight implementation must
-reject an incompatible binary/package before starting the child. Until that
-preflight exists, `PI_PACKAGE` may select an explicitly approved package/version
-and `--dry-run` remains available to inspect the resolved command. The package
-runner may install the pinned package into Bun's local cache on first use, so
-treat the first real launch as an external setup effect.
+The launcher resolves the Pi executable and package-owned extension against one exact version derived from the skill-owned `package.json`. Before dry-run output or child launch, it probes the selected executable or package fallback with `--version --no-extensions` and fails closed when the probe is unavailable, nonzero, malformed, ambiguous, or differs from the contract. Explicit `PI_PACKAGE` overrides are accepted only when they equal the skill-owned package and exact version. The package runner may install the pinned package into Bun's local cache on first use, so treat the first fallback probe as an external setup effect; version preflight does not prove provider, extension, or broader host compatibility.
 
 ## Detach Mode
 

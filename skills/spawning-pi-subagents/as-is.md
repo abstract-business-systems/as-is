@@ -35,12 +35,14 @@ relying on environment variables. The subprocess launcher passes the resolved
 values explicitly to Pi; the in-process adapter resolves the corresponding
 configured Pi model before creating its isolated session. The launcher fallback
 uses the skill-owned compatible Pi package version and child runs remain
-observable by default. The private package manifest and lockfile own the direct
-Pi and TypeBox dependencies used by package scripts and extension-facing
-checks; package-local build commands provide a bounded dependency-resolution
-check. Repository-wide launcher fixtures retain their repository-root execution
-contract because they exercise canonical agents, skills, tools, and task
-records outside this component.
+observable by default. The launcher now derives one exact Pi version from the
+private package manifest and performs an extension-suppressed local version
+preflight before dry-run output or child launch. The private package manifest
+and lockfile own the direct Pi and TypeBox dependencies used by package scripts
+and extension-facing checks; package-local build commands provide a bounded
+dependency-resolution check. Repository-wide launcher fixtures retain their
+repository-root execution contract because they exercise canonical agents,
+skills, tools, and task records outside this component.
 
 
 ## Design
@@ -80,3 +82,4 @@ flowchart TD
 - [../../tools/agent/subagent-tools.ts](../../tools/agent/subagent-tools.ts) — bounded agent-tool implementation and delegation adapter composition that retains role admission and call-subagent authority.
 - [package.json](package.json) — private package manifest owning direct Pi and TypeBox dependencies plus bounded package-local build commands.
 - [bun.lock](bun.lock) — committed package dependency resolution and integrity evidence.
+- [scripts/pi-version.ts](scripts/pi-version.ts) — manifest-derived exact version contract, bounded output parser, and probe-argument policy.

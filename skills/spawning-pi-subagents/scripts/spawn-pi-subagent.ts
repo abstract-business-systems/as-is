@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { appendFile, mkdtemp, open, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
+import { assertPiVersionCompatible, loadPiVersionContract, versionProbeArguments, type PiInvocation } from "./pi-version.ts";
 import { boundedLimit } from "../../../core/modules/task-control/budget.ts";
 import { runBoundedProcess } from "../../../core/adapters/process/bounded-process-supervisor.ts";
 import { emitTrace, startSpan, serializeSessionReference, type SessionReference } from "../../../core/modules/observability/tracer.ts";
@@ -41,11 +42,6 @@ type Options = {
   supervise?: { configPath: string };
   budgetWallClockSeconds?: number;
   budgetCostUsd?: number;
-};
-
-type PiInvocation = {
-  command: string;
-  args: string[];
 };
 
 type LaunchProfile = {
@@ -360,20 +356,38 @@ const findLocalPi = (cwd: string): string | undefined => {
 };
 
 const resolvePi = (requested: string | undefined, cwd: string): PiInvocation => {
-  if (requested) return { command: requested, args: [] };
-  if (process.env.PI_BIN) return { command: process.env.PI_BIN, args: [] };
+  if (requested) return { command: requested, args: [], source: "explicit" };
+  if (process.env.PI_BIN) return { command: process.env.PI_BIN, args: [], source: "environment" };
 
   const localPi = findLocalPi(cwd);
-  if (localPi) return { command: localPi, args: [] };
+  if (localPi) return { command: localPi, args: [], source: "skill-local" };
 
+  const contract = loadPiVersionContract();
+  const requestedPackage = process.env.PI_PACKAGE;
+  if (requestedPackage && requestedPackage !== contract.packageSpec) {
+    throw new Error(`PI_PACKAGE must match the skill-owned Pi package contract: ${contract.packageSpec}`);
+  }
   return {
     command: Bun.which("bun") ?? "bun",
-    args: [
-      "x",
-      "--bun",
-      process.env.PI_PACKAGE ?? "@earendil-works/pi-coding-agent@0.84.0",
-    ],
+    args: ["x", "--bun", contract.packageSpec],
+    source: "package-fallback",
   };
+};
+
+const probePiVersion = (invocation: PiInvocation): string => {
+  const contract = loadPiVersionContract();
+  const probe = spawnSync(invocation.command, versionProbeArguments(invocation), {
+    encoding: "utf8",
+    timeout: 30_000,
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  if (probe.error) throw new Error(`Pi version probe unavailable (${invocation.source}): ${probe.error.message}`);
+  if (probe.status !== 0) throw new Error(`Pi version probe failed (${invocation.source}): exit=${probe.status}`);
+  try {
+    return assertPiVersionCompatible(probe.stdout, contract);
+  } catch (error) {
+    throw new Error(`Pi version preflight rejected (${invocation.source}): ${error instanceof Error ? error.message : String(error)}`);
+  }
 };
 
 const uniquePaths = (paths: string[]): string[] => [...new Set(paths.map((path) => resolve(path)))];
@@ -958,6 +972,7 @@ const main = async() => {
   // Generic dispatch consumes the selected launch profile. The profile owns
   // capability/session/extension differences; identity is not consulted here.
   const piInvocation = resolvePi(options.pi, cwd);
+  const piVersion = probePiVersion(piInvocation);
   const baseArgs = ["--mode", "json", "--print"];
   if (launchProfile.noSession) baseArgs.push("--no-session");
   else baseArgs.push("--session-dir", "<session-dir>");
@@ -996,6 +1011,8 @@ const main = async() => {
       model: model ?? null,
       provider: provider ?? null,
       thinking: thinking ?? null,
+      piVersion,
+      piSource: piInvocation.source,
       sessionPath: launchProfile.noSession ? null : "<session-dir>",
       tools: launchProfile.tools ?? null,
       detach: options.detach ?? false,
