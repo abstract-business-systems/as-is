@@ -54,38 +54,5 @@
         "local-directory": ".as-is/tracing.jsonl"
       }
     }
-  },
-  "task": {
-    "status": "active",
-    "worker": "as-is",
-    "updated": "2026-08-15T19:12:08Z",
-    "constraints": {
-      "cost": {
-        "currency": "USD",
-        "allocated": 0.25,
-        "spent": 0,
-        "reserve": 0.05,
-        "source": "unavailable",
-        "fallback-metric": "validation elapsed-seconds"
-      },
-      "delegation": {
-        "maximum-depth": 0,
-        "maximum-children": 0
-      },
-      "execution": {
-        "wall-clock": {
-          "allocated-seconds": 300,
-          "spent-seconds": 0,
-          "reserve-seconds": 45,
-          "source": "unavailable"
-        }
-      },
-      "external-effects": "prohibited"
-    },
-    "acceptance": [
-      "Reconcile the completed Phase 9C readiness and migration design record without implementation or runtime changes.",
-      "Preserve migration evidence, boundaries, and residual risks.",
-      "Validate and commit one scoped documentation handoff; no descendants are authorized."
-    ]
   }
 }
