@@ -20,6 +20,7 @@ operational contract.
 | [Naming software concepts](naming-software-concepts/as-is.md#design) | Choose semantically accurate names for repository concepts. |
 | [Implementing tasks](implementing-component-tasks/as-is.md#design) | Run bounded component-task lifecycle. |
 | [Maintaining components](maintaining-components/as-is.md#design) | Perform evidence-based component housekeeping. |
+| [Deterministic skills](deterministic-skills/as-is.md#design) | Identify evidence-supported deterministic improvements while preserving intentional generative work. |
 | [Managing backlog](managing-backlog/as-is.md#design) | Prioritize bounded work proposals. |
 | [Spawning subagents](spawning-pi-subagents/as-is.md#design) | Launch and observe bounded Pi subprocesses. |
 | [Structuring content](structuring-content/as-is.md#design) | Organize repository knowledge. |
@@ -67,6 +68,7 @@ flowchart LR
         MermaidDesign["<a href='./designing-mermaid-diagrams/as-is.md#design'>Designing Mermaid<br/>diagrams</a>"]
         ImplementingTasks["<a href='./implementing-component-tasks/as-is.md#design'>Implementing tasks</a>"]
         MaintainingComponents["<a href='./maintaining-components/as-is.md#design'>Maintaining components</a>"]
+        DeterministicSkills["<a href='./deterministic-skills/as-is.md#design'>Deterministic skills</a>"]
         ManagingBacklog["<a href='./managing-backlog/as-is.md#design'>Managing backlog</a>"]
         SpawningSubagents["<a href='./spawning-pi-subagents/as-is.md#design'>Spawning subagents</a>"]
         StructuringContent["<a href='./structuring-content/as-is.md#design'>Structuring content</a>"]
@@ -89,7 +91,7 @@ flowchart LR
     classDef component fill:#f8fafc,fill-opacity:0.1,stroke:#334155,stroke-width:2px
     classDef child fill:#2563eb,fill-opacity:0.1,stroke:#64748b,stroke-width:1px
     class Skills component
-    class Setup,Integrate,ManagingAsIs,ContextBuilding,ExecutionEvidence,MermaidDesign,ImplementingTasks,MaintainingComponents,ManagingBacklog,SpawningSubagents,StructuringContent,Verification,Naming,Building,Committing,Consulting child
+    class Setup,Integrate,ManagingAsIs,ContextBuilding,ExecutionEvidence,MermaidDesign,ImplementingTasks,MaintainingComponents,DeterministicSkills,ManagingBacklog,SpawningSubagents,StructuringContent,Verification,Naming,Building,Committing,Consulting child
 ```
 
 If the host Markdown renderer suppresses Mermaid navigation, use the component

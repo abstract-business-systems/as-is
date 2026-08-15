@@ -49,3 +49,5 @@
 - **Result:** Completed the skills-scope documentation record and authority rule.
 - **Validation retained:** Root integration should validate task-record structure, links, naming, and `git diff --check`. No runtime behavior is changed.
 - **Record migration:** Removed completed transient task narrative from `as-is.md`; Git history retains the original detailed evidence.
+
+- 2026-08-15: Completed backlog item `deterministic-skills`. Added the bounded advisory `skills/deterministic-skills` procedure and durable record for evidence-supported deterministic improvements while preserving intentional generative work. It composes maintenance, execution-evidence, verification, and backlog procedures without duplicating their authority and does not mutate runtime, agents, tools, modules, task records, or backlog state. Validation passed: local task-record validation (`VALID`), as-is/content navigation (46 records, 47 diagrams), backlog content validation, focused contract audit, JSON parsing, and `git diff --check`; final expert review marked the handoff safe to commit.
