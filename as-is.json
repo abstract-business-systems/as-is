@@ -9,8 +9,8 @@
     },
     "tasks": {
       "unitBudget": {
-        "wallClockSeconds": 300,
-        "costUsd": 0.5
+        "wallClockSeconds": 420,
+        "costUsd": 0.7
       }
     },
     "scheduling": {
@@ -56,15 +56,15 @@
     }
   },
   "task": {
-    "status": "completed",
+    "status": "ready",
     "worker": "as-is",
-    "updated": "2026-08-15T20:55:29Z",
+    "updated": "2026-08-15T20:58:00Z",
     "constraints": {
       "cost": {
         "currency": "USD",
-        "allocated": 0.5,
+        "allocated": 0.7,
         "spent": 0,
-        "reserve": 0.1,
+        "reserve": 0.14,
         "source": "unavailable",
         "fallback-metric": "validation elapsed-seconds"
       },
@@ -74,19 +74,19 @@
       },
       "execution": {
         "wall-clock": {
-          "allocated-seconds": 300,
+          "allocated-seconds": 420,
           "spent-seconds": 0,
-          "reserve-seconds": 60,
+          "reserve-seconds": 84,
           "source": "unavailable"
         }
       },
       "external-effects": "prohibited"
     },
     "acceptance": [
-      "The spawning-pi-subagents package declares the third-party runtime and focused-test dependencies required by its package-owned scripts and extension-facing checks.",
-      "A clean package-local install and focused package commands can run without a project-root package manifest or project-level node_modules dependency.",
-      "The package boundary does not move the Pi extension, implement version preflight, change host integration, alter launcher/task authority, or broaden runtime behavior.",
-      "Durable skill records and changelog evidence describe the verified package boundary, limitations, and residual risk."
+      "The launcher has one explicit compatible Pi version contract derived from the skill-owned package and uses it for package fallback and extension compatibility checks.",
+      "Explicit local Pi binaries, skill-local binaries, and package-runner fallback are version-checked before a child starts; mismatched or unreportable versions fail closed with bounded diagnostics.",
+      "Focused tests cover matching, mismatched, unavailable, malformed, and package-fallback version observations without starting a child or contacting a provider.",
+      "Durable skill records and changelog evidence describe the version contract, residual host limitations, and recovery; no extension relocation, setup, host integration, task-authority, or broad runtime change is included."
     ]
   }
 }

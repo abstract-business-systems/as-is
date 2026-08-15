@@ -1,31 +1,31 @@
 # Task
 
 ## Requirement
-Complete `skills/spawning-pi-subagents:skill-owned-package-dependencies` by verifying and, where necessary, minimally reconciling the skill-local package manifest, lockfile, scripts, and runtime imports. Keep the package boundary limited to third-party runtime and focused-test dependencies. Do not move Pi extensions, implement Pi version preflight, change host integration, alter launcher/task authority, or broaden runtime behavior.
+Complete `skills/spawning-pi-subagents:pi-version-aligned-subagent-tools` using only the configured Pi package preset and the skill-owned package boundary. Define one explicit compatible Pi version contract, verify local binaries and package fallback before child start, and fail closed on mismatch or unavailable version evidence. Do not relocate extensions, change host integration, alter task authority, install a browser, contact a provider, or broaden launcher behavior beyond bounded version preflight.
 
 ## Plan
-1. Inspect the skill package manifest, lockfile, scripts, imports, package-owned node_modules, and prior dependency-ownership evidence.
-2. Obtain a read-only expert plan review; if unavailable, record the provider blocker and use the repository evidence to avoid speculative changes.
-3. Add only the smallest package-boundary or validation changes needed to make the acceptance contract observable.
-4. Run package-local install/test/build checks and repository task/content/JSON/whitespace validation.
-5. Obtain final expert validation when available, record residual risk, write changelog evidence, remove the exact backlog row, delete task artifacts, and create the second completion commit.
+1. Inspect the skill package version, launcher resolution branches, extension loading paths, host-required entry points, and focused test conventions.
+2. Obtain a read-only expert plan review using only the configured expert preset from root configuration.
+3. Implement the smallest pure version-observation and fail-closed preflight surface; keep version parsing independent of process launch and provider access.
+4. Add focused tests for exact matching, mismatch, unavailable, malformed, local binary, skill-local binary, and package-fallback cases.
+5. Run focused tests, builds, task/content/backlog/JSON/whitespace checks, obtain configured-preset final expert review, and complete with the two-commit flow.
 
 ## Progress
-The skill already has a private `package.json`, committed `bun.lock`, and installed package-local dependencies from prior evidence commit `9ee4c89`. Runtime-bearing package imports are either Bun/Node built-ins or the declared Pi and TypeBox dependencies. Added package-local `build:launcher` and `build:evidence-extension` commands and reconciled the package boundary in `skills/spawning-pi-subagents/as-is.md`. The repository-wide launcher suite intentionally retains its repository-root execution contract because it exercises canonical agents, skills, tools, and task records outside this component.
+The preceding package-ownership task established `@earendil-works/pi-coding-agent@0.84.0` as the skill-owned direct dependency and committed the package lock. The launcher currently resolves `--pi`, `PI_BIN`, nearest local `.bin/pi`, or the `@earendil-works/pi-coding-agent@0.84.0` Bun fallback without checking a resolved executable version. The Pi executable reports `0.84.0`; the fallback package reports `0.84.0`. The current extension entry points remain under `.pi/extensions/` and are out of scope for relocation.
 
-The required read-only expert plan review was unavailable in the initial attempt because the configured Mistral provider had no API key. After the user required configured presets only, final validation was rerun through the configured `expert` role using root `configuration.agents.models.large` → `@preset/abs-large`; the expert reported PASS and judged the scoped change safe to complete and commit.
+No implementation edits have been made after task selection. No descendants are authorized.
 
 ## Validation
-Passed package and repository checks: `bun install --frozen-lockfile --offline` from `skills/spawning-pi-subagents` reported 132 installs checked with no changes; `bun run build:launcher` passed; `bun run build:evidence-extension` passed; `bun run test:worker-tools` passed with 11 tests and 51 expectations; the focused worker-tool suite passed with the same result; task-record validation reported `VALID`; as-is/content navigation passed with 52 records and 50 diagrams; backlog content validation passed; JSON parsing passed; and `git diff --check` passed. The full launcher suite from the package directory remains non-portable by design and reports repository-root fixture/path failures; this task does not refactor that separate suite. The package-local `bun pm ls` probe did not expose direct entries in the selected output, so manifest/lockfile plus frozen offline install and successful builds/tests are the authoritative dependency evidence.
+Pending implementation. Baseline observations: `skills/spawning-pi-subagents/node_modules/.bin/pi --version` reports `0.84.0`; `bun x --bun @earendil-works/pi-coding-agent@0.84.0 --version` reports `0.84.0`; the package manifest and lockfile declare/resolve `0.84.0`. These are direct observations, not yet a preflight contract.
 
 ## Result
-Completed within the bounded package-dependency scope. Final configured-preset expert validation reported PASS and judged the change safe to complete and commit. No descendants were authorized; closure is vacuously terminal. The repository-wide launcher fixture portability limitation remains explicitly recorded as residual risk and is outside this task.
+Pending. The launcher currently has no version preflight, so the selected acceptance conditions are not yet satisfied.
 
 ## Blockers And Escalations
-The initial expert review attempt was unavailable because the configured provider lacked an API key. After the user required configured presets only, the final expert review ran successfully with the configured `large` preset (`@preset/abs-large`); no completion blocker remains. The repository-wide launcher fixture portability limitation is residual risk, not a blocker for this bounded package-dependency task.
+A local `pi --version` invocation attempted normal extension discovery and reported missing `typebox` from the repository extension imports in this shell context; the version output itself was still observed as `0.84.0`. This task must keep version checks independent of extension startup and should use `--no-extensions` or an equivalent bounded executable probe. No provider or external service is authorized.
 
 ## Recovery
-The task-start pair is `as-is.json` and `tasks.md`; preserve both with the selected backlog row and the current implementation edits. No descendants are authorized. On resumption, inspect the preserved diff, rerun the package-local checks if needed, obtain the required expert review, then either complete the existing task or record a narrower follow-up for launcher-test portability.
+Preserve `as-is.json`, `tasks.md`, and the selected backlog row until the completion patch is ready. If version output is unavailable, ambiguous, or cannot be obtained without starting a child/provider, fail closed and retain the task active with the exact observation. Revert only the bounded preflight changes if implementation is interrupted; do not touch extension placement or host settings.
 
 ## Next Action
-Write the concise changelog evidence, remove only the exact selected backlog row, delete `as-is.json` and `tasks.md`, and create the second completion commit containing the completion handoff.
+Obtain configured-preset expert plan review, then implement and test the bounded version contract.
