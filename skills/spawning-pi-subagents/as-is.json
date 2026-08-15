@@ -1,0 +1,21 @@
+{
+  "task": {
+    "status": "active",
+    "worker": "component-builder",
+    "updated": "2026-08-15T22:35:00Z",
+    "constraints": {
+      "cost": { "currency": "USD", "allocated": 0.4, "spent": 0, "reserve": 0.08, "source": "unavailable", "fallback-metric": "validation elapsed-seconds" },
+      "delegation": { "maximum-depth": 0, "maximum-children": 0 },
+      "execution": { "wall-clock": { "allocated-seconds": 300, "spent-seconds": 0, "reserve-seconds": 60, "source": "unavailable" } },
+      "external-effects": "prohibited"
+    },
+    "acceptance": [
+      "A detached child exceeding a positive wall-clock budget is deterministically terminated through its owned process group, including bounded grace escalation when required.",
+      "Detached completion evidence records that the stop was budget-caused and includes bounded elapsed-stop and wall-clock facts.",
+      "A child that ignores termination or could otherwise finish later cannot be reported as a normal successful completion after the deadline.",
+      "No automatic retry, task-record mutation by the launcher, budget reallocation, or new recovery authority is introduced.",
+      "Existing launcher and bounded-process watchdog documentation and focused provider-free tests map to the acceptance, while the unrelated durable-record supervisor assertion remains explicitly separated.",
+      "Only the exact detached-watchdog backlog identity is reconciled; neighboring items remain unchanged."
+    ]
+  }
+}
