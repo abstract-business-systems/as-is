@@ -1,0 +1,18 @@
+{
+  "task": {
+    "status": "completed",
+    "worker": "component-builder",
+    "updated": "2026-08-16T03:35:00Z",
+    "constraints": {
+      "cost": { "currency": "USD", "allocated": 0.3, "spent": 0, "reserve": 0.06, "source": "unavailable", "fallback-metric": "validation elapsed-seconds" },
+      "delegation": { "maximum-depth": 0, "maximum-children": 0 },
+      "execution": { "wall-clock": { "allocated-seconds": 300, "spent-seconds": 0, "reserve-seconds": 60, "source": "unavailable" } },
+      "external-effects": "prohibited"
+    },
+    "acceptance": [
+      "The moved setup adapter retains deterministic client detection, canonical-resource inventory, linking, collision preservation, and OpenCode JSON safety behavior.",
+      "The host-setup component record, backlog, changelog, and core adapter navigation identify one concrete adapter owner without transferring host-integration or target-write authority.",
+      "The focused setup tests pass and no compatibility placeholder remains at components/as-is-setup/."
+    ]
+  }
+}
