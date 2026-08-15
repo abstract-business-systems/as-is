@@ -83,3 +83,20 @@ flowchart TD
 - [package.json](package.json) — private package manifest owning direct Pi and TypeBox dependencies plus bounded package-local build commands.
 - [bun.lock](bun.lock) — committed package dependency resolution and integrity evidence.
 - [scripts/pi-version.ts](scripts/pi-version.ts) — manifest-derived exact version contract, bounded output parser, and probe-argument policy.
+- [as-is.json](as-is.json) and [tasks.md](tasks.md) — active readiness task authority and human evidence for the package-owned extension boundary; these are transient until completion.
+
+### Package-owned extension readiness
+
+The package-owned subagent extension remains a future implementation boundary. The current semantic worker-tool implementation stays in `tools/agent/subagent-tools.ts`, while `.pi/extensions/worker-tools.ts` remains the host registration adapter and the launcher continues to load the repository implementation explicitly under `--no-extensions`. A package move is not authorized by this record alone.
+
+The implementation prerequisite is a versioned host-services contract owned by a neutral host/core boundary. The future package entry may own Pi-facing schemas and registration, bounded call mechanics, and configured-tool exposure, but repository authority remains outside the package:
+
+- canonical role and declared-tool resolution remains in `core/modules/agent-resolution`;
+- model, provider, and thinking configuration remains in repository configuration resolution;
+- component-context authority remains with the linked-context resolver and its tool boundary;
+- task budget observation remains outside the package and never becomes a second task authority;
+- trace persistence and session/evidence scope remain with observability and evidence owners.
+
+The package entry must receive these services through an explicit, versioned API or a repository-owned adapter with a documented loading route. Hidden repository-relative imports and environment-selected dynamic imports are not acceptable installed-package boundaries. The contract must choose whether the distribution unit is repository-local or distributable; Pi-provided imports and `typebox` must follow the selected Pi peer/dependency rules without weakening the launcher’s exact `0.84.0` contract.
+
+The supported future loading plan is a package manifest with a `pi.extensions` entry, local package registration only after trust and no-duplicate behavior are proven, and continued explicit launcher loading under `--no-extensions`. The existing `.pi/extensions/worker-tools.ts` remains until package registration, launcher loading, tool-admission, and duplicate-registration checks pass; it must not evolve into a second semantic implementation. Mermaid remains independently registered, and `evidence-validator-inspection-extension.ts` remains a separate fixed read-only launcher profile. The implementation task must add package-isolation, registration, launcher, trust, Mermaid, evidence-validator, and existing worker/observability regression checks, with rollback to the current adapter if package loading fails.
