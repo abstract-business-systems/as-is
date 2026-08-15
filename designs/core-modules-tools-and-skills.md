@@ -335,17 +335,17 @@ The concrete filenames were selected for this migration as `configuration-resolv
 4. Run the three focused resolver suites, direct-consumer tests, affected launcher/worker-tool behavioral suites, and the repository's content, task-record, syntax, JSON, and whitespace checks.
 5. Update affected durable component, agent, skill, and architecture records in the same scoped handoff when ownership, links, or paths change. Preserve host-neutral semantics and do not transfer task, delegation, setup, projection, or target-write authority.
 
-Phase 9B completed this sequence for the context-resolution family; the destination remains the documented `core/modules/context-resolution` component. Phase 9C now executes the separately approved task-control family move. The former context-resolution `components/` implementation records were retired after their source/test paths moved and references were updated. The root `components` map no longer lists those former children, while `core` and `core/modules` provide the new parent/child navigation.
+Phase 9B completed this sequence for the context-resolution family; the destination remains the documented `core/modules/context-resolution` component. Phase 9C subsequently completed the separately approved task-control family move. The former context-resolution `components/` implementation records were retired after their source/test paths moved and references were updated. The root `components` map no longer lists those former children, while `core` and `core/modules` provide the new parent/child navigation.
 
 ### Recovery and residual risk
 
 The migration must remain reversible through one scoped commit: retain current paths until references and behavior checks pass, keep a pre-move inventory, and restore the prior paths/references or revert the single migration commit if interrupted. A future migration task must account for any failed or partial move in its task record before retrying. Current evidence does not prove every generated, dynamically loaded, projected, or external consumer, and no host, browser, environment, or target behavior is validated by this readiness contract.
 
-## Phase 9C — Task-control migration readiness
+## Phase 9C — Task-control readiness and completed migration
 
-This readiness phase establishes the contract for a future physical task-control migration. It does not create `core/modules/task-control/`, move or rename source or test files, change imports, alter task-record schema or runtime behavior, replace the Python reference, or change setup, projection, host, browser, environment, target-machine, tool, or adapter surfaces.
+The Phase 9C readiness contract and its separately authorized physical migration are complete. The readiness task established the consumer, ownership, compatibility, validation, and recovery contract; the physical migration then moved the approved TypeScript family into `core/modules/task-control/` and updated proven consumers and durable navigation. The migration did not change task-record schema or runtime semantics, retire the Python reference, or alter setup, projection, host, browser, environment, target-machine, tool, or adapter surfaces. Further task-control changes require a new bounded task.
 
-### Current bounded inventory
+### Completed bounded inventory
 
 | Current owner | Implementation and focused tests | Responsibility and authority boundary | Direct consumers and classification |
 | --- | --- | --- | --- |
@@ -356,9 +356,9 @@ This readiness phase establishes the contract for a future physical task-control
 
 The inventory confirms one task-control responsibility family with four distinct boundaries: mutation authority, policy-light arithmetic, read-only invariant validation, and pure handoff evaluation. Shared task-record concepts do not merge their authority, trust, observation, or lifecycle rules.
 
-### Selected family shape and migration contract
+### Completed family shape and migration contract
 
-The smallest supported target is one documented family with focused APIs and tests:
+The completed target is one documented family with focused APIs and tests:
 
 ```text
 core/
@@ -375,11 +375,11 @@ core/
             handoff-eligibility.test.ts
 ```
 
-The target family is a structural home, not a new authority. The control-plane API remains the only task-transition owner; budget arithmetic remains policy-light; the validator remains read-only and mechanically independent; handoff eligibility remains pure and fail-closed. The existing Python validator reference remains outside the target runtime family until a separately authorized reference-retirement decision. Concrete target filenames must be rechecked with `naming-software-concepts` immediately before a physical move; no compatibility alias is justified by the current repository-local consumer inventory, but that conclusion must be revalidated against dynamic, generated, projected, CLI, and external entry points.
+The target family is a structural home, not a new authority. The control-plane API remains the only task-transition owner; budget arithmetic remains policy-light; the validator remains read-only and mechanically independent; handoff eligibility remains pure and fail-closed. The existing Python validator reference remains outside the target runtime family and is intentionally retained pending a separately authorized reference-retirement decision. The completed move used the approved filenames and no compatibility alias was required by the repository-local consumer inventory; dynamic, generated, projected, CLI, and external entry points remain residual migration risk.
 
-### Required physical migration sequence
+### Completed physical migration sequence
 
-1. Re-inventory the committed baseline, run the naming procedure for the target family and filenames, and inspect Git-tracked, generated, projected, package, CLI, and test entry points.
+1. Re-inventory the committed baseline, apply the naming procedure to the target family and filenames, and inspect Git-tracked, generated, projected, package, CLI, and test entry points.
 2. Preserve the four focused API boundaries and move only the approved TypeScript implementations and tests with history-preserving tracked paths; retain the Python validator reference until its replacement or retirement is separately evidenced.
 3. Update proven repository-local imports, scripts, documentation links, component maps, and test paths atomically. Classify dynamic, generated, projected, package, CLI, and external consumers rather than assuming a static search is complete; add a compatibility alias only if a current consumer requires one.
 4. Run focused control-plane, budget, validator, handoff, supervisor, launcher, worker-tool, orientation, and affected agent/skill behavioral suites. Run task-record, content/navigation, syntax, JSON, reference, and whitespace checks; compare source-labelled unavailable observations and fail-closed blockers before and after the move.
@@ -387,9 +387,9 @@ The target family is a structural home, not a new authority. The control-plane A
 
 ### Recovery and residual risk
 
-The physical migration must remain reversible through one scoped commit: retain the pre-move inventory, use tracked-path-preserving moves, update references atomically, and restore the prior paths or revert the migration commit if interrupted. A partial move leaves its task record non-terminal until all references and focused behavior checks are reconciled. Current evidence does not prove every generated, dynamically loaded, projected, package, CLI, or external consumer, and this readiness contract does not validate provider, host, browser, environment, setup, target, or installation behavior.
+The completed physical migration is reversible through its scoped Git history: the pre-move inventory, history-preserving rename evidence, reference updates, and recovery contract remain available in the task handoff and commits. A future rollback or follow-up must be separately authorized and must preserve the same four authority boundaries. Current evidence does not prove every generated, dynamically loaded, projected, package, CLI, or external consumer, and the completed migration does not validate provider, host, browser, environment, setup, target, or installation behavior.
 
-The readiness contract selects one documented `core/modules/task-control/` family rather than four child components because the four APIs share the durable task-record domain, migration lifecycle, focused validation gate, and nearest common ownership while retaining explicit authority boundaries. Further physical migration requires a separate selected task from this contract.
+The completed design selects one documented `core/modules/task-control/` family rather than four child components because the four APIs share the durable task-record domain, migration lifecycle, focused validation gate, and nearest common ownership while retaining explicit authority boundaries.
 
 ## Open implementation decisions
 

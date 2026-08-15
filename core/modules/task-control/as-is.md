@@ -33,5 +33,5 @@ The shared family is a structural home, not a merged authority. The control-plan
 
 ## Links
 
-- [`../../../designs/core-modules-tools-and-skills.md#phase-9c--task-control-migration-readiness`](../../../designs/core-modules-tools-and-skills.md#phase-9c--task-control-migration-readiness) — migration contract and readiness evidence.
+- [`../../../designs/core-modules-tools-and-skills.md#phase-9c--task-control-readiness-and-completed-migration`](../../../designs/core-modules-tools-and-skills.md#phase-9c--task-control-readiness-and-completed-migration) — completed migration contract and evidence.
 - [`../../../docs/component-task-record-protocol.md`](../../../docs/component-task-record-protocol.md) — task-record authority and lifecycle protocol.
