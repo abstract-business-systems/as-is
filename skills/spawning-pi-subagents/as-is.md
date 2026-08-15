@@ -47,7 +47,7 @@ The component is organized around the following relationships and flow.
 ```mermaid
 flowchart TD
     A["Delegation request"] --> B["Pi subprocess launcher"]
-    B --> C["Detached child and observation"]
+    B --> C["Detached child and<br/>observation"]
 ```
 
 

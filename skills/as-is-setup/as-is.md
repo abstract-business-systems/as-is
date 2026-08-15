@@ -18,10 +18,10 @@ The setup skill separates project adoption from individual record maintenance:
 ```mermaid
 flowchart TD
     Project["Existing project"] --> Plan["Reviewable setup plan"]
-    Plan --> Candidates["Semantically identified candidates"]
+    Plan --> Candidates["Semantically identified<br/>candidates"]
     Candidates --> Approval["Human component approval"]
     Approval --> Records["Approved as-is records"]
-    Approval --> Instructions["Root AGENTS.md canonical-use instruction"]
+    Approval --> Instructions["Root AGENTS.md<br/>canonical-use<br/>instruction"]
 ```
 
 The setup record is a process view, not a parent container view. It uses a

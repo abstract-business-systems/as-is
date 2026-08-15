@@ -18,7 +18,7 @@ The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
-    A["Backlog entries"] --> B["Deterministic prioritization"]
+    A["Backlog entries"] --> B["Deterministic<br/>prioritization"]
     B --> C["Selected task input"]
 ```
 

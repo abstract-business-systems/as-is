@@ -19,8 +19,8 @@ config:
   layout: elk
 ---
 flowchart TB
-    Scope["Approved project or directory scope"] --> Plan["Reviewable component plan"]
-    Plan --> Approval["Human component disposition"]
+    Scope["Approved project or<br/>directory scope"] --> Plan["Reviewable component<br/>plan"]
+    Plan --> Approval["Human component<br/>disposition"]
     Approval --> Records["Approved as-is records"]
 ```
 

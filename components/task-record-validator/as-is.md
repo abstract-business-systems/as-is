@@ -19,7 +19,7 @@ The component is organized around mechanical task-record invariant checks.
 ```mermaid
 flowchart TD
     A["Task record"] --> B["Invariant validator"]
-    B --> C["Mechanical validation result"]
+    B --> C["Mechanical validation<br/>result"]
 ```
 
 - Validate task-record invariants independently of host-specific runtime

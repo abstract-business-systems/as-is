@@ -20,9 +20,9 @@ completion authority.
 
 ```mermaid
 flowchart TD
-    B["Local tracing and JSONL"] -->|observes| A["Execution and session events"]
+    B["Local tracing and JSONL"] -->|observes| A["Execution and session<br/>events"]
     B -->|publishes| C["Supplementary evidence"]
-    B -->|connects-to| D["Opaque session-ID external export"]
+    B -->|connects-to| D["Opaque session-ID<br/>external export"]
 ```
 
 - Use repository tracer configuration and a local JSONL sink, with optional

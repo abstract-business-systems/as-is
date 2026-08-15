@@ -19,8 +19,8 @@ config:
 ---
 flowchart TB
     Reader["Repository reader"] -->|uses| Designs["Designs"]
-    Designs -->|provides| Topics["Enduring architecture, protocol, and execution design"]
-    Topics -->|connects-to| Work["Architecture and execution work"]
+    Designs -->|provides| Topics["Enduring architecture,<br/>protocol, and execution<br/>design"]
+    Topics -->|connects-to| Work["Architecture and<br/>execution work"]
 ```
 
 This component has no independently documented child components. The design

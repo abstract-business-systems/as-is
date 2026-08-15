@@ -23,7 +23,7 @@ own boundaries.
 
 ```mermaid
 flowchart TD
-    A["Durable task records"] -->|authorizes| B["Lifecycle and launch operations"]
-    B -->|authorizes| C["Detached launch foundation"]
-    B -->|publishes| D["Completion and handoff evidence"]
+    A["Durable task records"] -->|authorizes| B["Lifecycle and launch<br/>operations"]
+    B -->|authorizes| C["Detached launch<br/>foundation"]
+    B -->|publishes| D["Completion and handoff<br/>evidence"]
 ```

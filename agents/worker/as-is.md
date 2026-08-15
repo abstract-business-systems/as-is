@@ -21,17 +21,17 @@ config:
   layout: elk
 ---
 flowchart TB
-    Caller["Authorized caller"] --> Request["Bounded task scope, requirements, and acceptance"]
+    Caller["Authorized caller"] --> Request["Bounded task scope,<br/>requirements, and<br/>acceptance"]
 
     subgraph WorkerBoundary["Worker agent boundary"]
         Request --> Boundary{"Within worker boundary?"}
-        Boundary -->|authorized bounded work| Inspect["Inspect assigned component and task context"]
-        Inspect --> Work["Perform only authorized bounded work"]
-        Work --> Report["Return finding, evidence, recommendation, and residual risk"]
-        Boundary -->|forbidden capability or out-of-scope work| Refuse["Report limitation and take no outside action"]
+        Boundary -->|authorized bounded work| Inspect["Inspect assigned<br/>component and task<br/>context"]
+        Inspect --> Work["Perform only authorized<br/>bounded work"]
+        Work --> Report["Return finding,<br/>evidence,<br/>recommendation, and<br/>residual risk"]
+        Boundary -->|forbidden capability or<br/>out-of-scope work| Refuse["Report limitation and<br/>take no outside action"]
     end
 
-    Authority["Assigned task and acceptance conditions"] -.-> Request
+    Authority["Assigned task and<br/>acceptance conditions"] -.-> Request
     Scope["Assigned component scope"] -.-> Work
     Report --> Caller
     Refuse --> Caller

@@ -20,8 +20,8 @@ config:
 ---
 flowchart TB
     Validator["Evidence validator"] -->|reads| Scope["Supplied task scope"]
-    Validator -->|validates| Evidence["Controlled-worktree evidence"]
-    Validator -->|provides| Report["Finding, evidence, recommendation, and residual risk"]
+    Validator -->|validates| Evidence["Controlled-worktree<br/>evidence"]
+    Validator -->|provides| Report["Finding, evidence,<br/>recommendation, and<br/>residual risk"]
 ```
 
 The role is a validation boundary rather than an implementation worker. Its fixed inspection profile keeps evidence review separate from the builder's implementation authority.

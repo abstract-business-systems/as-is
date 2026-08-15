@@ -18,7 +18,7 @@ The component is organized around the following relationships and flow.
 ```mermaid
 flowchart TD
     A["Selected backlog item"] --> B["Component task lifecycle"]
-    B --> C["Validated durable handoff"]
+    B --> C["Validated durable<br/>handoff"]
 ```
 
 This skill owns transient task creation, scoped implementation, child-boundary

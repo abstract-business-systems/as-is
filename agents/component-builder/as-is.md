@@ -30,18 +30,18 @@ config:
   layout: elk
 ---
 flowchart TB
-    Task["Assigned bounded task"] --> Context["Read durable context and task authority"]
-    Context --> Review["Plan and obtain attributable expert review"]
-    Review --> Implement["Implement within component boundary"]
-    Implement --> Child{"Separately owned descendant?"}
-    Child -->|no separately owned descendant| Validate["Run acceptance checks and final diff validation"]
-    Child -->|separately owned descendant| Handoff["Handoff explicit context and approved budget"]
-    Handoff --> Evidence{"Committed, validated child evidence?"}
-    Evidence -->|missing or unvalidated evidence| Blocker["Preserve recoverable blocker in task record"]
-    Evidence -->|committed validated evidence| Integrate["Integrate child commit and prove caller ancestry"]
+    Task["Assigned bounded task"] --> Context["Read durable context and<br/>task authority"]
+    Context --> Review["Plan and obtain<br/>attributable expert<br/>review"]
+    Review --> Implement["Implement within<br/>component boundary"]
+    Implement --> Child{"Separately owned<br/>descendant?"}
+    Child -->|no separately owned<br/>descendant| Validate["Run acceptance checks<br/>and final diff<br/>validation"]
+    Child -->|separately owned<br/>descendant| Handoff["Handoff explicit context<br/>and approved budget"]
+    Handoff --> Evidence{"Committed, validated<br/>child evidence?"}
+    Evidence -->|missing or unvalidated<br/>evidence| Blocker["Preserve recoverable<br/>blocker in task record"]
+    Evidence -->|committed validated<br/>evidence| Integrate["Integrate child commit<br/>and prove caller<br/>ancestry"]
     Integrate --> Validate
-    Validate --> Closure["Record evidence and terminal descendant closure"]
-    Closure --> Commit["Write changelog and create scoped durable commit"]
+    Validate --> Closure["Record evidence and<br/>terminal descendant<br/>closure"]
+    Closure --> Commit["Write changelog and<br/>create scoped durable<br/>commit"]
 ```
 
 | Concern | Rule |

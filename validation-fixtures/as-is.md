@@ -33,12 +33,12 @@ flowchart TB
         direction TB
         Dummy["<a href='./dummy-delegation/as-is.md#design'>dummy delegation</a>"]
         Increment5["<a href='./increment-5-dogfood/as-is.md#design'>increment 5 dogfood</a>"]
-        Increment6["<a href='./increment-6-recovery-fixture/as-is.md#design'>increment 6 recovery fixture</a>"]
-        OpenCode["<a href='./opencode-mediation-dogfood/as-is.md#design'>OpenCode mediation dogfood</a>"]
+        Increment6["<a href='./increment-6-recovery-fixture/as-is.md#design'>increment 6 recovery<br/>fixture</a>"]
+        OpenCode["<a href='./opencode-mediation-dogfood/as-is.md#design'>OpenCode mediation<br/>dogfood</a>"]
 
-        Dummy -->|rehearses bounded delegation and integration evidence| Increment5
-        Increment5 -->|retains completed adapter evidence alongside| OpenCode
-        Increment6 -->|retains completed recovery evidence alongside| Dummy
+        Dummy -->|rehearses bounded<br/>delegation and<br/>integration evidence| Increment5
+        Increment5 -->|retains completed<br/>adapter evidence<br/>alongside| OpenCode
+        Increment6 -->|retains completed<br/>recovery evidence<br/>alongside| Dummy
     end
     classDef component fill:#f8fafc,fill-opacity:0.1,stroke:#334155,stroke-width:2px
     classDef child fill:#2563eb,fill-opacity:0.1,stroke:#64748b,stroke-width:1px

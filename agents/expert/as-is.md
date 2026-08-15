@@ -19,9 +19,9 @@ config:
   layout: elk
 ---
 flowchart TB
-    Question["Human question and supplied context"] --> Expert["Read-only expert consultation"]
-    Expert -->|separates| Analysis["Observations, assumptions, inferences, and unknowns"]
-    Analysis --> Consultation["Concise conclusion, caveats, and next safe step"]
+    Question["Human question and<br/>supplied context"] --> Expert["Read-only expert<br/>consultation"]
+    Expert -->|separates| Analysis["Observations,<br/>assumptions, inferences,<br/>and unknowns"]
+    Analysis --> Consultation["Concise conclusion,<br/>caveats, and next safe<br/>step"]
 ```
 
 The role is independently selectable and is used for deeper consultation when uncertainty or review risk warrants another perspective. Its read-only contract is enforced by its declared tool and permission profile.

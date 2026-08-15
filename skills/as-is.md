@@ -60,11 +60,11 @@ flowchart LR
     subgraph Skills["Skills"]
         direction LR
         Setup["<a href='./as-is-setup/as-is.md#design'>As-is setup</a>"]
-        Integrate["<a href='./integrate-as-is-documentation/as-is.md#design'>Integrating as-is documentation</a>"]
+        Integrate["<a href='./integrate-as-is-documentation/as-is.md#design'>Integrating as-is<br/>documentation</a>"]
         ManagingAsIs["<a href='./managing-as-is-document/as-is.md#design'>Managing as-is documents</a>"]
         ContextBuilding["<a href='./context-building/as-is.md#design'>Context building</a>"]
         ExecutionEvidence["<a href='./exploring-execution-evidence/as-is.md#design'>Execution evidence</a>"]
-        MermaidDesign["<a href='./designing-mermaid-diagrams/as-is.md#design'>Designing Mermaid diagrams</a>"]
+        MermaidDesign["<a href='./designing-mermaid-diagrams/as-is.md#design'>Designing Mermaid<br/>diagrams</a>"]
         ImplementingTasks["<a href='./implementing-component-tasks/as-is.md#design'>Implementing tasks</a>"]
         MaintainingComponents["<a href='./maintaining-components/as-is.md#design'>Maintaining components</a>"]
         ManagingBacklog["<a href='./managing-backlog/as-is.md#design'>Managing backlog</a>"]
@@ -73,12 +73,12 @@ flowchart LR
         Verification["<a href='./verification-discipline/as-is.md#design'>Verification discipline</a>"]
         Naming["<a href='./naming-software-concepts/as-is.md#design'>Naming software concepts</a>"]
         Building["<a href='./building-components/as-is.md#design'>Building components</a>"]
-        Committing["<a href='./committing-completed-work/as-is.md#design'>Committing completed work</a>"]
-        Consulting["<a href='./human-centered-consulting/as-is.md#design'>Human-centered consulting</a>"]
+        Committing["<a href='./committing-completed-work/as-is.md#design'>Committing completed<br/>work</a>"]
+        Consulting["<a href='./human-centered-consulting/as-is.md#design'>Human-centered<br/>consulting</a>"]
 
         Setup -->|creates records through| ManagingAsIs
-        Integrate -->|composes setup and review for| ManagingAsIs
-        ManagingAsIs -->|uses generic mechanics from| MermaidDesign
+        Integrate -->|composes setup and<br/>review for| ManagingAsIs
+        ManagingAsIs -->|uses generic mechanics<br/>from| MermaidDesign
         ImplementingTasks -->|validated by| Verification
         SpawningSubagents -->|uses| Verification
         Building -->|uses| Verification

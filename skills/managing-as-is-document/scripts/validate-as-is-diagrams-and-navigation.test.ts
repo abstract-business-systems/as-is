@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { validateAsIsDiagramsAndNavigation } from "./validate-as-is-diagrams-and-navigation";
 
@@ -205,6 +205,24 @@ test("rejects an unnamed Mermaid diagram when headings are required", () => {
   try {
     const result = validate(root, { rootRecordPath: "as-is.md", requireDiagrams: true, requireNamedDiagramHeadings: true });
     expect(result.issues.some((issue) => issue.code === "diagram-heading")).toBe(true);
+  } finally {
+    cleanup(root);
+  }
+});
+
+test("rejects an unwrapped wide Mermaid label", () => {
+  const root = withRepository(
+    parentRecord(["Child"], `        Child["<a href='./child/as-is.md#design'>A very long label</a>"]`),
+    { Child: childRecord("Child").replace("Child responsibility", "Child").replace("Bounded outcome", "Done") },
+  );
+  try {
+    const result = validate(root, { rootRecordPath: "as-is.md", requireDiagrams: true, maxUnwrappedLabelCharacters: 10 });
+    expect(result.issues.some((issue) => issue.code === "diagram-readability" && issue.message.includes("shorten or add"))).toBe(true);
+
+    const wrapped = readFileSync(join(root, "as-is.md"), "utf8").replace("A very long label", "A very<br/>long label");
+    writeFileSync(join(root, "as-is.md"), wrapped);
+    const fixed = validate(root, { rootRecordPath: "as-is.md", requireDiagrams: true, maxUnwrappedLabelCharacters: 10 });
+    expect(fixed.issues.some((issue) => issue.code === "diagram-readability")).toBe(false);
   } finally {
     cleanup(root);
   }

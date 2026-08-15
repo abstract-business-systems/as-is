@@ -25,15 +25,17 @@ test("optionally consumes browser-rendered href evidence for linked as-is diagra
     recordPaths: recordPaths(process.cwd()),
     requireDiagrams: false,
     requireNamedDiagramHeadings: false,
+    maxUnwrappedLabelCharacters: 28,
   });
   expect(validation.issues).toEqual([]);
-  const linked = validation.diagrams.filter((diagram) => diagram.expectedHrefs !== undefined);
-  const result = await renderMermaidBatch(linked.map(({ id, source, expectedHrefs }) => ({ id, source, expectedHrefs })), rendererConfiguration());
+  const diagrams = validation.diagrams;
+  const result = await renderMermaidBatch(diagrams.map(({ id, source, expectedHrefs }) => ({ id, source, expectedHrefs })), rendererConfiguration());
   if (result.status === "unsupported") {
     console.warn(`As-is rendered navigation integration unsupported: ${result.error}`);
     return;
   }
   expect(result.status).toBe("passed");
-  expect(result.diagrams).toHaveLength(linked.length);
-  expect(result.diagrams.every((diagram) => diagram.status === "passed")).toBe(true);
+  expect(result.diagrams).toHaveLength(diagrams.length);
+  expect(result.diagrams.every((diagram) => diagram.status === "passed" || diagram.status === "rendered")).toBe(true);
+  expect(result.diagrams.every((diagram) => diagram.svgWidth || diagram.viewBox)).toBe(true);
 });

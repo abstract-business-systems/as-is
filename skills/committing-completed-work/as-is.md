@@ -19,7 +19,7 @@ config:
   layout: elk
 ---
 flowchart TB
-    Evidence["Validated, descendant-closed work"] -->|authorizes| Scope["Declared durable handoff"]
+    Evidence["Validated,<br/>descendant-closed work"] -->|authorizes| Scope["Declared durable handoff"]
     Scope -->|validates| Patch["Staged scoped patch"]
     Patch -->|provides| Commit["One Git commit"]
 ```

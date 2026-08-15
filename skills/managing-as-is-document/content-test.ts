@@ -282,6 +282,7 @@ const diagramValidation = validateAsIsDiagramsAndNavigation(repositoryRoot, {
   recordPaths: canonicalRecords(repositoryRoot).map((path) => relative(repositoryRoot, path)),
   requireDiagrams: false,
   requireNamedDiagramHeadings: false,
+  maxUnwrappedLabelCharacters: 28,
 });
 if (diagramValidation.issues.length > 0) {
   throw new Error(`as-is diagram and navigation validation failed: ${JSON.stringify(diagramValidation.issues)}`);

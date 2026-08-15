@@ -60,7 +60,7 @@ Use a table for stable repeated relationships and a list for short responsibilit
   record contains only the agreed record structure and durable component
   meaning. A supplementary view uses the smallest supported diagram and
   source-level check without a plan unless its host explicitly requires one.
-- Diagram layout follows the generic Mermaid skill: prefer a taller, narrower ELK/TB flowchart when it improves readability, while preserving a supported exception where host rendering or stated diagram meaning requires it.
+- Diagram layout follows the generic Mermaid skill: prefer a taller, narrower ELK/TB flowchart when it improves readability, while preserving a supported exception where host rendering or stated diagram meaning requires it. Keep labels short or insert explicit `<br/>` breaks at natural phrase boundaries when labels would otherwise overflow; validate every discovered diagram with the smallest available source-level check and render batch when a local renderer is configured.
 - Authoritative prose and links define durable purpose, boundaries, relationships, and decisions. A diagram communicates the selected architecture view and neither contradicts the prose nor invents an unapproved relationship. Component tables provide required Markdown fallback for linked structural-container children when a renderer suppresses diagram navigation; this intentional pair is not duplicated in `## Links`, which also does not catalog ordinary direct-child contracts. Markdown links remain the fallback for any separately linked diagram target; do not repeat a fallback target in `## Links` unless it adds distinct working context. Source-level validation and browser-rendered SVG validation are separate evidence: the former checks declared records and links, while the latter may check only the caller-supplied diagram source and expected hrefs when a local renderer is configured.
 
 The [diagram examples](diagram-examples.md) start with the structural-container example for parent containment, sibling relationships, `**Lineage**: ` navigation, and renderer fallback, then illustrate separately scoped non-container views. These references occur with the rules they support; a trailing Links catalog in this procedure would duplicate that context and is intentionally omitted.
@@ -169,8 +169,11 @@ The output is a bounded set of owner-revised records or explicit blockers. It do
   ordinary direct-child contract catalog, no source or test link without the
   stated exception, at least one named diagram subsection where a diagram is
   used, diagram syntax and configured layout support where applicable,
-  supported nodes and edges, consistency between diagrams and prose, and the
-  stated acceptance conditions. Layout plans belong in working or review
+  supported nodes and edges, readable labels without avoidable overflow,
+  consistency between diagrams and prose, and the stated acceptance conditions.
+  The repository validator's default source-level readability threshold is 28
+  visible unwrapped characters per node or edge label; a host may supply a
+  stricter threshold when its render surface is narrower. Layout plans belong in working or review
   artifacts only when rendering is material. Assumptions, unknowns, omitted detail, residual risk, and the smallest relevant deterministic checks, including `git diff --check`, are recorded. Unclear ownership, contradictory sources, an unresolved link target, or an unauthorized boundary crossing is a blocker rather than a reason to infer architecture or broaden scope.
 
 ## Outputs

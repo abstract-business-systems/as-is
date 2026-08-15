@@ -20,7 +20,7 @@ The component is organized around the following relationships and flow.
 ```mermaid
 flowchart TD
     A["Maintenance evidence"] --> B["Maintenance procedure"]
-    B --> C["Bounded backlog or handoff"]
+    B --> C["Bounded backlog or<br/>handoff"]
 ```
 
 

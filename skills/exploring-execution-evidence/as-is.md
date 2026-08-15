@@ -20,7 +20,7 @@ The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
-    A["Trace or session evidence"] --> B["Evidence exploration procedure"]
+    A["Trace or session<br/>evidence"] --> B["Evidence exploration<br/>procedure"]
     B --> C["Source-labelled report"]
 ```
 

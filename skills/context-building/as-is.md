@@ -17,7 +17,7 @@ The component is organized around the following relationships and flow.
 ```mermaid
 flowchart TD
     A["Bounded decision"] --> B["Context assembly"]
-    B --> C["Provenance-bearing handoff"]
+    B --> C["Provenance-bearing<br/>handoff"]
 ```
 
 

@@ -20,8 +20,8 @@ config:
 ---
 flowchart TB
     Question["Human question"] --> Companion["Thinking companion"]
-    Companion --> Context["Facts, assumptions, recommendations, and unknowns"]
-    Context --> Response["Concise response, trade-offs, and next safe step"]
+    Companion --> Context["Facts, assumptions,<br/>recommendations, and<br/>unknowns"]
+    Context --> Response["Concise response,<br/>trade-offs, and next<br/>safe step"]
 ```
 
 The role is a human-facing consultation boundary. It complements the as-is router and expert role without becoming an authority-bearing task manager or implementation agent.

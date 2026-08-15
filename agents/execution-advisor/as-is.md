@@ -23,10 +23,10 @@ config:
   layout: elk
 ---
 flowchart TB
-    Question["Focused execution question"] --> Selector["Exact trace or session selector"]
-    Selector --> Evidence["Read-only trace and session evidence"]
-    Evidence --> Findings["Source-labelled findings and recommendation"]
-    Findings --> Request["Approval-required budget request"]
+    Question["Focused execution<br/>question"] --> Selector["Exact trace or session<br/>selector"]
+    Selector --> Evidence["Read-only trace and<br/>session evidence"]
+    Evidence --> Findings["Source-labelled findings<br/>and recommendation"]
+    Findings --> Request["Approval-required budget<br/>request"]
 ```
 
 | Concern | Rule |

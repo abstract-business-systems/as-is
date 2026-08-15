@@ -14,6 +14,7 @@ export type AsIsDiagramValidationOptions = {
   recordPaths: readonly string[];
   requireDiagrams?: boolean;
   requireNamedDiagramHeadings?: boolean;
+  maxUnwrappedLabelCharacters?: number;
 };
 
 export type AsIsValidationIssue = {
@@ -65,6 +66,20 @@ const markdownDesignLinkPattern = /\]\(([^)\s]+as-is\.md#design)/g;
 const mermaidFencePattern = /```mermaid\s*\n([\s\S]*?)\n```/g;
 const breadcrumbPattern = /^\*\*Lineage\*\*:\s*(?:(?:\[([^\]]+)\]\(([^)\s]+as-is\.md#design)\)\s*\/\s*))*\*\*([^*]+)\*\*$/;
 const allowedRecordSections = new Set(["Purpose", "Components", "Design", "Relationships", "Links"]);
+const defaultMaxUnwrappedLabelCharacters = 28;
+const mermaidLabelPattern = /\["([^"]+)"\]|\['([^']+)'\]|\{"([^"]+)"\}|\{'([^']+)'\}/g;
+const mermaidEdgeLabelPattern = /\|([^|\n]+)\|/g;
+
+const visibleLabelLength = (label: string): number => label.replace(/<[^>]*>/g, "").length;
+const stripMarkup = (label: string): string => label.replace(/<a\b[^>]*>/g, "").replace(/<\/a>/g, "");
+const unwrappedLabelIssues = (source: string, maxCharacters: number): string[] => {
+  const labels: string[] = [];
+  for (const line of source.split(/\r?\n/)) {
+    for (const match of line.matchAll(mermaidLabelPattern)) labels.push(match[1] ?? match[2] ?? match[3] ?? match[4] ?? "");
+    for (const match of line.matchAll(mermaidEdgeLabelPattern)) labels.push(match[1]);
+  }
+  return labels.filter((label) => !stripMarkup(label).includes("<br/>") && visibleLabelLength(stripMarkup(label)) > maxCharacters);
+};
 
 const canonicalTitle = (text: string): string | undefined => {
   const firstContentLine = text.split(/\r?\n/).find((line) => line.trim().length > 0);
@@ -339,6 +354,10 @@ export function validateAsIsDiagramsAndNavigation(repositoryRoot: string, option
       }
     }
     for (const [index, source] of fences.entries()) {
+      const maxLabelCharacters = options.maxUnwrappedLabelCharacters ?? defaultMaxUnwrappedLabelCharacters;
+      for (const label of unwrappedLabelIssues(source, maxLabelCharacters)) {
+        addIssue(issues, root, record.path, "diagram-readability", `diagram label exceeds ${maxLabelCharacters} unwrapped characters; shorten or add a natural <br/> break: ${label}`);
+      }
       const expectedHrefs = rawDesignTargets(source);
       diagrams.push({ id: `${record.relativePath}#design:${index + 1}`, source, expectedHrefs: expectedHrefs.length > 0 ? expectedHrefs : undefined, recordPath: record.relativePath, diagramIndex: index + 1 });
       const markdownFallbacks = new Set(markdownTargets(record.text));

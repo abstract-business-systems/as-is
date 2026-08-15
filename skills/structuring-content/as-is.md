@@ -21,8 +21,8 @@ The component is organized around the following relationships and flow.
 
 ```mermaid
 flowchart TD
-    A["Repository concept"] --> B["Content-structuring procedure"]
-    B --> C["Discoverable authoritative artifact"]
+    A["Repository concept"] --> B["Content-structuring<br/>procedure"]
+    B --> C["Discoverable<br/>authoritative artifact"]
 ```
 
 

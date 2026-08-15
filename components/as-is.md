@@ -43,16 +43,16 @@ flowchart TB
         Linked["<a href='./linked-context/as-is.md#design'>linked context</a>"]
         Validator["<a href='./task-record-validator/as-is.md#design'>task-record validator</a>"]
         Control["<a href='./control-plane/as-is.md#design'>control plane</a>"]
-        Subprocess["<a href='./subprocess-execution-foundation/as-is.md#design'>subprocess execution foundation</a>"]
+        Subprocess["<a href='./subprocess-execution-foundation/as-is.md#design'>subprocess execution<br/>foundation</a>"]
         Observability["<a href='./observability/as-is.md#design'>observability</a>"]
 
-        Data -->|provides configuration to| Control
+        Data -->|provides configuration<br/>to| Control
         Budget -->|supports admission in| Control
-        Instructions -->|supplies applicable guidance to| Control
-        Control -->|authorizes bounded attempts for| Subprocess
-        Subprocess -->|emits supplementary events to| Observability
+        Instructions -->|supplies applicable<br/>guidance to| Control
+        Control -->|authorizes bounded<br/>attempts for| Subprocess
+        Subprocess -->|emits supplementary<br/>events to| Observability
         Validator -->|checks records used by| Control
-        Linked -->|resolves explicit context for| Control
+        Linked -->|resolves explicit<br/>context for| Control
     end
     classDef component fill:#f8fafc,fill-opacity:0.1,stroke:#334155,stroke-width:2px
     classDef child fill:#2563eb,fill-opacity:0.1,stroke:#64748b,stroke-width:1px

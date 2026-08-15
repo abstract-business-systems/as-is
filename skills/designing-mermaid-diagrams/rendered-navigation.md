@@ -33,10 +33,10 @@ No renderer is installed, no provider is contacted, and browser background netwo
 
 ## Result and use
 
-One browser process renders the whole batch. Each diagram reports `passed` when its expected href set matches the rendered SVG, `rendered` when it rendered without an href expectation, or `failed` when rendering or comparison fails. The batch reports `unsupported` when the local renderer configuration is absent. A caller may require configuration explicitly; otherwise unsupported is a capability result, not rendered-navigation evidence.
+One browser process renders the whole batch. Each diagram reports `passed` when its expected href set matches the rendered SVG, `rendered` when it rendered without an href expectation, or `failed` when rendering or comparison fails. Rendered results also retain the SVG width, height, and viewBox metadata when the bundle exposes them, so callers can identify unusually wide or clipped output instead of treating syntax success as readability evidence. The batch reports `unsupported` when the local renderer configuration is absent. A caller may require configuration explicitly; otherwise unsupported is a capability result, not rendered-navigation evidence.
 
 The Pi tool is `render_mermaid_batch` and is read-only. A direct library caller may use `renderMermaidBatch` with the same diagram-source contract. The focused dogfood test extracts one fixture document as its caller-owned setup, then sends two diagram sources in one browser batch.
 
 ## Evidence boundary
 
-This check establishes rendered SVG parse/render success and, when requested, preservation of expected href strings. It does not prove layout quality, browser-independent behavior, Markdown fallback navigation, target-anchor existence outside the caller's checks, or behavior in every host renderer. Source-level Mermaid, link, and `Components`-table checks remain separate.
+This check establishes rendered SVG parse/render success, optional preservation of expected href strings, and renderer-reported dimensions. A caller that audits readability must compare those dimensions with an authoritative host surface or inspect the rendered output; a large dimension is a finding signal, not a universal failure threshold. The check does not prove browser-independent behavior, Markdown fallback navigation, target-anchor existence outside the caller's checks, or behavior in every host renderer. Source-level Mermaid, label, link, and `Components`-table checks remain separate.

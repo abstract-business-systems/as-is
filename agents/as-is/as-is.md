@@ -21,7 +21,7 @@ config:
 flowchart TB
     Request["User request"] --> Router["as-is front-face router"]
     Router -->|answers bounded requests| Direct["Bounded direct response"]
-    Router -->|routes substantive work to| Target["Admitted agent and applicable skill"]
+    Router -->|routes substantive work<br/>to| Target["Admitted agent and<br/>applicable skill"]
 ```
 
 - Interpret user intent and route substantive requests to the best admitted agent and applicable skill.
@@ -39,17 +39,17 @@ config:
 ---
 flowchart TB
     Request["User request"] --> Router["as-is front-face router"]
-    Router --> Snapshot["Repository orientation snapshot"]
-    Snapshot --> Authority{"Actionable task authority?"}
-    Authority -->|actionable task| Recovery["Read task record and recover next action"]
-    Authority -->|no actionable task| Kind{"Request type and admitted capability?"}
-    Kind -->|status query| Backlog["Inspect open backlog items"]
-    Backlog --> Recommendation["Recommendation only; startsWork: false"]
+    Router --> Snapshot["Repository orientation<br/>snapshot"]
+    Snapshot --> Authority{"Actionable task<br/>authority?"}
+    Authority -->|actionable task| Recovery["Read task record and<br/>recover next action"]
+    Authority -->|no actionable task| Kind{"Request type and<br/>admitted capability?"}
+    Kind -->|status query| Backlog["Inspect open backlog<br/>items"]
+    Backlog --> Recommendation["Recommendation only;<br/>startsWork: false"]
     Kind -->|bounded direct request| Direct["Give direct response"]
-    Kind -->|substantive request| Target["Select admitted agent and applicable skill"]
+    Kind -->|substantive request| Target["Select admitted agent<br/>and applicable skill"]
     Recovery --> Target
-    Target --> Contract["Target owns record, lifecycle, validation, and handoff"]
-    Contract --> Report["Report result, blocker, risk, and next action"]
+    Target --> Contract["Target owns record,<br/>lifecycle, validation,<br/>and handoff"]
+    Contract --> Report["Report result, blocker,<br/>risk, and next action"]
     Direct --> Report
 ```
 

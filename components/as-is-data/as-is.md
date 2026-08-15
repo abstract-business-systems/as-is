@@ -20,7 +20,7 @@ metadata resolution.
 ```mermaid
 flowchart TD
     A["Root-to-target path"] --> B["as-is.json resolver"]
-    B --> C["Effective configuration and local task data"]
+    B --> C["Effective configuration<br/>and local task data"]
 ```
 
 - Read `as-is.json` files along the root-to-target directory chain.

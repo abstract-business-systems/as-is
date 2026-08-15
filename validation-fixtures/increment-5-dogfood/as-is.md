@@ -19,6 +19,6 @@ config:
   layout: elk
 ---
 flowchart TB
-    Fixture["Increment 5 adapter dogfood"] -->|retains bounded context for| Adapter["OpenCode subprocess adapter"]
-    Fixture -->|is scoped by| Guardrails["No domain changes or external effects"]
+    Fixture["Increment 5 adapter<br/>dogfood"] -->|retains bounded context<br/>for| Adapter["OpenCode subprocess<br/>adapter"]
+    Fixture -->|is scoped by| Guardrails["No domain changes or<br/>external effects"]
 ```

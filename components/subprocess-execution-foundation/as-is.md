@@ -20,8 +20,8 @@ bounded worker attempts.
 
 ```mermaid
 flowchart TD
-    A["Bounded worker attempt"] --> B["Detached launch foundation"]
-    B --> C["Lifecycle and host-neutral boundary"]
+    A["Bounded worker attempt"] --> B["Detached launch<br/>foundation"]
+    B --> C["Lifecycle and<br/>host-neutral boundary"]
 ```
 
 - Submit a bounded worker attempt through a detached process-group foundation.

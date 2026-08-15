@@ -20,8 +20,8 @@ canonical-resource wiring.
 
 ```mermaid
 flowchart TD
-    A["Persisted client configuration"] --> B["Setup adapter plan"]
-    B --> C["Client-specific canonical resources"]
+    A["Persisted client<br/>configuration"] --> B["Setup adapter plan"]
+    B --> C["Client-specific<br/>canonical resources"]
 ```
 
 - `setup.ts` is the executable boundary for deterministic client setup.

@@ -19,6 +19,6 @@ config:
   layout: elk
 ---
 flowchart TB
-    Interruption["Private runtime state unavailable"] --> Recovery["Durable record-only recovery"]
-    Recovery --> Outcome["Bounded completed fixture evidence"]
+    Interruption["Private runtime state<br/>unavailable"] --> Recovery["Durable record-only<br/>recovery"]
+    Recovery --> Outcome["Bounded completed<br/>fixture evidence"]
 ```

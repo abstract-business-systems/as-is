@@ -30,7 +30,7 @@ config:
 ---
 flowchart TB
     ACTOR["Actor goal"] --> SUBJECT["Subject responsibility"]
-    SUBJECT --> CHILD["Relevant subcomponent responsibility"]
+    SUBJECT --> CHILD["Relevant subcomponent<br/>responsibility"]
     CHILD --> OUTCOME["Observable outcome"]
 ```
 

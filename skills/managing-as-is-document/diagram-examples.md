@@ -64,7 +64,7 @@ flowchart TB
 
         Validation -->|approves request for| Authorization
         Authorization -->|releases outcome to| OrderRecording
-        Validation -.->|supplies accepted order data to| OrderRecording
+        Validation -.->|supplies accepted order<br/>data to| OrderRecording
     end
 
     classDef container fill:#f8fafc,fill-opacity:0.1,stroke:#334155,stroke-width:2px
@@ -105,7 +105,7 @@ config:
 ---
 flowchart TB
     Customer["Customer"] -->|submits order to| Checkout["Checkout"]
-    Checkout -->|requests authorization from| PaymentCapability["Payment capability"]
+    Checkout -->|requests authorization<br/>from| PaymentCapability["Payment capability"]
     Checkout -->|records outcome in| OrderStore["Order store"]
 ```
 
@@ -236,7 +236,7 @@ config:
   layout: elk
 ---
 flowchart TB
-    Request["Authorization request"] --> Timeout{"Response before deadline?"}
+    Request["Authorization request"] --> Timeout{"Response before<br/>deadline?"}
     Timeout -->|yes| Result["Use authorization result"]
     Timeout -->|no| Pending["Store pending outcome"]
     Pending --> Retry["Allow safe retry"]

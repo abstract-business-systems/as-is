@@ -19,9 +19,9 @@ config:
   layout: elk
 ---
 flowchart TB
-    Question["Human question"] -->|uses| Guidance["Concise consultation guidance"]
-    Guidance -->|provides| Response["Clear, limitation-aware response"]
-    Response -->|connects-to| Judgment["Human judgment and next action"]
+    Question["Human question"] -->|uses| Guidance["Concise consultation<br/>guidance"]
+    Guidance -->|provides| Response["Clear, limitation-aware<br/>response"]
+    Response -->|connects-to| Judgment["Human judgment and next<br/>action"]
 ```
 
 The procedure is used by human-facing roles such as the expert and thinking companion. Those agents retain authority over whether and how to apply the guidance; the skill does not select, authorize, or launch agents.

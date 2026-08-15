@@ -22,6 +22,9 @@ export type MermaidDiagramResult = {
   hrefs: string[];
   expectedHrefs?: string[];
   svgLength?: number;
+  svgWidth?: string;
+  svgHeight?: string;
+  viewBox?: string;
   error?: string;
 };
 export type MermaidBatchResult = {
@@ -123,6 +126,11 @@ const browserPage = (bundle: string, diagrams: MermaidDiagramInput[]): string =>
         svg.matchAll(/(?:xlink:)?href\\s*=\\s*["']([^"']+)["']/g),
         (match) => match[1],
       );
+      const svgMetadata = (svg) => {
+        const root = svg.match(/<svg\\b([^>]*)>/i)?.[1] ?? "";
+        const attribute = (name) => root.match(new RegExp(name + '=\"([^\"]*)\"', "i"))?.[1];
+        return { svgWidth: attribute("width"), svgHeight: attribute("height"), viewBox: attribute("viewBox") };
+      };
       const same = (left, right) => JSON.stringify([...new Set(left)].sort()) === JSON.stringify([...new Set(right)].sort());
       (async () => {
         const results = [];
@@ -140,6 +148,7 @@ const browserPage = (bundle: string, diagrams: MermaidDiagramInput[]): string =>
                 hrefs: actual,
                 expectedHrefs: expected,
                 svgLength: result.svg.length,
+                ...svgMetadata(result.svg),
                 error: matches ? undefined : "rendered hrefs differ from expected hrefs",
               });
             } catch (error) {

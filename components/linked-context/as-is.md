@@ -21,7 +21,7 @@ bounded context.
 ```mermaid
 flowchart TD
     A["Explicit as-is link"] -->|uses| B["resolve_component_context"]
-    B -->|provides| C["Bounded untrusted context"]
+    B -->|provides| C["Bounded untrusted<br/>context"]
 ```
 
 | Concern | Rule |

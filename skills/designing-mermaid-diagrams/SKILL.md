@@ -98,13 +98,24 @@ intent, not a generic display contract.
    when ELK would obscure the stated relationship, conflict with host rendering,
    or make the diagram less readable. Layout is presentation, never evidence of
    chronology unless the diagram's stated meaning says otherwise.
-6. Draw the primary path first, then add consequential alternate, rejected, or
+6. Keep node and edge labels short enough for the target surface. Prefer
+   reader-oriented nouns and short relationship phrases; wrap a multiword label
+   with explicit `<br/>` breaks at natural phrase boundaries when a label would
+   otherwise become a wide box or long edge annotation. Do not wrap URLs,
+   identifiers, or markup attributes, and do not use wrapping to hide a diagram
+   whose node or edge density is too high; split the view when shortening and
+   wrapping do not preserve readability.
+7. Draw the primary path first, then add consequential alternate, rejected, or
    recovery paths. Show boundaries where responsibility or authority changes;
    explain dense detail in prose.
-7. Add only resolving links required by the diagram's host document. Keep repository-specific component-linking, `**Lineage**: ` navigation, and container rules in the host document's owning procedure; do not make them generic Mermaid mechanics. Prose remains authoritative if a diagram diverges. Do not infer that an adequate Markdown navigation surface replaces a host-required diagram link. When a linked Mermaid node is required by the host, use the host-supported link syntax and preserve a Markdown fallback outside the diagram. Once that fallback exists, do not repeat the target or ordinary direct-child contracts in an unrelated link list unless they add distinct working context.
-8. Validate syntax, configured layout support where applicable, link targets,
+8. Add only resolving links required by the diagram's host document. Keep repository-specific component-linking, `**Lineage**: ` navigation, and container rules in the host document's owning procedure; do not make them generic Mermaid mechanics. Prose remains authoritative if a diagram diverges. Do not infer that an adequate Markdown navigation surface replaces a host-required diagram link. When a linked Mermaid node is required by the host, use the host-supported link syntax and preserve a Markdown fallback outside the diagram. Once that fallback exists, do not repeat the target or ordinary direct-child contracts in an unrelated link list unless they add distinct working context.
+9. Validate syntax, configured layout support where applicable, link targets,
    supported edge meanings, readable labels, bounded scope, and consistency
-   with authoritative prose.
+   with authoritative prose. When a local renderer is available, render every
+   discovered diagram in a bounded batch and inspect the resulting dimensions
+   or equivalent host-surface evidence; treat overflow, clipping, truncation,
+   or renderer-specific unreadability as a finding to fix or explicitly
+   escalate.
 
 ## Rendered navigation validation
 
@@ -141,6 +152,9 @@ Return or record:
   routing direction, and any supported exception or residual risk; a
   supplementary view may omit the plan.
 - A flowchart uses a taller, narrower ELK/TB layout when that preference improves readability; any exception is supported by the host or the diagram's stated meaning.
+- Node and edge labels fit the intended render surface, using short labels and
+  explicit `<br/>` breaks at natural boundaries when needed; no label is clipped,
+  truncated, or allowed to create avoidable overflow.
 - Generic diagram guidance does not impose a host document's hierarchy, title,
   `**Lineage**: `, or container-view rules.
 - Host-specific link syntax and fallback behavior are not presented as generic

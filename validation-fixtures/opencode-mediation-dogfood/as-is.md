@@ -20,5 +20,5 @@ config:
 ---
 flowchart TB
     Orchestrator["Orchestrator"] -->|hands off explicitly to| Implementer["Configured implementer"]
-    Implementer --> Outcome["Completed bounded fixture"]
+    Implementer --> Outcome["Completed bounded<br/>fixture"]
 ```

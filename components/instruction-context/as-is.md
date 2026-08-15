@@ -19,7 +19,7 @@ The component is organized around bounded ancestor instruction resolution.
 ```mermaid
 flowchart TD
     A["Target component"] --> B["Instruction resolver"]
-    B --> C["Ancestor AGENTS.md context"]
+    B --> C["Ancestor AGENTS.md<br/>context"]
 ```
 
 - Resolve only `AGENTS.md` files on the authorized root-to-target chain.

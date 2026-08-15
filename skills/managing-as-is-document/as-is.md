@@ -19,12 +19,12 @@ config:
   layout: elk
 ---
 flowchart TB
-    AUTHOR["Component owner or maintainer"] --> CONTEXT["Authoritative component context"]
+    AUTHOR["Component owner or<br/>maintainer"] --> CONTEXT["Authoritative component<br/>context"]
     CONTEXT --> RECORD["Durable as-is record"]
-    DIAGRAM["Designing Mermaid diagrams"] --> VIEW["Reader-oriented context view"]
+    DIAGRAM["Designing Mermaid<br/>diagrams"] --> VIEW["Reader-oriented context<br/>view"]
     VIEW --> RECORD
-    RECORD --> READER["Understandable purpose, hierarchy, boundaries, and relationships"]
-    CHECKS["Deterministic documentation checks"] --> RECORD
+    RECORD --> READER["Understandable purpose,<br/>hierarchy, boundaries,<br/>and relationships"]
+    CHECKS["Deterministic<br/>documentation checks"] --> RECORD
 ```
 
 | Record concern | Rule |

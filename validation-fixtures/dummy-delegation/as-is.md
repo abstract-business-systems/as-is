@@ -21,8 +21,8 @@ config:
 ---
 flowchart TB
     Caller["Local as-is caller stub"] -->|launches once| Builder["component-builder stub"]
-    Caller -->|writes| Registry["launch and finish evidence"]
-    ChildCommit["Scoped child commit"] -->|is integrated by| Parent["Parent integration rehearsal"]
+    Caller -->|writes| Registry["launch and finish<br/>evidence"]
+    ChildCommit["Scoped child commit"] -->|is integrated by| Parent["Parent integration<br/>rehearsal"]
 ```
 
 - Run entirely with local stubs, temporary directories, and Git repositories; do not contact providers or modify product components.

@@ -19,5 +19,5 @@ The component is organized around the following relationships and flow.
 ```mermaid
 flowchart TD
     A["Acceptance conditions"] --> B["Risk-matched validation"]
-    B --> C["Evidence and residual risk"]
+    B --> C["Evidence and residual<br/>risk"]
 ```
