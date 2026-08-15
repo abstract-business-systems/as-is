@@ -9,6 +9,12 @@ import { evaluateHandoffEligibility, type HandoffFacts } from "./handoff-eligibi
 import { resolveInstructionContext } from "../../../components/instruction-context/resolver.ts";
 import { isTaskNarrativeFilename, parseAsIsJson } from "../../../components/as-is-data/resolver.ts";
 import { parseThinkingLevel, resolveThinkingLevel, type ThinkingLevel } from "./agent-thinking.ts";
+import {
+  parseAgentFrontMatter,
+  parseDeclaredTools,
+  identityFromAgent,
+  type AgentDefinition,
+} from "./agent-resolution.ts";
 
 type Options = {
   agent?: string;
@@ -34,15 +40,6 @@ type Options = {
   supervise?: { configPath: string };
   budgetWallClockSeconds?: number;
   budgetCostUsd?: number;
-};
-
-type AgentDefinition = {
-  body: string;
-  model?: string;
-  thinking?: string;
-  tools?: string;
-  name?: string;
-  skills?: string[];
 };
 
 type PiInvocation = {
@@ -293,49 +290,6 @@ const parseOptions = (args: string[]): Options => {
   return options;
 };
 
-const parseFrontMatter = (raw: string, filePath: string): AgentDefinition => {
-  const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
-  if (!match) throw new Error(`Agent file has no front matter: ${filePath}`);
-
-  const frontMatterLines = match[1].split(/\r?\n/);
-  const values = new Map<string, string>();
-  const skills: string[] = [];
-  for (let index = 0; index < frontMatterLines.length; index += 1) {
-    const line = frontMatterLines[index];
-    const field = line.match(/^([a-zA-Z][a-zA-Z-]*):\s*(.*)$/);
-    if (!field) continue;
-    values.set(field[1], field[2].trim());
-    if (field[1] !== "skills") continue;
-    const inline = field[2].trim();
-    if (inline.startsWith("[") && inline.endsWith("]")) {
-      for (const value of inline.slice(1, -1).split(",")) {
-        const skill = value.trim().replace(/^['\"]|['\"]$/g, "");
-        if (skill) skills.push(skill);
-      }
-      continue;
-    }
-    for (let child = index + 1; child < frontMatterLines.length; child += 1) {
-      const item = frontMatterLines[child].match(/^\s+-\s+(.+)$/);
-      if (!item) break;
-      const skill = item[1].trim().replace(/^['\"]|['\"]$/g, "");
-      if (skill) skills.push(skill);
-      index = child;
-    }
-  }
-
-  const body = match[2].trim();
-  if (!body) throw new Error(`Agent file has no prompt body: ${filePath}`);
-
-  return {
-    body,
-    model: values.get("model"),
-    thinking: values.get("thinking"),
-    tools: values.get("tools"),
-    name: values.get("name"),
-    skills: skills.length > 0 ? skills : undefined,
-  };
-};
-
 const resolveFromCwd = (value: string, cwd: string): string =>
   isAbsolute(value) ? value : resolve(cwd, value);
 
@@ -437,37 +391,8 @@ const withinProject = (root: string, candidate: string): boolean => {
   return path === root || path.startsWith(`${root}${sep}`);
 };
 
-const supportedToolNames = new Set([
-  "read", "write", "edit", "bash", "grep", "find", "ls", "webfetch", "websearch",
-  "call_subagent", "resolve_component_context", "git_inspect", "search_traces", "get_trace", "summarize_trace",
-  "compare_traces", "analyze_session",
-]);
-
-const parseDeclaredTools = (value: string | undefined, agentPath: string): string | undefined => {
-  if (value === undefined) return undefined;
-  const normalized = value.trim();
-  if (normalized === "[]" || normalized === "") throw new Error(`Agent tools declaration is empty: ${agentPath}`);
-  const names = normalized.split(",").map((name) => name.trim()).filter(Boolean);
-  if (names.length === 0) throw new Error(`Agent tools declaration is empty: ${agentPath}`);
-  const unsupported = names.filter((name) => !supportedToolNames.has(name));
-  if (unsupported.length > 0)
-    throw new Error(`Agent declares unsupported tools ${unsupported.join(", ")}: ${agentPath}`);
-  return [...new Set(names)].join(",");
-};
-
 const newJobId = (): string =>
   `j-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-
-// Derive the agent identity for the job registry and lineage. Prefer the
-// front-matter `name:` field (authoritative for OpenCode discovery); fall back
-// to the parent directory name when the file is `agent.md` (the directory
-// layout); finally fall back to the file basename for legacy flat layout.
-const identityFromAgent = (agentPath: string, definition?: AgentDefinition): string => {
-  if (definition?.name) return definition.name;
-  const file = basename(agentPath, ".md");
-  if (file === "agent") return basename(dirname(agentPath));
-  return file;
-};
 
 const registryPath = (): string => process.env.AS_IS_JOBS_REGISTRY ?? "/tmp/as-is-jobs.jsonl";
 
@@ -1010,7 +935,7 @@ const main = async() => {
   const clientCwd = resolve(process.cwd());
   const projectRoot = await findProjectRoot(clientCwd);
   const agentPath = resolveFromCwd(options.agent as string, cwd);
-  const definition = parseFrontMatter(await readFile(agentPath, "utf8"), agentPath);
+  const definition = parseAgentFrontMatter(await readFile(agentPath, "utf8"), agentPath);
   const task = options.task;
   if (!task || !task.trim()) throw new Error("Task direction is empty");
 

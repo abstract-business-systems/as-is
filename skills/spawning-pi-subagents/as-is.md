@@ -6,10 +6,13 @@
 The `spawning-pi-subagents` launcher is the repository's bridge between an agent
 file and a Pi child process. Agent contracts own ordinary capability
 declarations; this package owns admission, validation, and forwarding of those
-declarations, while the Pi host/package owns tool implementations. No launcher
-branch may silently inject ordinary tools because of role identity. Unsupported
-or unavailable declarations fail closed, with stricter read-only safety
-profiles remaining explicit host caps.
+declarations, while the Pi host/package owns tool implementations. Shared
+agent front-matter parsing, canonical role lookup, declared-tool parsing, and
+identity extraction are provided by the focused `agent-resolution.ts`
+functionality consumed by both the launcher and in-process worker adapter. No
+launcher branch may silently inject ordinary tools because of role identity.
+Unsupported or unavailable declarations fail closed, with stricter read-only
+safety profiles remaining explicit host caps. The focused agent-resolution behavior is covered by `scripts/agent-resolution.test.ts` and the launcher/worker behavioral suites.
 
 ### Parent integration ownership
 
@@ -63,3 +66,5 @@ flowchart TD
 ## Links
 
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
+- [scripts/agent-resolution.ts](scripts/agent-resolution.ts) — shared canonical role, front-matter, declared-tool, and identity resolution functionality.
+- [scripts/spawn-pi-subagent.ts](scripts/spawn-pi-subagent.ts) — subprocess launcher and detached supervisor adapter.

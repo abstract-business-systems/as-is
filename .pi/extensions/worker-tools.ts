@@ -1,4 +1,4 @@
-import { readFile, readdir } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { existsSync } from "node:fs";
 import { createHash, randomUUID } from "node:crypto";
@@ -14,7 +14,8 @@ import {
 } from "../../skills/spawning-pi-subagents/node_modules/@earendil-works/pi-coding-agent";
 import { Type } from "../../skills/spawning-pi-subagents/node_modules/typebox";
 import { boundedLimit } from "../../components/budget-control/budget.ts";
-import { extractAgentModel, extractAgentThinking, parseThinkingLevel, resolveThinkingLevel, type ThinkingLevel } from "../../skills/spawning-pi-subagents/scripts/agent-thinking.ts";
+import { parseThinkingLevel, resolveThinkingLevel, type ThinkingLevel } from "../../skills/spawning-pi-subagents/scripts/agent-thinking.ts";
+import { resolveCanonicalAgent } from "../../skills/spawning-pi-subagents/scripts/agent-resolution.ts";
 import { readAsIsJson } from "../../components/as-is-data/resolver.ts";
 import { resolveLocalLinkedContext } from "../../components/linked-context/resolver.ts";
 import {
@@ -24,13 +25,7 @@ import {
 } from "../../components/observability/tracer.ts";
 
 const maxResultCharacters = 100_000;
-const canonicalRoleName = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
 const defaultReadOnlyTools = ["read", "grep", "find", "ls"];
-const supportedTargetTools = new Set([
-  "read", "write", "edit", "bash", "grep", "find", "ls", "webfetch", "websearch", "resolve_component_context",
-  "call_subagent", "git_inspect", "search_traces", "get_trace", "summarize_trace",
-  "compare_traces", "analyze_session",
-]);
 const builtinTools = new Set(["read", "write", "edit", "bash", "grep", "find", "ls", "webfetch", "websearch"]);
 const defaultTimeoutMs = 60_000;
 const maximumTimeoutMs = 900_000;
@@ -382,8 +377,6 @@ export function currentSessionReference(ctx: { sessionManager?: { getSessionId?:
   }
 }
 
-type TargetDefinition = { body: string; model?: string; tools: string[]; thinking?: string };
-
 type ProjectAgentConfig = {
   defaultModel?: string;
   defaultThinkingLevel?: ThinkingLevel;
@@ -462,26 +455,8 @@ export function workerSessionOptions(
   return thinkingLevel ? { model: resolved.model, thinkingLevel } : { model: resolved.model };
 }
 
-async function resolveCanonicalTarget(cwd: string, role: string): Promise<TargetDefinition> {
-  if (!canonicalRoleName.test(role)) throw new Error(`invalid canonical agent role: ${role}`);
-  const agentsDirectory = join(cwd, "agents");
-  const entries = await readdir(agentsDirectory, { withFileTypes: true });
-  const matches = entries.filter((entry) => entry.isDirectory() && entry.name === role);
-  if (matches.length !== 1) throw new Error(`canonical agent role not found: ${role}`);
-  const path = join(agentsDirectory, role, "agent.md");
-  const raw = await readFile(path, "utf8");
-  const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
-  if (!match) throw new Error(`canonical agent has no front matter: ${role}`);
-  const toolsLine = match[1].match(/^tools:\s*(.*)$/m)?.[1]?.trim() ?? "";
-  const tools = toolsLine ? toolsLine.split(",").map((tool) => tool.trim()).filter(Boolean) : [];
-  const unsupported = tools.filter((tool) => !supportedTargetTools.has(tool));
-  if (unsupported.length > 0) throw new Error(`canonical agent declares unsupported tools: ${unsupported.join(", ")}`);
-  return {
-    body: raw,
-    model: extractAgentModel(raw, path),
-    tools: [...new Set(tools)],
-    thinking: extractAgentThinking(raw, path),
-  };
+async function resolveCanonicalTarget(cwd: string, role: string) {
+  return resolveCanonicalAgent(cwd, role);
 }
 
 function toolsForTarget(role: string, declared: string[]): { tools: string[]; customTools: ToolDefinition[] } {
