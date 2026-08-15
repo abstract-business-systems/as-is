@@ -35,7 +35,12 @@ relying on environment variables. The subprocess launcher passes the resolved
 values explicitly to Pi; the in-process adapter resolves the corresponding
 configured Pi model before creating its isolated session. The launcher fallback
 uses the skill-owned compatible Pi package version and child runs remain
-observable by default.
+observable by default. The private package manifest and lockfile own the direct
+Pi and TypeBox dependencies used by package scripts and extension-facing
+checks; package-local build commands provide a bounded dependency-resolution
+check. Repository-wide launcher fixtures retain their repository-root execution
+contract because they exercise canonical agents, skills, tools, and task
+records outside this component.
 
 
 ## Design
@@ -73,3 +78,5 @@ flowchart TD
 - [../../core/adapters/process/bounded-process-supervisor.ts](../../core/adapters/process/bounded-process-supervisor.ts) — shared mechanical process-group, timer, signal, stdio, and exit-observation boundary.
 - [../../tools/evidence/worker-tools-observability.ts](../../tools/evidence/worker-tools-observability.ts) — focused bounded session and trace query functionality consumed by the Pi registration adapter.
 - [../../tools/agent/subagent-tools.ts](../../tools/agent/subagent-tools.ts) — bounded agent-tool implementation and delegation adapter composition that retains role admission and call-subagent authority.
+- [package.json](package.json) — private package manifest owning direct Pi and TypeBox dependencies plus bounded package-local build commands.
+- [bun.lock](bun.lock) — committed package dependency resolution and integrity evidence.
