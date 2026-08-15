@@ -5,7 +5,7 @@ import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { emitTrace, startSpan, type TracerConfig, type SpanLifecycle } from "../observability/tracer.ts";
 import { isExhausted } from "../budget-control/budget.ts";
-import { parseAsIsJson } from "../as-is-data/resolver.ts";
+import { parseAsIsJson } from "../../core/modules/context-resolution/configuration-resolver.ts";
 
 /**
  * A small, host-neutral execution boundary.

@@ -60,8 +60,8 @@ when the agent needs an outcome rather than configuration internals.
 
 ## Implemented local linked context
 
-`components/linked-context/` implements the first local-only resolver and the
-launcher exposes it as `resolve_component_context({ reference })` to roles that
+`core/modules/context-resolution/linked-context-resolver.ts` implements the
+local-only resolver and the launcher exposes it as `resolve_component_context({ reference })` to roles that
 declare the capability. The caller cannot select project root, component base,
 or task-record policy: the launcher supplies project-relative component identity
 and reconstructs the project root in an isolated worktree when necessary.

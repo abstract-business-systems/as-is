@@ -4,7 +4,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync, readdirSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { ControlPlane, type TaskSnapshot } from "../../../components/control-plane/control-plane";
-import { isTaskNarrativeFilename, readAsIsJson } from "../../../components/as-is-data/resolver";
+import { isTaskNarrativeFilename, readAsIsJson } from "../../../core/modules/context-resolution/configuration-resolver";
 
 export type OrientationSnapshot = {
   root: { status: string; nextAction: string };

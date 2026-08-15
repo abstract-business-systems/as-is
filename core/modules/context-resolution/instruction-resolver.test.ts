@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { resolveInstructionContext } from "./resolver";
+import { resolveInstructionContext } from "./instruction-resolver";
 
 function fixture() {
   const root = mkdtempSync(join(tmpdir(), "instruction-context-"));

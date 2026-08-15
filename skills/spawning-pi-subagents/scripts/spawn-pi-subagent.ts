@@ -7,8 +7,8 @@ import { boundedLimit } from "../../../components/budget-control/budget.ts";
 import { runBoundedProcess } from "./bounded-process-supervisor.ts";
 import { emitTrace, startSpan, serializeSessionReference, type SessionReference } from "../../../components/observability/tracer.ts";
 import { evaluateHandoffEligibility, type HandoffFacts } from "../../../components/control-plane/handoff-eligibility.ts";
-import { resolveInstructionContext } from "../../../components/instruction-context/resolver.ts";
-import { findConfigurationRootSync, isTaskNarrativeFilename, parseAsIsJson, resolveConfigurationSync } from "../../../components/as-is-data/resolver.ts";
+import { resolveInstructionContext } from "../../../core/modules/context-resolution/instruction-resolver.ts";
+import { findConfigurationRootSync, isTaskNarrativeFilename, parseAsIsJson, resolveConfigurationSync } from "../../../core/modules/context-resolution/configuration-resolver.ts";
 import { parseThinkingLevel, resolveThinkingLevel, type ThinkingLevel } from "./agent-thinking.ts";
 import {
   parseAgentFrontMatter,

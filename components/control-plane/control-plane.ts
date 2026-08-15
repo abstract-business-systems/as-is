@@ -28,7 +28,7 @@ import {
 import { basename, dirname, join, relative, resolve, sep } from "node:path";
 import { createHash, randomBytes } from "node:crypto";
 import { admits, effectiveLaunchBudget, remainingBudget, type EffectiveLaunchBudget } from "../budget-control/budget.ts";
-import { isTaskNarrativeFilename, readAsIsJson } from "../as-is-data/resolver.ts";
+import { isTaskNarrativeFilename, readAsIsJson } from "../../core/modules/context-resolution/configuration-resolver.ts";
 
 export const STATUSES = new Set([
   "ready",
