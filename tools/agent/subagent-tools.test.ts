@@ -190,7 +190,6 @@ describe("capability-based worker extension", () => {
     const cwd = await mkdtemp(join(tmpdir(), "as-is-session-analysis-"));
     await writeFile(join(cwd, "as-is.md"), rootRecord);
     await expect(analyzeProjectSession(cwd, "../private-session", 20)).resolves.toEqual({
-      sessionId: "../private-session",
       availability: "invalid-selector",
     });
     await expect(analyzeProjectSession(cwd, "valid-session", 0)).resolves.toEqual({

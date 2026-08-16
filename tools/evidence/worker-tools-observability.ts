@@ -15,17 +15,74 @@ type TraceEvent = {
   traceId: string;
   spanId: string;
   parentSpanId?: string;
-  attributes: Record<string, string | number | boolean | undefined>;
+  attributes: Record<string, unknown>;
   sessionReference?: unknown;
 };
 
-type SessionStoreScope = { cwd: string; sessionDir?: string };
-type SessionReader = Pick<SessionManager, "getSessionId" | "getCwd" | "getSessionDir" | "getSessionFile" | "getEntries" | "getHeader">;
-type SessionDetail = "summary" | "entries" | "messages" | "full";
+type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue };
+
+const maxProjectionDepth = 8;
+const maxProjectionArrayLength = 256;
+const maxProjectionKeys = 128;
+const unsafePathKey = /^(?:path|file|directory|dir|cwd|worktree|component|record|recordPath|taskRecord|taskPath|log|logPath|traceDir|session|sessionFile|sessionDir|store|storeDir|configuredDirectory|workspace|repository|promptPath|resultPath|configPath|extensionPath)$/iu;
+const unsafePathValue = /(?:^|[^A-Za-z0-9._~-])(?:[A-Za-z]:[\\/]|[\\/]|\.{1,2}[\\/]|(?:[A-Za-z0-9._~-]+[\\/])+[A-Za-z0-9._~-]+)(?=$|[^A-Za-z0-9._~-])/gu;
+const unsafeUriValue = /^[A-Za-z][A-Za-z0-9+.-]*:(?:\/\/|\/)/u;
+const safeOpaqueToken = /^[A-Za-z0-9][A-Za-z0-9._+~-]{0,127}$/u;
+const safeSlashValues = new Set(["read/grep", "provider/model"]);
+
+function isUnsafeEvidenceString(value: string): boolean {
+  if (value.includes("\u0000") || unsafeUriValue.test(value)) return true;
+  const matches = value.match(unsafePathValue) ?? [];
+  return matches.some((match) => {
+    const candidate = match.replace(/^[^A-Za-z0-9._~-]/u, "");
+    return !safeSlashValues.has(candidate);
+  });
+}
+
+function projectEvidenceValue(value: unknown, depth = 0, seen = new WeakSet<object>()): JsonValue | undefined {
+  if (value === null || typeof value === "boolean") return value;
+  if (typeof value === "number") return Number.isFinite(value) ? value : undefined;
+  if (typeof value === "string") return isUnsafeEvidenceString(value) ? undefined : value;
+  if (depth >= maxProjectionDepth || typeof value !== "object") return undefined;
+  if (seen.has(value)) return undefined;
+  seen.add(value);
+  try {
+    if (Array.isArray(value)) {
+      return value.slice(0, maxProjectionArrayLength).flatMap((item) => {
+        const projected = projectEvidenceValue(item, depth + 1, seen);
+        return projected === undefined ? [] : [projected];
+      });
+    }
+    const projected: { [key: string]: JsonValue } = {};
+    for (const [key, child] of Object.entries(value).slice(0, maxProjectionKeys)) {
+      if (unsafePathKey.test(key) || isUnsafeEvidenceString(key)) continue;
+      const next = projectEvidenceValue(child, depth + 1, seen);
+      if (next !== undefined) projected[key] = next;
+    }
+    return projected;
+  } finally {
+    seen.delete(value);
+  }
+}
+
+function projectOpaqueId(value: string): string | undefined {
+  return safeOpaqueToken.test(value) ? value : undefined;
+}
+
+function projectEvidenceResult(value: unknown): Record<string, unknown> {
+  const projected = projectEvidenceValue(value);
+  return projected && typeof projected === "object" && !Array.isArray(projected) ? projected as Record<string, unknown> : { availability: "unavailable" };
+}
 
 function boundedJson(value: unknown): string {
-  return JSON.stringify(value, null, 2).slice(0, maxResultCharacters);
+  const serialized = JSON.stringify(projectEvidenceValue(value) ?? { availability: "unavailable" }, null, 2);
+  if (serialized.length <= maxResultCharacters) return serialized;
+  return JSON.stringify({ availability: "truncated", reason: "bounded evidence result exceeded output limit" });
 }
+
+type SessionStoreScope = { cwd: string; sessionDir?: string };
+type SessionReader = Pick<SessionManager, "getSessionId" | "getCwd" | "getSessionDir" | "getEntries" | "getHeader">;
+type SessionDetail = "summary" | "entries" | "messages" | "full";
 
 export async function readTraceEvents(cwd: string): Promise<TraceEvent[]> {
   const filePath = join(cwd, ".as-is", "tracing.jsonl");
@@ -35,8 +92,16 @@ export async function readTraceEvents(cwd: string): Promise<TraceEvent[]> {
     for (const line of lines) {
       if (!line.trim()) continue;
       try {
-        const event = JSON.parse(line) as TraceEvent;
-        if (event && typeof event.name === "string") events.push(event);
+        const event = JSON.parse(line) as Partial<TraceEvent>;
+        if (event && typeof event.name === "string" && typeof event.timestamp === "string" && typeof event.traceId === "string" && typeof event.spanId === "string") events.push({
+          name: event.name,
+          timestamp: event.timestamp,
+          traceId: event.traceId,
+          spanId: event.spanId,
+          ...(typeof event.parentSpanId === "string" ? { parentSpanId: event.parentSpanId } : {}),
+          attributes: event.attributes && typeof event.attributes === "object" && !Array.isArray(event.attributes) ? event.attributes as Record<string, unknown> : {},
+          ...(event.sessionReference !== undefined ? { sessionReference: event.sessionReference } : {}),
+        });
       } catch {
         // Ignore incomplete or malformed best-effort trace lines.
       }
@@ -115,14 +180,18 @@ function analyzeSessionManager(manager: SessionReader, sessionId: string, limit:
   const header = manager.getHeader();
   const messageCount = entries.filter((entry) => entry.type === "message").length;
   const timestamps = entries.map((entry) => entry.timestamp).filter((timestamp): timestamp is string => typeof timestamp === "string");
-  return { sessionId, availability: "available", sessionFile: manager.getSessionFile(), sessionDir: manager.getSessionDir(), cwd: manager.getCwd(), entryCount: entries.length, messageCount, created: header?.timestamp, modified: timestamps.at(-1), roles, outcomes, toolNames: [...toolNames].sort(), models: [...models].sort(), usage, sample, detail, offset, ...(detail !== "summary" ? { entries: selected } : {}) };
+  const projected = projectEvidenceResult({ sessionId: projectOpaqueId(sessionId), availability: "available", entryCount: entries.length, messageCount, created: header?.timestamp, modified: timestamps.at(-1), roles, outcomes, toolNames: [...toolNames].sort(), models: [...models].sort(), usage, sample, detail, offset, ...(detail !== "summary" ? { entries: selected } : {}) });
+  if (!projected.sessionId) delete projected.sessionId;
+  return projected;
 }
 
 export async function analyzeProjectSession(cwd: string, sessionId: string, limit = 20, currentManager?: SessionReader, inheritedScope?: SessionStoreScope, detail: SessionDetail = "summary", offset = 0, role?: string, toolName?: string): Promise<Record<string, unknown>> {
-  if (!validSessionId(sessionId)) return { sessionId, availability: "invalid-selector" };
-  if (!Number.isInteger(limit) || limit < 1 || limit > 1000) return { sessionId, availability: "invalid-limit" };
-  if (!Number.isInteger(offset) || offset < 0) return { sessionId, availability: "invalid-offset" };
-  if (!["summary", "entries", "messages", "full"].includes(detail)) return { sessionId, availability: "invalid-detail" };
+  const safeSessionId = projectOpaqueId(sessionId);
+  const selector = safeSessionId ? { sessionId: safeSessionId } : {};
+  if (!validSessionId(sessionId)) return { ...selector, availability: "invalid-selector" };
+  if (!Number.isInteger(limit) || limit < 1 || limit > 1000) return { ...selector, availability: "invalid-limit" };
+  if (!Number.isInteger(offset) || offset < 0) return { ...selector, availability: "invalid-offset" };
+  if (!["summary", "entries", "messages", "full"].includes(detail)) return { ...selector, availability: "invalid-detail" };
   if (currentManager?.getSessionId() === sessionId) return analyzeSessionManager(currentManager, sessionId, limit, detail, offset, role, toolName);
   try {
     const inherited = inheritedScope ?? inheritedSessionStoreScope();
@@ -142,9 +211,9 @@ export async function analyzeProjectSession(cwd: string, sessionId: string, limi
     // Do not search the user's unrelated session stores. An exact ID is not
     // itself authorization to inspect a session outside the explicit scopes
     // supplied by the current host or launcher.
-    return { sessionId, availability: "missing-or-out-of-scope" };
+    return { ...selector, availability: "missing-or-out-of-scope" };
   } catch {
-    return { sessionId, availability: "inaccessible" };
+    return { ...selector, availability: "inaccessible" };
   }
 }
 

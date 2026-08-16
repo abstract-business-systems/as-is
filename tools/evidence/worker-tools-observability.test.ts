@@ -9,14 +9,20 @@ test("focused observability functionality keeps session summaries bounded and de
   const cwd = await mkdtemp(join(tmpdir(), "as-is-focused-observability-"));
   const manager = SessionManager.create(cwd, join(cwd, "sessions"));
   const sessionId = manager.getSessionId();
-  manager.appendMessage({ role: "user", content: "private prompt", timestamp: Date.now() });
+  manager.appendMessage({ role: "user", content: "private prompt and valid read/grep provider/model text", timestamp: Date.now() });
   manager.appendMessage({ role: "assistant", content: [{ type: "text", text: "private response" }], timestamp: Date.now() });
 
   const summary = await analyzeProjectSession(cwd, sessionId, 20, manager);
   expect(summary.availability).toBe("available");
+  expect(JSON.stringify(summary)).not.toContain(cwd);
+  expect(JSON.stringify(summary)).not.toContain("sessionFile");
+  expect(JSON.stringify(summary)).not.toContain("sessionDir");
   expect(JSON.stringify(summary)).not.toContain("private prompt");
   const full = await analyzeProjectSession(cwd, sessionId, 20, manager, undefined, "full");
+  expect(JSON.stringify(full)).not.toContain(cwd);
   expect(JSON.stringify(full)).toContain("private prompt");
+  expect(JSON.stringify(full)).toContain("read/grep");
+  expect(JSON.stringify(full)).toContain("provider/model");
 });
 
 test("focused session analysis does not inspect unrelated session stores", async () => {
@@ -46,4 +52,32 @@ test("focused trace functionality ignores malformed lines and bounds matching", 
   const result = await search.execute("call", { name: "worker", limit: 1 }, undefined, undefined, { cwd } as never);
   expect(result.details).toEqual({ count: 1 });
   expect(result.content[0].text).toContain("trace-a");
+});
+
+test("evidence results omit direct and nested filesystem metadata", async () => {
+  const cwd = await mkdtemp(join(tmpdir(), "as-is-evidence-privacy-"));
+  const tokens = [cwd, "/tmp/evidence-absolute", "core/modules/task-control/as-is.md", ".as-is/tracing.jsonl", "worktree/session/task-record.log"];
+  await Bun.write(join(cwd, ".as-is", "tracing.jsonl"), [
+    JSON.stringify({ name: "worker.result", timestamp: "2026-01-01T00:00:00Z", traceId: "trace-safe", spanId: "span-safe", attributes: { safe: "retained", path: tokens[0], nested: { worktree: tokens[1], value: "kept" } }, sessionReference: { sessionDir: tokens[2] }, cwd: tokens[3] }),
+    JSON.stringify({ name: "malformed", timestamp: 42, traceId: "trace-bad", spanId: "span-bad", attributes: { path: tokens[4] } }),
+  ].join("\n"));
+  const tools = createTraceQueryTools();
+  const outputs = await Promise.all(tools.map((tool) => tool.execute("call", tool.name === "compare_traces" ? { leftTraceId: "trace-safe", rightTraceId: "trace-safe" } : { traceId: "trace-safe", limit: 10 }, undefined, undefined, { cwd } as never)));
+  const serialized = outputs.map((output) => JSON.stringify(output));
+  for (const token of tokens) expect(serialized.join("\n")).not.toContain(token);
+  expect(serialized.join("\n")).toContain("retained");
+  expect(serialized.join("\n")).not.toContain("docs/private.md");
+  expect(serialized.join("\n")).not.toContain("designs/internal.md");
+  await expect(readTraceEvents(cwd)).resolves.toHaveLength(1);
+  const sessionManager = SessionManager.create(cwd, join(cwd, "session-store"));
+  const evidenceSessionId = sessionManager.getSessionId();
+  sessionManager.appendMessage({ role: "user", content: "prefix=/tmp/private.log and see:core/modules/task-control/as-is.md", timestamp: Date.now() });
+  const sessionResult = await analyzeProjectSession(cwd, evidenceSessionId, 20, sessionManager, undefined, "full");
+  const sessionSerialized = JSON.stringify(sessionResult);
+  expect(sessionSerialized).not.toContain("/tmp/private.log");
+  expect(sessionSerialized).not.toContain("core/modules/task-control/as-is.md");
+  const oversized = await analyzeProjectSession(cwd, evidenceSessionId, 1000, sessionManager, undefined, "full");
+  const oversizedText = JSON.stringify(oversized);
+  expect(oversizedText.length).toBeLessThan(1000);
+  expect(oversizedText).toContain("available");
 });
