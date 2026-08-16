@@ -18,10 +18,15 @@ Complete the preserved bounded Pi usage-accounting dependency across the mechani
 - The process child completed in source commit `dd70662` and completion commit `4c264c8`; its bounded 4 MiB stdout observation is integrated in the root branch.
 
 ## Validation
-Pending child implementation and cross-component validation.
+- `bun test --timeout 20000 core/adapters/process/bounded-process-supervisor.test.ts`: 3 tests, 19 expectations passed.
+- `bun test --timeout 20000 skills/spawning-pi-subagents/scripts/pi-usage-accounting.test.ts`: 6 tests, 34 expectations passed.
+- `bun test --timeout 30000 skills/spawning-pi-subagents/scripts/spawn-pi-subagent.test.ts`: 51 tests, 322 expectations passed.
+- No-bundle process and accounting builds passed; launcher build passed after removing a pre-existing `/tmp/as-is-launcher-build` directory.
+- VS Code diagnostics were empty and `git diff --check` passed.
+- Prior integrated validation recorded task-record `VALID`, content/navigation 49 records and 47 diagrams, backlog/query 15 tests and 53 expectations, tracked JSON parsing, and final read-only expert approval.
 
 ## Result
-Pending.
+The process and launcher children are integrated and complete. Bounded stdout capture preserves process authority and lifecycle behavior. Launcher accounting parses only bounded Pi usage observations, handles duplicates, malformed values, wrappers, unavailable/truncated output, and unknown cost, and retains aggregate-only private deltas without exposing paths, identifiers, or provider payloads.
 
 ## Blockers And Escalations
 The accounting work crosses `core/adapters/process` and `skills/spawning-pi-subagents`; the root coordinates sequential children under `maxConcurrentTasks: 1`. No public handle, registry, trace, task record, or provider payload may expose accounting paths or raw usage data. If the existing WIP cannot satisfy the fixed accounting/privacy contract without broader authority or host changes, stop and record a bounded blocker rather than expanding scope.
