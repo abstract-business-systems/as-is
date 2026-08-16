@@ -27,8 +27,8 @@
       "external-effects": "prohibited"
     },
     "acceptance": [
-      "Process-adapter public handles, observations, diagnostics, and nested structured results omit direct and indirect filesystem paths while private process operands remain usable internally.",
-      "Provider-free fixtures cover public launch handles, durable observations, host observations, permission/cancellation/recovery/handoff/cleanup results, nested malformed values, and complete raw serialized-output absence.",
+      "Process-adapter public handles, observations, diagnostics, and nested structured results emit only approved masked transient-runtime references or project-context references; raw host paths and unproven path-bearing values remain prohibited while private process operands remain usable internally.",
+      "Provider-free fixtures cover public launch handles, durable observations, host observations, permission/cancellation/recovery/handoff/cleanup results, approved masked runtime references, nested malformed values, and complete raw host-path absence.",
       "Existing lifecycle, cancellation, cleanup, recovery, stale-classification, budget, handoff, task-record, and no-leftover behavior remains passing.",
       "Launcher/recovery projections, bounded-process-supervisor mechanics, tracer filtering, task authority, Git/worktree integration, and completion authority remain outside this task.",
       "Validation, durable changelog evidence, exact backlog cleanup, and transient task cleanup are completed in one scoped completion commit."
