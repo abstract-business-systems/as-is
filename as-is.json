@@ -57,5 +57,39 @@
     "security": {
       "emitted-paths": "masked-runtime-references"
     }
+  },
+  "task": {
+    "status": "active",
+    "worker": "component-builder",
+    "updated": "2026-08-16T19:07:23Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.5,
+        "spent": 0,
+        "reserve": 0.1,
+        "source": "unavailable",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 300,
+          "spent-seconds": 0,
+          "reserve-seconds": 60,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "prohibited"
+    },
+    "acceptance": [
+      "Clarify the authority boundary between the root/as-is orchestrator and globally available reusable procedures in the explicitly scoped procedure documents while keeping role and task authority unchanged.",
+      "Affected reusable procedures state explicit inputs, outputs or evidence, stopping conditions, and authority limits and do not claim role selection, authorization, launch, delegation, recovery, parent integration, or completion authority.",
+      "Document existing agent-front-matter skill forwarding in the launcher procedure as unchanged compatibility behavior without changing launcher source, tests, role front matter, task protocol, capabilities, routing, host projections, or runtime behavior.",
+      "Focused static/prose checks, existing routing/control-plane/launcher behavioral regressions, task-record validation, content/navigation, JSON parsing, whitespace checks, and fresh read-only expert validation pass; exact backlog reconciliation and task-artifact cleanup are completed in one scoped completion commit."
+    ]
   }
 }
