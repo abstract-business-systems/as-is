@@ -214,6 +214,26 @@ describe("universal local tracer", () => {
     }
   });
 
+  test("preserves only the bounded child-wait phase attribute", async () => {
+    const event = { name: "child-wait", traceId: "trace", spanId: "span", attributes: { phase: "child-wait", outcome: "success" } } as unknown as TraceEvent;
+    const payload = JSON.stringify(otlpPayload(event));
+    expect(payload).toContain('"key":"phase"');
+    expect(payload).toContain("child-wait");
+    const rejected = { name: "child-wait", traceId: "trace", spanId: "span", attributes: { phase: "spawn", outcome: "success" } } as unknown as TraceEvent;
+    const rejectedPayload = JSON.stringify(otlpPayload(rejected));
+    expect(rejectedPayload).not.toContain('"key":"phase"');
+    expect(rejectedPayload).not.toContain("spawn");
+    const cwd = await mkdtemp(join(tmpdir(), "as-is-trace-phase-"));
+    await emitTrace(event, cwd, { backend: "file" });
+    const local = await readFile(join(cwd, ".as-is", "tracing.jsonl"), "utf8");
+    expect(local).toContain('"phase":"child-wait"');
+    const rejectedCwd = await mkdtemp(join(tmpdir(), "as-is-trace-phase-rejected-"));
+    await emitTrace(rejected, rejectedCwd, { backend: "file" });
+    const rejectedLocal = await readFile(join(rejectedCwd, ".as-is", "tracing.jsonl"), "utf8");
+    expect(rejectedLocal).not.toContain('"phase"');
+    expect(rejectedLocal).not.toContain("spawn");
+  });
+
   test("creates an OTLP-compatible span payload", () => {
     const payload = otlpPayload({ name: "worker.result", traceId: "trace-1", spanId: "span-1", durationMs: 4, timestamp: "2026-08-04T00:00:00.000Z", attributes: { outcome: "success", duration_ms: 4 } });
     const span = payload.resourceSpans[0].scopeSpans[0].spans[0];

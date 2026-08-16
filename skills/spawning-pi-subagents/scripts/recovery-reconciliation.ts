@@ -8,9 +8,7 @@ export type RecoveryCandidateObservation = {
   reason: string;
   recordStatus: string | null;
   recordState: "non-terminal" | "unavailable";
-  taskRecordPath: string | null;
-  worktreePath: string | null;
-  preserveReason: string | null;
+  preservationClass: "uncommitted-recovery-candidate" | "unavailable";
   retryContext: {
     automaticRestart: false;
     retryAuthority: "parent-or-user";
@@ -40,9 +38,9 @@ export function recoveryCandidateFor(
     reason,
     recordStatus,
     recordState,
-    taskRecordPath: typeof launch.recordPath === "string" ? launch.recordPath : null,
-    worktreePath: typeof launch.worktreePath === "string" ? launch.worktreePath : null,
-    preserveReason: typeof launch.preserveReason === "string" ? launch.preserveReason : null,
+    preservationClass: typeof launch.preserveReason === "string" && launch.preserveReason.length > 0
+      ? "uncommitted-recovery-candidate"
+      : "unavailable",
     retryContext: {
       automaticRestart: false,
       retryAuthority: "parent-or-user",

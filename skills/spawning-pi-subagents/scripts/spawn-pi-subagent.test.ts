@@ -66,9 +66,11 @@ test("launcher rejects an explicit Pi binary before dry-run or child launch on m
 });
 
 test("launcher rejects an unavailable explicit Pi binary before child launch", async () => {
-  const result = await runLauncher(["--agent", AGENT, "--task", "Version unavailable.", "--cwd", process.cwd(), "--pi", "/tmp/as-is-pi-version-does-not-exist", "--dry-run"]);
+  const unavailablePath = "/tmp/as-is-pi-version-does-not-exist";
+  const result = await runLauncher(["--agent", AGENT, "--task", "Version unavailable.", "--cwd", process.cwd(), "--pi", unavailablePath, "--dry-run"]);
   expect(result.exitCode).toBe(1);
   expect(result.stderr).toContain("version probe unavailable");
+  expect(result.stderr).not.toContain(unavailablePath);
 });
 
 test("launcher rejects nonzero and malformed version probes before child launch", async () => {
@@ -210,6 +212,7 @@ test("invalid thinking declarations fail before Pi starts", async () => {
     expect(result.exitCode).toBe(1);
     expect(result.stderr).toContain("agent declaration");
     expect(result.stderr).toContain("max");
+    expect(result.stderr).not.toContain(agent);
   } finally { rmSync(fixture, { recursive: true, force: true }); }
 });
 
@@ -323,7 +326,8 @@ test("normal component-builder launches forward the bounded in-process gate budg
   ]);
   expect(result.exitCode).toBe(0);
   const parsed = JSON.parse(result.stdout);
-  expect(parsed.args).toContain(`${process.cwd()}/.pi/extensions/worker-tools.ts`);
+  expect(parsed.args).toContain("<private-path>");
+  expect(JSON.stringify(parsed)).not.toContain(`${process.cwd()}/.pi/extensions/worker-tools.ts`);
   expect(parsed.tools).toBe("read,grep,find,ls,bash,edit,write,call_subagent,resolve_component_context");
   expect(parsed.args).toContain("read,grep,find,ls,bash,edit,write,call_subagent,resolve_component_context");
   expect(parsed.budget["wall-clock-seconds"]).toBe(900);
@@ -385,7 +389,7 @@ test("ordinary fixture roles use generic declarative dispatch", async () => {
     expect(parsed.tools).toBe("read,grep,call_subagent");
     expect(parsed.args.join(" ")).toContain("read,grep,call_subagent");
     expect(parsed.args).toContain("--skill");
-    expect(parsed.skills).toEqual([`${process.cwd()}/skills/context-building`]);
+    expect(parsed.skills).toEqual(["<private-skill>"]);
     expect(parsed.sessionPath).toBe("<session-dir>");
     expect(parsed.worktree).toBe(true);
     expect(parsed.budget).toEqual({ "wall-clock-seconds": 12, "cost-usd": 0.04 });
@@ -487,7 +491,7 @@ for (const scenario of declarativeDispatchScenarios) {
       expect(parsed.tools).toBe(scenario.expectedTools);
       expect(parsed.worktree).toBe(scenario.expectedWorktree);
       expect(parsed.sessionPath).toBe(scenario.expectedSessionPath);
-      if (scenario.expectedSkills) expect(parsed.skills).toEqual(scenario.expectedSkills);
+      if (scenario.expectedSkills) expect(parsed.skills).toEqual(scenario.expectedSkills.map(() => "<private-skill>"));
       if (scenario.caller) expect(parsed.caller).toBe(scenario.caller);
     } finally {
       rmSync(dir, { recursive: true, force: true });
@@ -508,8 +512,7 @@ test("execution advisor launches use its frontmatter tool set and skills", async
   expect(parsed.identity).toBe("execution-advisor");
   expect(parsed.tools).toBe("read,grep,find,ls,search_traces,get_trace,summarize_trace,compare_traces,analyze_session,resolve_component_context");
   expect(parsed.args).toContain("read,grep,find,ls,search_traces,get_trace,summarize_trace,compare_traces,analyze_session,resolve_component_context");
-  expect(parsed.skills).toContain(`${process.cwd()}/skills/exploring-execution-evidence`);
-  expect(parsed.skills).toContain(`${process.cwd()}/skills/context-building`);
+  expect(parsed.skills).toEqual(["<private-skill>", "<private-skill>"]);
 });
 
 test("rejects caller tool overrides for front-matter-authoritative roles", async () => {
@@ -523,6 +526,7 @@ test("rejects caller tool overrides for front-matter-authoritative roles", async
   ]);
   expect(result.exitCode).toBe(1);
   expect(result.stderr).toContain("--tools is not accepted");
+  expect(result.stderr).not.toContain("agents/execution-advisor/agent.md");
 });
 
 test("rejects no-tools overrides for front-matter-authoritative roles", async () => {
@@ -536,6 +540,7 @@ test("rejects no-tools overrides for front-matter-authoritative roles", async ()
   ]);
   expect(result.exitCode).toBe(1);
   expect(result.stderr).toContain("--no-tools is not accepted");
+  expect(result.stderr).not.toContain("agents/execution-advisor/agent.md");
 });
 
 test("rejects unsupported declared tools before launch", async () => {
@@ -548,6 +553,7 @@ test("rejects unsupported declared tools before launch", async () => {
     ]);
     expect(result.exitCode).toBe(1);
     expect(result.stderr).toContain("unsupported tools unknown_tool");
+    expect(result.stderr).not.toContain(agent);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
@@ -611,7 +617,7 @@ test("detach dry-run reports the detach flag and forwarded budget", async () => 
   expect(parsed.budget["wall-clock-seconds"]).toBe(120);
   expect(parsed.budget["cost-usd"]).toBe(0.3);
   expect(parsed.command).toBeTruthy();
-  expect(parsed.agent).toContain("as-is/agent.md");
+  expect(parsed.agent).toBe("<private-agent>");
 });
 
 test("detach appends a handle to the configured registry", async () => {
@@ -669,11 +675,12 @@ test("detach returns a handle immediately and the supervisor kills the child on 
     expect(handle.jobId).toMatch(/^j-/);
     expect(typeof handle.pid).toBe("number");
     expect(handle.pid).toBeGreaterThan(0);
-    expect(handle.logPath).toContain("as-is-child-");
-    expect(handle.recordPath).toBe("./as-is.md");
+    expect(handle.sessionClass).toBe("durable");
+    expect(handle.isolationClass).toBe("caller-cwd");
     expect(handle.budgetWallClockSeconds).toBe(1);
     expect(handle.budgetCostUsd).toBe(0.1);
-    expect(existsSync(handle.logPath)).toBe(true);
+    expect(JSON.stringify(handle)).not.toContain("as-is-child-");
+    expect(JSON.stringify(handle)).not.toContain("as-is.md");
 
     // The detached supervisor (budget=1s + 5s grace) must exit after killing
     // the child, taking its process group with it.
@@ -710,8 +717,8 @@ test("child commit handoff is explicitly pending parent integration", async () =
       (line) => (line as { jobId?: string }).jobId === handle.jobId && (line as { event?: string }).event === "finished",
     ) as { jobId: string; recordPath: string | null; callerCwd: string; worktreePath: string | null; baseSha: string | null; committed: boolean; integrationStatus: string; commitSha: string | null } | undefined;
     expect(finished?.jobId).toBe(handle.jobId);
-    expect(finished?.callerCwd).toBe(process.cwd());
-    expect(finished?.worktreePath).toContain("worktree");
+    expect(JSON.stringify(finished)).not.toContain(process.cwd());
+    expect(JSON.stringify(finished)).not.toContain("worktree/");
     expect(finished?.baseSha).toBeTruthy();
     expect(finished?.committed).toBe(true);
     expect(finished?.commitSha).toBeTruthy();
@@ -743,8 +750,8 @@ test("detach supervisor records a completion line with exit code and wall-clock"
     ) as { jobId: string; recordPath: string | null; callerCwd: string; worktreePath: string | null; baseSha: string | null; exitCode: number; budgetStopped: boolean; budgetStopElapsedMs: number | null; wallClockSeconds: number; childPid: number; phaseTimings: Record<string, number> } | undefined;
     expect(finished).toBeDefined();
     expect(finished!.jobId).toBe(handle.jobId);
-    expect(finished!.callerCwd).toBe(process.cwd());
-    expect(finished!.worktreePath).toContain("worktree");
+    expect(JSON.stringify(finished)).not.toContain(process.cwd());
+    expect(JSON.stringify(finished)).not.toContain("worktree/");
     expect(finished!.baseSha).toBeTruthy();
     expect(finished!.phaseTimings["child-spawn"]).toBeGreaterThanOrEqual(0);
     expect(finished!.phaseTimings["child-wait"]).toBeGreaterThanOrEqual(0);
@@ -915,21 +922,27 @@ test("recovery candidates are bounded, terminal-aware, and idempotent by job ide
     worktreePath: "/tmp/component-worktree",
     preserveReason: "uncommitted changes without a commit (recovery candidate)",
   };
-  expect(recoveryCandidateFor(launch, null, "active", false)).toMatchObject({
+  const observation = recoveryCandidateFor(launch, null, "active", false);
+  expect(observation).toMatchObject({
     event: "recovery-candidate",
     source: "spawning-pi-subagents:jobs-observation",
     jobId: "recovery-job",
     reason: "runner-not-alive-with-non-terminal-task-record",
     recordState: "non-terminal",
+    preservationClass: "uncommitted-recovery-candidate",
     retryContext: { automaticRestart: false, retryAuthority: "parent-or-user", configuredBackoff: "not-applied" },
   });
+  expect(JSON.stringify(observation)).not.toContain("/tmp/component");
   expect(recoveryCandidateFor(launch, null, "completed", false)).toBeNull();
   expect(recoveryCandidateFor(launch, { event: "finished" }, "active", false)).toBeNull();
   expect(recoveryCandidateFor(launch, null, "active", true)).toBeNull();
-  expect(recoveryCandidateFor(launch, null, null, false)).toMatchObject({
+  const unavailable = recoveryCandidateFor(launch, null, null, false);
+  expect(unavailable).toMatchObject({
     reason: "runner-not-alive-with-unavailable-task-record",
     recordState: "unavailable",
+    preservationClass: "uncommitted-recovery-candidate",
   });
+  expect(JSON.stringify(unavailable)).not.toContain("/tmp/component");
 });
 
 test("--jobs records one recovery candidate for a dead non-terminal runner", async () => {
@@ -980,9 +993,10 @@ test("--jobs records unavailable records and preserves recovery references", asy
     const result = await runLauncher(["--jobs"], { ...process.env, AS_IS_JOBS_REGISTRY: registry });
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("runner-not-alive-with-unavailable-task-record");
-    expect(result.stdout).toContain(preserved);
+    expect(result.stdout).not.toContain(preserved);
     const event = readRegistryLines(registry).find((line) => (line as { event?: string }).event === "recovery-candidate") as Record<string, unknown> | undefined;
-    expect(event).toMatchObject({ recordState: "unavailable", worktreePath: preserved, preserveReason: "uncommitted changes without a commit (recovery candidate)" });
+    expect(JSON.stringify(event)).not.toContain(preserved);
+    expect(event).toMatchObject({ recordState: "unavailable", preservationClass: "uncommitted-recovery-candidate" });
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
@@ -1031,7 +1045,7 @@ test("--jobs reports an exit-0 job as incomplete without handoff evidence", asyn
     expect(jobs.exitCode).toBe(0);
     expect(jobs.stdout).toContain(handle.jobId);
     expect(jobs.stdout).toContain("incomplete"); // exit 0 is not sufficient for handoff completion
-    expect(jobs.stdout).toContain("blocked");     // record-status joined from the temp record
+    expect(jobs.stdout).toContain("handoff=incomplete");     // record-status may be unavailable in the private join
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
@@ -1084,7 +1098,7 @@ test("detached delegation emits bounded lifecycle spans for success and budget-s
     const successSpan = delegations.find((event) => event.attributes.outcomeClass === "success");
     const failureSpan = delegations.find((event) => event.attributes.outcomeClass === "failure");
     const stoppedSpan = delegations.find((event) => event.attributes.outcomeClass === "budget-stopped");
-    expect(successSpan?.attributes.parentJobId).toBe("parent-opaque");
+    expect(successSpan?.parentSpanId).toBeTruthy();
     expect(successSpan?.attributes.handoffClass).toBe("not-committed");
     expect(failureSpan?.attributes.outcomeClass).toBe("failure");
     expect(stoppedSpan?.attributes.outcomeClass).toBe("budget-stopped");
@@ -1128,7 +1142,7 @@ test("worktree isolation: a child git restore does not touch the caller's workin
     ]);
     expect(result.exitCode).toBe(0);
     const handle = JSON.parse(result.stdout);
-    expect(handle.worktreePath).toBeTruthy();
+    expect(handle.isolationClass).toBe("worktree");
 
     // Wait for the detached supervisor to finish (it removes the worktree on
     // the stub's clean exit).
@@ -1171,16 +1185,19 @@ test("worktree preservation: uncommitted work on clean exit is preserved", async
       "--detach",
     ], { ...process.env, AS_IS_JOBS_REGISTRY: registry });
     expect(result.exitCode).toBe(0);
-    handle = JSON.parse(result.stdout) as { worktreePath?: string };
-    expect(handle.worktreePath).toBeTruthy();
+    const publicHandle = JSON.parse(result.stdout) as { jobId: string; pid: number; isolationClass: string };
+    expect(publicHandle.isolationClass).toBe("worktree");
+    handle = { ...publicHandle };
 
     const done = await pidGone(handle.pid, 5000);
     expect(done).toBe(true);
 
     // The worktree must still exist (preserved for recovery), and contain the
     // uncommitted file the stub created.
-    expect(existsSync(handle.worktreePath)).toBe(true);
-    const scratch = join(handle.worktreePath, "skills/managing-as-is-document/scripts/scratch.ts");
+    const privateLines = readFileSync(`${registry}.private`, "utf8").split("\n").filter(Boolean).map((line) => JSON.parse(line));
+    const privateHandle = privateLines.find((line) => line.jobId === handle.jobId) as { worktreePath: string };
+    expect(existsSync(privateHandle.worktreePath)).toBe(true);
+    const scratch = join(privateHandle.worktreePath, "skills/managing-as-is-document/scripts/scratch.ts");
     expect(existsSync(scratch)).toBe(true);
     expect(readFileSync(scratch, "utf8")).toContain("unfinished work");
 
@@ -1193,18 +1210,23 @@ test("worktree preservation: uncommitted work on clean exit is preserved", async
     expect(finished!.exitCode).toBe(0);
     expect(finished!.committed).toBe(false);
     expect(finished!.worktreePreserved).toBe(true);
-    expect(finished!.preserveReason).toContain("uncommitted");
+    expect((finished as Record<string, unknown>).preservationClass).toBe("uncommitted-recovery-candidate");
 
     // --jobs must surface the preserved worktree as a recovery candidate.
     const jobs = await runLauncher(["--jobs"], { ...process.env, AS_IS_JOBS_REGISTRY: registry });
     expect(jobs.stdout).toContain(handle.jobId);
     expect(jobs.stdout).toContain("preserved");
-    expect(jobs.stdout).toContain(handle.worktreePath);
+    expect(jobs.stdout).not.toContain(privateHandle.worktreePath);
   } finally {
     // The supervisor intentionally preserves the worktree for this test; clean
     // it up via git so the suite leaves no dangling worktrees.
-    if (handle?.worktreePath) {
-      try { spawnSync("git", ["worktree", "remove", "--force", handle.worktreePath], { stdio: "ignore" }); } catch { /* best-effort */ }
+    const privatePath = handle?.jobId;
+    if (privatePath) {
+      try {
+        const privateLines = readFileSync(`${registry}.private`, "utf8").split("\n").filter(Boolean).map((line) => JSON.parse(line));
+        const privateHandle = privateLines.find((line) => line.jobId === privatePath) as { worktreePath?: string } | undefined;
+        if (privateHandle?.worktreePath) spawnSync("git", ["worktree", "remove", "--force", privateHandle.worktreePath], { stdio: "ignore" });
+      } catch { /* best-effort */ }
     }
     rmSync(dir, { recursive: true, force: true });
   }

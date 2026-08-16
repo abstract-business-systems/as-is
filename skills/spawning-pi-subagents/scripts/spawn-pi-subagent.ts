@@ -118,7 +118,7 @@ const recordComponentTrace = async (cwd: string, event: Record<string, unknown>)
     name: String(event.name ?? "component-build"),
     traceId,
     spanId,
-    attributes: Object.fromEntries(Object.entries(event).filter(([key]) => !["name", "traceId", "spanId"].includes(key))) as Record<string, string | number | boolean | undefined>,
+    attributes: Object.fromEntries(Object.entries(event).filter(([key]) => ["outcome", "outcomeClass", "launcherMode", "workerRole", "handoffClass", "reason", "parentJobId"].includes(key))) as Record<string, string | number | boolean | undefined>,
     sessionReference: sessionReferenceFromEnvironment(),
   }, cwd);
 };
@@ -382,7 +382,7 @@ const probePiVersion = (invocation: PiInvocation): string => {
     timeout: 30_000,
     stdio: ["ignore", "pipe", "pipe"],
   });
-  if (probe.error) throw new Error(`Pi version probe unavailable (${invocation.source}): ${probe.error.message}`);
+  if (probe.error) throw new Error(`Pi version probe unavailable (${invocation.source})`);
   if (probe.status !== 0) throw new Error(`Pi version probe failed (${invocation.source}): exit=${probe.status}`);
   try {
     return assertPiVersionCompatible(probe.stdout, contract);
@@ -402,16 +402,64 @@ const newJobId = (): string =>
   `j-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
 const registryPath = (): string => process.env.AS_IS_JOBS_REGISTRY ?? "/tmp/as-is-jobs.jsonl";
+const privateRegistryPath = (): string => `${registryPath()}.private`;
 
-const appendHandleToRegistry = async (handle: Handle): Promise<void> => {
+type PublicHandle = Omit<Handle, "logPath" | "recordPath" | "worktreePath" | "sessionPath"> & {
+  sessionClass: "durable" | "ephemeral";
+  isolationClass: "worktree" | "caller-cwd";
+};
+
+const projectPublicHandle = (handle: Handle): PublicHandle => ({
+  jobId: handle.jobId,
+  pid: handle.pid,
+  identity: handle.identity,
+  caller: handle.caller,
+  parentJobId: handle.parentJobId,
+  budgetWallClockSeconds: handle.budgetWallClockSeconds,
+  budgetCostUsd: handle.budgetCostUsd,
+  launchedAt: handle.launchedAt,
+  sessionClass: handle.sessionPath ? "durable" : "ephemeral",
+  isolationClass: handle.worktreePath ? "worktree" : "caller-cwd",
+});
+
+const appendPrivateLaunch = async (handle: Handle): Promise<void> => {
   try {
-    await appendFile(registryPath(), `${JSON.stringify({ ...handle, event: "launched" })}\n`, "utf8");
-  } catch (error) {
-    process.stderr.write(
-      `as-is detached registry note: unable to append ${registryPath()}: ${error instanceof Error ? error.message : String(error)}\n`,
-    );
+    await appendFile(privateRegistryPath(), `${JSON.stringify({ ...handle, event: "launched" })}\n`, "utf8");
+  } catch {
+    // Private recovery metadata is best effort and never becomes public output.
   }
 };
+
+const appendHandleToRegistry = async (handle: Handle): Promise<void> => {
+  await appendPrivateLaunch(handle);
+  try {
+    await appendFile(registryPath(), `${JSON.stringify({ ...projectPublicHandle(handle), event: "launched" })}\n`, "utf8");
+  } catch {
+    process.stderr.write("as-is detached registry note: registry unavailable\n");
+  }
+};
+
+const publicFinished = (outcome: Record<string, unknown>, childPid: number, finishedAt: string): Record<string, unknown> => ({
+  event: "finished",
+  jobId: typeof outcome.jobId === "string" ? outcome.jobId : "unknown",
+  childPid,
+  finishedAt,
+  exitCode: typeof outcome.exitCode === "number" ? outcome.exitCode : 1,
+  budgetStopped: outcome.budgetStopped === true,
+  budgetStopElapsedMs: typeof outcome.budgetStopElapsedMs === "number" ? outcome.budgetStopElapsedMs : null,
+  wallClockSeconds: typeof outcome.wallClockSeconds === "number" ? outcome.wallClockSeconds : 0,
+  phaseTimings: outcome.phaseTimings && typeof outcome.phaseTimings === "object" && !Array.isArray(outcome.phaseTimings) ? outcome.phaseTimings : {},
+  baseSha: typeof outcome.baseSha === "string" ? outcome.baseSha : null,
+  commitSha: typeof outcome.commitSha === "string" ? outcome.commitSha : null,
+  committed: outcome.committed === true,
+  integrationStatus: typeof outcome.integrationStatus === "string" ? outcome.integrationStatus : "unknown",
+  handoffEligible: outcome.handoffEligible === true,
+  handoffBlockers: Array.isArray(outcome.handoffBlockers) ? outcome.handoffBlockers : [],
+  handoffFacts: outcome.handoffFacts,
+  recordStatus: typeof outcome.recordStatus === "string" ? outcome.recordStatus : null,
+  worktreePreserved: outcome.worktreePreserved === true,
+  preservationClass: outcome.worktreePreserved === true ? "uncommitted-recovery-candidate" : null,
+});
 
 const alive = (pid: number): boolean => {
   try {
@@ -563,8 +611,6 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     identity: config.identity,
     caller: config.caller,
     parentJobId: config.parentJobId,
-    componentPath: config.recordPath ? dirname(config.recordPath) : undefined,
-    taskRecord: config.recordPath,
   });
 
   const workerSpan = startSpan("worker.lifecycle", {
@@ -600,7 +646,6 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     identity: config.identity,
     caller: config.caller,
     parentJobId: config.parentJobId,
-    componentPath: config.recordPath ? dirname(config.recordPath) : undefined,
     exitCode,
     outcome: budgetStopped ? "budget-stopped" : exitCode === 0 ? "success" : "failure",
   });
@@ -643,7 +688,6 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     backend: process.env.AS_IS_COMPONENT_BUILD_TRACER ?? "file",
     jobId: config.jobId,
     identity: config.identity,
-    componentPath: config.recordPath ? dirname(config.recordPath) : undefined,
     committed,
     commitSha: finalSha ?? undefined,
     wallClockSeconds,
@@ -731,12 +775,7 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
 
   if (config.registryPath) {
     try {
-      await appendFile(config.registryPath, `${JSON.stringify({
-        ...outcome,
-        event: "finished",
-        childPid,
-        finishedAt: new Date().toISOString(),
-      })}\n`, "utf8");
+      await appendFile(config.registryPath, `${JSON.stringify(publicFinished(outcome, childPid, new Date().toISOString()))}\n`, "utf8");
     } catch {
       /* best-effort registry */
     }
@@ -905,9 +944,9 @@ const printJobs = async (): Promise<void> => {
     }
     const integrationStatus = finishedIntegrationStatus;
     const detail = finished
-      ? `exit=${finished.exitCode} wall=${finished.wallClockSeconds}s${finished.committed ? ` sha=${(finished.commitSha as string)?.slice(0, 8)}` : ""}${integrationStatus ? ` integration=${integrationStatus}` : ""}${!currentHandoff.eligible ? ` handoff=incomplete blockers=${currentHandoff.blockers.join(",")}` : ""}${finished.worktreePreserved ? ` preserved: ${finished.preserveReason ?? "uncommitted changes"} @ ${launch.worktreePath ?? "?"}` : ""}`
+      ? `exit=${finished.exitCode} wall=${finished.wallClockSeconds}s${finished.committed ? ` sha=${(finished.commitSha as string)?.slice(0, 8)}` : ""}${integrationStatus ? ` integration=${integrationStatus}` : ""}${!currentHandoff.eligible ? ` handoff=incomplete blockers=${currentHandoff.blockers.join(",")}` : ""}${finished.worktreePreserved ? " preserved=uncommitted-recovery-candidate" : ""}`
       : recovery
-        ? `reason=${recovery.reason} record=${recovery.recordState} retry=parent-or-user automatic-restart=false worktree=${recovery.worktreePath ?? "-"}`
+        ? `reason=${recovery.reason} record=${recovery.recordState} retry=parent-or-user automatic-restart=false preservation=${recovery.preservationClass}`
         : `budget=${launch.budgetWallClockSeconds ?? "-"}s`;
     const identity = (launch.identity as string | undefined) ?? "?";
     const caller = (launch.caller as string | undefined) ?? "?";
@@ -971,9 +1010,9 @@ const main = async() => {
   // controlled worktree so it can inspect the actual uncommitted diff.
   const declaredTools = parseDeclaredTools(definition.tools, agentPath);
   if (!isEvidenceValidation && options.tools)
-    throw new Error(`--tools is not accepted; declare tools in agent front matter: ${agentPath}`);
+    throw new Error("--tools is not accepted; declare tools in agent front matter");
   if (!isEvidenceValidation && options.noTools)
-    throw new Error(`--no-tools is not accepted; declare the role's tool policy in agent front matter: ${agentPath}`);
+    throw new Error("--no-tools is not accepted; declare the role's tool policy in agent front matter");
   // Ordinary roles receive exactly the declared set. A missing declaration is
   // represented by an explicit empty capability set, never Pi defaults or an
   // identity-specific fallback.
@@ -1039,20 +1078,14 @@ const main = async() => {
 
   if (options.dryRun) {
     process.stdout.write(`${JSON.stringify({
-      command: piInvocation.command,
-      args: [
-        ...piInvocation.args,
-        ...baseArgs,
-        "--append-system-prompt",
-        "<private-agent-prompt>",
-        "Task: <provided>",
-      ],
-      cwd,
-      agent: agentPath,
+      command: "<private-command>",
+      args: baseArgs.map((value, index) => value === launchProfile.extensionPath || launchProfile.skills.includes(value) ? "<private-path>" : value).concat(["--append-system-prompt", "<private-agent-prompt>", "Task: <provided>"]),
+      cwd: "<private-project>",
+      agent: "<private-agent>",
       identity,
       caller,
       "parent-job-id": parentJobId,
-      skills: launchProfile.skills,
+      skills: launchProfile.skills.map(() => "<private-skill>"),
       model: model ?? null,
       provider: provider ?? null,
       thinking: thinking ?? null,
@@ -1065,8 +1098,8 @@ const main = async() => {
       budget,
       tracer: {
         backend: process.env.AS_IS_COMPONENT_BUILD_TRACER,
-        endpoint: process.env.AS_IS_COMPONENT_BUILD_TRACER_ENDPOINT ?? "",
-        directory: process.env.AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY ?? "",
+        endpoint: process.env.AS_IS_COMPONENT_BUILD_TRACER_ENDPOINT ? "<configured-endpoint>" : "",
+        directory: process.env.AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY ? "<private-directory>" : "",
       },
     }, null, 2)}\n`);
     await sessionSpan.finish("success", {
@@ -1181,7 +1214,7 @@ const main = async() => {
       launchedAt,
     };
     if (!options.noRegistry) await appendHandleToRegistry(handle);
-    process.stdout.write(`${JSON.stringify(handle, null, 2)}\n`);
+    process.stdout.write(`${JSON.stringify(projectPublicHandle(handle), null, 2)}\n`);
     await sessionSpan.finish("success", {
       sessionClass: options.noSession ? "ephemeral" : "durable",
       launcherMode: "detach",
@@ -1303,7 +1336,7 @@ const main = async() => {
 try {
   await main();
 } catch (error) {
-  process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
+  process.stderr.write(`${error instanceof Error ? error.message.replace(/(?:\/|[A-Za-z0-9._-]+[\\/])[^\s:]*/gu, "<private-path>") : "launcher unavailable"}\n`);
   process.stderr.write("Use --help for usage.\n");
   process.exitCode = 1;
 }

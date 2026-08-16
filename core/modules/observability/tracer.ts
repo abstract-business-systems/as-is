@@ -58,7 +58,7 @@ const allowedEventNames = new Set([
 ]);
 
 const approvedAttributeKeys = new Set([
-  "outcome", "bounded", "workerRole", "outcomeClass", "handoffClass", "launcherMode", "reason",
+  "outcome", "bounded", "workerRole", "outcomeClass", "handoffClass", "launcherMode", "reason", "phase",
   "duration_ms", "as_is.outcome", "as_is.run_id", "as_is.component_path", "as_is.task_revision",
   "as_is.role", "parentJobId",
 ]);
@@ -70,6 +70,7 @@ const stringDomains: Record<string, Set<string>> = {
   handoffClass: new Set(["committed", "pending-parent-integration", "not-committed", "no-separate-integration"]),
   launcherMode: new Set(["detach", "blocking"]),
   reason: new Set(["error", "cancelled", "unavailable", "rejected", "budget-stopped"]),
+  phase: new Set(["child-wait"]),
   "as_is.outcome": new Set(["success", "failure", "unspecified"]),
 };
 
