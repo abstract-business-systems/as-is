@@ -23,6 +23,12 @@ The smallest stable boundary is therefore an observation contract: an operation-
 
 Readiness is satisfied only when provider-free fixtures demonstrate launch admission, accepted launch observation, failure, cancellation or bounded recovery, stale-revision rejection, and unavailable host evidence while preserving the boundaries in the table. Until that evidence and consumer inventory are reviewed, the current document, task-control module, process adapter, Pi launcher, observability owners, and receiving builder retain their existing responsibilities.
 
+## Emitted Metadata Privacy
+
+Absolute filesystem paths are never emitted in logs, traces, registry events, handles, diagnostics, tool results, recovery observations, or other execution metadata. This prohibition also covers indirect filesystem identifiers: repository-relative component paths, worktree and session paths, task-record paths, log paths, configured tracer directories, and values nested inside arbitrary attributes or structured results. Internal filesystem operands may remain private implementation inputs, but an emitted result uses an opaque logical reference, approved non-path resource class, or bounded availability state instead. A value that cannot be proven safe is omitted or causes the bounded emission to fail closed; it is never serialized for convenience. This invariant is fixed safety policy and cannot be weakened by project configuration, host adapter, role, or diagnostic mode.
+
+The readiness inventory for enforcing this invariant is intentionally split by existing owner: the observability tracer owns common event-attribute filtering and external export; the launcher and recovery owner owns handles, registry records, lifecycle diagnostics, and recovery observations; evidence tools own session-analysis and trace-query result projection; and each host adapter owns only its own emitted surface. A future implementation task must preserve internal path use while proving direct, nested, configured-directory, and component-derived fixture coverage at each owner. No generic privacy authority or speculative cross-component framework is created by this contract.
+
 ## Authority And Context
 
 - The launching client's current working directory is the project-context

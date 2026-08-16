@@ -18,7 +18,11 @@ root `as-is.json`. `as-is.md` remains the human-facing durable component map.
 
 Runtime metadata is subordinate to repository records. It must not become a
 second configuration source, backlog, task tree, history, approval store, or
-completion authority.
+completion authority. Runtime metadata emission must also obey the fixed
+no-emitted-filesystem-path invariant: internal paths used to locate records,
+sessions, worktrees, logs, or configured sinks never appear in logs, traces,
+handles, diagnostics, tool results, or registry events, directly or through
+nested values.
 
 ## JSON Structure
 

@@ -89,6 +89,14 @@ choices. A lower-authority setting cannot weaken a higher-authority constraint.
   semantics independent of a particular agent host. A host adapter may map those
   contracts to agents, permissions, tools, sessions, and measurements, but may
   not redefine their authority or behavior.
+- **No emitted filesystem paths:** Never emit an absolute filesystem path, or an
+  indirectly identifying component, worktree, session, task-record, log, or
+  configured-directory path, through logs, traces, registry events, handles,
+  diagnostics, tool results, or other execution metadata. Keep filesystem
+  operands internal; use opaque logical references, approved resource classes,
+  or bounded unavailable results at emission boundaries. Treat nested and
+  configured values as equally sensitive and fail closed when safety cannot be
+  proven.
 - **Component maintenance:** Improve a component through a bounded maintenance
   skill that identifies stale, redundant, inconsistent, or unnecessarily
   nondeterministic work and selects the smallest supported improvement. Preserve

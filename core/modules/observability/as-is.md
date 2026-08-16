@@ -46,6 +46,10 @@ flowchart TD
   trace events alone.
 - Capture delegation lifecycle, worker outcomes, supervisor phases, handoffs,
   and opaque session correlation; never export session payloads.
+- Never emit absolute or indirectly identifying filesystem paths through trace
+  attributes or exported payloads. Filter direct and nested path-bearing values,
+  including configured directories and component-derived paths, before local or
+  external serialization; omit unsafe values or report bounded unavailability.
 
 ## Links
 
