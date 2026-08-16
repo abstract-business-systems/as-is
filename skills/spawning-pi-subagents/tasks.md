@@ -13,10 +13,10 @@ Implement the launcher-owned half of the root focused-check coordination task. A
 - Unrelated pre-existing launcher/process/usage-accounting edits are preserved outside this task and are not in scope.
 
 ## Validation
-Pending implementation and focused fail-closed tests.
+Focused extension validation passed after the fail-closed hardening: 4 tests with 20 expectations. Launcher validation passed: 51 tests with 322 expectations. The extension and launcher no-bundle Bun builds passed; task-record validation was `VALID`; content/navigation passed with 49 records and 47 diagrams; tracked JSON parsing passed; and `git diff --check` passed. Fresh final expert validation initially identified missing direct failure-state coverage; the follow-up classification seam and deterministic coverage were added in `fd1dd8f`. Unrelated pre-existing process/usage-accounting recovery files remain outside this child scope.
 
 ## Result
-Pending.
+Implementation and focused validation are complete. Pending final child expert revalidation and completion handoff.
 
 ## Blockers And Escalations
 The exact deterministic suite file set, fixed argv, timeout, output caps, and minimal environment must remain code-owned and parameterless. No generic command runner or caller-controlled selector is authorized.
@@ -25,4 +25,4 @@ The exact deterministic suite file set, fixed argv, timeout, output caps, and mi
 Checkpoint: active child task pair exists under the root coordinator. If implementation or validation fails, retain this task and the root backlog row, restore only this child scope, and do not expose a partial focused-check capability. No descendants are authorized.
 
 ## Next Action
-Implement the fixed extension capability and run focused validation.
+Obtain fresh final read-only expert validation against the committed child range, then complete the child handoff if it explicitly judges the child scope safe to integrate.
