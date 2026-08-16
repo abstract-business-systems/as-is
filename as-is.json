@@ -1,1 +1,94 @@
-{"configuration":{"records":{"filenames":{"backlog":"backlog.md","changelog":"changelog.md","task":"tasks.md"}},"tasks":{"unitBudget":{"wallClockSeconds":300,"costUsd":0.5}},"scheduling":{"wakeSeconds":60,"checkInSeconds":300,"maxConcurrentTasks":1,"retryBackoffSeconds":300,"maxRecoveryAttempts":2},"notifications":{"materialEvents":true},"agents":{"defaultRole":"as-is","defaultModel":"small","provider":"openrouter","models":{"small":"@preset/abs-small","medium":"@preset/abs-medium","large":"@preset/abs-large","xlarge":"@preset/abs-xlarge"}},"technology-preferences":{"runtime":"bun","package-manager":"bun"},"hitl":{"onBlocked":true,"onBudgetExceeded":true,"onExternalEffect":true},"logging":{"level":"info","retainDays":30},"observability":{"tracing":{"backend":"file","enabled":true,"local-directory":".as-is/tracing.jsonl"}},"security":{"emitted-paths":"prohibited"}}}
+{
+  "configuration": {
+    "records": {
+      "filenames": {
+        "backlog": "backlog.md",
+        "changelog": "changelog.md",
+        "task": "tasks.md"
+      }
+    },
+    "tasks": {
+      "unitBudget": {
+        "wallClockSeconds": 300,
+        "costUsd": 0.5
+      }
+    },
+    "scheduling": {
+      "wakeSeconds": 60,
+      "checkInSeconds": 300,
+      "maxConcurrentTasks": 1,
+      "retryBackoffSeconds": 300,
+      "maxRecoveryAttempts": 2
+    },
+    "notifications": {
+      "materialEvents": true
+    },
+    "agents": {
+      "defaultRole": "as-is",
+      "defaultModel": "small",
+      "provider": "openrouter",
+      "models": {
+        "small": "@preset/abs-small",
+        "medium": "@preset/abs-medium",
+        "large": "@preset/abs-large",
+        "xlarge": "@preset/abs-xlarge"
+      }
+    },
+    "technology-preferences": {
+      "runtime": "bun",
+      "package-manager": "bun"
+    },
+    "hitl": {
+      "onBlocked": true,
+      "onBudgetExceeded": true,
+      "onExternalEffect": true
+    },
+    "logging": {
+      "level": "info",
+      "retainDays": 30
+    },
+    "observability": {
+      "tracing": {
+        "backend": "file",
+        "enabled": true,
+        "local-directory": ".as-is/tracing.jsonl"
+      }
+    },
+    "security": {
+      "emitted-paths": "prohibited"
+    }
+  },
+  "task": {
+    "status": "active",
+    "worker": "as-is",
+    "updated": "2026-08-16T12:36:43Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.5,
+        "spent": 0,
+        "reserve": 0.1,
+        "source": "unavailable",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 300,
+          "spent-seconds": 0,
+          "reserve-seconds": 60,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "prohibited"
+    },
+    "acceptance": [
+      "Persist the revised restructuring priority in the owning backlogs without creating a duplicate master item.",
+      "Preserve component ownership and distinguish existing tools/modules from future browser/environment capabilities.",
+      "Validate backlog content, task records, navigation, JSON, whitespace, and final review."
+    ]
+  }
+}
