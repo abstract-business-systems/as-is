@@ -1,0 +1,7 @@
+# Evidence Tools Backlog
+
+Planning index for the `tools/evidence` component. Active work belongs to this component's configured task record; completed items are removed after their concise summary is recorded in `changelog.md`.
+
+| id | status | user preference | system preference | purpose | description | dependencies | acceptance | notes |
+| --- | --- | ---: | ---: | --- | --- | --- | --- | --- |
+| enforce-evidence-tool-emitted-path-policy | open | 3 | 3 | Prevent filesystem-path disclosure through evidence-tool results | Enforce the fixed emitted-path privacy policy at the evidence-tool result boundary for exact-ID session analysis and bounded trace queries while preserving private filesystem reads and read-only evidence semantics. | - | Provider-free fixtures prove that direct, nested, absolute, repository-relative, component-derived, configured-directory, worktree, session, task-record, log, and malformed path-bearing values do not appear in session summaries, entries, messages, full results, trace queries, or nested metadata; unsafe values are omitted or represented by bounded unavailable states; valid bounded evidence, scope isolation, paging, and role/tool filters remain passing. | Keep tracer filtering, launcher/recovery projections, process-adapter outputs, task authority, validation authority, and completion authority outside this task. Do not introduce a generic cross-component sanitizer. |
