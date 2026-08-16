@@ -88,7 +88,8 @@
     "acceptance": [
       "Coordinate sequential bounded process and launcher child tasks to complete the preserved usage-accounting dependency without changing task, budget, worktree, Git, handoff, completion, or host-authority boundaries.",
       "Capture bounded child stdout through the mechanical process boundary while preserving log/inherited-output behavior, and parse only secret-safe finite Pi usage/cost observations with explicit duplicate, malformed, truncated, and unavailable semantics.",
-      "Persist accounting only in private runtime evidence; public handles, registries, diagnostics, traces, and structured projections must not expose accounting paths, prompts, content, provider payloads, or raw usage records.",
+      "Remove caller-controlled accounting destinations; persist aggregate accounting only in a host-owned private restrictive-permission runtime directory that survives normal blocking and detached cleanup, while public handles, registries, diagnostics, traces, and structured projections expose no accounting paths, prompts, content, provider payloads, response identifiers, or raw usage records.",
+      "Treat unavailable or truncated stdout as unavailable or partial accounting rather than complete, reject or count invalid negative/nonfinite fields without coercing them to zero, and preserve unknown cost when any included record lacks a valid cost.",
       "Validate process and launcher behavior, clean-checkout builds, focused accounting/privacy/lifecycle tests, task-record/content/backlog/JSON/whitespace checks, and fresh read-only expert review before completion."
     ]
   }

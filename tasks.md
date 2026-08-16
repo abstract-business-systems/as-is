@@ -14,6 +14,8 @@ Complete the preserved bounded Pi usage-accounting dependency across the mechani
 - The committed launcher currently imports `./pi-usage-accounting.ts` and reads `stdoutText`, while those implementation files are preserved outside `HEAD`; a clean checkout is therefore currently incomplete until this task either completes that dependency or records a separately authorized rollback.
 - The preserved WIP is recovery evidence from `stash@{1}` and the new `stash@{0}`; it is not task authority and will be applied only within the bounded child scopes.
 - The permanent execution-accounting design remains the authoritative contract for path/revision/attempt identity, worker-subtree attribution, unavailable values, deduplication, and private runtime metadata.
+- Fresh expert plan review identified five required tightenings before launcher implementation: remove caller-controlled `--accounting-path`; pass stdout availability/truncation into accounting semantics; do not coerce invalid numeric fields to zero; retain private accounting beyond normal blocking cleanup; and omit response identifiers/raw provider content from all durable/public projections.
+- The process child completed in source commit `dd70662` and completion commit `4c264c8`; its bounded 4 MiB stdout observation is integrated in the root branch.
 
 ## Validation
 Pending child implementation and cross-component validation.
