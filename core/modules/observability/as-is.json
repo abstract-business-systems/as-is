@@ -1,0 +1,36 @@
+{
+  "task": {
+    "status": "active",
+    "worker": "component-builder",
+    "updated": "2026-08-16T11:22:00Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.5,
+        "spent": 0,
+        "reserve": 0.1,
+        "source": "unavailable",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 300,
+          "spent-seconds": 0,
+          "reserve-seconds": 60,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "prohibited"
+    },
+    "acceptance": [
+      "The observability tracer omits direct and nested filesystem-path values before local JSONL and OTLP serialization while preserving approved scalar metadata.",
+      "Provider-free focused fixtures cover absolute, repository-relative, component-derived, configured-directory, worktree, session, task-record, log, and nested path values, including fail-closed malformed or unsafe values.",
+      "Existing tracer and lifecycle behavior remains passing, telemetry failures remain isolated, and no task, process, launcher, evidence-tool, host-adapter, or generic privacy authority changes.",
+      "Validation and final expert review evidence are recorded before the exact backlog row and task artifacts are cleaned in the completion commit."
+    ]
+  }
+}
