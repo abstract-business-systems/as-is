@@ -1,5 +1,7 @@
 # Changelog
 
+- Completed `agents/evidence-validator` focused-check role alignment as a bounded role-contract and evidence-only update. Declared the fixed six-tool profile including parameterless `focused_check`, described its code-owned fixed-suite and no-arbitrary-execution boundary, and preserved task denial, read-only report semantics, caller-independent same-worktree/no-session host expectations, and launcher-owned enforcement. Provider-independent role coverage passed 5 tests with 49 expectations; task-record validation, content/navigation, tracked JSON parsing, and `git diff --check` passed. Fresh final read-only validation judged the exact four-file child handoff safe to commit. Provider/live execution remains explicitly untested; no launcher source or tests changed.
+
 - 2026-08-13: Aligned the durable evidence-validator record with the named-diagram convention. Added a bounded ELK/TB controlled-worktree validation view, retained nearby Parent navigation, and removed the routine test link while preserving the canonical role contract. No role behavior changed. The fixed-profile deterministic test, static record/link check, and `git diff --check` passed; provider-gated validation behavior and Mermaid rendering remain unexercised.
 
 - 2026-08-12: Added the durable Evidence Validator component record describing its bounded controlled-worktree validation boundary and direct links. No role behavior changed.
