@@ -6,7 +6,7 @@ import { emitTrace, otlpPayload, serializeSessionReference, startSpan, type Trac
 
 describe("universal local tracer", () => {
   test("serializes only an opaque session ID", () => {
-    expect(serializeSessionReference({ sessionId: "opaque-€" })).toEqual({ sessionId: "opaque-€" });
+    expect(serializeSessionReference({ sessionId: "opaque-session" })).toEqual({ sessionId: "opaque-session" });
     for (const invalid of [
       { sessionId: "a/b" },
       { sessionId: "a\\b" },
@@ -15,6 +15,8 @@ describe("universal local tracer", () => {
       { sessionId: "x".repeat(129) },
       { sessionId: "valid", store: "project-local" },
       { sessionId: "valid", content: "raw session" },
+      { sessionId: "opaque-€" },
+      { sessionId: "opaque session" },
     ]) expect(serializeSessionReference(invalid)).toBeUndefined();
   });
 
@@ -100,6 +102,116 @@ describe("universal local tracer", () => {
     clock = 17;
     await expect(span.finish("failure", { reason: "error" })).resolves.toBeUndefined();
     await expect(span.finish("success")).resolves.toBeUndefined();
+  });
+
+  test("projects unsafe event fields and nested path values out of both sinks", async () => {
+    const cwd = await mkdtemp(join(tmpdir(), "as-is-trace-privacy-"));
+    const tokens = {
+      absolute: "PRIVACY-ABSOLUTE-/home/private/project",
+      relative: "PRIVACY-RELATIVE-../component",
+      component: "PRIVACY-COMPONENT-components/example",
+      configured: "PRIVACY-CONFIGURED-.as-is/tracing.jsonl",
+      worktree: "PRIVACY-WORKTREE-/tmp/worktree",
+      session: "PRIVACY-SESSION-/sessions/private.jsonl",
+      task: "PRIVACY-TASK-/component/as-is.json",
+      log: "PRIVACY-LOG-/tmp/worker.log",
+    };
+    const event = {
+      name: "component-build.worker",
+      traceId: tokens.component,
+      spanId: "safe-span",
+      timestamp: "not-a-timestamp",
+      durationMs: Number.POSITIVE_INFINITY,
+      attributes: {
+        "safe-key": tokens.absolute,
+        outcome: "success",
+        "path-bearing-key-/tmp/log": "success",
+        "as_is.component_path": tokens.component,
+        nested: { absolute: tokens.absolute, task: tokens.task, configured: tokens.configured, log: tokens.log },
+        nestedArray: [tokens.worktree, tokens.session],
+        "as_is.task_revision": 2,
+      },
+      sessionReference: { sessionId: "opaque-session" },
+    } as unknown as TraceEvent;
+    await emitTrace(event, cwd, { backend: "file" });
+    const local = await readFile(join(cwd, ".as-is", "tracing.jsonl"), "utf8");
+    const payload = JSON.stringify(otlpPayload(event));
+    for (const token of Object.values(tokens)) {
+      expect(local).not.toContain(token);
+      expect(payload).not.toContain(token);
+    }
+    expect(local).toContain('"name":"unknown"');
+    expect(local).toContain('"outcome":"success"');
+    expect(local).toContain('"as_is.task_revision":2');
+    expect(payload).toContain('"session.id"');
+    expect(JSON.stringify(event)).toContain(tokens.absolute);
+  });
+
+  test("projects unlisted event names and invalid timestamps or durations safely", async () => {
+    const event = {
+      name: "supervisor.watchdog",
+      traceId: "trace-safe",
+      spanId: "span-safe",
+      timestamp: "2026-02-30T25:61:61Z",
+      durationMs: 86_400_001,
+      attributes: { outcome: "success" },
+    } as unknown as TraceEvent;
+    const payload = JSON.stringify(otlpPayload(event));
+    expect(payload).toContain('"name":"unknown"');
+    expect(payload).not.toContain("2026-02-30");
+    expect(payload).not.toContain("86400001");
+    const cwd = await mkdtemp(join(tmpdir(), "as-is-trace-duration-"));
+    await emitTrace(event, cwd, { backend: "file" });
+    const local = await readFile(join(cwd, ".as-is", "tracing.jsonl"), "utf8");
+    expect(local).not.toContain("2026-02-30");
+    expect(local).not.toContain("86400001");
+    expect(serializeSessionReference({ sessionId: "session/path" })).toBeUndefined();
+    expect(serializeSessionReference({ sessionId: "session id" })).toBeUndefined();
+  });
+
+  test("keeps valid bounded values, rejects malformed values, and does not mutate input", async () => {
+    const event = {
+      name: "worker.result",
+      traceId: "trace-safe",
+      spanId: "span-safe",
+      parentSpanId: "parent-safe",
+      timestamp: "2026-08-04T00:00:00.000Z",
+      durationMs: 4,
+      attributes: {
+        outcome: "failure",
+        bounded: true,
+        duration_ms: 4,
+        reason: "error",
+        invalidString: "omit-me",
+        invalidObject: { secret: "omit-me" },
+        invalidArray: ["omit-me"],
+        invalidNumber: Number.NaN,
+      },
+    } as unknown as TraceEvent;
+    const before = JSON.stringify(event);
+    const payload = JSON.stringify(otlpPayload(event));
+    expect(JSON.stringify(event)).toBe(before);
+    expect(payload).toContain("failure");
+    expect(payload).toContain("error");
+    expect(payload).toContain("4");
+    expect(payload).not.toContain("omit-me");
+    expect(payload).not.toContain("invalidString");
+    expect(payload).not.toContain("invalidObject");
+  });
+
+  test("isolates disabled and failing sinks", async () => {
+    const disabledCwd = await mkdtemp(join(tmpdir(), "as-is-trace-disabled-"));
+    await emitTrace({ name: "worker.result", traceId: "trace", spanId: "span", attributes: { outcome: "success" } }, disabledCwd, { backend: "disabled" });
+    await expect(readFile(join(disabledCwd, ".as-is", "tracing.jsonl"))).rejects.toBeTruthy();
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (async () => { throw new Error("sink down"); }) as typeof fetch;
+    try {
+      const span = startSpan("failed", { cwd: disabledCwd, emit: async () => { throw new Error("sink down"); } });
+      await expect(span.finish("failure", { reason: "error" })).resolves.toBeUndefined();
+      await expect(emitTrace({ name: "worker.result", traceId: "trace", spanId: "span", attributes: {} }, disabledCwd, { backend: "jaeger", endpoint: "http://127.0.0.1:1" })).resolves.toBeUndefined();
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
   });
 
   test("creates an OTLP-compatible span payload", () => {
