@@ -1,0 +1,36 @@
+{
+  "task": {
+    "status": "ready",
+    "worker": "component-builder",
+    "updated": "2026-08-16T18:33:54Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.5,
+        "spent": 0,
+        "reserve": 0.1,
+        "source": "unavailable",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 300,
+          "spent-seconds": 0,
+          "reserve-seconds": 60,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "prohibited"
+    },
+    "acceptance": [
+      "Reconcile the stale generic-agent-specialization umbrella into independently bounded, sequenced future work without activating any migration implementation.",
+      "Record durable evidence that component-builder extraction is already completed and preserve the Phase 0 then Phase 1 sequencing requirement before later per-agent migrations.",
+      "Keep agent role contracts, reusable skills, task authority, routing, delegation, runtime behavior, and child component records unchanged.",
+      "Focused backlog/content checks, task-record validation, JSON parsing, and whitespace checks pass."
+    ]
+  }
+}
