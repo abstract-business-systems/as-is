@@ -1,12 +1,28 @@
 {
   "task": {
-    "status": "active",
+    "status": "cancelled",
     "worker": "component-builder",
-    "updated": "2026-08-16T21:02:43Z",
+    "updated": "2026-08-16T21:21:01Z",
     "constraints": {
-      "cost": { "currency": "USD", "allocated": 0.4, "spent": 0, "reserve": 0.08, "source": "host-forwarded" },
-      "delegation": { "maximum-depth": 0, "maximum-children": 0 },
-      "execution": { "wall-clock": { "allocated-seconds": 180, "spent-seconds": 0, "reserve-seconds": 36, "source": "host-forwarded" } },
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.4,
+        "spent": 0,
+        "reserve": 0.08,
+        "source": "host-forwarded"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 180,
+          "spent-seconds": 0,
+          "reserve-seconds": 36,
+          "source": "host-forwarded"
+        }
+      },
       "external-effects": "prohibited"
     },
     "acceptance": [

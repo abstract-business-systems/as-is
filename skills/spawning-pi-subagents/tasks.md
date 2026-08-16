@@ -19,13 +19,17 @@ The selected row is `dynamic-expert-validation-access`. Existing evidence confir
 - Residual risk: no live provider-backed validation invocation; current evidence is static/dry-run and focused tests are not enabled live.
 
 ## Result
-Blocked. The existing fixed capability proves bounded attributable Git evidence and non-mutation, but does not prove execution/attestation of focused checks required by the backlog acceptance. Therefore do not remove the backlog row, do not claim completion, and do not alter runtime or tests.
+Cancelled and superseded. The existing fixed capability proves bounded attributable Git evidence and non-mutation, but does not prove execution/attestation of focused checks required by the backlog acceptance. The requested implementation necessarily crosses the launcher skill and `agents/evidence-validator` role boundaries, so this documentation-only task does not remove the backlog row or alter runtime, capability, role, or test behavior.
 
 ## Blockers And Escalations
 The required expert plan gate failed on the acceptance gap. To proceed, task authority must explicitly narrow the acceptance to bounded Git evidence or authorize a separate bounded focused-check evidence mechanism and coverage; neither is authorized here. The current task therefore remains blocked and is not eligible for completion or backlog cleanup.
 
 ## Recovery
-Preserved `skills/spawning-pi-subagents/backlog.md` row and active task artifacts. Recovery starts by resolving the acceptance decision; no runtime or capability changes were made. No descendants were authorized or present.
+Preserved `skills/spawning-pi-subagents/backlog.md` row and cancelled task artifacts for supersession evidence. A new root-coordinated task must authorize the cross-component focused-check mechanism before any implementation changes. If that task is not authorized, retain this cancellation and the backlog row; do not infer completion or restore active status.
+
+## Control Plane
+
+- control-plane: {"checkpoint":"2026-08-16T21:21:01Z","event":"cancellation","reason":"Superseded by a separately bounded root-coordinated implementation task: focused-check capability changes cross the launcher skill and evidence-validator role boundaries, while this task only authorized documentation reconciliation.","status-before":"active"}
 
 ## Next Action
-Obtain an explicit task-authority decision to narrow the acceptance to the proven bounded Git evidence capability or create a separately authorized focused-check mechanism task. Until then, preserve the active task pair and backlog row; do not modify runtime, capability, role, or test behavior.
+Create and select a root-coordinated implementation task with separately bounded launcher and evidence-validator role changes, or leave this backlog item deferred/open. Do not reactivate this cancelled documentation-only task.
