@@ -5,13 +5,18 @@ description: Creates a scoped Git commit for a completed as-is task without stag
 
 # Committing Completed Work
 
-Commit a completed task's durable handoff as the second of two reviewable,
-recoverable Git changes. The first task-start handoff commits the selected
-backlog status and active task metadata/narrative. After validation, this
-completion handoff commits the owning changelog summary, exact evidence-gated
-backlog-row removal, and configured task-artifact cleanup together. This skill
-is a completion procedure, not permission to commit partial, unrelated, or
-unvalidated work.
+Use this procedure to prepare and commit an authorized completed task's
+ durable handoff as the second of two reviewable, recoverable Git changes. The
+first task-start handoff commits the selected backlog status and active task
+metadata/narrative. After validation, this completion handoff commits the
+owning changelog summary, exact evidence-gated backlog-row removal, and
+configured task-artifact cleanup together. This procedure supplies commit
+mechanics and evidence gates; it does not grant commit authority, decide
+semantic completion, or permit partial, unrelated, or unvalidated work.
+
+## Inputs And Stopping
+
+Inputs are the authorized completed task record, declared changed artifacts, validated evidence, exact selected backlog identity, and a cleanly separable scoped diff. Outputs are one reviewed completion patch or a recorded commit blocker and recovery action. This procedure stops when the patch is safely committed or when a precondition, scope, staging, or commit gate fails; it does not infer completion.
 
 ## Preconditions
 
@@ -36,26 +41,28 @@ unvalidated work.
    the blocker, and request the responsible component-builder's direction.
 4. Run the smallest relevant validation, then verify the proposed staged patch
    with `git diff --cached --check`.
-5. Set the local JSON `task` object to `completed`, write its concise summary
-   to `changelog.md`, and prepare the exact selected backlog cleanup. Stage the
-   changelog summary, exact backlog-row removal, task metadata/narrative
-   cleanup, and declared durable handoff as the second completion patch. Verify
-   the complete staged patch and create one concise completion commit matching
-   established repository style; do not create a task-deletion-only or
-   backlog-clearance-only commit. If staging or commit fails, restore the task
-   and backlog to a recoverable non-terminal/unreconciled state before retrying.
+5. After the authorized task manager verifies acceptance and descendant
+   closure, it sets the local JSON `task` object to `completed`; the worker
+   writes its concise summary to `changelog.md`, and task management prepares
+   the exact selected backlog cleanup. Stage the changelog summary, exact
+   backlog-row removal, task metadata/narrative cleanup, and declared durable
+   handoff as the second completion patch. Verify the complete staged patch and
+   create one concise completion commit matching established repository style;
+   do not create a task-deletion-only or backlog-clearance-only commit. If
+   staging or commit fails, restore the task and backlog to a recoverable
+   non-terminal/unreconciled state before retrying.
    When consolidating
    related local handoff commits, preserve their full source SHAs in the task
    evidence or commit message and record the resulting integration SHA in the
    durable parent task/changelog evidence after the commit exists; never attempt
    self-referential inclusion of the new commit's own SHA.
-6. Before the second commit, invoke the owning backlog procedure with the
-   exact selected identity and require its changelog-evidence result. Apply
-   only the selected row removal to the completion patch; verify that the
-   result names that exact `component:id`, and leave failed, blocked, or
-   otherwise unreconciled rows untouched. Review any additional reported rows
-   separately; cleanup is evidence-gated and is not authorization to infer
-   completion.
+6. Before the second commit, have authorized task management invoke the
+   owning backlog procedure with the exact selected identity and require its
+   changelog-evidence result. Apply only the selected row removal to the
+   completion patch; verify that the result names that exact `component:id`,
+   and leave failed, blocked, or otherwise unreconciled rows untouched. Review
+   any additional reported rows separately; cleanup is evidence-gated and is
+   not authorization to infer completion.
 7. Reinspect the complete staged completion patch, commit once, then verify
    the second commit contains the changelog summary, exact backlog removal, and
    task cleanup together. Report both the task-start and completion commit

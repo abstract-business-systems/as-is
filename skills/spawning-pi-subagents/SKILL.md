@@ -26,11 +26,13 @@ The launcher accepts:
   `.agents/agents` tree is reserved for client-host projection semantics;
 - one task string;
 - the repository working directory;
-- optional Pi model, thinking level, approval, and host skill settings; the
-  future migration target is globally available skills rather than
+- optional Pi model, thinking level, approval, and host skill settings. The
+  current adapter accepts explicit skill paths and forwards agent-front-matter
+  `skills:` paths as compatibility inputs; this task does not change or remove
+  that behavior. Those paths do not select a role, grant authority, or authorize
+  launch. The future migration target is globally available skills without
   agent-front-matter skill selection. Ordinary tool admission comes only from
-  the selected agent
-  file's `tools:` front matter;
+  the selected agent file's `tools:` front matter;
 - optional wall-clock and monetary-cost budget constraints.
 
 ### Budget Surface
@@ -80,6 +82,10 @@ The launcher does not read model or provider policy from OpenCode configuration
 or environment variables; those are not system configuration sources.
 OpenCode-specific front matter such as `permission:` is not a Pi permission
 mechanism; explicit Pi approval flags remain host controls.
+
+## Inputs, Outputs, And Stopping
+
+Inputs are an authorized role target, task direction, repository working directory, effective host settings, and approved budget constraints. Outputs are a bounded launch result, observation handle, or recorded recovery candidate; they are observations and do not grant task, role, retry, integration, or completion authority. The procedure stops when preflight, launch, budget, or recovery conditions fail, or when the bounded launch/observation result is returned; it does not infer completion from process exit.
 
 ## Invocation
 
@@ -251,15 +257,17 @@ respect to task records and processes, and never contacts a provider.
   operations; it has no shell or write path. Caller and parent metadata are
   diagnostic only and do not authorize or reject the target.
 - Pass the child its role contract, task-specific direction, named
-  dependencies, and centrally supplied repository context. The current
-  adapter still supports explicit/front-matter skill paths as a compatibility
-  surface; the separation migration must remove that selection mechanism
-  before role downsizing relies on global skill availability. Do not copy an
-  unrelated root record or private runtime state into the prompt.
+  dependencies, and centrally supplied repository context. The current adapter
+  still supports explicit and agent-front-matter skill paths as a compatibility
+  surface; this forwarding remains unchanged and does not transfer role or task
+  authority into a skill. A later, separately authorized adapter migration must
+  remove that selection mechanism before role downsizing relies on global skill
+  availability. Do not copy an unrelated root record or private runtime state
+  into the prompt.
 - Use `--approve` only when project-local files are explicitly trusted for that
   attempt. Do not place credentials or tokens in task arguments, task files, or
   output.
-- The launcher uses `--mode json` and `--print`; sessions are durable by default under the supervisor job directory, with `--no-session` providing ephemeral runs. The owning skill package supplies its Pi extension and dependencies through the supported package mechanism. The current adapter forwards explicit and agent-front-matter skill paths as a compatibility surface; the migration target is global skill availability, with no agent-front-matter selection or allowlist. The `analyze_session` tool uses the effective user's readable project-local session store, including the forwarded store scope for isolated children; it remains exact-ID, bounded, read-only metadata inspection and does not require tracer approval. It resolves model presets and providers from root `as-is.json`, passing explicit `--provider` and `--model`, and uses a shell-free child
+- The launcher uses `--mode json` and `--print`; sessions are durable by default under the supervisor job directory, with `--no-session` providing ephemeral runs. The owning skill package supplies its Pi extension and dependencies through the supported package mechanism. The current adapter forwards explicit and agent-front-matter skill paths as an unchanged compatibility surface; these paths do not grant skill-owned selection or authority. The migration target is global skill availability without agent-front-matter selection or allowlist, and requires a later separately authorized adapter change. The `analyze_session` tool uses the effective user's readable project-local session store, including the forwarded store scope for isolated children; it remains exact-ID, bounded, read-only metadata inspection and does not require tracer approval. It resolves model presets and providers from root `as-is.json`, passing explicit `--provider` and `--model`, and uses a shell-free child
   process, and a private temporary system-prompt file. In both blocking and
   detach modes the child runs under a detached bounded job runner that is the
   child's direct parent, in an isolated git worktree pruned from the caller's

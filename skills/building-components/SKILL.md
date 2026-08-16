@@ -23,12 +23,11 @@ The component directory is the default read/write boundary. Read outside it
 only for dependencies explicitly named by the requirement. Machine task state
 and budget observations remain authoritative in the component `as-is.json`
 `task` object; human task context and evidence remain in the configured Markdown
-narrative. The builder owns the operational relationship with descendants: it
-decides when a
-child boundary requires handoff, supplies explicit linked context, and verifies
-child closure without taking ownership of the child's files or records.
+narrative. The authorized builder owns the operational relationship with descendants: it decides when a child boundary requires handoff, supplies explicit linked context, and verifies child closure without taking ownership of the child's files or records.
 
 ## Procedure
+
+This procedure supplies reusable build steps and evidence requirements to an already-authorized role or orchestrator. It does not select a role, grant access, authorize a task transition, launch or delegate work, integrate a child, or decide semantic completion. The caller supplies the component boundary, task authority, configured worker, effective constraints, and any required approvals; the caller or task manager performs those authority-bearing actions.
 
 1. Read `as-is.md`, the current task, and named dependencies. Apply
    `context-building` to assemble the smallest decision-ready context set:
@@ -39,13 +38,12 @@ child closure without taking ownership of the child's files or records.
    is not task authority, access permission, or an instruction to expand scope.
    Advance the task to `active` and record the scope, changed-artifact
    expectation, constraints, dependencies, recovery checkpoint, and acceptance
-   mapping. Use `managing-as-is-document` when creating or changing the durable
-   record; that skill owns record structure and link declarations, while this
-   skill owns how a builder consumes the resulting context.
-2. Formulate a minimal implementation plan and obtain the required read-only
-   expert plan review before editing. Revise the plan or record a durable
-   blocker when review fails.
-3. Implement only the bounded requirement. Apply
+   mapping. The authorized worker advances the task to `active` through task
+   management. Use `managing-as-is-document` when creating or changing the
+   durable record; that skill owns record structure and link declarations,
+   while this skill owns how a builder consumes the resulting context.
+2. Formulate a minimal implementation plan and have the authorized role obtain the required read-only expert plan review before editing. Revise the plan or record a durable blocker when review fails.
+3. Have the authorized worker implement only the bounded requirement. Apply
    `implementing-component-tasks` for task-record lifecycle, child boundaries,
    progress, and changelog preparation. When the component's `as-is.md`
    contains explicit links relevant to the task, consume them through the
@@ -61,16 +59,18 @@ child closure without taking ownership of the child's files or records.
    relevant durable `as-is.md` record(s) in the same scoped handoff; do not
    defer those updates as optional documentation cleanup.
 4. If work crosses into a descendant with its own `as-is.md`, stop at that
-   boundary and delegate through the configured component-builder role. Before
-   launch, record the child relationship and explicit context handoff in the
-   child record or its links; do not rely on the parent record being ambient.
-   Verify the child record revision, available budget, and absence of an active
-   attempt before launch; forward approved budgets and preserve the child
-   handoff. A child owns only its own component files and record: it must not
-   edit parent records, parent budgets, or parent status. Budget exhaustion is
-   recorded as a child request/blocker for parent reconciliation. Skills
-   provide no delegation authority.
-5. Select and run the smallest relevant checks using
+   boundary. The authorized builder decides whether to delegate through the
+   configured component-builder role and, if authorized, records the child
+   relationship and explicit context handoff in the child record or its links;
+   do not rely on the parent record being ambient. The authorized caller
+   verifies the child record revision, available budget, and absence of an
+   active attempt before launch, then forwards approved budgets and preserves
+   the child handoff. A child owns only its own component files and record: it
+   must not edit parent records, parent budgets, or parent status. Budget
+   exhaustion is recorded as a child request/blocker for parent reconciliation.
+   This procedure supplies the handoff mechanics; it does not authorize
+   delegation.
+5. Have the authorized worker select and run the smallest relevant checks using
    `verification-discipline`. Behavioral tests of the affected agent and skill
    contracts are the primary regression anchor: run existing relevant tests
    before and after behavior-affecting work, and add or update focused
@@ -79,16 +79,25 @@ child closure without taking ownership of the child's files or records.
    risk, cumulative cost and wall-clock observations, and recovery state in the
    configured Markdown task narrative; update machine observations in the local
    `as-is.json` `task` object.
-6. After checks pass, obtain a fresh read-only expert validation of the actual
-   diff and evidence. The validation must explicitly say whether the change is
-   safe to commit. Do not commit on a failed or unavailable required gate.
-7. When the task and all descendants are terminal, write the concise durable
-   summary to `changelog.md`, remove the configured Markdown task narrative
-   through task management, and
-   invoke `committing-completed-work`. Stage only the declared component
-   handoff and create one scoped commit; leave unrelated work untouched.
+6. After checks pass, have the authorized worker or orchestrator obtain a fresh
+   read-only expert validation of the actual diff and evidence. The validation
+   must explicitly say whether the change is safe to commit. Do not commit on a
+   failed or unavailable required gate.
+7. When the authorized task manager verifies that the task and all descendants
+   are terminal, it writes the concise durable summary to `changelog.md`,
+   removes the configured Markdown task narrative, and invokes
+   `committing-completed-work`. The completion procedure stages only the
+   declared component handoff and creates one scoped commit; unrelated work
+   remains untouched.
 
 ## Outputs
+
+Inputs are the assigned component context, current task authority, named
+constraints and dependencies, and any approved read-only context. Outputs are
+validated evidence, a durable handoff or a recorded blocker, and the explicit
+recovery next action. The procedure stops when the bounded requirement is
+validated and handed back to the caller, or when a failed gate, blocker, or
+recovery condition is recorded; it does not infer completion from process exit.
 
 A completed handoff consists of:
 
