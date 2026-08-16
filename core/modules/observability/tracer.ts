@@ -50,6 +50,7 @@ const RETENTION_DAYS = 7;
 const MAX_FILES = 5;
 const MAX_CORRELATION_LENGTH = 128;
 const MAX_DURATION_MS = 86_400_000;
+const OTLP_EXPORT_TIMEOUT_MS = 1_000;
 const UNKNOWN = "unknown";
 
 const allowedEventNames = new Set([
@@ -375,11 +376,19 @@ export async function emitTrace(event: TraceEvent, cwd: string, config?: TracerC
       return;
     }
     if (backend === "jaeger" || backend === "phoenix") {
-      await fetch(resolved.endpoint ?? defaultEndpoint, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(otlpPayload(record)),
-      });
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), OTLP_EXPORT_TIMEOUT_MS);
+      try {
+        const response = await fetch(resolved.endpoint ?? defaultEndpoint, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(otlpPayload(record)),
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error(`telemetry endpoint returned ${response.status}`);
+      } finally {
+        clearTimeout(timeout);
+      }
     }
   } catch {
     // Telemetry failures never alter execution.

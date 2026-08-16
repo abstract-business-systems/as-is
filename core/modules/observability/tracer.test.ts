@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { createServer } from "node:http";
 import { mkdir, mkdtemp, readFile, readdir, stat, utimes, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -197,6 +198,57 @@ describe("universal local tracer", () => {
     expect(payload).not.toContain("omit-me");
     expect(payload).not.toContain("invalidString");
     expect(payload).not.toContain("invalidObject");
+  });
+
+  test("posts the bounded OTLP payload and isolates unsuccessful responses", async () => {
+    const cwd = await mkdtemp(join(tmpdir(), "as-is-trace-http-"));
+    const requests: Array<{ method?: string; url?: string; headers: Record<string, string | string[] | undefined>; body: string }> = [];
+    const server = createServer((request, response) => {
+      const chunks: Buffer[] = [];
+      request.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
+      request.on("end", () => {
+        requests.push({ method: request.method, url: request.url, headers: request.headers, body: Buffer.concat(chunks).toString("utf8") });
+        response.statusCode = request.url === "/unavailable" ? 503 : 200;
+        response.end();
+      });
+    });
+    await new Promise<void>((resolveServer) => server.listen(0, "127.0.0.1", resolveServer));
+    const address = server.address();
+    if (!address || typeof address === "string") throw new Error("stub address unavailable");
+    try {
+      await emitTrace({ name: "reference", traceId: "trace", spanId: "span", attributes: { outcome: "success", "as_is.component_path": "/private/path", reason: "error" }, sessionReference: { sessionId: "opaque-session" } }, cwd, { backend: "jaeger", endpoint: `http://127.0.0.1:${address.port}/traces` });
+      await emitTrace({ name: "reference", traceId: "trace", spanId: "span-invalid", attributes: { outcome: "success", "as_is.component_path": "CONTENT-SENTINEL-/private/content" }, sessionReference: { sessionId: "session/path" } }, cwd, { backend: "jaeger", endpoint: `http://127.0.0.1:${address.port}/traces` });
+      await emitTrace({ name: "reference", traceId: "trace", spanId: "span-2", attributes: { outcome: "success" } }, cwd, { backend: "jaeger", endpoint: `http://127.0.0.1:${address.port}/unavailable` });
+      expect(requests).toHaveLength(3);
+      expect(requests[0].method).toBe("POST");
+      expect(requests[0].url).toBe("/traces");
+      expect(requests[0].headers["content-type"]).toBe("application/json");
+      expect(requests[0].body).toContain('"service.name"');
+      expect(requests[0].body).toContain('"session.id"');
+      expect(requests[0].body).toContain("opaque-session");
+      expect(requests[0].body).not.toContain("/private/path");
+      expect(requests[0].body).not.toContain("CONTENT-SENTINEL");
+      expect(requests[1].body).not.toContain("session/path");
+      expect(requests[1].body).not.toContain("CONTENT-SENTINEL");
+    } finally {
+      await new Promise<void>((resolveServer, reject) => server.close((error) => error ? reject(error) : resolveServer()));
+    }
+  });
+
+  test("bounds delayed OTLP export and isolates refused endpoints", async () => {
+    const cwd = await mkdtemp(join(tmpdir(), "as-is-trace-http-timeout-"));
+    const server = createServer((_request, response) => setTimeout(() => response.end(), 1_500));
+    await new Promise<void>((resolveServer) => server.listen(0, "127.0.0.1", resolveServer));
+    const address = server.address();
+    if (!address || typeof address === "string") throw new Error("stub address unavailable");
+    try {
+      const started = Date.now();
+      await expect(emitTrace({ name: "reference", traceId: "trace", spanId: "span", attributes: {} }, cwd, { backend: "jaeger", endpoint: `http://127.0.0.1:${address.port}/slow` })).resolves.toBeUndefined();
+      expect(Date.now() - started).toBeLessThan(1_400);
+    } finally {
+      await new Promise<void>((resolveServer, reject) => server.close((error) => error ? reject(error) : resolveServer()));
+    }
+    await expect(emitTrace({ name: "reference", traceId: "trace", spanId: "refused", attributes: {} }, cwd, { backend: "jaeger", endpoint: "http://127.0.0.1:1/refused" })).resolves.toBeUndefined();
   });
 
   test("isolates disabled and failing sinks", async () => {
