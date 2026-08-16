@@ -1,0 +1,36 @@
+{
+  "task": {
+    "status": "active",
+    "worker": "component-builder",
+    "updated": "2026-08-16T18:49:04Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.5,
+        "spent": 0,
+        "reserve": 0.1,
+        "source": "unavailable",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 300,
+          "spent-seconds": 0,
+          "reserve-seconds": 60,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "prohibited"
+    },
+    "acceptance": [
+      "Inventory every tracked agent role, reusable skill, launcher entry point, host projection, role or delegation reference, and authority seam in source-based scope with owner, repository-relative source path, classification, and ambiguity or blocker disposition.",
+      "Record decisions or blockers for ambiguous ownership while preserving task-record authority, component boundaries, configured worker identity, expert gates, no-secrets policy, and runtime-observation limits.",
+      "Do not change role contracts, reusable skills, routing, delegation, launchers, host projections, task protocol, capability admission, tests, or runtime behavior.",
+      "Focused source/content and inventory checks, task-record validation, JSON parsing, and git diff --check pass; completion evidence is recorded before exact backlog and task-artifact cleanup."
+    ]
+  }
+}
