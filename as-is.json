@@ -57,5 +57,39 @@
     "security": {
       "emitted-paths": "masked-runtime-references"
     }
+  },
+  "task": {
+    "status": "active",
+    "worker": "component-builder",
+    "updated": "2026-08-16T22:54:36Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.8,
+        "spent": 0,
+        "reserve": 0.16,
+        "source": "host-forwarded",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 1,
+        "maximum-children": 2
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 600,
+          "spent-seconds": 0,
+          "reserve-seconds": 120,
+          "source": "host-forwarded"
+        }
+      },
+      "external-effects": "prohibited"
+    },
+    "acceptance": [
+      "Coordinate sequential bounded process and launcher child tasks to complete the preserved usage-accounting dependency without changing task, budget, worktree, Git, handoff, completion, or host-authority boundaries.",
+      "Capture bounded child stdout through the mechanical process boundary while preserving log/inherited-output behavior, and parse only secret-safe finite Pi usage/cost observations with explicit duplicate, malformed, truncated, and unavailable semantics.",
+      "Persist accounting only in private runtime evidence; public handles, registries, diagnostics, traces, and structured projections must not expose accounting paths, prompts, content, provider payloads, or raw usage records.",
+      "Validate process and launcher behavior, clean-checkout builds, focused accounting/privacy/lifecycle tests, task-record/content/backlog/JSON/whitespace checks, and fresh read-only expert review before completion."
+    ]
   }
 }
