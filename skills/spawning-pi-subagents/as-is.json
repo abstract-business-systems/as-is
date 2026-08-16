@@ -9,7 +9,8 @@
         "allocated": 0.4,
         "spent": 0,
         "reserve": 0.08,
-        "source": "host-forwarded"
+        "source": "host-forwarded",
+        "fallback-metric": "validation elapsed-seconds"
       },
       "delegation": {
         "maximum-depth": 0,
