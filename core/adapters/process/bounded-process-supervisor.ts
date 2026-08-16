@@ -13,12 +13,17 @@ export type BoundedProcessRequest = {
   phaseTimings: Record<string, number>;
 };
 
+export const MAX_CAPTURED_STDOUT_BYTES = 4 * 1024 * 1024;
+
 export type BoundedProcessResult = {
   childPid: number;
   exitCode: number;
   budgetStopped: boolean;
   budgetStopElapsedMs: number | null;
   wallClockSeconds: number;
+  stdoutText: string;
+  stdoutAvailable: boolean;
+  stdoutTruncated: boolean;
 };
 
 function phaseStarted(): number {
@@ -48,9 +53,37 @@ export async function runBoundedProcess(request: BoundedProcessRequest): Promise
     env: request.env,
     shell: false,
     detached: true,
-    stdio: logFile ? ["ignore", logFile.fd, logFile.fd] : ["ignore", "inherit", "inherit"],
+    stdio: logFile ? ["ignore", "pipe", logFile.fd] : ["ignore", "pipe", "inherit"],
   });
   const childPid = child.pid as number;
+  let stdoutAvailable = child.stdout !== null;
+  let stdoutTruncated = false;
+  let capturedStdoutBytes = 0;
+  const capturedStdout: Buffer[] = [];
+  let logWrite = Promise.resolve();
+  const observeStdout = (chunk: Buffer | string): void => {
+    const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+    if (capturedStdoutBytes < MAX_CAPTURED_STDOUT_BYTES) {
+      const remaining = MAX_CAPTURED_STDOUT_BYTES - capturedStdoutBytes;
+      const captured = buffer.subarray(0, remaining);
+      if (captured.length > 0) {
+        capturedStdout.push(captured);
+        capturedStdoutBytes += captured.length;
+      }
+      if (captured.length < buffer.length) stdoutTruncated = true;
+    } else if (buffer.length > 0) {
+      stdoutTruncated = true;
+    }
+    if (logFile) {
+      logWrite = logWrite.then(() => logFile.write(buffer)).then(() => undefined).catch(() => undefined);
+    } else {
+      process.stdout.write(buffer);
+    }
+  };
+  if (child.stdout) {
+    child.stdout.on("data", observeStdout);
+    child.stdout.once("error", () => { stdoutAvailable = false; });
+  }
   phaseEnded(request.phaseTimings, "child-spawn", spawnPhase);
 
   const signalGroup = (signal: NodeJS.Signals): void => {
@@ -97,6 +130,7 @@ export async function runBoundedProcess(request: BoundedProcessRequest): Promise
   clearTimers();
   process.removeListener("SIGTERM", onTerm);
   process.removeListener("SIGINT", onInt);
+  await logWrite;
   await logFile?.close().catch(() => undefined);
 
   return {
@@ -105,5 +139,8 @@ export async function runBoundedProcess(request: BoundedProcessRequest): Promise
     budgetStopped,
     budgetStopElapsedMs,
     wallClockSeconds: (Date.now() - request.startedAtMs) / 1000,
+    stdoutText: Buffer.concat(capturedStdout).toString("utf8"),
+    stdoutAvailable,
+    stdoutTruncated,
   };
 }

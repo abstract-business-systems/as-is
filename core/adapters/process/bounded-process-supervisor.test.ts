@@ -27,7 +27,34 @@ test("bounded process boundary captures detached output and returns before no-bu
     expect(result.childPid).toBeGreaterThan(0);
     expect(phaseTimings["child-spawn"]).toBeGreaterThanOrEqual(0);
     expect(phaseTimings["child-wait"]).toBeGreaterThanOrEqual(0);
+    expect(result.stdoutAvailable).toBe(true);
+    expect(result.stdoutTruncated).toBe(false);
+    expect(result.stdoutText).toContain("bounded-process");
     expect(await readFile(logPath, "utf8")).toContain("bounded-process");
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test("bounded process boundary caps captured stdout without changing log output", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "as-is-bounded-process-capture-"));
+  try {
+    const phaseTimings: Record<string, number> = {};
+    const result = await runBoundedProcess({
+      command: process.execPath,
+      args: ["-e", "process.stdout.write('x'.repeat(5 * 1024 * 1024));"],
+      cwd: directory,
+      env: process.env,
+      logPath: null,
+      budgetWallClockSeconds: null,
+      killGraceSeconds: 1,
+      startedAtMs: Date.now(),
+      phaseTimings,
+    });
+    expect(result.exitCode).toBe(0);
+    expect(result.stdoutAvailable).toBe(true);
+    expect(result.stdoutText.length).toBe(4 * 1024 * 1024);
+    expect(result.stdoutTruncated).toBe(true);
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
@@ -51,6 +78,8 @@ test("bounded process boundary owns the wall-clock stop without task interpretat
     expect(result.budgetStopped).toBe(true);
     expect(result.budgetStopElapsedMs).toBeGreaterThanOrEqual(40);
     expect(result.exitCode).not.toBe(0);
+    expect(result.stdoutAvailable).toBe(true);
+    expect(result.stdoutTruncated).toBe(false);
     expect(phaseTimings["budget-stop"]).toBe(result.budgetStopElapsedMs);
   } finally {
     await rm(directory, { recursive: true, force: true });
