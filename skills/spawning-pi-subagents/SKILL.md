@@ -68,7 +68,10 @@ any agent that declares `call_subagent` may target any canonical
 lineage are diagnostic metadata rather than authorization gates. Target
 contracts and host safety profiles still apply. The `expert` validation role is
 the sole launcher-owned capability exception and always receives the fixed
-read-only `read,grep,find,ls,git_inspect` profile. Model policy is resolved from
+read-only `read,grep,find,ls,git_inspect,focused_check` profile. `focused_check`
+is parameterless and code-owned: it runs only the fixed local deterministic
+suite and never accepts a command, path, argument, environment, provider,
+session, or working-directory selector. Model policy is resolved from
 root `as-is.json` `configuration.agents`: `defaultModel`, `provider`, and the
 named `models` map. Thinking policy accepts `off`, `minimal`, `low`, `medium`,
 `high`, `xhigh`, and `max`; it resolves explicit launcher override, then agent
@@ -334,9 +337,10 @@ repository's existing agent definitions as the source of role prompts.
 The launcher supports a syntax/build check and an optional dry-run inspection
 that does not contact a provider. Expert validation is same-worktree by design
 so it can inspect the builder's uncommitted state; it never persists raw
-sessions. The fixed inspection extension executes only allowlisted `git`
-queries and caps output; unsupported operations and mutation-capable tools are
-not exposed. When using `--dry-run`, confirm that it names
+sessions. The fixed inspection extension executes only allowlisted `git` queries and the
+parameterless code-owned focused suite with bounded output and timeout;
+unsupported operations, caller-selected test inputs, and mutation-capable tools
+are not exposed. When using `--dry-run`, confirm that it names
 the expected agent file, repository directory, Pi executable, system-prompt
 handoff, and task. When budgets are supplied, confirm the dry-run `budget`
 object records the forwarded `wall-clock-seconds` and `cost-usd` values.

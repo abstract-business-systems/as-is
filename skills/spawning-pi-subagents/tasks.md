@@ -9,8 +9,8 @@ Implement the launcher-owned half of the root focused-check coordination task. A
 - Add focused provider-independent extension/launcher tests, build the extension/launcher, validate the child scope, and prepare the scoped handoff.
 
 ## Progress
-- Created as the sequential launcher child of root `dynamic-expert-validation-access` implementation coordination.
-- Unrelated pre-existing launcher/process/usage-accounting edits were preserved outside this task and are not in scope.
+- Created as the sequential launcher child of the root focused-check implementation task.
+- Unrelated pre-existing launcher/process/usage-accounting edits are preserved outside this task and are not in scope.
 
 ## Validation
 Pending implementation and focused fail-closed tests.
@@ -25,4 +25,4 @@ The exact deterministic suite file set, fixed argv, timeout, output caps, and mi
 Checkpoint: active child task pair exists under the root coordinator. If implementation or validation fails, retain this task and the root backlog row, restore only this child scope, and do not expose a partial focused-check capability. No descendants are authorized.
 
 ## Next Action
-Obtain final plan confirmation from the root context, implement the fixed extension capability, and run focused validation.
+Implement the fixed extension capability and run focused validation.

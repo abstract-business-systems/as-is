@@ -348,7 +348,7 @@ test("evidence validation uses the fixed read-only same-worktree capability prof
   ]);
   expect(result.exitCode).toBe(0);
   const parsed = JSON.parse(result.stdout);
-  expect(parsed.tools).toBe("read,grep,find,ls,git_inspect");
+  expect(parsed.tools).toBe("read,grep,find,ls,git_inspect,focused_check");
   expect(parsed.worktree).toBe(false);
   expect(parsed.sessionPath).toBe(null);
   expect(parsed.args).toContain("--no-extensions");
@@ -595,7 +595,7 @@ test("evidence-validator safety profile is independent of caller metadata", asyn
   ]);
   expect(result.exitCode).toBe(0);
   const parsed = JSON.parse(result.stdout);
-  expect(parsed.tools).toBe("read,grep,find,ls,git_inspect");
+  expect(parsed.tools).toBe("read,grep,find,ls,git_inspect,focused_check");
   expect(parsed.worktree).toBe(false);
   expect(parsed.sessionPath).toBe(null);
 });

@@ -18,6 +18,7 @@ import {
   identityFromAgent,
   type AgentDefinition,
 } from "../../../core/modules/agent-resolution/agent-resolution.ts";
+import { summarizePiUsage, type PiUsageSummary } from "./pi-usage-accounting.ts";
 
 type Options = {
   agent?: string;
@@ -36,6 +37,7 @@ type Options = {
   detach?: boolean;
   noRegistry?: boolean;
   noWorktree?: boolean;
+  accountingPath?: string;
   record?: string;
   caller?: string;
   parentJobId?: string;
@@ -70,6 +72,7 @@ type Handle = {
   caller: string;
   parentJobId: string | null;
   logPath: string | null;
+  accountingPath: string | null;
   recordPath: string | null;
   worktreePath: string | null;
   sessionPath: string | null;
@@ -90,6 +93,7 @@ type SuperviseConfig = {
   sessionPath: string | null;
   mode: "detach" | "blocking";
   logPath: string | null;
+  accountingPath: string | null;
   resultPath: string;
   registryPath: string | null;
   jobId: string;
@@ -148,6 +152,7 @@ Optional:
                              handle without blocking. The supervisor owns the
                              wall-clock budget and survives this launcher's exit
   --no-registry              Do not append a handle to the job registry
+  --accounting-path <path>   Write secret-safe Pi usage/cost summary to this path
   --no-worktree              Run the child in the caller's working directory
                              instead of an isolated git worktree (disables
                              isolation; use only when the caller has no
@@ -178,6 +183,7 @@ const valueOptions = new Set([
   "--tools",
   "--skill",
   "--record",
+  "--accounting-path",
   "--caller",
   "--parent-job-id",
   "--budget-wall-clock-seconds",
@@ -273,6 +279,7 @@ const parseOptions = (args: string[]): Options => {
     else if (option === "--thinking") options.thinking = value;
     else if (option === "--tools") options.tools = value;
     else if (option === "--record") options.record = value;
+    else if (option === "--accounting-path") options.accountingPath = value;
     else if (option === "--caller") options.caller = value;
     else if (option === "--parent-job-id") options.parentJobId = value;
   }
@@ -633,6 +640,10 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     startedAtMs: startedMonotonic,
     phaseTimings,
   });
+  const usageAccounting: PiUsageSummary = summarizePiUsage(processResult.stdoutText.split("\n"));
+  if (config.accountingPath) {
+    try { await writeFile(config.accountingPath, `${JSON.stringify(usageAccounting, null, 2)}\n`, "utf8"); } catch { /* preserve explicit missing accounting */ }
+  }
   const { childPid, exitCode, budgetStopped, budgetStopElapsedMs, wallClockSeconds } = processResult;
 
   await workerSpan.finish(budgetStopped || exitCode !== 0 ? "failure" : "success", {
@@ -691,6 +702,7 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     committed,
     commitSha: finalSha ?? undefined,
     wallClockSeconds,
+    usageAccounting,
   });
 
   await delegationSpan.finish(budgetStopped || exitCode !== 0 ? "failure" : "success", {
@@ -765,6 +777,7 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     taskRecordPath,
     worktreePreserved,
     preserveReason,
+    usageAccounting,
   };
 
   try {
@@ -1016,7 +1029,7 @@ const main = async() => {
   // Ordinary roles receive exactly the declared set. A missing declaration is
   // represented by an explicit empty capability set, never Pi defaults or an
   // identity-specific fallback.
-  const tools = isEvidenceValidation ? "read,grep,find,ls,git_inspect" : declaredTools;
+  const tools = isEvidenceValidation ? "read,grep,find,ls,git_inspect,focused_check" : declaredTools;
   // The caller's declared tools determine the host's active capability set.
   // Caller/target identity and lineage remain diagnostic metadata only; they
   // are not delegation authorization. The extension registers its tools
@@ -1159,6 +1172,7 @@ const main = async() => {
     const sessionPath = options.noSession ? null : join(jobDirectory, "sessions");
     const logPath = join(jobDirectory, "child.log");
     const resultPath = join(jobDirectory, "result.json");
+    const accountingPath = options.accountingPath ? resolve(options.accountingPath) : join(jobDirectory, "usage-accounting.json");
     const configPath = join(jobDirectory, "supervise.json");
     const worktreePath = useWorktree ? join(jobDirectory, "worktree") : null;
     await writeFile(promptPath, prompt, { encoding: "utf8", mode: 0o600 });
@@ -1177,6 +1191,7 @@ const main = async() => {
       sessionPath,
       mode: "detach",
       logPath,
+      accountingPath,
       resultPath,
       sessionPath,
       registryPath: options.noRegistry ? null : registryPath(),
@@ -1206,6 +1221,7 @@ const main = async() => {
       caller,
       parentJobId,
       logPath,
+      accountingPath,
       recordPath: options.record ?? null,
       worktreePath,
       sessionPath,
@@ -1230,6 +1246,7 @@ const main = async() => {
   const promptPath = join(jobDirectory, "system-prompt.md");
   const sessionPath = options.noSession ? null : join(jobDirectory, "sessions");
   const resultPath = join(jobDirectory, "result.json");
+  const accountingPath = options.accountingPath ? resolve(options.accountingPath) : join(jobDirectory, "usage-accounting.json");
   const configPath = join(jobDirectory, "supervise.json");
   const worktreePath = useWorktree ? join(jobDirectory, "worktree") : null;
   try {
@@ -1246,6 +1263,7 @@ const main = async() => {
       sessionPath,
       mode: "blocking",
       logPath: null,
+      accountingPath,
       resultPath,
       sessionPath,
       registryPath: options.noRegistry ? null : registryPath(),
@@ -1274,6 +1292,7 @@ const main = async() => {
       caller,
       parentJobId,
       logPath: null,
+      accountingPath,
       recordPath: options.record ?? null,
       worktreePath,
       sessionPath,

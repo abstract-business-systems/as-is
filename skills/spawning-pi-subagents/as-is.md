@@ -75,12 +75,13 @@ flowchart TD
 | Target behavior | The target contract and host safety profile govern tools and behavior. |
 | Execution authority | Task records, budgets, worktree/session boundaries, and completion gates remain authoritative for execution and handoff. |
 | In-process adapter | The Pi extension resolves canonical targets independently of caller identity. |
-| Expert profile | The expert target retains its fixed read-only inspection profile.
+| Expert profile | The evidence-validator target retains its fixed read-only `git_inspect` and parameterless code-owned `focused_check` profile; the focused suite cannot receive caller-selected commands or inputs.
 ## Links
 
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
 - [../../core/modules/agent-resolution/agent-resolution.ts](../../core/modules/agent-resolution/agent-resolution.ts) — shared canonical role, front-matter, declared-tool, and identity resolution functionality.
 - [scripts/spawn-pi-subagent.ts](scripts/spawn-pi-subagent.ts) — subprocess launcher and detached supervisor adapter; it collects handoff observations but delegates pure eligibility to task control.
+- [scripts/evidence-validator-inspection-extension.ts](scripts/evidence-validator-inspection-extension.ts) — fixed read-only Git inspection and parameterless code-owned focused-check adapter.
 - [`../../core/modules/task-control/handoff-eligibility.ts`](../../core/modules/task-control/handoff-eligibility.ts) — pure task-control handoff decision consumed by the launcher.
 - [`../../core/modules/context-resolution/configuration-resolver.ts`](../../core/modules/context-resolution/configuration-resolver.ts) — shared configuration-resolution functionality consumed by launcher and worker configuration adapters.
 - [../../core/adapters/process/bounded-process-supervisor.ts](../../core/adapters/process/bounded-process-supervisor.ts) — shared mechanical process-group, timer, signal, stdio, and exit-observation boundary.

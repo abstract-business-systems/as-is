@@ -4,26 +4,9 @@
     "worker": "component-builder",
     "updated": "2026-08-16T21:35:00Z",
     "constraints": {
-      "cost": {
-        "currency": "USD",
-        "allocated": 0.35,
-        "spent": 0,
-        "reserve": 0.07,
-        "source": "host-forwarded",
-        "fallback-metric": "validation elapsed-seconds"
-      },
-      "delegation": {
-        "maximum-depth": 0,
-        "maximum-children": 0
-      },
-      "execution": {
-        "wall-clock": {
-          "allocated-seconds": 240,
-          "spent-seconds": 0,
-          "reserve-seconds": 48,
-          "source": "host-forwarded"
-        }
-      },
+      "cost": { "currency": "USD", "allocated": 0.35, "spent": 0, "reserve": 0.07, "source": "host-forwarded", "fallback-metric": "validation elapsed-seconds" },
+      "delegation": { "maximum-depth": 0, "maximum-children": 0 },
+      "execution": { "wall-clock": { "allocated-seconds": 240, "spent-seconds": 0, "reserve-seconds": 48, "source": "host-forwarded" } },
       "external-effects": "prohibited"
     },
     "acceptance": [
