@@ -29,6 +29,14 @@ function componentContextTool() {
   return registered;
 }
 describe("capability-based worker extension", () => {
+  test("every discovered project extension exports a Pi factory", async () => {
+    const extensions = ["worker-tools.ts", "worker-tools-observability.ts", "mermaid-tools.ts"];
+    for (const file of extensions) {
+      const module = await import(`../../.pi/extensions/${file}`);
+      expect(typeof module.default).toBe("function");
+    }
+  });
+
   test("registers host tools through the versioned package boundary", () => {
     const registered: string[] = [];
     registerWorkerTools({ registerTool: (tool: { name: string }) => registered.push(tool.name) }, {
