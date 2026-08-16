@@ -1,8 +1,8 @@
 {
   "task": {
-    "status": "completed",
+    "status": "active",
     "worker": "component-builder",
-    "updated": "2026-08-16T19:48:49Z",
+    "updated": "2026-08-16T19:55:00Z",
     "constraints": {
       "cost": {
         "currency": "USD",
@@ -27,10 +27,10 @@
       "external-effects": "prohibited"
     },
     "acceptance": [
-      "Record a component-local, diagnostic-by-diagnostic evaluation of whether repository-local traces and bounded trace queries can replace Pi session JSONL for launch, model, tool, usage, delegation, handoff, outcome, and timing diagnostics.",
-      "Distinguish opaque trace/session correlation from exact-ID local session inspection and retain the rule that external sinks carry only opaque session IDs, never session content or store references.",
-      "Conclude whether replacement is currently supported without reading Pi session JSONL; do not perform a migration or expand tracer, launcher, evidence-tool, permissions, or external-backend behavior.",
-      "Validate the bounded evaluation with focused observability policy/content checks, task-record validation, JSON parsing, and diff/whitespace checks; preserve the selected backlog row and paired task artifacts until the completion handoff."
+      "Implement deterministic local JSONL segment rotation, age retention, and bounded segment count for the file tracer while preserving configured filename/directory compatibility.",
+      "Preserve the shared fail-closed projection, opaque session-ID-only external export, append-only complete segments, exact-size admission, oversized-record drop behavior, and fail-safe telemetry isolation.",
+      "Focused tests cover compatibility, rotation, byte and file-count limits, age cleanup, unrelated-file preservation, invalid configuration fallback, failure isolation, and existing privacy/lifecycle/OTLP behavior.",
+      "No task authority, launcher, evidence-tool, process-adapter, host, target, or external-backend behavior changes; validation, changelog evidence, exact backlog cleanup, and paired task cleanup are completed in one scoped completion commit."
     ]
   }
 }
