@@ -1,0 +1,36 @@
+{
+  "task": {
+    "status": "ready",
+    "worker": "component-builder",
+    "updated": "2026-08-24T00:00:00Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.5,
+        "spent": 0,
+        "reserve": 0.1,
+        "source": "unavailable",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 300,
+          "spent-seconds": 0,
+          "reserve-seconds": 60,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "prohibited"
+    },
+    "acceptance": [
+      "Ownership context and hierarchy are explicit and deterministic; proposed owner selection does not infer authority from keywords.",
+      "Focused reconciliation operations cover ancestor/descendant candidate detection, explicit removal, move, combine, split, dependency rewrites, provenance preservation, and atomic refusal cases.",
+      "The implementation preserves backlog schema, Markdown-bearing cells, rationale, links, and task/status authority without changing cleanup semantics.",
+      "Focused tests, repository backlog/content checks, task-record validation, JSON parsing, and whitespace checks pass."
+    ]
+  }
+}
