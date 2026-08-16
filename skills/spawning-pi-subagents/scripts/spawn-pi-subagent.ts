@@ -1,4 +1,6 @@
 import { spawn, spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { homedir } from "node:os";
 import { existsSync, readFileSync } from "node:fs";
 import { appendFile, mkdtemp, open, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -404,7 +406,11 @@ const newJobId = (): string =>
 
 const registryPath = (): string => process.env.AS_IS_JOBS_REGISTRY ?? "/tmp/as-is-jobs.jsonl";
 const privateRegistryPath = (): string => `${registryPath()}.private`;
-const piUsageAggregatePath = (): string => "/tmp/as-is-pi-usage-accounting.json";
+const piUsageAggregatePath = (cwd: string): string => {
+  const projectKey = createHash("sha256").update(resolve(cwd)).digest("hex").slice(0, 16);
+  const stateHome = process.env.XDG_STATE_HOME ?? join(homedir(), ".local", "state");
+  return join(stateHome, "as-is", "projects", `project-${projectKey}`, "runtime", "pi-usage-accounting.json");
+};
 
 type PublicHandle = Omit<Handle, "logPath" | "recordPath" | "worktreePath" | "sessionPath"> & {
   sessionClass: "durable" | "ephemeral";
@@ -636,7 +642,7 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     phaseTimings,
   });
   const usageAccounting: PiUsageSummary = summarizePiUsage(processResult.stdoutText.split("\n"), processResult.stdoutAvailable, processResult.stdoutTruncated);
-  await retainPiUsageAggregate(piUsageAggregatePath(), usageAccounting);
+  await retainPiUsageAggregate(piUsageAggregatePath(config.callerCwd), usageAccounting);
   const { childPid, exitCode, budgetStopped, budgetStopElapsedMs, wallClockSeconds } = processResult;
 
   await workerSpan.finish(budgetStopped || exitCode !== 0 ? "failure" : "success", {
