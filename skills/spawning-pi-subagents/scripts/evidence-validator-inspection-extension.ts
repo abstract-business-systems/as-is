@@ -65,15 +65,15 @@ const capture = async (stream: ReadableStream<Uint8Array> | null): Promise<Captu
   }
 };
 
-export const focusedCheckArguments = (bunExecutable: string): readonly string[] => [
-  bunExecutable,
+export const focusedCheckArguments = (): readonly string[] => [
+  FIXED_BUN_EXECUTABLE,
   "test",
   "--timeout",
   "20000",
   ...FOCUSED_CHECK_FILES,
 ];
 
-export const focusedCheckEnvironment = (_source: NodeJS.ProcessEnv): Record<string, string> => ({
+export const focusedCheckEnvironment = (): Record<string, string> => ({
   AS_IS_LIVE_INTEGRATION: "0",
   PI_OFFLINE: "1",
 });
@@ -103,9 +103,9 @@ export const runFocusedCheck = async (cwd: string): Promise<FocusedCheckResult> 
 
   let child: ReturnType<typeof Bun.spawn>;
   try {
-    child = Bun.spawn(focusedCheckArguments(FIXED_BUN_EXECUTABLE), {
+    child = Bun.spawn(focusedCheckArguments(), {
       cwd,
-      env: focusedCheckEnvironment(process.env),
+      env: focusedCheckEnvironment(),
       stdin: "ignore",
       stdout: "pipe",
       stderr: "pipe",
@@ -129,19 +129,34 @@ export const runFocusedCheck = async (cwd: string): Promise<FocusedCheckResult> 
     capture(child.stdout),
     capture(child.stderr),
     child.exited,
-  ]);
-  let timedOut = false;
+  ]).then(
+    (value) => ({ kind: "observed" as const, value: value as [CapturedOutput, CapturedOutput, number] }),
+    () => ({ kind: "error" as const }),
+  );
   const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), FOCUSED_CHECK_TIMEOUT_MS));
-  const observed = await Promise.race([observe.then((value) => value as [CapturedOutput, CapturedOutput, number]), timeout]);
+  const observed = await Promise.race([observe, timeout]);
   if (observed === null) {
-    timedOut = true;
     try { child.kill(); } catch { /* return bounded timeout evidence below */ }
-    await Promise.race([observe.catch(() => undefined), new Promise((resolve) => setTimeout(resolve, KILL_GRACE_MS))]);
+    const afterKill = await Promise.race([observe, new Promise<null>((resolve) => setTimeout(() => resolve(null), KILL_GRACE_MS))]);
+    if (afterKill !== null && afterKill.kind === "observed") {
+      const [stdout, stderr, exitCode] = afterKill.value;
+      return result({
+        status: "timed-out",
+        exitCode,
+        durationMs: Date.now() - started,
+        timedOut: true,
+        stdout: stdout.text,
+        stderr: stderr.text,
+        stdoutTruncated: stdout.truncated,
+        stderrTruncated: stderr.truncated,
+        reason: "fixed focused-check timeout elapsed",
+      });
+    }
     return result({
       status: "timed-out",
       exitCode: null,
       durationMs: Date.now() - started,
-      timedOut,
+      timedOut: true,
       stdout: "",
       stderr: "",
       stdoutTruncated: false,
@@ -149,11 +164,24 @@ export const runFocusedCheck = async (cwd: string): Promise<FocusedCheckResult> 
       reason: "fixed focused-check timeout elapsed",
     });
   }
-  const [stdout, stderr, exitCode] = observed;
+  if (observed.kind === "error") {
+    return result({
+      status: "observation-error",
+      exitCode: null,
+      durationMs: Date.now() - started,
+      timedOut: false,
+      stdout: "",
+      stderr: "",
+      stdoutTruncated: false,
+      stderrTruncated: false,
+      reason: "fixed focused-check process or output could not be observed",
+    });
+  }
+  const [stdout, stderr, exitCode] = observed.value;
   const common = {
     exitCode,
     durationMs: Date.now() - started,
-    timedOut,
+    timedOut: false,
     stdout: stdout.text,
     stderr: stderr.text,
     stdoutTruncated: stdout.truncated,

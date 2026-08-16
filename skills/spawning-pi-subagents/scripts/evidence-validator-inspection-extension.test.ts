@@ -7,10 +7,10 @@ test("focused check has a code-owned literal argv and bounded environment", () =
     "core/modules/task-control/task-record-validator.test.ts",
     "skills/managing-backlog/query.test.ts",
   ]);
-  expect(focusedCheckArguments("/fixed/bun")).toEqual([
-    "/fixed/bun", "test", "--timeout", "20000", ...FOCUSED_CHECK_FILES,
+  expect(focusedCheckArguments()).toEqual([
+    process.execPath, "test", "--timeout", "20000", ...FOCUSED_CHECK_FILES,
   ]);
-  expect(focusedCheckEnvironment({ PATH: "/unsafe", HOME: "/home/test", SECRET: "must-not-forward" })).toEqual({
+  expect(focusedCheckEnvironment()).toEqual({
     AS_IS_LIVE_INTEGRATION: "0", PI_OFFLINE: "1",
   });
 });
