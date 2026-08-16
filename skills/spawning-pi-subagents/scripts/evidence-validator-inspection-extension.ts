@@ -9,6 +9,20 @@ export const FOCUSED_CHECK_FILES = [
 const FOCUSED_CHECK_TIMEOUT_MS = 120_000;
 const KILL_GRACE_MS = 500;
 const MAX_OUTPUT_BYTES = 32 * 1024;
+export const classifyFocusedCheck = (input: {
+  launchError?: boolean;
+  observationError?: boolean;
+  timedOut?: boolean;
+  stdoutTruncated?: boolean;
+  stderrTruncated?: boolean;
+  exitCode?: number | null;
+}): FocusedCheckResult["status"] => {
+  if (input.launchError) return "launch-error";
+  if (input.observationError) return "observation-error";
+  if (input.timedOut) return "timed-out";
+  if (input.stdoutTruncated || input.stderrTruncated) return "truncated";
+  return input.exitCode === 0 ? "passed" : "failed";
+};
 // The launcher supplies the fixed Bun runtime; no caller-provided executable is accepted.
 const FIXED_BUN_EXECUTABLE = process.execPath;
 
@@ -187,10 +201,17 @@ export const runFocusedCheck = async (cwd: string): Promise<FocusedCheckResult> 
     stdoutTruncated: stdout.truncated,
     stderrTruncated: stderr.truncated,
   };
-  if (stdout.error || stderr.error) return result({ ...common, status: "observation-error", reason: "fixed focused-check output could not be observed" });
-  if (stdout.truncated || stderr.truncated) return result({ ...common, status: "truncated", reason: "fixed focused-check output exceeded its bound" });
-  if (exitCode !== 0) return result({ ...common, status: "failed", reason: "fixed focused-check exited unsuccessfully" });
-  return result({ ...common, status: "passed" });
+  const status = classifyFocusedCheck({
+    observationError: stdout.error || stderr.error,
+    timedOut: false,
+    stdoutTruncated: stdout.truncated,
+    stderrTruncated: stderr.truncated,
+    exitCode,
+  });
+  if (status === "observation-error") return result({ ...common, status, reason: "fixed focused-check output could not be observed" });
+  if (status === "truncated") return result({ ...common, status, reason: "fixed focused-check output exceeded its bound" });
+  if (status === "failed") return result({ ...common, status, reason: "fixed focused-check exited unsuccessfully" });
+  return result({ ...common, status });
 };
 
 const runInspection = async (cwd: string, operation: keyof typeof OPERATIONS): Promise<string> => {
