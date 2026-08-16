@@ -1,0 +1,37 @@
+{
+  "task": {
+    "status": "active",
+    "worker": "component-builder",
+    "updated": "2026-08-16T13:35:00Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.5,
+        "spent": 0,
+        "reserve": 0.1,
+        "source": "unavailable",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 300,
+          "spent-seconds": 0,
+          "reserve-seconds": 60,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "prohibited"
+    },
+    "acceptance": [
+      "Process-adapter public handles, observations, diagnostics, and nested structured results omit direct and indirect filesystem paths while private process operands remain usable internally.",
+      "Provider-free fixtures cover public launch handles, durable observations, host observations, permission/cancellation/recovery/handoff/cleanup results, nested malformed values, and complete raw serialized-output absence.",
+      "Existing lifecycle, cancellation, cleanup, recovery, stale-classification, budget, handoff, task-record, and no-leftover behavior remains passing.",
+      "Launcher/recovery projections, bounded-process-supervisor mechanics, tracer filtering, task authority, Git/worktree integration, and completion authority remain outside this task.",
+      "Validation, durable changelog evidence, exact backlog cleanup, and transient task cleanup are completed in one scoped completion commit."
+    ]
+  }
+}
