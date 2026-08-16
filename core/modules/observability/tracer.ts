@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { appendFile, chmod, mkdir, readdir, stat, unlink } from "node:fs/promises";
+import { appendFile, chmod, mkdir, readdir, rename, stat, unlink } from "node:fs/promises";
 import { join, resolve } from "node:path";
 
 export type TraceValue = string | number | boolean | undefined;
@@ -40,12 +40,14 @@ export type TracerConfig = {
   directory?: string;
   maxFileBytes?: number;
   retentionDays?: number;
+  maxFiles?: number;
 };
 
 const defaultDirectory = ".as-is/tracing.jsonl";
 const defaultEndpoint = "http://127.0.0.1:4318/v1/traces";
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
 const RETENTION_DAYS = 7;
+const MAX_FILES = 5;
 const MAX_CORRELATION_LENGTH = 128;
 const MAX_DURATION_MS = 86_400_000;
 const UNKNOWN = "unknown";
@@ -216,6 +218,7 @@ async function projectConfig(cwd: string): Promise<TracerConfig> {
       directory: typeof tracing["local-directory"] === "string" ? tracing["local-directory"] : undefined,
       maxFileBytes: typeof tracing["max-file-bytes"] === "number" ? tracing["max-file-bytes"] : undefined,
       retentionDays: typeof tracing["retention-days"] === "number" ? tracing["retention-days"] : undefined,
+      maxFiles: typeof tracing["max-files"] === "number" ? tracing["max-files"] : undefined,
     };
   } catch {
     return {};
@@ -266,14 +269,81 @@ export function startSpan(name: string, options: SpanLifecycleOptions): SpanLife
   };
 }
 
-async function cleanup(filePath: string, days: number) {
-  try {
-    const cutoff = Date.now() - days * 86400000;
-    const files = filePath.endsWith(".jsonl") ? [filePath] : (await readdir(filePath)).map(file => join(filePath, file));
-    for (const file of files) if ((await stat(file)).mtimeMs < cutoff) await unlink(file);
-  } catch {
-    // Best effort retention cleanup.
+type RetentionSettings = {
+  maxFileBytes: number;
+  retentionDays: number;
+  maxFiles: number;
+};
+
+type ManagedSegment = { path: string; name: string; mtimeMs: number; size: number; sequence: number | null };
+
+function safePositiveInteger(value: unknown, fallback: number): number {
+  return typeof value === "number" && Number.isSafeInteger(value) && value > 0 ? value : fallback;
+}
+
+function safeNonNegativeInteger(value: unknown, fallback: number): number {
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0 ? value : fallback;
+}
+
+function retentionSettings(config: TracerConfig): RetentionSettings {
+  return {
+    maxFileBytes: safePositiveInteger(config.maxFileBytes, MAX_FILE_BYTES),
+    retentionDays: safeNonNegativeInteger(config.retentionDays, RETENTION_DAYS),
+    maxFiles: safePositiveInteger(config.maxFiles, MAX_FILES),
+  };
+}
+
+function managedSegmentPattern(activePath: string): RegExp {
+  const activeName = activePath.slice(activePath.lastIndexOf("/") + 1);
+  const stem = activeName.endsWith(".jsonl") ? activeName.slice(0, -".jsonl".length) : activeName;
+  const escapedStem = stem.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`^${escapedStem}\\.(\\d+)\\.jsonl$`);
+}
+
+async function managedSegments(activePath: string): Promise<ManagedSegment[]> {
+  const directory = activePath.slice(0, activePath.lastIndexOf("/"));
+  const activeName = activePath.slice(activePath.lastIndexOf("/") + 1);
+  const pattern = managedSegmentPattern(activePath);
+  const names = await readdir(directory).catch(() => [] as string[]);
+  const segments: ManagedSegment[] = [];
+  for (const name of names) {
+    if (name !== activeName && !pattern.test(name)) continue;
+    const path = join(directory, name);
+    try {
+      const details = await stat(path);
+      if (!details.isFile()) continue;
+      const match = name.match(/\.(\d+)\.jsonl$/u);
+      segments.push({ path, name, mtimeMs: details.mtimeMs, size: details.size, sequence: match ? Number(match[1]) : null });
+    } catch {
+      // A concurrently removed or unreadable segment is unavailable evidence.
+    }
   }
+  return segments;
+}
+
+async function removeExpiredSegments(activePath: string, days: number): Promise<void> {
+  const cutoff = Date.now() - days * 86400000;
+  for (const segment of await managedSegments(activePath)) {
+    if (segment.mtimeMs < cutoff) await unlink(segment.path);
+  }
+}
+
+async function pruneOldestInactiveSegments(activePath: string, keepCount: number): Promise<void> {
+  const segments = await managedSegments(activePath);
+  const inactive = segments.filter((segment) => segment.name !== activePath.slice(activePath.lastIndexOf("/") + 1));
+  const excess = Math.max(0, segments.length - keepCount);
+  const oldest = inactive.sort((left, right) => left.mtimeMs - right.mtimeMs || left.name.localeCompare(right.name)).slice(0, excess);
+  for (const segment of oldest) await unlink(segment.path);
+}
+
+async function rotateActiveSegment(activePath: string): Promise<void> {
+  const segments = await managedSegments(activePath);
+  const highest = segments.reduce((value, segment) => Math.max(value, segment.sequence ?? 0), 0);
+  const activeName = activePath.slice(activePath.lastIndexOf("/") + 1);
+  const directory = activePath.slice(0, activePath.lastIndexOf("/"));
+  const stem = activeName.endsWith(".jsonl") ? activeName.slice(0, -".jsonl".length) : activeName;
+  const rotated = join(directory, `${stem}.${String(highest + 1).padStart(6, "0")}.jsonl`);
+  await rename(activePath, rotated);
 }
 
 export async function emitTrace(event: TraceEvent, cwd: string, config?: TracerConfig): Promise<void> {
@@ -286,10 +356,19 @@ export async function emitTrace(event: TraceEvent, cwd: string, config?: TracerC
       const output = resolve(cwd, resolved.directory ?? defaultDirectory);
       const filePath = output.endsWith(".jsonl") ? output : join(output, "trace.jsonl");
       const encoded = `${JSON.stringify(record)}\n`;
+      const settings = retentionSettings(resolved);
       await mkdir(resolve(filePath, ".."), { recursive: true });
-      await cleanup(filePath, resolved.retentionDays ?? RETENTION_DAYS);
+      await removeExpiredSegments(filePath, settings.retentionDays);
       const current = (await stat(filePath).catch(() => ({ size: 0 }))).size;
-      if (current + Buffer.byteLength(encoded) <= (resolved.maxFileBytes ?? MAX_FILE_BYTES)) {
+      const encodedBytes = Buffer.byteLength(encoded);
+      if (encodedBytes > settings.maxFileBytes) return;
+      if (current > 0 && current + encodedBytes > settings.maxFileBytes) {
+        if (settings.maxFiles <= 1) return;
+        await pruneOldestInactiveSegments(filePath, settings.maxFiles - 1);
+        await rotateActiveSegment(filePath);
+      }
+      const afterRotation = (await stat(filePath).catch(() => ({ size: 0 }))).size;
+      if (afterRotation + encodedBytes <= settings.maxFileBytes) {
         await appendFile(filePath, encoded, { mode: 0o600 });
         await chmod(filePath, 0o600);
       }

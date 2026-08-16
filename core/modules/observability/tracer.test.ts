@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, readdir, stat, utimes, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { emitTrace, otlpPayload, serializeSessionReference, startSpan, type TraceEvent } from "./tracer.ts";
@@ -242,5 +242,84 @@ describe("universal local tracer", () => {
     expect(span.kind).toBe(1);
     expect(span.startTimeUnixNano).toBe("1785801600000000000");
     expect(span.endTimeUnixNano).toBe("1785801600004000000");
+  });
+
+  test("admits a record that exactly reaches the configured byte limit", async () => {
+    const cwd = await mkdtemp(join(tmpdir(), "as-is-trace-exact-limit-"));
+    const directory = join(cwd, "traces");
+    await mkdir(directory);
+    const event = { name: "worker.result", traceId: "exact", spanId: "exact", attributes: { outcome: "success" as const } };
+    const probe = join(directory, "trace.jsonl");
+    await emitTrace(event, cwd, { backend: "file", directory, maxFileBytes: 1_000 });
+    const size = (await stat(probe)).size;
+    await writeFile(probe, "");
+    await emitTrace(event, cwd, { backend: "file", directory, maxFileBytes: size });
+    expect((await stat(probe)).size).toBe(size);
+  });
+
+  test("rotates complete active segments and preserves configured path forms", async () => {
+    const cwd = await mkdtemp(join(tmpdir(), "as-is-trace-rotation-"));
+    const directory = join(cwd, "trace-dir");
+    await mkdir(directory);
+    const config = { backend: "file" as const, directory, maxFileBytes: 260, maxFiles: 3, retentionDays: 7 };
+    const event = (id: string) => ({ name: "worker.result", traceId: id, spanId: id, attributes: { outcome: "success" as const } });
+    await emitTrace(event("one"), cwd, config);
+    const active = join(directory, "trace.jsonl");
+    const first = await readFile(active);
+    await emitTrace(event("two"), cwd, config);
+    await emitTrace(event("three"), cwd, config);
+    const files = (await readdir(directory)).sort();
+    expect(files).toContain("trace.jsonl");
+    expect(files.some((file) => /^trace\.\d{6}\.jsonl$/u.test(file))).toBe(true);
+    for (const file of files) expect((await stat(join(directory, file))).size).toBeLessThanOrEqual(260);
+    expect((await readFile(active, "utf8"))).toContain('"traceId":"three"');
+    expect((await readFile(join(directory, files.find((file) => file.startsWith("trace.") && file !== "trace.jsonl")!), "utf8"))).toContain('"traceId":"one"');
+    expect(first.length).toBeGreaterThan(0);
+
+    const configuredFile = join(cwd, "custom.jsonl");
+    await emitTrace(event("custom"), cwd, { ...config, directory: configuredFile });
+    expect(await readFile(configuredFile, "utf8")).toContain('"traceId":"custom"');
+  });
+
+  test("bounds managed segments, preserves unrelated files, and drops oversized records", async () => {
+    const cwd = await mkdtemp(join(tmpdir(), "as-is-trace-retention-"));
+    const directory = join(cwd, "traces");
+    await mkdir(directory);
+    const unrelated = join(directory, "keep.txt");
+    await writeFile(unrelated, "keep");
+    const config = { backend: "file" as const, directory, maxFileBytes: 220, maxFiles: 2, retentionDays: 7 };
+    const event = (id: string) => ({ name: "worker.result", traceId: id, spanId: id, attributes: { outcome: "success" as const } });
+    for (const id of ["a", "b", "c", "d", "e", "f"]) await emitTrace(event(id), cwd, config);
+    const files = await readdir(directory);
+    expect(files).toContain("keep.txt");
+    expect(files.filter((file) => file === "trace.jsonl" || /^trace\.\d{6}\.jsonl$/u.test(file))).toHaveLength(2);
+    const before = await readFile(join(directory, "trace.jsonl"));
+    await emitTrace({ name: "worker.result", traceId: "oversized", spanId: "oversized", attributes: { outcome: "success", reason: "error" }, sessionReference: { sessionId: "x" } }, cwd, { ...config, maxFileBytes: 20 });
+    expect(await readFile(join(directory, "trace.jsonl"))).toEqual(before);
+  });
+
+  test("removes only expired managed segments on emission and falls back from invalid limits", async () => {
+    const cwd = await mkdtemp(join(tmpdir(), "as-is-trace-age-"));
+    const directory = join(cwd, "traces");
+    await mkdir(directory);
+    const config = { backend: "file" as const, directory, maxFileBytes: 260, maxFiles: 3, retentionDays: 1 };
+    const event = (id: string) => ({ name: "worker.result", traceId: id, spanId: id, attributes: { outcome: "success" as const } });
+    await emitTrace(event("old"), cwd, config);
+    const active = join(directory, "trace.jsonl");
+    const old = new Date(Date.now() - 2 * 86400000);
+    await utimes(active, old, old);
+    await writeFile(join(directory, "unrelated.jsonl"), "unrelated");
+    await emitTrace(event("fresh"), cwd, { ...config, maxFiles: 0, maxFileBytes: -1, retentionDays: -1 });
+    expect(await readFile(active, "utf8")).toContain('"traceId":"fresh"');
+    expect(await readFile(join(directory, "unrelated.jsonl"), "utf8")).toBe("unrelated");
+  });
+
+  test("retention filesystem failures remain non-blocking", async () => {
+    const cwd = await mkdtemp(join(tmpdir(), "as-is-trace-failure-"));
+    const directory = join(cwd, "traces");
+    await mkdir(directory);
+    const blockingParent = join(cwd, "not-a-directory");
+    await writeFile(blockingParent, "blocking");
+    await expect(emitTrace({ name: "worker.result", traceId: "failure", spanId: "failure", attributes: { outcome: "success" } }, cwd, { backend: "file", directory: join(blockingParent, "traces"), maxFileBytes: 120, maxFiles: 2 })).resolves.toBeUndefined();
   });
 });

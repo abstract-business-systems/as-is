@@ -1,11 +1,10 @@
 # Observability Backlog
 
 Open or deferred planning items owned by this component. Completed items are
-removed after their concise summary is recorded in `changelog.md`.
+removed after their concise summary is recorded in `changelog.md`. local session files remain the readable evidence source; traces remain supplementary.
 
 | id | status | user preference | system preference | purpose | description | dependencies | acceptance | notes |
 | --- | --- | ---: | ---: | --- | --- | --- | --- | --- |
 | jaeger-support | open | 2 | 1 | Provide bounded local Jaeger support for observability | Configure and verify local Jaeger support and bounded trace queries. | - | Local Jaeger path and bounded queries are exercised, with unavailable-backend behavior recorded. | Original dependency text retained as non-structured context: current tracer and approved endpoint configuration. |
-| trace-retention | selected | 1 | 1 | Bound local trace retention and storage cost | Add local JSONL rotation, retention, and size limits. | - | Limits are deterministic, tested, and fail safely without affecting task authority. | Original dependency text retained as non-structured context: retention and privacy policy. |
 | jaeger-collector | deferred | 0 | 1 | Add a Collector only if direct export demonstrates a concrete need | Evaluate whether a bounded Collector is needed after direct Jaeger export evidence. | - | Collector is added only with documented need, bounded deployment, and validation. | Historical item aligned to the current schema. Former dependency: `jaeger-support` evidence. |
 | richer-trace-observability | open | 2 | 2 | Extend trace observability with execution context and useful session queries | Record session IDs on every relevant lifecycle event; local `analyze_session` supports summary, full selected entries, paging, and role/tool filters; external sinks carry only opaque session IDs and never local session data. | - | Relevant lifecycle events contain session references; bounded local queries and privacy behavior pass focused validation. | Historical item aligned to the current schema. Former dependency text retained: `all-in-tracing-design` approval and successful dummy delegation rehearsal. |
