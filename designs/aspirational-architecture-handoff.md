@@ -52,11 +52,12 @@ The flow communicates composition and mapping boundaries, not an implementation 
 
 ## Sequencing
 
-1. Complete the owner-specific evidence-tool and process-adapter emitted-path enforcement tasks.
-2. Establish the smallest justified execution-contract boundary without creating a speculative module or second authority.
-3. Reassess and, if justified, implement the Pi adapter against the proven execution boundary while retaining current registration rollback paths.
-4. Perform the existing tools/modules ownership inventory and any approved history-preserving regrouping last.
-5. Revisit browser/environment capabilities, setup/host integration, task-facing tools, and standalone package hosting only when separately reprioritized or their readiness gates change.
+1. Preserve the completed evidence-tool, observability, and launcher privacy enforcement evidence and reconcile the approved project-context template-reference policy before resuming owner-specific process-adapter enforcement.
+2. Complete the process-adapter emitted-path enforcement task against the reconciled policy.
+3. Establish the smallest justified execution-contract boundary without creating a speculative module or second authority.
+4. Reassess and, if justified, implement the Pi adapter against the proven execution boundary while retaining current registration rollback paths.
+5. Perform the existing tools/modules ownership inventory and any approved history-preserving regrouping last.
+6. Revisit browser/environment capabilities, setup/host integration, task-facing tools, and standalone package hosting only when separately reprioritized or their readiness gates change.
 
 Each selected item requires its own bounded task, task-start commit, readiness or behavioral evidence, durable record updates, expert review where applicable, completion commit, and cleanup. A planning dependency does not authorize its dependent implementation.
 

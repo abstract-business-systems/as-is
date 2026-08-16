@@ -1,8 +1,8 @@
 {
   "task": {
-    "status": "active",
+    "status": "blocked",
     "worker": "component-builder",
-    "updated": "2026-08-16T13:35:00Z",
+    "updated": "2026-08-16T14:10:00Z",
     "constraints": {
       "cost": {
         "currency": "USD",
