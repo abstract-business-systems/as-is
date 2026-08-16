@@ -1,1 +1,36 @@
-{}
+{
+  "task": {
+    "status": "active",
+    "worker": "component-builder",
+    "updated": "2026-08-16T19:48:49Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.5,
+        "spent": 0,
+        "reserve": 0.1,
+        "source": "unavailable",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 300,
+          "spent-seconds": 0,
+          "reserve-seconds": 60,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "prohibited"
+    },
+    "acceptance": [
+      "Record a component-local, diagnostic-by-diagnostic evaluation of whether repository-local traces and bounded trace queries can replace Pi session JSONL for launch, model, tool, usage, delegation, handoff, outcome, and timing diagnostics.",
+      "Distinguish opaque trace/session correlation from exact-ID local session inspection and retain the rule that external sinks carry only opaque session IDs, never session content or store references.",
+      "Conclude whether replacement is currently supported without reading Pi session JSONL; do not perform a migration or expand tracer, launcher, evidence-tool, permissions, or external-backend behavior.",
+      "Validate the bounded evaluation with focused observability policy/content checks, task-record validation, JSON parsing, and diff/whitespace checks; preserve the selected backlog row and paired task artifacts until the completion handoff."
+    ]
+  }
+}
