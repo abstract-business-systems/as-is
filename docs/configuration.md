@@ -18,11 +18,11 @@ root `as-is.json`. `as-is.md` remains the human-facing durable component map.
 
 Runtime metadata is subordinate to repository records. It must not become a
 second configuration source, backlog, task tree, history, approval store, or
-completion authority. Runtime metadata emission must also obey the fixed
-no-emitted-filesystem-path invariant: internal paths used to locate records,
-sessions, worktrees, logs, or configured sinks never appear in logs, traces,
-handles, diagnostics, tool results, or registry events, directly or through
-nested values.
+completion authority. Runtime metadata emission must also obey the emitted-path
+policy: raw host paths remain private, while only separately enforced trusted
+reference forms may be emitted. The `masked-runtime-references` mode does not
+make configuration a generic sanitizer or authorize a component to skip its
+owner-specific provenance, containment, and fail-closed checks.
 
 ## JSON Structure
 
@@ -39,7 +39,8 @@ The root companion contains repository configuration under `configuration`:
     "technology-preferences": {},
     "hitl": {},
     "logging": {},
-    "observability": {}
+    "observability": {},
+    "security": { "emitted-paths": "prohibited" }
   },
   "task": {}
 }
@@ -63,6 +64,7 @@ their meaning only.
 - `configuration.hitl` — conditions requiring human direction or approval.
 - `configuration.logging` — concise history verbosity and retention policy.
 - `configuration.observability` — tracing backend, enablement, and local fallback.
+- `configuration.security.emitted-paths` — emitted-reference mode. `prohibited` keeps raw filesystem operands private; `masked-runtime-references` additionally permits only the trusted, provenance-backed `<tmp>/as-is/...` masked transient-runtime form defined by the execution contract. It does not authorize arbitrary path emission, access, task mutation, or runtime implementation; unknown or malformed modes fail closed before an attempt uses them.
 
 Task records may carry task-specific constraints and permitted scoped narrowing,
 but they do not introduce another project configuration entry point. Component

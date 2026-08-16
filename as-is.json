@@ -55,7 +55,42 @@
       }
     },
     "security": {
-      "emitted-paths": "prohibited"
+      "emitted-paths": "masked-runtime-references"
     }
+  },
+  "task": {
+    "status": "active",
+    "worker": "component-builder",
+    "updated": "2026-08-16T16:15:00Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.5,
+        "spent": 0,
+        "reserve": 0.1,
+        "source": "unavailable",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 300,
+          "spent-seconds": 0,
+          "reserve-seconds": 60,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "prohibited"
+    },
+    "acceptance": [
+      "Root execution-contract policy defines trusted masked transient-runtime references that replace only a proven host temporary-root prefix with <tmp> while preserving approved logical, project, component, run, job, and runtime-relative segments.",
+      "The existing <project-root>/relative/path project-context reference remains a separate example form with its existing provenance, grammar, containment, and fail-closed semantics.",
+      "The policy preserves raw host-path prohibition, exact safe segment grammar, trusted provenance and containment, non-authorizing navigation, and fail-closed handling for malformed, mismatched, traversal-bearing, encoded, out-of-root, and unproven values.",
+      "Root configuration and backlog sequencing identify the masked-runtime-reference policy without authorizing runtime implementation or changing child component records.",
+      "Policy, configuration, task, backlog, as-is/content, diagnostics, JSON, and whitespace validation pass and final read-only review approves the scoped handoff."
+    ]
   }
 }
