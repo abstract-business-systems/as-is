@@ -25,7 +25,7 @@ The shared family is a structural home, not a merged authority. The control-plan
 
 ## Relationships
 
-- The control plane consumes context-resolution functionality and authorizes bounded host-neutral execution without owning host execution.
+- The control plane consumes context-resolution functionality and authorizes bounded host-neutral execution without owning host execution. It is the durable authority for task status, checkpoints, questions, approvals, cancellation, completion, descendant closure, and launch-budget admission; the current process supervisor maps execution observations around that authority without becoming a second task-control owner. A future execution-contract module, if justified by the readiness inventory and fixtures, must consume rather than replace these task-control boundaries.
 - Budget arithmetic is consumed by the control plane, subprocess foundation, launcher, and Pi worker adapter while task records remain authoritative.
 - The validator is invoked by repository validation and remains independent of control-plane mutation.
 - Handoff eligibility is consumed by the launcher after host adapters collect immutable facts.

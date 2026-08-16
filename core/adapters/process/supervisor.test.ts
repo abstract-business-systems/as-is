@@ -405,6 +405,21 @@ describe("detached subprocess foundation", () => {
     }
   });
 
+  test("rejects a launch request against a newer durable record revision", async () => {
+    const fixtureData = await fixture();
+    try {
+      const before = await readDurableRecord(fixtureData.recordPath);
+      await expect(launch(requestFor(fixtureData, "await Bun.sleep(1);", {
+        recordRevision: "stale-record-revision",
+      }))).rejects.toThrow("durable record revision is newer or does not match");
+      const after = await readDurableRecord(fixtureData.recordPath);
+      expect(after.status).toBe("ready");
+      expect(after.events).toEqual(before.events);
+    } finally {
+      await rm(fixtureData.root, { recursive: true, force: true });
+    }
+  });
+
   test("classifies stale, fresh, and unknown durable checkpoints without inference", () => {
     const old = new Date(Date.now() - 5000).toISOString();
     const fresh = new Date(Date.now() - 20).toISOString();

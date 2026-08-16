@@ -2,12 +2,26 @@
 
 ## Purpose
 
-This specification defines the host-neutral boundary between the orchestrator
-and a worker runtime. It describes how the orchestrator launches, resumes,
-observes, questions, cancels, and recovers a worker while keeping policy and
-durable authority in the filesystem task record. A host adapter maps this
-contract to its own sessions, processes, permissions, and measurement APIs; it
-does not redefine the contract.
+This specification defines the host-neutral boundary between the orchestrator and a worker runtime. It describes how the orchestrator launches, resumes, observes, questions, cancels, and recovers a worker while keeping policy and durable authority in the filesystem task record. A host adapter maps this contract to its own sessions, processes, permissions, and measurement APIs; it does not redefine the contract.
+
+## Readiness Ownership Inventory
+
+This inventory is the readiness boundary for a future execution-contract module. It records current ownership and evidence without creating `core/modules/execution-contract/` or moving implementation.
+
+| Concern | Current owner | Evidence | Boundary and gap | Recovery boundary |
+| --- | --- | --- | --- | --- |
+| Host-neutral lifecycle concepts and request/result vocabulary | This document, `docs/execution-contract.md` | `ExecutionRequest`, `ExecutionResult`, lifecycle operations, state/checkpoint rules, and recovery policy below | The document is the current conceptual authority; no standalone runtime contract module exists yet. | Preserve this document and current implementation owners until a replacement contract has consumer and behavior evidence; abandon an incomplete extraction without leaving split lifecycle authority. |
+| Durable task status, checkpoints, questions, approvals, cancellation, completion, and descendant closure | `core/modules/task-control/` | `control-plane.ts`, `control-plane.test.ts`, task-record validator, handoff-eligibility tests | Task-control owns durable mutation and validation; it does not own host process or session mechanics. | Recover from the component `as-is.json` task and configured narrative; never infer a transition from a process handle or exit. |
+| Detached process lifetime, process groups, signals, wall-clock stop, stdio, and exit observation | `core/adapters/process/bounded-process-supervisor.ts` | `bounded-process-supervisor.test.ts`; consumed by `core/adapters/process/supervisor.ts` | The bounded adapter owns mechanical process lifetime only; it does not interpret task completion or Git handoff. | Preserve the owned process-group and durable evidence boundary; if control is unavailable, return host-unavailable evidence rather than substitute a runtime. |
+| Durable process-backed launch, observe, permission, cancellation, recovery, stale classification, budget observation, and handoff mapping | `core/adapters/process/supervisor.ts` | `supervisor.ts` and provider-free `supervisor.test.ts` | This is the current broad process-backed mapping of the conceptual contract and is the principal overlap to reconcile before extraction. | Keep task records authoritative, retain source-labelled private host observations, and preserve runtime state when termination or durable cleanup evidence is incomplete. |
+| Pi command/session construction, model and thinking resolution, tool/skill admission, worktree/Git mechanics, registry projection, and launcher handoff observation | `skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts` and its skill record | Launcher tests, `skills/spawning-pi-subagents/as-is.md`, package and Pi-version fixtures | The launcher is a Pi adapter/procedure consumer of the contract, not the host-neutral contract owner; its Pi and repository mechanics must remain outside a future core module. | Preserve the current launcher and static registration path; a failed adapter extraction reverts only the adapter change and does not alter task authority or the working registration surface. |
+| Budget arithmetic and launch admission | `core/modules/task-control/budget.ts` and `control-plane.ts` | Budget and control-plane tests, including retained-reserve admission and unavailable-observation cases | Arithmetic is reusable functionality; allocation, approval, and host observation remain with task control and callers. | Carry cumulative observations forward from durable records; unavailable cost remains unavailable and does not authorize a reset or automatic continuation. |
+| Trace emission and session/evidence queries | `core/modules/observability/` and `tools/evidence/` | Tracer, lifecycle, session, and trace-query tests | Observability is supplementary and cannot authorize, complete, or replace a task record. | Telemetry failure degrades evidence to unavailable without blocking durable task recovery or inventing completion. |
+| Worktree, Git ancestry, commit scope, and parent integration | Pi launcher and receiving `component-builder` authority | Launcher handoff fixtures and component-task protocol | Mechanical ancestry and scope evidence are distinct from semantic integration and execution lifecycle. | Preserve isolated worktrees with uncommitted recovery candidates; the receiving builder decides integration and the launcher never merges. |
+
+The smallest stable boundary is therefore an observation contract: an operation-specific request names the component, durable record revision, normalized configuration, input, budget, and return condition; a result reports outcome, durable record observation, source-labelled host observation, question, and recovery. The request/result shape below is conceptual and does not authorize a serialization format, runtime API, or relocation.
+
+Readiness is satisfied only when provider-free fixtures demonstrate launch admission, accepted launch observation, failure, cancellation or bounded recovery, stale-revision rejection, and unavailable host evidence while preserving the boundaries in the table. Until that evidence and consumer inventory are reviewed, the current document, task-control module, process adapter, Pi launcher, observability owners, and receiving builder retain their existing responsibilities.
 
 ## Authority And Context
 

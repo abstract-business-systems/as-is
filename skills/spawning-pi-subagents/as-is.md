@@ -6,7 +6,10 @@
 The `spawning-pi-subagents` launcher is the repository's bridge between an agent
 file and a Pi child process. Agent contracts own ordinary capability
 declarations; this package owns admission, validation, and forwarding of those
-declarations, while the Pi host/package owns tool implementations. Shared
+declarations, while the Pi host/package owns tool implementations. The launcher
+is a Pi adapter/procedure consumer of the host-neutral execution-contract
+concepts; it does not define task authority or become the future contract owner.
+Shared
 agent front-matter parsing, canonical role lookup, declared-tool parsing, and
 identity extraction are provided by the focused `agent-resolution.ts`
 functionality consumed by both the launcher and in-process worker adapter. No

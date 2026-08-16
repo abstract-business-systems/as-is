@@ -11,9 +11,21 @@ wait for worker completion.
 ## Design
 
 The adapter is organized around detached launch and lifecycle boundaries for
-bounded worker attempts. The Pi launcher consumes the shared mechanical process
-boundary without transferring task-record, Git, worktree, or handoff authority
-into this adapter; this is an adapter relationship, not a second task authority.
+bounded worker attempts. `bounded-process-supervisor.ts` owns only mechanical
+process lifetime, process-group signaling, wall-clock enforcement, stdio, and
+exit observation. `supervisor.ts` is the current process-backed mapping of the
+host-neutral execution-contract concepts: it coordinates durable launch,
+observation, permission, cancellation, recovery, stale classification, budget
+observation, and handoff evidence while retaining task-record authority in
+`core/modules/task-control/`. The Pi launcher consumes the shared mechanical
+process boundary without transferring task-record, Git, worktree, or handoff
+authority into this adapter; this is an adapter relationship, not a second task
+authority.
+
+The future execution-contract boundary remains a readiness proposal, not an
+implemented module. Until consumer and provider-free request/result fixtures
+prove a smaller stable seam, this adapter retains its current responsibilities
+and the durable task record remains authoritative.
 
 
 **Lineage**: [as-is](../../../as-is.md#design) / [core](../../as-is.md#design) / [core Adapters](../as-is.md#design) / **process adapter**
