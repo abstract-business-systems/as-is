@@ -57,40 +57,5 @@
     "security": {
       "emitted-paths": "masked-runtime-references"
     }
-  },
-  "task": {
-    "status": "completed",
-    "worker": "component-builder",
-    "updated": "2026-08-16T18:32:00Z",
-    "constraints": {
-      "cost": {
-        "currency": "USD",
-        "allocated": 0.5,
-        "spent": 0,
-        "reserve": 0.1,
-        "source": "unavailable",
-        "fallback-metric": "validation elapsed-seconds"
-      },
-      "delegation": {
-        "maximum-depth": 0,
-        "maximum-children": 0
-      },
-      "execution": {
-        "wall-clock": {
-          "allocated-seconds": 300,
-          "spent-seconds": 0,
-          "reserve-seconds": 60,
-          "source": "unavailable"
-        }
-      },
-      "external-effects": "prohibited"
-    },
-    "acceptance": [
-      "The current Pi registration, package, launcher-loading, exact-version, dependency, trust/approval, and evidence-validator boundaries are inventoried with authoritative sources and consumers.",
-      "The smallest future Pi adapter boundary is explicit and host-specific; task-control, process mechanics, execution-contract vocabulary, emitted-path safety, and completion authority remain outside it.",
-      "Provider-free fixture requirements cover supported loading, exact version mismatch/unavailability, registration failure and unsupported service versions, trust/approval behavior, package self-containment assumptions, rollback, and emitted-path privacy without adding implementation.",
-      "Compatibility and recovery preserve the static .pi adapter and current package path until replacement evidence passes; no speculative directory or package split is authorized.",
-      "Task-record, backlog, JSON, content/navigation, whitespace, diagnostics, and final expert validation pass."
-    ]
   }
 }
