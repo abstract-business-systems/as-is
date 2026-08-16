@@ -1,61 +1,37 @@
 {
-  "configuration": {
-    "records": {
-      "filenames": {
-        "backlog": "backlog.md",
-        "changelog": "changelog.md",
-        "task": "tasks.md"
-      }
+  "task": {
+    "status": "active",
+    "worker": "component-builder",
+    "updated": "2026-08-16T20:20:00Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.5,
+        "spent": 0,
+        "reserve": 0.1,
+        "source": "unavailable",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 1,
+        "maximum-children": 1
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 300,
+          "spent-seconds": 0,
+          "reserve-seconds": 60,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "prohibited"
     },
-    "tasks": {
-      "unitBudget": {
-        "wallClockSeconds": 300,
-        "costUsd": 0.5
-      }
-    },
-    "scheduling": {
-      "wakeSeconds": 60,
-      "checkInSeconds": 300,
-      "maxConcurrentTasks": 1,
-      "retryBackoffSeconds": 300,
-      "maxRecoveryAttempts": 2
-    },
-    "notifications": {
-      "materialEvents": true
-    },
-    "agents": {
-      "defaultRole": "as-is",
-      "defaultModel": "small",
-      "provider": "openrouter",
-      "models": {
-        "small": "@preset/abs-small",
-        "medium": "@preset/abs-medium",
-        "large": "@preset/abs-large",
-        "xlarge": "@preset/abs-xlarge"
-      }
-    },
-    "technology-preferences": {
-      "runtime": "bun",
-      "package-manager": "bun"
-    },
-    "hitl": {
-      "onBlocked": true,
-      "onBudgetExceeded": true,
-      "onExternalEffect": true
-    },
-    "logging": {
-      "level": "info",
-      "retainDays": 30
-    },
-    "observability": {
-      "tracing": {
-        "backend": "file",
-        "enabled": true,
-        "local-directory": ".as-is/tracing.jsonl"
-      }
-    },
-    "security": {
-      "emitted-paths": "masked-runtime-references"
-    }
+    "acceptance": [
+      "Record a root-owned finite event/reference matrix for session.lifecycle, delegation.lifecycle, subprocess.launch, worker.lifecycle, subprocess.exit, and subprocess.handoff, identifying delegating-session-reference, child-session-reference, or absent outcomes and their availability timing.",
+      "Define that only valid opaque session IDs may be emitted; unavailable references remain absent and never become paths, generated guesses, store references, prompts, tool content, provider/runtime payloads, or authorization.",
+      "Map current ownership, consumers, baseline tests, and separate follow-up gates for launcher lifecycle production, observability projection, and evidence-tool correlation without implementing those follow-ups in this phase.",
+      "Preserve task-record authority, routing, configured worker identity, expert gates, front-matter skill forwarding compatibility, emitted-path privacy, runtime semantics, and host-neutral boundaries; no runtime, launcher, observability, evidence-tool, task-protocol, capability, host, or target behavior changes.",
+      "Validate the contract/matrix handoff with task-record, backlog/schema, content/navigation, JSON/reference, whitespace, and diff checks plus fresh read-only expert review; no descendants are required for this planning phase."
+    ]
   }
 }
