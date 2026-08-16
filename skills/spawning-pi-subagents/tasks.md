@@ -22,10 +22,10 @@ The selected row is `dynamic-expert-validation-access`. Existing evidence confir
 Blocked. The existing fixed capability proves bounded attributable Git evidence and non-mutation, but does not prove execution/attestation of focused checks required by the backlog acceptance. Therefore do not remove the backlog row, do not claim completion, and do not alter runtime or tests.
 
 ## Blockers And Escalations
-The required expert plan gate failed on the acceptance gap. To proceed, task authority must explicitly narrow the acceptance to bounded Git evidence or authorize a separate bounded focused-check evidence mechanism and coverage; neither is authorized here.
+The required expert plan gate failed on the acceptance gap. To proceed, task authority must explicitly narrow the acceptance to bounded Git evidence or authorize a separate bounded focused-check evidence mechanism and coverage; neither is authorized here. The current task therefore remains blocked and is not eligible for completion or backlog cleanup.
 
 ## Recovery
 Preserved `skills/spawning-pi-subagents/backlog.md` row and active task artifacts. Recovery starts by resolving the acceptance decision; no runtime or capability changes were made. No descendants were authorized or present.
 
 ## Next Action
-Parent/task authority should reconcile the bounded blocker. Do not complete or clean task artifacts while the acceptance remains unresolved.
+Obtain an explicit task-authority decision to narrow the acceptance to the proven bounded Git evidence capability or create a separately authorized focused-check mechanism task. Until then, preserve the active task pair and backlog row; do not modify runtime, capability, role, or test behavior.
