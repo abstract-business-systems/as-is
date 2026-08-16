@@ -1,1 +1,18 @@
-{}
+{
+  "task": {
+    "status": "active",
+    "worker": "component-builder",
+    "updated": "2026-08-16T21:02:43Z",
+    "constraints": {
+      "cost": { "currency": "USD", "allocated": 0.4, "spent": 0, "reserve": 0.08, "source": "host-forwarded" },
+      "delegation": { "maximum-depth": 0, "maximum-children": 0 },
+      "execution": { "wall-clock": { "allocated-seconds": 180, "spent-seconds": 0, "reserve-seconds": 36, "source": "host-forwarded" } },
+      "external-effects": "prohibited"
+    },
+    "acceptance": [
+      "Reconcile dynamic-expert-validation-access only if existing fixed read-only evidence-validator capability proves the backlog acceptance.",
+      "Otherwise retain a bounded blocker and preserve the backlog row without runtime, capability, role, or test changes.",
+      "Record expert plan and final validation gates, focused evidence, recovery, and descendant closure."
+    ]
+  }
+}
