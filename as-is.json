@@ -59,9 +59,9 @@
     }
   },
   "task": {
-    "status": "completed",
+    "status": "active",
     "worker": "component-builder",
-    "updated": "2026-08-16T18:05:00Z",
+    "updated": "2026-08-16T18:15:00Z",
     "constraints": {
       "cost": {
         "currency": "USD",
@@ -86,10 +86,11 @@
       "external-effects": "prohibited"
     },
     "acceptance": [
-      "The execution-contract readiness inventory reconciles conceptual lifecycle vocabulary with current task-control, process-adapter, launcher, observability, budget, and Git/worktree consumers without creating a speculative execution-contract module.",
-      "Provider-free fixtures cover launch admission, accepted launch observation, failure, cancellation or bounded recovery, stale-revision rejection, and unavailable-host evidence.",
-      "The resulting observation seam, or documented decision not to create one, preserves task-control as durable authority and does not split lifecycle ownership or change runtime behavior.",
-      "Task-record, focused behavioral, content/navigation, backlog, JSON, reference, diagnostics, whitespace, and final review validation pass."
+      "The current Pi registration, package, launcher-loading, exact-version, dependency, trust/approval, and evidence-validator boundaries are inventoried with authoritative sources and consumers.",
+      "The smallest future Pi adapter boundary is explicit and host-specific; task-control, process mechanics, execution-contract vocabulary, emitted-path safety, and completion authority remain outside it.",
+      "Provider-free fixture requirements cover supported loading, exact version mismatch/unavailability, registration failure and unsupported service versions, trust/approval behavior, package self-containment assumptions, rollback, and emitted-path privacy without adding implementation.",
+      "Compatibility and recovery preserve the static .pi adapter and current package path until replacement evidence passes; no speculative directory or package split is authorized.",
+      "Task-record, backlog, JSON, content/navigation, whitespace, diagnostics, and final expert validation pass."
     ]
   }
 }
