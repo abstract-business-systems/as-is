@@ -22,10 +22,13 @@ process boundary without transferring task-record, Git, worktree, or handoff
 authority into this adapter; this is an adapter relationship, not a second task
 authority.
 
-The future execution-contract boundary remains a readiness proposal, not an
-implemented module. Until consumer and provider-free request/result fixtures
-prove a smaller stable seam, this adapter retains its current responsibilities
-and the durable task record remains authoritative.
+The future execution-contract boundary remains a documented observation
+contract, not an implemented module. Existing provider-free fixtures cover the
+candidate lifecycle evidence, but no second independent host adapter currently
+justifies extracting a shared runtime API. This adapter therefore retains its
+process-backed mapping and the durable task record remains authoritative; a
+future extraction requires a concrete additional consumer and compatibility
+need rather than conceptual overlap alone.
 
 
 **Lineage**: [as-is](../../../as-is.md#design) / [core](../../as-is.md#design) / [core Adapters](../as-is.md#design) / **process adapter**

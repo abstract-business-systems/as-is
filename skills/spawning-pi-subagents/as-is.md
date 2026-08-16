@@ -9,6 +9,9 @@ declarations; this package owns admission, validation, and forwarding of those
 declarations, while the Pi host/package owns tool implementations. The launcher
 is a Pi adapter/procedure consumer of the host-neutral execution-contract
 concepts; it does not define task authority or become the future contract owner.
+The readiness decision retains the conceptual observation contract in
+`docs/execution-contract.md` and does not create a shared runtime API until an
+additional independent host adapter provides a concrete compatibility need.
 Shared
 agent front-matter parsing, canonical role lookup, declared-tool parsing, and
 identity extraction are provided by the focused `agent-resolution.ts`
