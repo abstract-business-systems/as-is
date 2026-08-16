@@ -1,8 +1,8 @@
 {
   "task": {
-    "status": "completed",
+    "status": "active",
     "worker": "component-builder",
-    "updated": "2026-08-16T19:55:00Z",
+    "updated": "2026-08-16T20:05:00Z",
     "constraints": {
       "cost": {
         "currency": "USD",
@@ -27,10 +27,10 @@
       "external-effects": "prohibited"
     },
     "acceptance": [
-      "Implement deterministic local JSONL segment rotation, age retention, and bounded segment count for the file tracer while preserving configured filename/directory compatibility.",
-      "Preserve the shared fail-closed projection, opaque session-ID-only external export, append-only complete segments, exact-size admission, oversized-record drop behavior, and fail-safe telemetry isolation.",
-      "Focused tests cover compatibility, rotation, byte and file-count limits, age cleanup, unrelated-file preservation, invalid configuration fallback, failure isolation, and existing privacy/lifecycle/OTLP behavior.",
-      "No task authority, launcher, evidence-tool, process-adapter, host, target, or external-backend behavior changes; validation, changelog evidence, exact backlog cleanup, and paired task cleanup are completed in one scoped completion commit."
+      "Harden direct Jaeger/OTLP HTTP export with a finite internal timeout and unsuccessful-response isolation without changing the default file backend or accepted configuration fields.",
+      "A local in-process HTTP stub receives the expected POST path, content type, existing OTLP envelope, and opaque-session-ID-only payload; invalid references and path/content sentinels do not escape the projection.",
+      "Refused/unavailable endpoints, delayed responses exceeding the timeout, and non-2xx responses resolve without propagating telemetry failure; no retry, buffering, duplicate export, external service, collector, or query client is introduced.",
+      "Existing file, retention, privacy, session-reference, lifecycle, evidence-tool, task-record, JSON, content/navigation, build, whitespace, and diff checks pass; no launcher, task, process, host, target, or evidence-query ownership changes."
     ]
   }
 }
