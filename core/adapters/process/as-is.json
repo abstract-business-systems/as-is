@@ -1,15 +1,15 @@
 {
   "task": {
-    "status": "completed",
+    "status": "active",
     "worker": "component-builder",
-    "updated": "2026-08-16T22:30:00Z",
+    "updated": "2026-08-16T22:56:23Z",
     "constraints": {
       "cost": {
         "currency": "USD",
-        "allocated": 0.5,
+        "allocated": 0.25,
         "spent": 0,
-        "reserve": 0.1,
-        "source": "unavailable",
+        "reserve": 0.05,
+        "source": "host-forwarded",
         "fallback-metric": "validation elapsed-seconds"
       },
       "delegation": {
@@ -18,20 +18,18 @@
       },
       "execution": {
         "wall-clock": {
-          "allocated-seconds": 300,
+          "allocated-seconds": 180,
           "spent-seconds": 0,
-          "reserve-seconds": 60,
-          "source": "unavailable"
+          "reserve-seconds": 36,
+          "source": "host-forwarded"
         }
       },
       "external-effects": "prohibited"
     },
     "acceptance": [
-      "Process-adapter public handles, observations, diagnostics, and nested structured results emit only approved masked transient-runtime references or project-context references; raw host paths and unproven path-bearing values remain prohibited while private process operands remain usable internally.",
-      "Provider-free fixtures cover public launch handles, durable observations, host observations, permission/cancellation/recovery/handoff/cleanup results, approved masked runtime references, nested malformed values, and complete raw host-path absence.",
-      "Existing lifecycle, cancellation, cleanup, recovery, stale-classification, budget, handoff, task-record, and no-leftover behavior remains passing.",
-      "Launcher/recovery projections, bounded-process-supervisor mechanics, tracer filtering, task authority, Git/worktree integration, and completion authority remain outside this task.",
-      "Validation, durable changelog evidence, exact backlog cleanup, and transient task cleanup are completed in one scoped completion commit."
+      "Extend only bounded-process-supervisor.ts to provide bounded stdout observation needed by the parent accounting task while preserving log, inherited-output, process-group, timer, signal, and exit behavior.",
+      "Provider-free tests cover captured output, output cap/truncation or unavailable behavior, log preservation, and unchanged budget/exit behavior without adding launcher-specific accounting or task authority.",
+      "Build and focused process validation pass, with task-record, whitespace, and scoped-handoff evidence recorded."
     ]
   }
 }
