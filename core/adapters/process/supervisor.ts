@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { appendFile, chmod, mkdir, open, readFile, rename, rm, stat, unlink, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { homedir, tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { emitTrace, startSpan, type TracerConfig, type SpanLifecycle } from "../../modules/observability/tracer.ts";
@@ -168,19 +168,22 @@ export interface DurableCheckpoint {
 }
 
 export interface DurableRecordObservation {
-  path: string;
   status: DurableTaskStatus | "unknown";
   updated: string | null;
   events: DurableCheckpoint[];
+}
+
+interface PrivateDurableRecordObservation extends DurableRecordObservation {
+  path: string;
   raw: string;
 }
 
 export interface ProcessHealth {
   source: "host-process";
-  supervisorPid: number | null;
-  supervisorProcessGroupId: number | null;
-  workerPid: number | null;
-  processGroupId: number | null;
+  supervisorPid: null;
+  supervisorProcessGroupId: null;
+  workerPid: null;
+  processGroupId: null;
   supervisorAlive: boolean | "unknown";
   supervisorProcessGroupAlive: boolean | "unknown";
   workerAlive: boolean | "unknown";
@@ -211,8 +214,9 @@ export interface JobObservation {
     status: HostStatus | "unavailable";
     workerExitCode: number | null;
     launchAccepted: boolean;
-    workerProcessGroupId: number | null;
-    logs: { stdout: string | null; stderr: string | null };
+    workerProcessGroupId: null;
+    runtimeReference: string | null;
+    logs: { stdout: null; stderr: null };
   };
   health: ProcessHealth;
   budget: BudgetObservation | null;
@@ -221,12 +225,33 @@ export interface JobObservation {
 
 export interface JobHandle {
   jobId: string;
+  projectKey: string;
   component: string;
+  attempt: number;
+  handleToken: string;
+}
+
+interface PrivateJobHandle {
+  jobId: string;
+  projectKey: string;
+  component: string;
+  runId: string;
   recordPath: string;
   runtimeDir: string;
   workspacePath: string;
   statePath: string;
   attempt: number;
+  taskRevision: string | null;
+  adapter: "process";
+  createdAt: string;
+  expiresAt: string | null;
+  handleToken: string;
+}
+
+interface PrivateJobMap {
+  version: 1;
+  projectKey: string;
+  jobs: Record<string, PrivateJobHandle>;
 }
 
 interface PrivateEvent extends DurableCheckpoint {
@@ -289,6 +314,8 @@ export type StaleObservation =
 const CHECKPOINT_BEGIN = "<!-- subprocess-execution-foundation:begin -->";
 const CHECKPOINT_END = "<!-- subprocess-execution-foundation:end -->";
 const encoder = new TextEncoder();
+const privateJobMaps = new Map<string, PrivateJobMap>();
+const privateHandles = new Map<string, PrivateJobHandle>();
 
 function isoNow(): string {
   return new Date().toISOString();
@@ -343,6 +370,130 @@ function safeProjectKey(value: string): string {
 
 function safeComponentKey(value: string): string {
   return basename(value).replace(/[^a-zA-Z0-9_-]/g, "-").slice(0, 64) || "component";
+}
+
+function logicalJobId(value: string): string {
+  if (!/^[A-Za-z0-9._-]{1,128}$/.test(value)) throw new Error("rejected: job id is malformed");
+  return value;
+}
+
+function logicalComponentKey(value: string): string {
+  if (!/^[A-Za-z0-9_-]{1,64}$/.test(value)) throw new Error("rejected: component identity is not a logical key");
+  return value;
+}
+
+function logicalProjectKey(value: string): string {
+  if (!/^[A-Za-z0-9._-]{1,128}$/.test(value)) throw new Error("rejected: project key is malformed");
+  return value;
+}
+
+function logicalRunId(value: string): string {
+  if (!/^[A-Za-z0-9._-]{1,128}$/.test(value)) throw new Error("rejected: run id is malformed");
+  return value;
+}
+
+function maskedRuntimeReference(locator: PrivateJobHandle): string | null {
+  const projectKey = logicalProjectKey(locator.projectKey);
+  const runId = logicalRunId(locator.runId);
+  const componentKey = safeComponentKey(locator.component);
+  const segments = [projectKey, runId, componentKey, logicalJobId(locator.jobId)];
+  if (segments.some((segment) => !/^[A-Za-z0-9._-]{1,128}$/.test(segment))) {
+    throw new Error("unavailable: runtime reference identifiers are malformed");
+  }
+  const approvedRuntime = join(tmpdir(), "as-is", projectKey, runId, componentKey, locator.jobId);
+  if (resolve(locator.runtimeDir) !== resolve(approvedRuntime)) return null;
+  return `<tmp>/as-is/${segments.join("/")}`;
+}
+
+function privateJobMapPath(projectKey: string): string {
+  return join(process.env.XDG_STATE_HOME ?? join(homedir(), ".local", "state"), "as-is", "projects", projectKey, "runtime", "job-map.json");
+}
+
+function projectKeyForRecord(recordPath: string): string {
+  return safeProjectKey(dirname(recordPath));
+}
+
+async function loadPrivateJobMap(projectKey: string, allowMissing = false): Promise<PrivateJobMap> {
+  try {
+    const map = JSON.parse(await readFile(privateJobMapPath(projectKey), "utf8")) as PrivateJobMap;
+    if (map.version !== 1 || map.projectKey !== projectKey || !map.jobs || typeof map.jobs !== "object") throw new Error("invalid private job map");
+    privateJobMaps.set(projectKey, map);
+    return map;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT" || !allowMissing) throw new Error("unavailable: private job map cannot be loaded at the private state boundary");
+    const empty: PrivateJobMap = { version: 1, projectKey, jobs: {} };
+    privateJobMaps.set(projectKey, empty);
+    return empty;
+  }
+}
+
+async function savePrivateJobMap(projectKey: string, map: PrivateJobMap): Promise<void> {
+  const path = privateJobMapPath(projectKey);
+  await mkdir(dirname(path), { recursive: true, mode: 0o700 });
+  await chmod(dirname(path), 0o700);
+  await atomicJson(path, map);
+  await chmod(path, 0o600);
+  privateJobMaps.set(projectKey, map);
+}
+
+async function registerPrivateJob(locator: PrivateJobHandle): Promise<void> {
+  const path = privateJobMapPath(locator.projectKey);
+  await mkdir(dirname(path), { recursive: true, mode: 0o700 });
+  await chmod(dirname(path), 0o700);
+  await withPrivateStateLock(path, async () => {
+    const map = await loadPrivateJobMap(locator.projectKey, true);
+    map.jobs[locator.jobId] = locator;
+    await savePrivateJobMap(locator.projectKey, map);
+  });
+  privateHandles.set(locator.handleToken, locator);
+}
+
+async function resolvePrivateJob(handle: JobHandle): Promise<PrivateJobHandle> {
+  const projectKey = logicalProjectKey(handle.projectKey);
+  const jobId = logicalJobId(handle.jobId);
+  const component = logicalComponentKey(handle.component);
+  const map = await loadPrivateJobMap(projectKey);
+  const locator = map.jobs[jobId];
+  if (!locator || locator.handleToken !== handle.handleToken || locator.jobId !== jobId || locator.projectKey !== projectKey || logicalComponentKey(safeComponentKey(locator.component)) !== component || locator.attempt !== handle.attempt) throw new Error("unavailable: private process operands cannot be resolved");
+  logicalRunId(locator.runId);
+  logicalComponentKey(locator.component);
+  privateHandles.set(handle.handleToken, locator);
+  return locator;
+}
+
+function publicHandle(locator: PrivateJobHandle): JobHandle {
+  return { jobId: logicalJobId(locator.jobId), projectKey: logicalProjectKey(locator.projectKey), component: logicalComponentKey(safeComponentKey(locator.component)), attempt: locator.attempt, handleToken: locator.handleToken };
+}
+
+/** Creates a path-free public handle while retaining record-only operands privately. */
+export async function createPrivateRecordOnlyHandle(
+  recordPath: string,
+  runtimeDir: string,
+  workspacePath: string,
+  statePath: string,
+  component: string,
+  jobId = randomUUID(),
+  attempt = 1,
+): Promise<JobHandle> {
+  const projectKey = projectKeyForRecord(recordPath);
+  const locator: PrivateJobHandle = {
+    jobId: logicalJobId(jobId),
+    projectKey,
+    component: logicalComponentKey(component),
+    runId: "record-only",
+    recordPath,
+    runtimeDir,
+    workspacePath,
+    statePath,
+    attempt,
+    taskRevision: null,
+    adapter: "process",
+    createdAt: isoNow(),
+    expiresAt: null,
+    handleToken: createHash("sha256").update(`${jobId}:${recordPath}`).digest("hex").slice(0, 32),
+  };
+  await registerPrivateJob(locator);
+  return publicHandle(locator);
 }
 
 function assertFiniteNonNegative(value: number, name: string): void {
@@ -405,6 +556,7 @@ function validateRequest(request: LaunchRequest): void {
   if (!request.component || !request.recordPath || !request.worker.command?.length) {
     throw new Error("rejected: component, recordPath, and worker command are required");
   }
+  logicalComponentKey(request.component);
   if (!request.worker.command.every((argument) => typeof argument === "string" && argument.length > 0)) {
     throw new Error("rejected: worker command arguments must be non-empty strings");
   }
@@ -439,8 +591,9 @@ function validateRequest(request: LaunchRequest): void {
   }
 }
 
-function parseRecord(raw: string, path: string, task: Record<string, unknown>): DurableRecordObservation {
-  const status = typeof task.status === "string" ? task.status as DurableTaskStatus : undefined;
+function parseRecord(raw: string, path: string, task: Record<string, unknown>): PrivateDurableRecordObservation {
+  const allowedStatuses = new Set<DurableTaskStatus>(["ready", "active", "blocked", "awaiting-approval", "completed", "failed", "cancelled"]);
+  const status = typeof task.status === "string" && allowedStatuses.has(task.status as DurableTaskStatus) ? task.status as DurableTaskStatus : undefined;
   const events: DurableCheckpoint[] = [];
   const begin = raw.indexOf(CHECKPOINT_BEGIN);
   const end = raw.indexOf(CHECKPOINT_END);
@@ -467,13 +620,112 @@ function parseRecord(raw: string, path: string, task: Record<string, unknown>): 
   };
 }
 
-export async function readDurableRecord(recordPath: string): Promise<DurableRecordObservation> {
-  const companionPath = join(dirname(recordPath), "as-is.json");
-  const companion = parseAsIsJson(await readFile(companionPath, "utf8"), companionPath);
-  if (!companion.task || typeof companion.task !== "object" || Array.isArray(companion.task)) {
-    throw new Error("durable record blocker: companion task is missing");
+async function readPrivateDurableRecord(recordPath: string): Promise<PrivateDurableRecordObservation> {
+  try {
+    const companionPath = join(dirname(recordPath), "as-is.json");
+    const companion = parseAsIsJson(await readFile(companionPath, "utf8"), companionPath);
+    if (!companion.task || typeof companion.task !== "object" || Array.isArray(companion.task)) {
+      throw new Error("durable record blocker: companion task is missing");
+    }
+    return parseRecord(await readFile(recordPath, "utf8"), recordPath, companion.task as Record<string, unknown>);
+  } catch (error) {
+    if (error instanceof Error && error.message === "durable record blocker: companion task is missing") throw error;
+    throw new Error("unavailable: durable task record cannot be read at the private boundary");
   }
-  return parseRecord(await readFile(recordPath, "utf8"), recordPath, companion.task as Record<string, unknown>);
+}
+
+interface PrivateProcessHealth {
+  supervisorPid: number | null;
+  supervisorProcessGroupId: number | null;
+  workerPid: number | null;
+  processGroupId: number | null;
+  supervisorAlive: boolean | "unknown";
+  supervisorProcessGroupAlive: boolean | "unknown";
+  workerAlive: boolean | "unknown";
+  processGroupAlive: boolean | "unknown";
+}
+
+const publicDetailKeys = new Set([
+  "source", "reason", "fingerprint", "permissionState", "approvalDecision", "automaticRetry", "partialWorkPreserved",
+  "repeatedBlocker", "hiddenPrompt", "hiddenInteractivePrompt", "userVisibleEscalationRequired", "blocker", "replacement",
+  "configuredWorker", "attempt", "delaySeconds", "dueAt", "maxRecoveryAttempts", "attempted", "accounted", "wallClockSeconds", "failures", "workspace", "blocker",
+  "wallClockSource", "cost", "costSource", "cumulativeCost", "cumulativeCostSource", "cumulativeWallClockSeconds",
+  "cumulativeWallClockSource", "reserveCost", "reserveWallClockSeconds", "processGroupAlive", "supervisorAlive",
+  "supervisorProcessGroupAlive", "signal", "termination", "hostStatus", "exitCode", "recovery", "nextAction", "noDoubleCounting",
+  "recordRevision", "operation", "capabilityClass", "resourceClass", "failureClass", "scopedTo", "roleChain", "workerRole",
+  "processGroupOwnership", "returnCondition", "privateRuntime", "preflight", "capabilities", "workspace", "heartbeatIntervalSeconds",
+  "deadlineAt", "deadlineSeconds", "deadlineSource", "observationClock", "stdoutLines", "stderrLines", "jobId",
+  "note", "retainedReserve", "capability", "blockerFingerprint", "validation", "result", "descendantsTerminal", "failedOrCancelledDescendants", "hiddenPrompt", "userEventBubbling", "userEventSource", "eventPersistence", "watchdog", "standardInput",
+]);
+
+function projectPublicString(value: string): string | undefined {
+  if (value.length > 256 || /[\\/\0]/.test(value)) return undefined;
+  return value;
+}
+
+function projectPublicBlocker(value: string): string | undefined {
+  if (value === "worker-loss/capability") return value;
+  return projectPublicString(value);
+}
+
+function assertPublicReason(value: string, name: string): void {
+  if (!value.trim() || value.length > 256 || /[\\/\0]/.test(value)) throw new Error(`rejected: ${name} must be a bounded path-free reason`);
+}
+
+function projectDetails(details: Record<string, unknown>): Record<string, unknown> {
+  const projected: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(details)) {
+    if (key === "blocker") {
+      const safe = typeof value === "string" ? projectPublicBlocker(value) : "unavailable";
+      if (safe !== undefined) projected[key] = safe;
+      continue;
+    }
+    if (key === "noDoubleCounting") {
+      projected[key] = value === true;
+      continue;
+    }
+    if (!publicDetailKeys.has(key)) continue;
+    if (["workspace", "approvedWorkspace", "privateRuntime", "preflight"].includes(key)) continue;
+    if (value && typeof value === "object" && !Array.isArray(value)) projected[key] = projectDetails(value as Record<string, unknown>);
+    else if (typeof value === "string") {
+      const safe = projectPublicString(value);
+      if (safe !== undefined) projected[key] = safe;
+    } else if (typeof value === "number" || typeof value === "boolean" || value === null) projected[key] = value;
+    else if (Array.isArray(value) && value.every((item) => typeof item === "string" && projectPublicString(item) !== undefined)) projected[key] = value;
+  }
+  return projected;
+}
+
+function projectIdentifier(value: unknown, fallback: string): string {
+  return typeof value === "string" && /^[A-Za-z0-9._-]{1,128}$/.test(value) ? value : fallback;
+}
+
+function projectTimestamp(value: unknown): string {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value)) return "unknown";
+  return value;
+}
+
+function projectCheckpoint(event: DurableCheckpoint): DurableCheckpoint {
+  return {
+    operation: projectIdentifier(event.operation, "unknown"),
+    event: projectIdentifier(event.event, "unknown"),
+    jobId: projectIdentifier(event.jobId, "unknown"),
+    source: projectIdentifier(event.source, "unknown"),
+    observedAt: projectTimestamp(event.observedAt),
+    details: projectDetails(event.details && typeof event.details === "object" ? event.details : {}),
+  };
+}
+
+function projectRecord(record: PrivateDurableRecordObservation): DurableRecordObservation {
+  return {
+    status: record.status,
+    updated: record.updated === null ? null : projectTimestamp(record.updated) === "unknown" ? null : projectTimestamp(record.updated),
+    events: record.events.map(projectCheckpoint),
+  };
+}
+
+export async function readDurableRecord(recordPath: string): Promise<DurableRecordObservation> {
+  return projectRecord(await readPrivateDurableRecord(recordPath));
 }
 
 async function checkpointRecord(
@@ -633,7 +885,11 @@ function initialState(
 }
 
 async function loadState(statePath: string): Promise<PrivateState> {
-  return JSON.parse(await readFile(statePath, "utf8")) as PrivateState;
+  try {
+    return JSON.parse(await readFile(statePath, "utf8")) as PrivateState;
+  } catch {
+    throw new Error("unavailable: private supervisor state cannot be read at the private boundary");
+  }
 }
 
 async function processAlive(pid: number | null): Promise<boolean | "unknown"> {
@@ -842,6 +1098,24 @@ async function withPrivateStateLock<T>(statePath: string, action: () => Promise<
   throw new Error("private supervisor state lock timed out");
 }
 
+async function withRecoveryLock<T>(recordPath: string, action: () => Promise<T>): Promise<T> {
+  const lockPath = `${recordPath}.recovery-lock`;
+  for (let attempt = 0; attempt < 200; attempt += 1) {
+    try {
+      await mkdir(lockPath, { recursive: false, mode: 0o700 });
+      try {
+        return await action();
+      } finally {
+        await rm(lockPath, { recursive: true, force: true });
+      }
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+      await sleep(5);
+    }
+  }
+  throw new Error("recovery operation lock timed out");
+}
+
 async function appendPrivateEvent(statePath: string, event: PrivateEvent, patch: Partial<PrivateState> = {}): Promise<PrivateState> {
   return withPrivateStateLock(statePath, async () => {
     const state = await loadState(statePath);
@@ -851,16 +1125,10 @@ async function appendPrivateEvent(statePath: string, event: PrivateEvent, patch:
   });
 }
 
-function stateHandle(state: PrivateState, runtimeDir: string, statePath: string): JobHandle {
-  return {
-    jobId: state.jobId,
-    component: state.component,
-    recordPath: state.recordPath,
-    runtimeDir,
-    workspacePath: state.approvedWorkspacePath,
-    statePath,
-    attempt: state.attempt,
-  };
+function stateHandle(state: PrivateState, runtimeDir: string, statePath: string): PrivateJobHandle {
+  const projectKey = safeProjectKey(dirname(state.recordPath));
+  const handleToken = createHash("sha256").update(`${state.jobId}:${state.recordPath}`).digest("hex").slice(0, 32);
+  return { jobId: state.jobId, projectKey, component: state.component, runId: basename(dirname(runtimeDir)), recordPath: state.recordPath, runtimeDir, workspacePath: state.approvedWorkspacePath, statePath, attempt: state.attempt, taskRevision: null, adapter: "process", createdAt: state.createdAt, expiresAt: null, handleToken };
 }
 
 async function consumeOutput(
@@ -918,7 +1186,7 @@ function watchdogDuration(request: LaunchRequest): { seconds: number; source: st
 async function runSupervisor(configPath: string): Promise<void> {
   const config = JSON.parse(await readFile(configPath, "utf8")) as {
     request: LaunchRequest;
-    handle: JobHandle;
+    handle: PrivateJobHandle;
   };
   const request = config.request;
   const handle = config.handle;
@@ -1266,7 +1534,7 @@ async function runSupervisor(configPath: string): Promise<void> {
   void current;
 }
 
-async function spawnDetachedSupervisor(request: LaunchRequest, handle: JobHandle, configPath: string): Promise<{ pid: number }> {
+async function spawnDetachedSupervisor(request: LaunchRequest, handle: PrivateJobHandle, configPath: string): Promise<{ pid: number }> {
   const supervisorScript = fileURLToPath(import.meta.url);
   let processHandle: ReturnType<typeof Bun.spawn>;
   try {
@@ -1277,13 +1545,13 @@ async function spawnDetachedSupervisor(request: LaunchRequest, handle: JobHandle
       stderr: "ignore",
       detached: true,
     } as any);
-  } catch (error) {
-    throw new Error(`unavailable detached supervisor: ${error instanceof Error ? error.message : String(error)}`);
+  } catch {
+    throw new Error("unavailable detached supervisor at the host process boundary");
   }
   return { pid: processHandle.pid };
 }
 
-async function waitForLaunchCheckpoint(handle: JobHandle, timeoutMilliseconds: number): Promise<DurableRecordObservation> {
+async function waitForLaunchCheckpoint(handle: PrivateJobHandle, timeoutMilliseconds: number): Promise<DurableRecordObservation> {
   const deadline = Date.now() + timeoutMilliseconds;
   while (Date.now() < deadline) {
     const record = await readDurableRecord(handle.recordPath);
@@ -1321,19 +1589,28 @@ export async function launch(request: LaunchRequest, timeoutMilliseconds = 3000)
     budget: carryForwardBudget(request.budget, record),
   };
   const jobId = randomUUID();
-  const runId = request.runId ?? randomUUID();
+  const runId = logicalRunId(request.runId ?? randomUUID());
   const runtimeDir = makeRuntimeDir(effectiveRequest, runId, jobId);
   const workspacePath = join(runtimeDir, "workspace");
   const statePath = join(runtimeDir, "state.json");
-  const handle: JobHandle = {
+  const projectKey = logicalProjectKey(request.projectKey ?? safeProjectKey(request.projectRoot ?? process.cwd()));
+  const privateHandle: PrivateJobHandle = {
     jobId,
+    projectKey,
     component: request.component,
+    runId,
     recordPath: request.recordPath,
     runtimeDir,
     workspacePath,
     statePath,
     attempt: request.recovery?.attempt ?? 1,
+    taskRevision: request.recordRevision ?? record.updated ?? null,
+    adapter: "process",
+    createdAt: isoNow(),
+    expiresAt: null,
+    handleToken: createHash("sha256").update(`${jobId}:${request.recordPath}`).digest("hex").slice(0, 32),
   };
+  await registerPrivateJob(privateHandle);
   const operation = request.recovery ? "recover" : "launch";
   if (request.worker.available === false) {
     await writeRecordCheckpoint(request.recordPath, makeCheckpoint(jobId, operation, "worker-unavailable", {
@@ -1342,7 +1619,7 @@ export async function launch(request: LaunchRequest, timeoutMilliseconds = 3000)
       reason: "configured implementer is unavailable",
       replacement: "not permitted without explicit recorded direction",
     }), "blocked");
-    return { outcome: "unavailable", handle, record: await readDurableRecord(request.recordPath) };
+    return { outcome: "unavailable", handle: publicHandle(privateHandle), record: await readDurableRecord(request.recordPath) };
   }
   const budgetBlocker = admissionBlocker(effectiveRequest.budget);
   if (budgetBlocker) {
@@ -1357,7 +1634,7 @@ export async function launch(request: LaunchRequest, timeoutMilliseconds = 3000)
       },
       configuredWorker: "implementer",
     }), "blocked");
-    return { outcome: "rejected", handle, record: await readDurableRecord(request.recordPath) };
+    return { outcome: "rejected", handle: publicHandle(privateHandle), record: await readDurableRecord(request.recordPath) };
   }
   await mkdir(runtimeDir, { recursive: true, mode: 0o700 });
   await chmod(runtimeDir, 0o700);
@@ -1372,7 +1649,7 @@ export async function launch(request: LaunchRequest, timeoutMilliseconds = 3000)
       recovery: "retain durable blocker and stop; no role substitution or retry loop",
     }), "blocked");
     await rm(runtimeDir, { recursive: true, force: true });
-    return { outcome: "unavailable", handle, record: await readDurableRecord(request.recordPath) };
+    return { outcome: "unavailable", handle: publicHandle(privateHandle), record: await readDurableRecord(request.recordPath) };
   }
   await writeRecordCheckpoint(request.recordPath, makeCheckpoint(jobId, operation, "capability-preflight-passed", {
     ...preflight.details,
@@ -1394,15 +1671,15 @@ export async function launch(request: LaunchRequest, timeoutMilliseconds = 3000)
     "active",
   );
   const configPath = join(runtimeDir, "config.json");
-  await atomicJson(configPath, { request: effectiveRequest, handle });
+  await atomicJson(configPath, { request: effectiveRequest, handle: privateHandle });
   let supervisorPid: number;
   try {
-    supervisorPid = (await spawnDetachedSupervisor(effectiveRequest, handle, configPath)).pid;
+    supervisorPid = (await spawnDetachedSupervisor(effectiveRequest, privateHandle, configPath)).pid;
   } catch (error) {
-    const reason = error instanceof Error ? error.message : String(error);
+    const reason = "detached supervisor was unavailable at the host boundary";
     await appendPrivateEvent(statePath, privateEvent(jobId, operation, "unavailable", { source: "host-process", reason }), { status: "unavailable" });
     await writeRecordCheckpoint(request.recordPath, makeCheckpoint(jobId, operation, "unavailable", { source: "host-process", reason }), "blocked");
-    return { outcome: "unavailable", handle, record: await readDurableRecord(request.recordPath) };
+    return { outcome: "unavailable", handle: publicHandle(privateHandle), record: await readDurableRecord(request.recordPath) };
   }
   await appendPrivateEvent(statePath, privateEvent(jobId, operation, "supervisor-started", {
     source: "host-process",
@@ -1420,7 +1697,7 @@ export async function launch(request: LaunchRequest, timeoutMilliseconds = 3000)
   });
   let launchRecord: DurableRecordObservation;
   try {
-    launchRecord = await waitForLaunchCheckpoint(handle, timeoutMilliseconds);
+    launchRecord = await waitForLaunchCheckpoint(privateHandle, timeoutMilliseconds);
   } catch (error) {
     await childWaitSpan.finish("failure", { phase: "child-wait" });
     throw error;
@@ -1433,43 +1710,83 @@ export async function launch(request: LaunchRequest, timeoutMilliseconds = 3000)
       source: "host-process",
       reason: "supervisor did not publish launch checkpoint before control-plane deadline",
     }), "blocked");
-    return { outcome: "unavailable", handle, record: await readDurableRecord(request.recordPath) };
+    return { outcome: "unavailable", handle: publicHandle(privateHandle), record: await readDurableRecord(request.recordPath) };
   }
-  return { outcome: unavailable ? "unavailable" : "started", handle, record: launchRecord };
+  return { outcome: unavailable ? "unavailable" : "started", handle: publicHandle(privateHandle), record: launchRecord };
 }
 
-export async function observe(handle: JobHandle): Promise<JobObservation> {
-  const record = await readDurableRecord(handle.recordPath);
+export async function observe(publicHandle: JobHandle): Promise<JobObservation> {
+  const handle = await resolvePrivateJob(publicHandle);
+  let record: DurableRecordObservation = { status: "unknown", updated: null, events: [] };
+  let recordAvailable = true;
+  try {
+    record = await readDurableRecord(handle.recordPath);
+  } catch {
+    recordAvailable = false;
+  }
   let state: PrivateState | null = null;
   try {
     state = await loadState(handle.statePath);
   } catch {
     state = null;
   }
-  const health: ProcessHealth = {
+  const privateHealth: PrivateProcessHealth = {
     source: "host-process",
     supervisorPid: state?.supervisorPid ?? null,
     supervisorProcessGroupId: state?.supervisorProcessGroupId ?? null,
     workerPid: state?.workerPid ?? null,
     processGroupId: state?.workerProcessGroupId ?? null,
-    supervisorAlive: await processAlive(state?.supervisorPid ?? null),
-    supervisorProcessGroupAlive: await groupAlive(state?.supervisorProcessGroupId ?? null),
-    workerAlive: await processAlive(state?.workerPid ?? null),
-    processGroupAlive: await groupAlive(state?.workerProcessGroupId ?? null),
+    supervisorAlive: state ? await processAlive(state.supervisorPid) : "unknown",
+    supervisorProcessGroupAlive: state ? await groupAlive(state.supervisorProcessGroupId) : "unknown",
+    workerAlive: state ? await processAlive(state.workerPid) : "unknown",
+    processGroupAlive: state ? await groupAlive(state.workerProcessGroupId) : "unknown",
     observedAt: isoNow(),
   };
   const stale = state ? classifyStale(record, state.checkInSeconds) : { status: "unknown", source: "durable-record", reason: "private state unavailable" } as const;
-  if (state) {
+  if (state && recordAvailable) {
     await writeRecordObservation(handle.recordPath, makeCheckpoint(handle.jobId, "observe", "observation", {
       durableStatus: record.status,
       hostStatus: state.status,
-      health,
+      health: {
+        supervisorPid: null,
+        supervisorProcessGroupId: null,
+        workerPid: null,
+        processGroupId: null,
+        supervisorAlive: privateHealth.supervisorAlive,
+        supervisorProcessGroupAlive: privateHealth.supervisorProcessGroupAlive,
+        workerAlive: privateHealth.workerAlive,
+        processGroupAlive: privateHealth.processGroupAlive,
+      },
       stale,
       source: "durable-record-plus-host-process",
     }));
   }
+  const publicBudgetNumber = (value: unknown): number | UnavailableValue => typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : "unavailable";
+  const privateBudget = state && state.budget && typeof state.budget === "object" && !Array.isArray(state.budget) ? state.budget as Record<string, unknown> : {};
+  const privateAttempts = state && Array.isArray(state.attempts) ? state.attempts : [];
   const budget = state
-    ? { cumulative: state.budget, attempts: state.attempts }
+    ? {
+        cumulative: {
+          costAllocation: publicBudgetNumber(privateBudget.costAllocation),
+          costReserve: publicBudgetNumber(privateBudget.costReserve),
+          costSpent: publicBudgetNumber(privateBudget.costSpent),
+          costSource: projectPublicString(typeof privateBudget.costSource === "string" ? privateBudget.costSource : "") ?? "unavailable",
+          wallClockAllocationSeconds: publicBudgetNumber(privateBudget.wallClockAllocationSeconds),
+          wallClockReserveSeconds: publicBudgetNumber(privateBudget.wallClockReserveSeconds),
+          wallClockSpentSeconds: publicBudgetNumber(privateBudget.wallClockSpentSeconds),
+          wallClockSource: projectPublicString(typeof privateBudget.wallClockSource === "string" ? privateBudget.wallClockSource : "") ?? "unavailable",
+        },
+        attempts: privateAttempts.filter((attempt): attempt is Record<string, unknown> => Boolean(attempt) && typeof attempt === "object" && !Array.isArray(attempt)).map((attempt) => ({
+          attempt: Number.isInteger(attempt.attempt) && (attempt.attempt as number) >= 0 ? attempt.attempt as number : 0,
+          jobId: projectIdentifier(attempt.jobId, "unknown"),
+          reason: projectPublicString(typeof attempt.reason === "string" ? attempt.reason : "") ?? "unavailable",
+          wallClockSeconds: publicBudgetNumber(attempt.wallClockSeconds),
+          cost: publicBudgetNumber(attempt.cost),
+          costSource: projectPublicString(typeof attempt.costSource === "string" ? attempt.costSource : "") ?? "unavailable",
+          wallClockSource: projectPublicString(typeof attempt.wallClockSource === "string" ? attempt.wallClockSource : "") ?? "unavailable",
+          accounted: attempt.accounted === true,
+        })),
+      }
     : null;
   return {
     outcome: outcomeFor(record, state),
@@ -1480,10 +1797,22 @@ export async function observe(handle: JobHandle): Promise<JobObservation> {
       status: state ? hostStatusFromState(state) : "unavailable",
       workerExitCode: state?.workerExitCode ?? null,
       launchAccepted: Boolean(record.events.find((event) => event.jobId === handle.jobId && event.event === "launch-accepted")),
-      workerProcessGroupId: state?.workerProcessGroupId ?? null,
-      logs: state ? { stdout: state.logs.stdout, stderr: state.logs.stderr } : { stdout: null, stderr: null },
+      workerProcessGroupId: null,
+      runtimeReference: maskedRuntimeReference(handle),
+      logs: { stdout: null, stderr: null },
     },
-    health,
+    health: {
+      source: "host-process",
+      supervisorPid: null,
+      supervisorProcessGroupId: null,
+      workerPid: null,
+      processGroupId: null,
+      supervisorAlive: privateHealth.supervisorAlive,
+      supervisorProcessGroupAlive: privateHealth.supervisorProcessGroupAlive,
+      workerAlive: privateHealth.workerAlive,
+      processGroupAlive: privateHealth.processGroupAlive,
+      observedAt: isoNow(),
+    },
     budget,
     stale,
   };
@@ -1518,12 +1847,13 @@ export interface PermissionResult {
  * capability blocker instead of simulating a prompt or approval.
  */
 export async function recordPermissionNeeded(
-  handle: JobHandle,
+  publicHandle: JobHandle,
   request: PermissionNeededRequest,
   bridge?: PermissionEscalationBridge,
 ): Promise<PermissionResult> {
+  const handle = await resolvePrivateJob(publicHandle);
   assertPermissionScope(request);
-  if (!request.reason.trim()) throw new Error("rejected: permission reason is required");
+  assertPublicReason(request.reason, "permission reason");
   const before = await readDurableRecord(handle.recordPath);
   if (before.status === "completed" || before.status === "cancelled") {
     throw new Error(`rejected: task is already ${before.status}`);
@@ -1537,6 +1867,7 @@ export async function recordPermissionNeeded(
     resourceClass: request.resourceClass,
     failureClass: request.failureClass,
   };
+  for (const [name, value] of Object.entries(scope)) assertPublicReason(value, `permission ${name}`);
   const fingerprint = permissionFingerprint(scope);
   const recordRevision = before.updated ?? "unavailable";
   const event: PermissionNeededEvent = {
@@ -1563,6 +1894,7 @@ export async function recordPermissionNeeded(
     hiddenPrompt: false,
     userVisibleEscalationRequired: true,
   }), "awaiting-approval");
+  assertPublicReason(request.reason, "permission reason");
   if (!bridge || !bridge.source.trim()) {
     const reason = "user-visible permission-event bubbling is unproven";
     await writeRecordCheckpoint(handle.recordPath, makeCheckpoint(handle.jobId, "question", "permission-escalation-unproven", {
@@ -1577,8 +1909,8 @@ export async function recordPermissionNeeded(
   let decision: "approved" | "denied" | "unavailable";
   try {
     decision = await bridge.present(event);
-  } catch (error) {
-    const reason = `permission escalation failed: ${error instanceof Error ? error.message : String(error)}`;
+  } catch {
+    const reason = "permission escalation failed at the host boundary";
     await writeRecordCheckpoint(handle.recordPath, makeCheckpoint(handle.jobId, "question", "permission-escalation-unavailable", {
       source: bridge.source,
       fingerprint,
@@ -1601,11 +1933,12 @@ export async function recordPermissionNeeded(
 }
 
 export async function answerPermission(
-  handle: JobHandle,
+  publicHandle: JobHandle,
   fingerprint: string,
   decision: "approved" | "denied",
 ): Promise<PermissionResult> {
-  const record = await readDurableRecord(handle.recordPath);
+  const handle = await resolvePrivateJob(publicHandle);
+  const record = await readPrivateDurableRecord(handle.recordPath);
   const needed = [...record.events].reverse().find((event) => event.jobId === handle.jobId && event.event === "permission-needed");
   if (!needed || needed.details.fingerprint !== fingerprint) {
     throw new Error("rejected: permission answer is not scoped to the current durable request");
@@ -1635,9 +1968,10 @@ export async function answerPermission(
 }
 
 export async function resumeAfterApproval(
-  handle: JobHandle,
+  publicHandle: JobHandle,
   request: LaunchRequest,
 ): Promise<{ outcome: ExecutionOutcome; handle: JobHandle; record: DurableRecordObservation }> {
+  const handle = await resolvePrivateJob(publicHandle);
   const record = await readDurableRecord(handle.recordPath);
   const approval = [...record.events].reverse().find((event) => event.jobId === handle.jobId && event.event === "permission-approved");
   const fingerprint = approval?.details.fingerprint;
@@ -1658,8 +1992,9 @@ export async function resumeAfterApproval(
   });
 }
 
-export async function requestCancellation(handle: JobHandle, reason: string): Promise<JobObservation> {
-  if (!reason.trim()) throw new Error("rejected: cancellation reason is required");
+export async function requestCancellation(publicHandle: JobHandle, reason: string): Promise<JobObservation> {
+  const handle = await resolvePrivateJob(publicHandle);
+  assertPublicReason(reason, "cancellation reason");
   const before = await readDurableRecord(handle.recordPath);
   if (before.status === "completed" || before.status === "cancelled") throw new Error(`rejected: task is already ${before.status}`);
   const requestedAt = isoNow();
@@ -1687,9 +2022,8 @@ export async function requestCancellation(handle: JobHandle, reason: string): Pr
     try {
       process.kill(-group, "SIGTERM");
       signalSent = true;
-    } catch (error) {
-      const signalError = error instanceof Error ? error.message : String(error);
-      await writeRecordCheckpoint(handle.recordPath, makeCheckpoint(handle.jobId, "cancel", "cancellation-signal-unavailable", { source: "host-process", signalError }));
+    } catch {
+      await writeRecordCheckpoint(handle.recordPath, makeCheckpoint(handle.jobId, "cancel", "cancellation-signal-unavailable", { source: "host-process", reason: "host process-group signal was unavailable" }));
     }
   }
   await writeRecordCheckpoint(handle.recordPath, makeCheckpoint(handle.jobId, "cancel", "cancellation-dispatched", {
@@ -1700,7 +2034,8 @@ export async function requestCancellation(handle: JobHandle, reason: string): Pr
   return observe(handle);
 }
 
-export async function confirmCancellation(handle: JobHandle, timeoutMilliseconds = 3000): Promise<JobObservation> {
+export async function confirmCancellation(publicHandle: JobHandle, timeoutMilliseconds = 3000): Promise<JobObservation> {
+  const handle = await resolvePrivateJob(publicHandle);
   const deadline = Date.now() + timeoutMilliseconds;
   let escalated = false;
   while (Date.now() < deadline) {
@@ -1752,7 +2087,8 @@ export async function confirmCancellation(handle: JobHandle, timeoutMilliseconds
   return observe(handle);
 }
 
-export async function classifyAndRecordStale(handle: JobHandle, now = new Date()): Promise<StaleObservation> {
+export async function classifyAndRecordStale(publicHandle: JobHandle, now = new Date()): Promise<StaleObservation> {
+  const handle = await resolvePrivateJob(publicHandle);
   const state = await loadState(handle.statePath);
   const record = await readDurableRecord(handle.recordPath);
   const stale = classifyStale(record, state.checkInSeconds, now);
@@ -1771,7 +2107,6 @@ export interface RecoveryResult {
   attempt: number;
   dueAt: string | null;
   delaySeconds: number | null;
-  request?: LaunchRequest;
   reason: string;
 }
 
@@ -1787,14 +2122,15 @@ function recoveryBlockerFingerprint(reason: string, blocker?: PermissionScope): 
   return createHash("sha256").update(JSON.stringify(normalized)).digest("hex").slice(0, 24);
 }
 
-export async function scheduleRecovery(
-  handle: JobHandle,
+async function scheduleRecoveryUnlocked(
+  publicHandle: JobHandle,
   reason: string,
   options: { now?: Date; maxRecoveryAttempts?: number; retryBackoffSeconds?: number; blocker?: PermissionScope } = {},
 ): Promise<RecoveryResult> {
-  if (!reason.trim()) throw new Error("rejected: recovery reason is required");
+  const handle = await resolvePrivateJob(publicHandle);
+  assertPublicReason(reason, "recovery reason");
   const state = await loadState(handle.statePath);
-  const record = await readDurableRecord(handle.recordPath);
+  const record = await readPrivateDurableRecord(handle.recordPath);
   if (record.status === "completed" || record.status === "cancelled") {
     return { outcome: "rejected", attempt: state.recovery.attempts + 1, dueAt: null, delaySeconds: null, reason: `task is terminal: ${record.status}` };
   }
@@ -1900,13 +2236,41 @@ export async function scheduleRecovery(
   return { outcome: "waiting", attempt: nextAttempt, dueAt, delaySeconds, reason };
 }
 
+export async function scheduleRecovery(
+  publicHandle: JobHandle,
+  reason: string,
+  options: { now?: Date; maxRecoveryAttempts?: number; retryBackoffSeconds?: number; blocker?: PermissionScope } = {},
+): Promise<RecoveryResult> {
+  const handle = await resolvePrivateJob(publicHandle);
+  return withRecoveryLock(handle.recordPath, () => scheduleRecoveryUnlocked(handleToPublic(handle), reason, options));
+}
+
+function handleToPublic(handle: PrivateJobHandle): JobHandle {
+  return publicHandle(handle);
+}
+
 export async function recover(
-  handle: JobHandle,
+  publicHandle: JobHandle,
   request: LaunchRequest,
   reason: string,
   options: { now?: Date; maxRecoveryAttempts?: number; retryBackoffSeconds?: number; blocker?: PermissionScope } = {},
 ): Promise<RecoveryResult> {
-  const scheduled = await scheduleRecovery(handle, reason, options);
+  const handle = await resolvePrivateJob(publicHandle);
+  return withRecoveryLock(handle.recordPath, async () => {
+    const current = await readPrivateDurableRecord(handle.recordPath);
+    const alreadyLaunched = [...current.events].reverse().find((event) =>
+      event.event === "recovery-launch-requested"
+      && event.details.recovery
+      && typeof event.details.recovery === "object"
+      && (event.details.recovery as Record<string, unknown>).previousJobId === handle.jobId,
+    );
+    if (alreadyLaunched) {
+      const attempt = typeof alreadyLaunched.details.recovery === "object" && alreadyLaunched.details.recovery
+        ? Number((alreadyLaunched.details.recovery as Record<string, unknown>).attempt ?? handle.attempt + 1)
+        : handle.attempt + 1;
+      return { outcome: "waiting", attempt, dueAt: null, delaySeconds: null, reason: "recovery launch already recorded" };
+    }
+    const scheduled = await scheduleRecoveryUnlocked(publicHandle, reason, options);
   await emitTrace({
     name: scheduled.outcome === "waiting" ? "recovery.scheduled" : "recovery.escalated",
     traceId: request.traceId ?? request.runId ?? request.component,
@@ -1932,18 +2296,19 @@ export async function recover(
       previousJobId: handle.jobId,
     },
   };
-  const launched = await launch(authorizedRequest);
-  return {
-    ...scheduled,
-    outcome: launched.outcome === "unavailable" ? "unavailable" : "waiting",
-    request: authorizedRequest,
-  };
+    const launched = await launch(authorizedRequest);
+    return {
+      ...scheduled,
+      outcome: launched.outcome === "unavailable" ? "unavailable" : "waiting",
+    };
+  });
 }
 
 export async function recordHandoff(
-  handle: JobHandle,
+  publicHandle: JobHandle,
   evidence: { validation: string[]; result: string; descendantsTerminal: boolean; failedOrCancelledDescendants: string[] },
 ): Promise<DurableRecordObservation> {
+  const handle = await resolvePrivateJob(publicHandle);
   if (evidence.validation.length === 0 || !evidence.result.trim()) {
     throw new Error("rejected: validation evidence and result are required");
   }
@@ -1981,7 +2346,8 @@ export async function recordHandoff(
   return readDurableRecord(handle.recordPath);
 }
 
-export async function cleanup(handle: JobHandle): Promise<{ cleaned: boolean; reason?: string }> {
+export async function cleanup(publicHandle: JobHandle): Promise<{ cleaned: boolean; reason?: string }> {
+  const handle = await resolvePrivateJob(publicHandle);
   const record = await readDurableRecord(handle.recordPath);
   let state: PrivateState;
   try {
@@ -2041,10 +2407,10 @@ export async function cleanup(handle: JobHandle): Promise<{ cleaned: boolean; re
   }));
   try {
     await rm(handle.runtimeDir, { recursive: true, force: true });
-  } catch (error) {
+  } catch {
     await writeRecordCheckpoint(handle.recordPath, makeCheckpoint(handle.jobId, "cleanup", "cleanup-failed", {
       source: "host-filesystem",
-      reason: error instanceof Error ? error.message : String(error),
+      reason: "private runtime removal failed at the host filesystem boundary",
       durableEvidenceRetained: true,
     }));
     return { cleaned: false, reason: "private runtime removal failed" };
@@ -2054,12 +2420,13 @@ export async function cleanup(handle: JobHandle): Promise<{ cleaned: boolean; re
   return { cleaned: true };
 }
 
-export async function noLeftover(handle: JobHandle): Promise<{
+export async function noLeftover(publicHandle: JobHandle): Promise<{
   processGroupAlive: boolean | "unknown";
   supervisorAlive: boolean | "unknown";
   supervisorProcessGroupAlive: boolean | "unknown";
   runtimeExists: boolean;
 }> {
+  const handle = await resolvePrivateJob(publicHandle);
   let state: PrivateState | null = null;
   try {
     state = await loadState(handle.statePath);
@@ -2080,7 +2447,7 @@ export async function noLeftover(handle: JobHandle): Promise<{
     runtimeExists = false;
   }
   if (!state && !runtimeExists) {
-    const record = await readDurableRecord(handle.recordPath);
+    const record = await readPrivateDurableRecord(handle.recordPath);
     const cleanup = [...record.events].reverse().find((event) => event.jobId === handle.jobId && event.event === "cleanup-complete");
     const supervisorPid = cleanup?.details.supervisorPid;
     const processGroupId = cleanup?.details.processGroupId;

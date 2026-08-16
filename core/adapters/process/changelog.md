@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-08-16: Completed `core/adapters/process:enforce-process-adapter-emitted-path-policy`. Separated private process, workspace, record, state, log, and recovery operands from public handles through an atomic restrictive-permission per-project job map; added logical-identifier validation, provenance-checked masked runtime references, explicit durable-record/checkpoint/nested-detail projections, path-free diagnostics, and fail-closed health, budget, and malformed private-state projections. Serialized recovery operations to preserve lifecycle behavior under concurrent callers. Validation: supervisor tests passed (19 tests, 220 expectations); bounded-process tests passed (2 tests, 10 expectations); no-bundle supervisor and bounded-process builds passed; task-record validation returned `VALID`; as-is/content validation passed (49 records, 47 diagrams); backlog query tests passed (11 tests, 38 expectations); tracked JSON parsing, VS Code diagnostics, and `git diff --check` passed. No launcher/recovery projection, bounded-process mechanics, tracer filtering, task authority, Git/worktree, handoff, or completion-authority behavior was changed. Residual risk: no live external host or renderer test was performed; private locator retention remains intentionally unchanged until a separately specified tombstone policy exists.
+
 ## 2026-08-15 — Legacy record migration
 
 - **Component:** Subprocess Execution Foundation.

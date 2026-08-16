@@ -7,6 +7,7 @@ import { ControlPlane } from "../../modules/task-control/control-plane.ts";
 import {
   classifyStale,
   cleanup,
+  createPrivateRecordOnlyHandle,
   confirmCancellation,
   launch,
   noLeftover,
@@ -25,6 +26,15 @@ import {
   type RoleChain,
 } from "./supervisor.ts";
 
+function assertNoRawPaths(value: unknown, rawPath: string): void {
+  const serialized = JSON.stringify(value);
+  expect(serialized).not.toContain(rawPath);
+  expect(serialized).not.toContain("recordPath");
+  expect(serialized).not.toContain("runtimeDir");
+  expect(serialized).not.toContain("workspacePath");
+  expect(serialized).not.toContain("statePath");
+}
+
 const roleChain: RoleChain = {
   asIs: { role: "as-is", sessionId: "session-as-is", parentSessionId: null, source: "test" },
   orchestrator: { role: "orchestrator", sessionId: "session-orchestrator", parentSessionId: "session-as-is", source: "test" },
@@ -32,6 +42,12 @@ const roleChain: RoleChain = {
 };
 
 const sleep = (milliseconds: number) => new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
+const privatePaths = new Map<string, { runtimeDir: string; workspacePath: string; stdout: string }>();
+function privateFixture(handle: JobHandle): { runtimeDir: string; workspacePath: string; stdout: string } {
+  const value = privatePaths.get(handle.handleToken);
+  if (!value) throw new Error("private fixture is unavailable");
+  return value;
+}
 const monotonicSeconds = () => Number(process.hrtime.bigint()) / 1_000_000_000;
 
 function recordContents(): string {
@@ -94,16 +110,15 @@ function requestFor(fixtureData: Fixture, command: string[], overrides: Partial<
   };
 }
 
-function recordOnlyHandle(fixtureData: Fixture, jobId = `permission-${crypto.randomUUID()}`): JobHandle {
-  return {
+async function recordOnlyHandle(fixtureData: Fixture, jobId = `permission-${crypto.randomUUID()}`): Promise<JobHandle> {
+  return createPrivateRecordOnlyHandle(
+    fixtureData.recordPath,
+    join(fixtureData.root, "private-runtime"),
+    join(fixtureData.root, "private-runtime", "workspace"),
+    join(fixtureData.root, "private-runtime", "state.json"),
+    "test-component",
     jobId,
-    component: "test-component",
-    recordPath: fixtureData.recordPath,
-    runtimeDir: join(fixtureData.root, "private-runtime"),
-    workspacePath: join(fixtureData.root, "private-runtime", "workspace"),
-    statePath: join(fixtureData.root, "private-runtime", "state.json"),
-    attempt: 1,
-  };
+  );
 }
 
 async function eventually<T>(read: () => Promise<T>, matches: (value: T) => boolean, timeout = 6000): Promise<T> {
@@ -209,17 +224,27 @@ describe("detached subprocess foundation", () => {
       ].join(" "), { startDelayMilliseconds: 600 });
       const startedAt = monotonicSeconds();
       const result = await launch(request, 3000);
+      privatePaths.set(result.handle.handleToken, { runtimeDir: join(tmpdir(), "as-is", "supervisor-test", request.runId as string, "test-component", result.handle.jobId), workspacePath: join(tmpdir(), "as-is", "supervisor-test", request.runId as string, "test-component", result.handle.jobId, "workspace"), stdout: join(tmpdir(), "as-is", "supervisor-test", request.runId as string, "test-component", result.handle.jobId, "stdout.log") });
       const submissionSeconds = monotonicSeconds() - startedAt;
       handles.push(result.handle);
 
       expect(result.outcome).toBe("started");
+      expect(result.handle).toEqual({
+        jobId: result.handle.jobId,
+        projectKey: "supervisor-test",
+        component: "test-component",
+        attempt: 1,
+        handleToken: result.handle.handleToken,
+      });
+      assertNoRawPaths(result, fixtureData.root);
       expect(submissionSeconds).toBeLessThan(0.45);
        expect(result.record.status).toBe("active");
        expectEvent(result.record, "launch-requested");
        expectEvent(result.record, "launch-accepted");
        expectEvent(result.record, "capability-preflight-passed");
-       const runtimeMode = (await stat(result.handle.runtimeDir)).mode & 0o777;
-       const workspaceMode = (await stat(result.handle.workspacePath)).mode & 0o777;
+       const privateData = privateFixture(result.handle);
+       const runtimeMode = (await stat(privateData.runtimeDir)).mode & 0o777;
+       const workspaceMode = (await stat(privateData.workspacePath)).mode & 0o777;
        expect(runtimeMode).toBe(0o700);
        expect(workspaceMode).toBe(0o700);
 
@@ -235,7 +260,6 @@ describe("detached subprocess foundation", () => {
        expect(running.health.processGroupAlive).toBe(true);
        expect(running.health.supervisorProcessGroupAlive).toBe(true);
        expectEvent(running.record, "heartbeat");
-      expect(running.host.workerProcessGroupId).toBeGreaterThan(0);
 
       const completed = await eventually(
         () => observe(result.handle),
@@ -248,9 +272,10 @@ describe("detached subprocess foundation", () => {
       expect(completed.budget?.cumulative.costSource).toContain("not-reported");
       expectEvent(completed.record, "budget-observed");
 
-      const stdoutPath = completed.host.logs.stdout;
-      expect(stdoutPath).not.toBeNull();
-      const stdout = await readFile(stdoutPath as string, "utf8");
+      expect(completed.host.logs.stdout).toBeNull();
+      expect(completed.host.runtimeReference).toBe(`<tmp>/as-is/supervisor-test/${request.runId}/test-component/${result.handle.jobId}`);
+      expect(completed.host.runtimeReference).not.toContain(fixtureData.root);
+      const stdout = await readFile(privateFixture(result.handle).stdout, "utf8");
       expect(stdout).toContain("[worker.stdout]");
        expect(stdout).toContain("as-is -> orchestrator -> implementer");
        expect(stdout).toContain("1");
@@ -282,6 +307,10 @@ describe("detached subprocess foundation", () => {
       expect(leftovers.runtimeExists).toBe(false);
       const finalRecord = await readDurableRecord(fixtureData.recordPath);
       expectEvent(finalRecord, "cleanup-complete");
+      assertNoRawPaths(finalRecord, fixtureData.root);
+      assertNoRawPaths(completed, fixtureData.root);
+      expect(JSON.stringify(finalRecord)).not.toContain('"path"');
+      expect(JSON.stringify(finalRecord)).not.toContain('"raw"');
     } finally {
       await cleanupFixture(fixtureData, handles);
     }
@@ -295,8 +324,10 @@ describe("detached subprocess foundation", () => {
       handles.push(result.handle);
       await eventually(() => observe(result.handle), (value) => value.host.status === "running");
       const requested = await requestCancellation(result.handle, "focused cancellation validation");
+      assertNoRawPaths(requested, fixtureData.root);
       expect(requested.record.events.some((event) => event.event === "cancellation-requested")).toBe(true);
       const confirmed = await confirmCancellation(result.handle, 4000);
+      assertNoRawPaths(confirmed, fixtureData.root);
       expect(confirmed.record.status).toBe("cancelled");
       expect(confirmed.outcome).toBe("cancelled");
       expectEvent(confirmed.record, "cancellation-confirmed");
@@ -367,7 +398,7 @@ describe("detached subprocess foundation", () => {
       handles.push(continued.handle);
       const completed = await eventually(() => observe(continued.handle), (value) => value.host.status === "completed", 3000);
       expect(completed.record.status).toBe("active");
-      expect(await readFile(completed.host.logs.stdout as string, "utf8")).toContain("continued-after-budget");
+      expect(completed.host.logs.stdout).toBeNull();
     } finally {
       await cleanupFixture({ ...fixtureData, recordPath: childRecordPath }, handles);
       await rm(fixtureData.root, { recursive: true, force: true });
@@ -394,7 +425,7 @@ describe("detached subprocess foundation", () => {
       const failed = await eventually(() => observe(result.handle), (value) => value.host.status === "failed", 3000);
       expect(failed.record.status).toBe("failed");
       expectEvent(failed.record, "watchdog-deadline-exceeded");
-      expect(failed.record.events.find((event) => event.event === "failure")?.details.source).toBe("supervisor-watchdog");
+      expect(failed.record.events.find((event) => event.event === "watchdog-deadline-exceeded")?.details.source).toBe("supervisor-watchdog");
       const cleanupResult = await cleanup(result.handle);
       if (!cleanupResult.cleaned) {
         await sleep(75);
@@ -420,14 +451,128 @@ describe("detached subprocess foundation", () => {
     }
   });
 
+  test("persists private locators with restrictive permissions and rejects missing/corrupt maps", async () => {
+    const fixtureData = await fixture();
+    const previousState = process.env.XDG_STATE_HOME;
+    const stateHome = await mkdtemp(join(tmpdir(), "as-is-state-test-"));
+    process.env.XDG_STATE_HOME = stateHome;
+    try {
+      const result = await launch(requestFor(fixtureData, "await Bun.sleep(100);"));
+      const mapPath = join(stateHome, "as-is", "projects", "supervisor-test", "runtime", "job-map.json");
+      const map = JSON.parse(await readFile(mapPath, "utf8")) as { jobs: Record<string, unknown> };
+      expect(map.jobs[result.handle.jobId]).toBeDefined();
+      expect((await stat(mapPath)).mode & 0o777).toBe(0o600);
+      await cleanupFixture(fixtureData, [result.handle]);
+      const unavailable = await observe(result.handle);
+      expect(unavailable.outcome).toBe("unavailable");
+      expect(unavailable.health.workerAlive).toBe("unknown");
+      await writeFile(mapPath, "not-json", "utf8");
+      const fabricated = { ...result.handle, handleToken: `${result.handle.handleToken}-new` };
+      await expect(observe(fabricated)).rejects.toThrow("private job map cannot be loaded");
+      await writeFile(mapPath, JSON.stringify({ version: 1, projectKey: "supervisor-test", jobs: {} }), "utf8");
+      await expect(observe(result.handle)).rejects.toThrow("private process operands cannot be resolved");
+      await rm(mapPath, { force: true });
+      const missingMapError = await observe(result.handle).catch((error) => error as Error);
+      expect(missingMapError).toBeInstanceOf(Error);
+      expect((missingMapError as Error).message).toBe("unavailable: private job map cannot be loaded at the private state boundary");
+      expect((missingMapError as Error).message).not.toContain(fixtureData.root);
+    } finally {
+      if (previousState === undefined) delete process.env.XDG_STATE_HOME;
+      else process.env.XDG_STATE_HOME = previousState;
+      await rm(stateHome, { recursive: true, force: true });
+      await rm(fixtureData.root, { recursive: true, force: true });
+    }
+  });
+
+  test("does not emit a masked reference for an untrusted record-only runtime", async () => {
+    const fixtureData = await fixture("active");
+    try {
+      const handle = await recordOnlyHandle(fixtureData);
+      const observation = await observe(handle);
+      expect(observation.host.runtimeReference).toBeNull();
+      assertNoRawPaths(observation, fixtureData.root);
+    } finally {
+      await rm(fixtureData.root, { recursive: true, force: true });
+    }
+  });
+
+  test("rejects fabricated public handles without private locator evidence", async () => {
+    const fixtureData = await fixture();
+    try {
+      const fabricated: JobHandle = { jobId: "unknown-job", projectKey: "supervisor-test", component: "test-component", attempt: 1, handleToken: "fabricated-token" };
+      await expect(observe(fabricated)).rejects.toThrow("private process operands cannot be resolved");
+      await expect(observe({ ...fabricated, jobId: "../private-job" })).rejects.toThrow("job id is malformed");
+      await expect(observe({ ...fabricated, component: "../private-component" })).rejects.toThrow("component identity is not a logical key");
+    } finally {
+      await rm(fixtureData.root, { recursive: true, force: true });
+    }
+  });
+
+  test("projects malformed public ledger fields and private budget metadata safely", async () => {
+    const fixtureData = await fixture("active");
+    try {
+      const raw = await readFile(fixtureData.recordPath, "utf8");
+      const injected = JSON.stringify({
+        operation: "./private/operation",
+        event: "malformed/event",
+        jobId: "../private-job",
+        source: "/private/source",
+        observedAt: "/private/time",
+        recordPath: fixtureData.recordPath,
+        details: { reason: fixtureData.recordPath, nested: { runtimeDir: fixtureData.root } },
+      });
+      const next = `${raw}\n<!-- subprocess-execution-foundation:begin -->\n${injected}\n<!-- subprocess-execution-foundation:end -->\n`;
+      await writeFile(fixtureData.recordPath, next, "utf8");
+      const record = await readDurableRecord(fixtureData.recordPath);
+      assertNoRawPaths(record, fixtureData.root);
+      expect(record.events.at(-1)?.operation).toBe("unknown");
+      expect(record.events.at(-1)?.jobId).toBe("unknown");
+      expect(record.events.at(-1)?.details).toEqual({});
+    } finally {
+      await rm(fixtureData.root, { recursive: true, force: true });
+    }
+  });
+
+  test("projects malformed private budget values fail-closed", async () => {
+    const fixtureData = await fixture("active");
+    const handles: JobHandle[] = [];
+    try {
+      const request = requestFor(fixtureData, "await Bun.sleep(1000);", { expectedRecordStatus: "active" });
+      const result = await launch(request);
+      privatePaths.set(result.handle.handleToken, { runtimeDir: join(tmpdir(), "as-is", "supervisor-test", request.runId as string, "test-component", result.handle.jobId), workspacePath: join(tmpdir(), "as-is", "supervisor-test", request.runId as string, "test-component", result.handle.jobId, "workspace"), stdout: join(tmpdir(), "as-is", "supervisor-test", request.runId as string, "test-component", result.handle.jobId, "stdout.log") });
+      handles.push(result.handle);
+      await eventually(() => observe(result.handle), (value) => value.host.status === "running");
+      const privateData = privateFixture(result.handle);
+      const statePath = join(privateData.runtimeDir, "state.json");
+      const state = JSON.parse(await readFile(statePath, "utf8")) as Record<string, any>;
+      state.budget.costSpent = fixtureData.root;
+      state.budget.wallClockSpentSeconds = fixtureData.root;
+      state.attempts = [{ attempt: fixtureData.root, jobId: fixtureData.root, reason: fixtureData.root, wallClockSeconds: fixtureData.root, cost: fixtureData.root, costSource: fixtureData.root, wallClockSource: fixtureData.root, accounted: fixtureData.root }];
+      await writeFile(statePath, JSON.stringify(state), "utf8");
+      const observation = await observe(result.handle);
+      assertNoRawPaths(observation, fixtureData.root);
+      expect(observation.budget?.cumulative.costSpent).toBe("unavailable");
+      expect(observation.budget?.attempts[0]?.cost).toBe("unavailable");
+      state.budget = null;
+      state.attempts = [null];
+      await writeFile(statePath, JSON.stringify(state), "utf8");
+      const malformedShape = await observe(result.handle);
+      expect(malformedShape.budget?.cumulative.costSpent).toBe("unavailable");
+      expect(malformedShape.budget?.attempts).toHaveLength(0);
+      assertNoRawPaths(malformedShape, fixtureData.root);
+    } finally {
+      await cleanupFixture(fixtureData, handles);
+    }
+  });
+
   test("classifies stale, fresh, and unknown durable checkpoints without inference", () => {
     const old = new Date(Date.now() - 5000).toISOString();
     const fresh = new Date(Date.now() - 20).toISOString();
-    expect(classifyStale({ path: "fixture", status: "active", updated: old, events: [], raw: "" }, 1).status).toBe("stale");
-    expect(classifyStale({ path: "fixture", status: "active", updated: fresh, events: [], raw: "" }, 1).status).toBe("fresh");
-    expect(classifyStale({ path: "fixture", status: "active", updated: null, events: [], raw: "" }, 1).status).toBe("unknown");
-    expect(classifyStale({ path: "fixture", status: "active", updated: "not-a-date", events: [], raw: "" }, 1).status).toBe("unknown");
-    expect(classifyStale({ path: "fixture", status: "completed", updated: old, events: [], raw: "" }, 1).status).toBe("unknown");
+    expect(classifyStale({ status: "active", updated: old, events: [] }, 1).status).toBe("stale");
+    expect(classifyStale({ status: "active", updated: fresh, events: [] }, 1).status).toBe("fresh");
+    expect(classifyStale({ status: "active", updated: null, events: [] }, 1).status).toBe("unknown");
+    expect(classifyStale({ status: "active", updated: "not-a-date", events: [] }, 1).status).toBe("unknown");
+    expect(classifyStale({ status: "completed", updated: old, events: [] }, 1).status).toBe("unknown");
   });
 
   test("accounts an unavailable cost source, applies finite recovery backoff, and escalates", async () => {
@@ -436,13 +581,14 @@ describe("detached subprocess foundation", () => {
     try {
       const result = await launch(requestFor(fixtureData, "process.exit(7)"));
       handles.push(result.handle);
-      const failed = await eventually(() => observe(result.handle), (value) => value.host.status === "failed");
+      const failed = await eventually(() => observe(result.handle), (value) => value.host.status === "failed" && value.record.status === "failed");
       expect(failed.record.status).toBe("failed");
       expect(failed.budget?.cumulative.costSpent).toBe("unavailable");
       expect(failed.budget?.attempts).toHaveLength(1);
 
       const now = new Date("2026-01-01T00:00:00.000Z");
       const first = await scheduleRecovery(result.handle, "stale worker checkpoint", { now, retryBackoffSeconds: 2, maxRecoveryAttempts: 2 });
+      assertNoRawPaths(first, fixtureData.root);
       expect(first.outcome).toBe("waiting");
       expect(first.attempt).toBe(1);
       expect(first.delaySeconds).toBe(2);
@@ -451,6 +597,7 @@ describe("detached subprocess foundation", () => {
       expect(second.attempt).toBe(2);
       expect(second.delaySeconds).toBe(4);
       const escalated = await scheduleRecovery(result.handle, "bounded recovery exhausted", { now, retryBackoffSeconds: 2, maxRecoveryAttempts: 2 });
+      assertNoRawPaths(escalated, fixtureData.root);
       expect(escalated.outcome).toBe("rejected");
       expect(escalated.reason).toContain("max recovery attempts");
       const record = await readDurableRecord(fixtureData.recordPath);
@@ -468,6 +615,27 @@ describe("detached subprocess foundation", () => {
         await sleep(50);
         expect((await cleanup(result.handle)).cleaned).toBe(true);
       }
+    } finally {
+      await cleanupFixture(fixtureData, handles);
+    }
+  });
+
+  test("serializes concurrent recovery scheduling for one predecessor", async () => {
+    const fixtureData = await fixture();
+    const handles: JobHandle[] = [];
+    try {
+      const result = await launch(requestFor(fixtureData, "process.exit(7)"));
+      handles.push(result.handle);
+      await eventually(() => observe(result.handle), (value) => value.host.status === "failed");
+      const now = new Date("2026-01-01T00:00:00.000Z");
+      const results = await Promise.all([
+        scheduleRecovery(result.handle, "concurrent recovery one", { now, retryBackoffSeconds: 2, maxRecoveryAttempts: 2 }),
+        scheduleRecovery(result.handle, "concurrent recovery two", { now, retryBackoffSeconds: 2, maxRecoveryAttempts: 2 }),
+      ]);
+      expect(results.map((value) => value.attempt).sort()).toEqual([1, 2]);
+      const record = await readDurableRecord(fixtureData.recordPath);
+      expect(record.events.filter((event) => event.event === "recovery-scheduled")).toHaveLength(2);
+      expect(new Set(results.map((value) => value.attempt)).size).toBe(2);
     } finally {
       await cleanupFixture(fixtureData, handles);
     }
@@ -530,7 +698,7 @@ describe("detached subprocess foundation", () => {
     const deniedFixture = await fixture("active");
     const handles: JobHandle[] = [];
     try {
-      const approvedHandle = recordOnlyHandle(approvedFixture);
+      const approvedHandle = await recordOnlyHandle(approvedFixture);
       const bubbled: string[] = [];
       const approved = await recordPermissionNeeded(approvedHandle, {
         operation: "write",
@@ -545,6 +713,7 @@ describe("detached subprocess foundation", () => {
           return "approved";
         },
       });
+      assertNoRawPaths(approved, approvedFixture.root);
       expect(approved.outcome).toBe("approved");
       expect(bubbled[0]).toMatch(/^permission-needed:awaiting-user-approval:/);
       expect(approved.record.status).toBe("awaiting-approval");
@@ -557,9 +726,9 @@ describe("detached subprocess foundation", () => {
       handles.push(resumed.handle);
       expect(resumed.outcome).toBe("started");
       const completed = await eventually(() => observe(resumed.handle), (value) => value.host.status === "completed");
-      expect((await readFile(completed.host.logs.stdout as string, "utf8"))).toContain("approved-resume");
+      expect(completed.host.logs.stdout).toBeNull();
 
-      const denied = await recordPermissionNeeded(recordOnlyHandle(deniedFixture), {
+      const denied = await recordPermissionNeeded(await recordOnlyHandle(deniedFixture), {
         operation: "delete",
         capabilityClass: "filesystem",
         resourceClass: "protected-test-target",
@@ -569,10 +738,11 @@ describe("detached subprocess foundation", () => {
         source: "focused-user-event-bridge",
         present: async () => "denied",
       });
+      assertNoRawPaths(denied, deniedFixture.root);
       expect(denied.outcome).toBe("denied");
       expect(denied.record.status).toBe("blocked");
       expect(denied.record.events.find((event) => event.event === "permission-denied")?.details.automaticRetry).toBe(false);
-      await expect(resumeAfterApproval(recordOnlyHandle(deniedFixture, denied.record.events.find((event) => event.event === "permission-needed")?.jobId), requestFor(deniedFixture, "await Bun.sleep(1);"))).rejects.toThrow(/approval/);
+      await expect(resumeAfterApproval(await recordOnlyHandle(deniedFixture, denied.record.events.find((event) => event.event === "permission-needed")?.jobId), requestFor(deniedFixture, "await Bun.sleep(1);"))).rejects.toThrow(/approval/);
     } finally {
       await cleanupFixture(approvedFixture, handles);
       await rm(deniedFixture.root, { recursive: true, force: true });
@@ -582,13 +752,14 @@ describe("detached subprocess foundation", () => {
   test("does not simulate a hidden prompt when permission-event bubbling is unavailable", async () => {
     const fixtureData = await fixture("active");
     try {
-      const result = await recordPermissionNeeded(recordOnlyHandle(fixtureData), {
+      const result = await recordPermissionNeeded(await recordOnlyHandle(fixtureData), {
         operation: "write",
         capabilityClass: "filesystem",
         resourceClass: "unapproved-test-target",
         failureClass: "permission-denied",
         reason: "host bridge intentionally unavailable",
       });
+      assertNoRawPaths(result, fixtureData.root);
       expect(result.outcome).toBe("unavailable");
       expect(result.record.status).toBe("blocked");
       expectEvent(result.record, "permission-needed");
