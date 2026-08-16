@@ -5,7 +5,7 @@ export const canonicalRoleName = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
 
 export const supportedAgentTools = new Set([
   "read", "write", "edit", "bash", "grep", "find", "ls", "webfetch", "websearch",
-  "call_subagent", "resolve_component_context", "git_inspect", "search_traces", "get_trace",
+  "call_subagent", "resolve_component_context", "git_inspect", "focused_check", "search_traces", "get_trace",
   "summarize_trace", "compare_traces", "analyze_session",
 ]);
 
