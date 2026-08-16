@@ -115,6 +115,14 @@ all representation columns, especially `description`, `dependencies`, and
 Validate a captured response with `validateQueryRepresentation` before treating
 the display as complete.
 
+## Ownership Reconciliation
+
+When adding or reconciling a proposal, inspect the owning component's `as-is.md` Purpose and directory boundary, then supply the owner and rationale explicitly. Use the deterministic reconciliation surface only to load that context, search ancestor/descendant candidates, and apply a bounded caller-authorized operation. Candidate matches are evidence, not semantic authority; do not infer ownership or equivalence from keywords, similarity, or static absence.
+
+Reconciliation may move one item, remove one item only in favor of an explicit ancestor/descendant equivalent, combine explicitly listed items into one survivor, or split one item into two or more caller-supplied replacements. Preserve fields and Markdown-bearing cells verbatim, record concise provenance in `notes`, rewrite dependencies explicitly, and refuse any unresolved dependent or out-of-scope touched component. The operation stages all affected backlog data in memory, reparses every result with the stable schema, rejects duplicate identities and malformed replacements, and writes only after whole-plan validation succeeds. It does not change task records, changelogs, completion status, or cleanup authority.
+
+Use `loadComponentContexts`, `findAncestorAndDescendantCandidates`, and `reconcileBacklogs` from `scripts/query.ts` for deterministic repository-local application. A reusable consumer must provide its own target-project record and ownership conventions; these functions do not create a component registry or generic workflow framework.
+
 ## Cleanup Of Implemented Items
 
 Backlog cleanup is a separate, evidence-gated preparation step within the

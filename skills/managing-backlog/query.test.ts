@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { calculateWeights, cleanupCompletedBacklogs, findCompletedItems, loadBacklogs, parseBacklog, renderQuery, validateQueryRepresentation } from "./scripts/query";
+import { calculateWeights, cleanupCompletedBacklogs, findAncestorAndDescendantCandidates, findCompletedItems, loadBacklogs, loadComponentContexts, parseBacklog, reconcileBacklogs, renderQuery, validateQueryRepresentation } from "./scripts/query";
 
 const schema = `# Backlog\n\n| id | status | user preference | system preference | purpose | description | dependencies | acceptance | notes |\n| --- | --- | ---: | ---: | --- | --- | --- | --- | --- |\n| prerequisite | open | 3 | 1 | Unblock work | Do prerequisite | - | It works | user value |\n| dependent | selected | 2 | 0 | Deliver value | Use prerequisite | skills/managing-backlog:prerequisite | It integrates | selected intentionally |\n`;
 
@@ -107,6 +107,83 @@ test("cleans only the selected evidenced identity and rejects missing or malform
     expect(() => cleanupCompletedBacklogs(root, selection)).toThrow(/exact.*component:id|malformed|selection/i);
   }
   expect(() => cleanupCompletedBacklogs(root, "component:missing")).toThrow(/changelog-evidenced completion|completion.*evidence|not found|selected/i);
+});
+
+test("loads component context and limits candidates to ancestor and descendant backlogs", () => {
+  const root = mkdtempSync(join(tmpdir(), "backlog-context-"));
+  const writeComponent = (component: string, purpose: string, row: string) => {
+    const directory = join(root, component);
+    mkdirSync(directory, { recursive: true });
+    writeFileSync(join(directory, "as-is.md"), `# ${component || "root"}\n\n## Purpose\n${purpose}\n`);
+    writeFileSync(join(directory, "backlog.md"), `${schema.replace("skills/managing-backlog/backlog.md", `${component || "root"}/backlog.md`).replace("prerequisite", row)}\n`);
+  };
+  writeComponent("", "Root owner", "same");
+  writeComponent("parent", "Parent owner", "same");
+  writeComponent("parent/child", "Child owner", "child-only");
+  writeComponent("sibling", "Sibling owner", "same");
+  expect(loadComponentContexts(root).map((context) => context.component)).toEqual(["parent", "parent/child", "root", "sibling"]);
+  const items = loadBacklogs(root);
+  const candidates = findAncestorAndDescendantCandidates(items, "parent", { id: "same", purpose: "Unblock work", description: "Do prerequisite" });
+  expect(candidates.map((candidate) => candidate.identity)).toEqual(["parent/child:child-only", "root:same"]);
+  expect(candidates.find((candidate) => candidate.identity === "root:same")?.relation).toBe("ancestor");
+  expect(candidates.find((candidate) => candidate.identity === "parent/child:child-only")?.relation).toBe("descendant");
+});
+
+test("removes an explicit ancestor equivalent and rewrites dependencies with provenance", () => {
+  const root = mkdtempSync(join(tmpdir(), "backlog-remove-"));
+  const row = (id: string, purpose: string, description: string, dependencies = "-", notes = "-") => `| ${id} | open | 1 | 1 | ${purpose} | ${description} | ${dependencies} | Pass | ${notes} |`;
+  const writeComponent = (component: string, rows: string[]) => {
+    const directory = join(root, component);
+    mkdirSync(directory, { recursive: true });
+    writeFileSync(join(directory, "as-is.md"), `# ${component || "root"}\n\n## Purpose\nOwner\n`);
+    writeFileSync(join(directory, "backlog.md"), `# Backlog\n\n| id | status | user preference | system preference | purpose | description | dependencies | acceptance | notes |\n| --- | --- | ---: | ---: | --- | --- | --- | --- | --- |\n${rows.join("\n")}\n`);
+  };
+  writeComponent("", [row("same", "Shared", "Proposal"), row("dependent", "Uses", "Old", "root:same")]);
+  writeComponent("parent", [row("same", "Shared", "Proposal")]);
+  reconcileBacklogs(root, { owner: "parent", authorizedComponents: ["root", "parent"], rationale: "child owns bounded proposal" }, { kind: "remove", source: "root:same", equivalent: "parent:same", rationale: "retain child proposal" });
+  const rootText = readFileSync(join(root, "backlog.md"), "utf8");
+  const parentText = readFileSync(join(root, "parent/backlog.md"), "utf8");
+  expect(rootText).not.toContain("| same | open |");
+  expect(rootText).toContain("parent:same");
+  expect(parentText).toContain("root:same");
+  expect(parentText).toContain("retain child proposal");
+});
+
+test("moves, combines, and splits with explicit provenance and dependency rewrites", () => {
+  const root = mkdtempSync(join(tmpdir(), "backlog-ops-"));
+  const row = (id: string, purpose: string, description: string, dependencies = "-", notes = "-") => `| ${id} | open | 1 | 1 | ${purpose} | ${description} | ${dependencies} | Pass | ${notes} |`;
+  const writeComponent = (component: string, rows: string[]) => {
+    const directory = join(root, component);
+    mkdirSync(directory, { recursive: true });
+    writeFileSync(join(directory, "as-is.md"), `# ${component || "root"}\n\n## Purpose\nOwner\n`);
+    writeFileSync(join(directory, "backlog.md"), `# Backlog\n\n| id | status | user preference | system preference | purpose | description | dependencies | acceptance | notes |\n| --- | --- | ---: | ---: | --- | --- | --- | --- | --- |\n${rows.join("\n")}\n`);
+  };
+  writeComponent("", [row("move-me", "Move", "with \\[link\\](x)"), row("a", "A", "A"), row("b", "B", "B", "root:a"), row("dependent", "D", "D", "root:a")]);
+  writeComponent("parent", [row("survivor", "S", "S"), row("split-dependent", "SD", "SD", "root:split-me"), row("split-me", "Split", "Source", "root:a")]);
+  reconcileBacklogs(root, { owner: "parent", authorizedComponents: ["root", "parent"], rationale: "bounded organization" }, { kind: "move", from: "root:move-me", toComponent: "parent", rationale: "parent owns it" });
+  reconcileBacklogs(root, { owner: "parent", authorizedComponents: ["root", "parent"], rationale: "bounded organization" }, { kind: "combine", sources: ["root:a", "root:b"], survivor: "root:a", rationale: "same proposal family" });
+  reconcileBacklogs(root, { owner: "parent", authorizedComponents: ["root", "parent"], rationale: "bounded organization" }, { kind: "split", source: "parent:split-me", replacements: [
+    { component: "parent", item: { id: "split-one", status: "open", userPreference: 1, systemPreference: 1, purpose: "One", description: "One", dependencies: [], acceptance: "Pass", notes: "-" } },
+    { component: "parent", item: { id: "split-two", status: "open", userPreference: 1, systemPreference: 1, purpose: "Two", description: "Two", dependencies: [], acceptance: "Pass", notes: "-" } },
+  ], dependentReplacements: { "parent:split-dependent": "parent:split-one" }, outgoingDependencies: { "root:a": "parent:split-two" }, rationale: "separate bounded work" });
+  expect(readFileSync(join(root, "parent/backlog.md"), "utf8")).toContain("split-one");
+  expect(readFileSync(join(root, "parent/backlog.md"), "utf8")).toContain("split-two");
+  expect(readFileSync(join(root, "parent/backlog.md"), "utf8")).toContain("move-me");
+  expect(readFileSync(join(root, "backlog.md"), "utf8")).toContain("root:a");
+});
+
+test("refuses malformed or out-of-scope reconciliation without writing", () => {
+  const root = mkdtempSync(join(tmpdir(), "backlog-refuse-"));
+  mkdirSync(join(root, "component"));
+  writeFileSync(join(root, "as-is.md"), "# root\n\n## Purpose\nRoot\n");
+  writeFileSync(join(root, "component", "as-is.md"), "# component\n\n## Purpose\nComponent\n");
+  const markdown = `${schema.replaceAll("skills/managing-backlog", "component")}\n`;
+  writeFileSync(join(root, "backlog.md"), markdown);
+  writeFileSync(join(root, "component", "backlog.md"), markdown);
+  const before = readFileSync(join(root, "backlog.md"), "utf8");
+  expect(() => reconcileBacklogs(root, { owner: "component", authorizedComponents: ["component"], rationale: "" }, { kind: "move", from: "root:prerequisite", toComponent: "component", rationale: "move" })).toThrow();
+  expect(() => reconcileBacklogs(root, { owner: "component", authorizedComponents: ["component"], rationale: "bounded" }, { kind: "split", source: "root:prerequisite", replacements: [], dependentReplacements: {}, rationale: "split" })).toThrow();
+  expect(readFileSync(join(root, "backlog.md"), "utf8")).toBe(before);
 });
 
 test("breaks dependency cycles deterministically", () => {

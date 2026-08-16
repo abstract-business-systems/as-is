@@ -52,6 +52,18 @@ exactly `weight`, `component`, `id`, `status`, `purpose`, `description`,
 contract after a fresh Pi validation found a five-column summary that omitted
 description, dependencies, and notes.
 
+The component also provides a bounded, caller-authorized reconciliation flow. It
+loads ownership from each component's `as-is.md` Purpose and directory boundary,
+reports only exact or normalized ancestor/descendant candidates, and applies
+explicit move, remove, combine, or split operations with dependency rewrites and
+provenance preservation. Candidate detection is evidence rather than semantic
+authority: ownership, equivalence, status/preference decisions, and split
+allocation remain caller decisions. Operations validate all affected backlog
+schemas in memory before writing and refuse unknown, malformed, ambiguous,
+out-of-scope, or unresolved changes. This flow does not inspect task records,
+changelogs, completion status, or runtime authority; completion cleanup remains a
+separate exact-identity operation.
+
 Cleanup is evidence-gated and component-owned. `cleanupCompletedBacklogs`
 prepares removal only for rows whose exact IDs occur in the owning
 `changelog.md` alongside a completion term; it preserves ambiguous,

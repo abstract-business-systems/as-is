@@ -1,5 +1,7 @@
 # Changelog
 
+- Completion evidence: `skills/managing-backlog:component-ownership-and-reconciliation` completed as a narrow deterministic reconciliation extension. Added component-context loading from `as-is.md` Purpose and directory boundaries, ancestor/descendant candidate detection, explicit move/remove/combine/split operations, dependency rewrites, provenance preservation, topology/scope authorization, schema validation, staged rollback-capable writes, and refusal of ambiguous or out-of-scope operations. Focused backlog query tests passed: 15 tests/53 expectations; no-bundle build passed; content/navigation passed with 49 records/47 diagrams; task-record `VALID`; JSON parsing; and `git diff --check`. Existing exact-identity completion cleanup remains separate and covered. No registry, semantic classifier, generic workflow framework, task-authority change, or unrelated component state change was introduced.
+
 - 2026-08-13: Made implemented-backlog cleanup identity-scoped: `--cleanup=component:id` and `cleanupCompletedBacklogs(root, selection)` require one exact fully-qualified selection, refuse missing, malformed, or unevidenced identities, and remove only the selected owning row. Existing unfiltered queries and other backlog behavior remain unchanged; unrelated rows are not claimed or cleaned.
 
 - 2026-08-02: Separated backlog management from task implementation and lifecycle.
