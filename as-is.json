@@ -57,5 +57,39 @@
     "security": {
       "emitted-paths": "masked-runtime-references"
     }
+  },
+  "task": {
+    "status": "active",
+    "worker": "component-builder",
+    "updated": "2026-08-16T17:49:09Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.5,
+        "spent": 0,
+        "reserve": 0.1,
+        "source": "unavailable",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 300,
+          "spent-seconds": 0,
+          "reserve-seconds": 60,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "prohibited"
+    },
+    "acceptance": [
+      "The execution-contract readiness inventory reconciles conceptual lifecycle vocabulary with current task-control, process-adapter, launcher, observability, budget, and Git/worktree consumers without creating a speculative execution-contract module.",
+      "Provider-free fixtures cover launch admission, accepted launch observation, failure, cancellation or bounded recovery, stale-revision rejection, and unavailable-host evidence.",
+      "The resulting observation seam, or documented decision not to create one, preserves task-control as durable authority and does not split lifecycle ownership or change runtime behavior.",
+      "Task-record, focused behavioral, content/navigation, backlog, JSON, reference, diagnostics, whitespace, and final review validation pass."
+    ]
   }
 }
