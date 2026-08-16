@@ -7,8 +7,10 @@ export const FOCUSED_CHECK_FILES = [
   "skills/managing-backlog/query.test.ts",
 ] as const;
 const FOCUSED_CHECK_TIMEOUT_MS = 120_000;
+const KILL_GRACE_MS = 500;
 const MAX_OUTPUT_BYTES = 32 * 1024;
-const SAFE_ENVIRONMENT_KEYS = ["PATH", "HOME", "TMPDIR"] as const;
+// The launcher supplies the fixed Bun runtime; no caller-provided executable is accepted.
+const FIXED_BUN_EXECUTABLE = process.execPath;
 
 const OPERATIONS = {
   status: ["status", "--short"],
@@ -17,11 +19,11 @@ const OPERATIONS = {
   head: ["log", "-1", "--oneline", "--decorate"],
 } as const;
 
-type CapturedOutput = { text: string; truncated: boolean };
+type CapturedOutput = { text: string; truncated: boolean; error: boolean };
 export type FocusedCheckResult = {
   identifier: typeof FOCUSED_CHECK_IDENTIFIER;
   files: readonly string[];
-  status: "passed" | "failed" | "unavailable" | "launch-error" | "timed-out" | "truncated";
+  status: "passed" | "failed" | "unavailable" | "launch-error" | "timed-out" | "truncated" | "observation-error";
   exitCode: number | null;
   durationMs: number;
   timedOut: boolean;
@@ -33,7 +35,7 @@ export type FocusedCheckResult = {
 };
 
 const capture = async (stream: ReadableStream<Uint8Array> | null): Promise<CapturedOutput> => {
-  if (!stream) return { text: "", truncated: false };
+  if (!stream) return { text: "", truncated: false, error: true };
   const reader = stream.getReader();
   const decoder = new TextDecoder();
   const chunks: string[] = [];
@@ -55,10 +57,12 @@ const capture = async (stream: ReadableStream<Uint8Array> | null): Promise<Captu
       if (selected.byteLength < value.byteLength) truncated = true;
     }
     chunks.push(decoder.decode());
+    return { text: chunks.join(""), truncated, error: false };
+  } catch {
+    return { text: chunks.join(""), truncated, error: true };
   } finally {
     reader.releaseLock();
   }
-  return { text: chunks.join(""), truncated };
 };
 
 export const focusedCheckArguments = (bunExecutable: string): readonly string[] => [
@@ -69,17 +73,10 @@ export const focusedCheckArguments = (bunExecutable: string): readonly string[] 
   ...FOCUSED_CHECK_FILES,
 ];
 
-export const focusedCheckEnvironment = (source: NodeJS.ProcessEnv): Record<string, string> => {
-  const environment: Record<string, string> = {
-    AS_IS_LIVE_INTEGRATION: "0",
-    PI_OFFLINE: "1",
-  };
-  for (const key of SAFE_ENVIRONMENT_KEYS) {
-    const value = source[key];
-    if (typeof value === "string" && value.length > 0) environment[key] = value;
-  }
-  return environment;
-};
+export const focusedCheckEnvironment = (_source: NodeJS.ProcessEnv): Record<string, string> => ({
+  AS_IS_LIVE_INTEGRATION: "0",
+  PI_OFFLINE: "1",
+});
 
 const result = (partial: Omit<FocusedCheckResult, "identifier" | "files">): FocusedCheckResult => ({
   identifier: FOCUSED_CHECK_IDENTIFIER,
@@ -106,7 +103,7 @@ export const runFocusedCheck = async (cwd: string): Promise<FocusedCheckResult> 
 
   let child: ReturnType<typeof Bun.spawn>;
   try {
-    child = Bun.spawn(focusedCheckArguments(process.execPath), {
+    child = Bun.spawn(focusedCheckArguments(FIXED_BUN_EXECUTABLE), {
       cwd,
       env: focusedCheckEnvironment(process.env),
       stdin: "ignore",
@@ -128,27 +125,41 @@ export const runFocusedCheck = async (cwd: string): Promise<FocusedCheckResult> 
     });
   }
 
-  let timedOut = false;
-  const timer = setTimeout(() => {
-    timedOut = true;
-    child.kill();
-  }, FOCUSED_CHECK_TIMEOUT_MS);
-  const [stdout, stderr, exitCode] = await Promise.all([
+  const observe = Promise.all([
     capture(child.stdout),
     capture(child.stderr),
     child.exited,
-  ]).finally(() => clearTimeout(timer));
-  const durationMs = Date.now() - started;
+  ]);
+  let timedOut = false;
+  const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), FOCUSED_CHECK_TIMEOUT_MS));
+  const observed = await Promise.race([observe.then((value) => value as [CapturedOutput, CapturedOutput, number]), timeout]);
+  if (observed === null) {
+    timedOut = true;
+    try { child.kill(); } catch { /* return bounded timeout evidence below */ }
+    await Promise.race([observe.catch(() => undefined), new Promise((resolve) => setTimeout(resolve, KILL_GRACE_MS))]);
+    return result({
+      status: "timed-out",
+      exitCode: null,
+      durationMs: Date.now() - started,
+      timedOut,
+      stdout: "",
+      stderr: "",
+      stdoutTruncated: false,
+      stderrTruncated: false,
+      reason: "fixed focused-check timeout elapsed",
+    });
+  }
+  const [stdout, stderr, exitCode] = observed;
   const common = {
     exitCode,
-    durationMs,
+    durationMs: Date.now() - started,
     timedOut,
     stdout: stdout.text,
     stderr: stderr.text,
     stdoutTruncated: stdout.truncated,
     stderrTruncated: stderr.truncated,
   };
-  if (timedOut) return result({ ...common, status: "timed-out", reason: "fixed focused-check timeout elapsed" });
+  if (stdout.error || stderr.error) return result({ ...common, status: "observation-error", reason: "fixed focused-check output could not be observed" });
   if (stdout.truncated || stderr.truncated) return result({ ...common, status: "truncated", reason: "fixed focused-check output exceeded its bound" });
   if (exitCode !== 0) return result({ ...common, status: "failed", reason: "fixed focused-check exited unsuccessfully" });
   return result({ ...common, status: "passed" });

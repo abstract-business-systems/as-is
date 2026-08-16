@@ -10,8 +10,8 @@ test("focused check has a code-owned literal argv and bounded environment", () =
   expect(focusedCheckArguments("/fixed/bun")).toEqual([
     "/fixed/bun", "test", "--timeout", "20000", ...FOCUSED_CHECK_FILES,
   ]);
-  expect(focusedCheckEnvironment({ PATH: "/safe", HOME: "/home/test", SECRET: "must-not-forward" })).toEqual({
-    AS_IS_LIVE_INTEGRATION: "0", PI_OFFLINE: "1", PATH: "/safe", HOME: "/home/test",
+  expect(focusedCheckEnvironment({ PATH: "/unsafe", HOME: "/home/test", SECRET: "must-not-forward" })).toEqual({
+    AS_IS_LIVE_INTEGRATION: "0", PI_OFFLINE: "1",
   });
 });
 
