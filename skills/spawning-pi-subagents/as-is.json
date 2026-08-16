@@ -1,14 +1,14 @@
 {
   "task": {
-    "status": "cancelled",
+    "status": "active",
     "worker": "component-builder",
-    "updated": "2026-08-16T21:21:01Z",
+    "updated": "2026-08-16T21:35:00Z",
     "constraints": {
       "cost": {
         "currency": "USD",
-        "allocated": 0.4,
+        "allocated": 0.35,
         "spent": 0,
-        "reserve": 0.08,
+        "reserve": 0.07,
         "source": "host-forwarded",
         "fallback-metric": "validation elapsed-seconds"
       },
@@ -18,18 +18,19 @@
       },
       "execution": {
         "wall-clock": {
-          "allocated-seconds": 180,
+          "allocated-seconds": 240,
           "spent-seconds": 0,
-          "reserve-seconds": 36,
+          "reserve-seconds": 48,
           "source": "host-forwarded"
         }
       },
       "external-effects": "prohibited"
     },
     "acceptance": [
-      "Reconcile dynamic-expert-validation-access only if existing fixed read-only evidence-validator capability proves the backlog acceptance.",
-      "Otherwise retain a bounded blocker and preserve the backlog row without runtime, capability, role, or test changes.",
-      "Record expert plan and final validation gates, focused evidence, recovery, and descendant closure."
+      "Add only the fixed parameterless evidence-validator focused_check capability with the literal identifier evidence-validator-focused-suite and a code-owned enumerated deterministic local test set.",
+      "Use fixed argv, timeout, bounded stdout/stderr, and minimal environment policy; fail closed on unavailable inputs, launch errors, nonzero exit, timeout, stream errors, or truncation; do not accept caller-selected commands, paths, arguments, globs, environment, cwd, provider, session, or shell input.",
+      "Wire the evidence-validator profile to exactly read,grep,find,ls,git_inspect,focused_check while preserving same-worktree, no-session, no-approval, no-skills, no-extension, capability-based dispatch, diagnostic caller metadata, and existing git_inspect behavior.",
+      "Validate launcher/profile/extension behavior, deterministic focused-check behavior, package build, task-record/content/JSON/whitespace/diff checks, and no role-contract or unrelated behavior changes; no descendants are authorized."
     ]
   }
 }
