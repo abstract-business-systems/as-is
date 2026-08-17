@@ -67,6 +67,18 @@ test("matches weakened policy, delegation, budget, and descendant diagnostics", 
   } finally { await rm(root, { recursive: true, force: true }); }
 });
 
+test("loads a configured custom task narrative instead of the default name", async () => {
+  const root = await fixture();
+  try {
+    const metadata = JSON.parse(await Bun.file(join(root, "as-is.json")).text());
+    metadata.configuration.records.filenames.task = "work.md";
+    await writeFile(join(root, "as-is.json"), JSON.stringify(metadata));
+    await writeFile(join(root, "work.md"), await Bun.file(join(root, "tasks.md")).text());
+    await rm(join(root, "tasks.md"));
+    expect(validateTree(root)).toEqual([]);
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
+
 test("rejects missing task fields and unsafe configured filenames", async () => {
   const root = await fixture();
   try {

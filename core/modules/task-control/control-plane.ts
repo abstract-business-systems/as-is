@@ -28,7 +28,8 @@ import {
 import { basename, dirname, join, relative, resolve, sep } from "node:path";
 import { createHash, randomBytes } from "node:crypto";
 import { admits, effectiveLaunchBudget, remainingBudget, type EffectiveLaunchBudget } from "./budget.ts";
-import { isTaskNarrativeFilename, readAsIsJson } from "../context-resolution/configuration-resolver.ts";
+import { readAsIsJson } from "../context-resolution/configuration-resolver.ts";
+import { taskRecordNameFromConfiguration, taskRecordNamesFromConfiguration } from "./task-record-policy.ts";
 
 export const STATUSES = new Set([
   "ready",
@@ -366,7 +367,11 @@ function walkRecords(root: string, taskRecordNames: readonly string[]): string[]
       throw new ControlPlaneError(`multiple task narratives exist in one component: ${directory}`);
     }
     const selectedTask = taskNarratives[0];
-    if (selectedTask) found.push(join(directory, selectedTask));
+    // A Markdown filename alone is not task authority. Only discover a
+    // narrative when its component JSON companion supplies a local task
+    // object; preserved task-like artifacts and configuration-only components
+    // remain ordinary files.
+    if (selectedTask && names.has("as-is.json") && isMapping(readAsIsJson(join(directory, "as-is.json")).task)) found.push(join(directory, selectedTask));
     for (const entry of entries) if (entry.isDirectory()) visit(join(directory, entry.name));
   }
   visit(root);
@@ -397,17 +402,12 @@ export class ControlPlane {
     let configuredTaskName: string | undefined;
     try {
       const configuration = readAsIsJson(companionPath).configuration;
-      const filenames = isMapping(configuration) && isMapping(configuration.records) && isMapping(configuration.records.filenames)
-        ? configuration.records.filenames : {};
-      if (filenames.task !== undefined && !isTaskNarrativeFilename(filenames.task)) {
-        throw new ControlPlaneError("configuration.records.filenames.task must be a safe basename");
-      }
-      configuredTaskName = isTaskNarrativeFilename(filenames.task) ? filenames.task : undefined;
+      configuredTaskName = taskRecordNameFromConfiguration(configuration);
     } catch (error) {
       if (existsSync(companionPath)) throw error;
       throw new ControlPlaneError(`root companion is required: ${companionPath}`);
     }
-    this.taskRecordNames = [...new Set([configuredTaskName, "tasks.md", "task.md"].filter((name): name is string => Boolean(name)))];
+    this.taskRecordNames = taskRecordNamesFromConfiguration(readAsIsJson(companionPath).configuration);
     this.rootRecordPath = configuredTaskName && existsSync(join(this.root, configuredTaskName))
       ? join(this.root, configuredTaskName)
       : existsSync(join(this.root, "tasks.md"))

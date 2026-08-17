@@ -4,7 +4,8 @@ import { execFileSync } from "node:child_process";
 import { readFileSync, readdirSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { ControlPlane, type TaskSnapshot } from "../../../core/modules/task-control/control-plane";
-import { isTaskNarrativeFilename, readAsIsJson } from "../../../core/modules/context-resolution/configuration-resolver";
+import { readAsIsJson } from "../../../core/modules/context-resolution/configuration-resolver";
+import { taskRecordNameFromConfiguration } from "../../../core/modules/task-control/task-record-policy";
 
 export type OrientationSnapshot = {
   root: { status: string; nextAction: string };
@@ -31,12 +32,12 @@ const walk = (root: string): string[] => {
 const nextAction = (root: string): string => {
   let taskName = "tasks.md";
   try {
-    const configuration = readAsIsJson(join(root, "as-is.json")).configuration as Record<string, unknown>;
-    const records = configuration.records as Record<string, unknown> | undefined;
-    const filenames = records?.filenames as Record<string, unknown> | undefined;
-    if (filenames?.task !== undefined && !isTaskNarrativeFilename(filenames.task)) return "invalid configured task filename";
-    if (isTaskNarrativeFilename(filenames?.task)) taskName = filenames.task;
-  } catch { /* legacy projects use the default */ }
+    const configuration = readAsIsJson(join(root, "as-is.json")).configuration;
+    taskName = taskRecordNameFromConfiguration(configuration);
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("configuration.records.filenames.task must be a safe basename")) return "invalid configured task filename";
+    /* legacy projects use the default */
+  }
   const taskPath = join(root, taskName);
   let text: string;
   try {
@@ -44,8 +45,12 @@ const nextAction = (root: string): string => {
   } catch {
     return "not recorded";
   }
-  const match = text.match(/^## Next Action\s*$([\s\S]*?)(?=^## |$)/m);
-  return match?.[1].trim().replace(/\s+/g, " ") || "not recorded";
+  const heading = /^## Next Action\s*$/m.exec(text);
+  if (!heading || heading.index === undefined) return "not recorded";
+  const contentStart = heading.index + heading[0].length;
+  const remainder = text.slice(contentStart);
+  const nextSection = /\n## /m.exec(remainder);
+  return remainder.slice(0, nextSection?.index ?? remainder.length).trim().replace(/\s+/g, " ") || "not recorded";
 };
 
 const changelog = (root: string): OrientationSnapshot["changelog"] => {

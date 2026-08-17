@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { readFileSync, rmSync, mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { ControlPlane, ControlPlaneError } from "./control-plane.ts";
@@ -136,6 +136,37 @@ test("rejects an unsafe configured task filename", () => {
     writeFileSync(join(root, "as-is.md"), "# Root\n", "utf8");
     writeFileSync(join(root, "as-is.json"), JSON.stringify({ configuration: { records: { filenames: { task: "../escape.md" } } } }), "utf8");
     expect(() => new ControlPlane(root)).toThrow("safe basename");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("does not treat an orphan task-like Markdown file as task authority", () => {
+  const fixtureRoot = fixture();
+  try {
+    const orphan = join(fixtureRoot.root, "orphan");
+    mkdirSync(orphan);
+    writeFileSync(join(orphan, "task.md"), "# Preserved task-like artifact\n", "utf8");
+    const paths = (new ControlPlane(fixtureRoot.root) as any).records().map((record: { path: string }) => record.path);
+    expect(paths).not.toContain(join(orphan, "task.md"));
+  } finally {
+    fixtureRoot.cleanup();
+  }
+});
+
+test("uses a configured task narrative consistently across control-plane discovery", () => {
+  const root = mkdtempSync(join(tmpdir(), "control-plane-configured-name-"));
+  try {
+    writeFileSync(join(root, "as-is.md"), "# Root\\n", "utf8");
+    writeFileSync(join(root, "as-is.json"), JSON.stringify({
+      configuration: { records: { filenames: { task: "work.md" } } },
+      task: taskData(),
+    }), "utf8");
+    writeFileSync(join(root, "work.md"), record(), "utf8");
+    const control = new ControlPlane(root);
+    expect(control.rootRecordPath).toBe(join(root, "work.md"));
+    expect(control.taskRecordNames).toEqual(["work.md", "tasks.md", "task.md"]);
+    expect((control.status() as any).tasks[0].status).toBe("active");
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

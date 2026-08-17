@@ -3,6 +3,7 @@
 
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
+import { taskRecordNameFromConfiguration } from "./task-record-policy.ts";
 
 const STATUSES = new Set(["ready", "active", "blocked", "awaiting-approval", "completed", "failed", "cancelled"]);
 const TERMINAL = new Set(["completed", "failed", "cancelled"]);
@@ -108,8 +109,12 @@ export function validateTree(root: string): string[] {
   const rootPath = resolve(root);
   let rootData: AnyRecord;
   try { rootData = JSON.parse(readFileSync(`${rootPath}/as-is.json`, "utf8")); } catch (error) { return [`${rootPath}/as-is.json: invalid or unreadable root companion: ${String(error)}`]; }
-  const taskName = rootData?.configuration?.records?.filenames?.task ?? "tasks.md";
-  if (typeof taskName !== "string" || !taskName || taskName === "." || taskName === ".." || taskName.includes("/") || taskName.includes("\\") || taskName === "as-is.md") return [`${rootPath}/as-is.json: configured task filename is unsafe`];
+  let taskName: string;
+  try {
+    taskName = taskRecordNameFromConfiguration(rootData?.configuration);
+  } catch (error) {
+    return [`${rootPath}/as-is.json: ${String(error)}`];
+  }
   const directories = [rootPath];
   const walk = (directory: string): void => {
     for (const entry of readdirSync(directory, { withFileTypes: true }).sort((left, right) => left.name < right.name ? -1 : left.name > right.name ? 1 : 0)) {
