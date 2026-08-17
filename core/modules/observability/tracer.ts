@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { appendFile, chmod, mkdir, readdir, rename, stat, unlink } from "node:fs/promises";
 import { join, resolve } from "node:path";
+import { resolveConfigurationFromCwdSync } from "../context-resolution/configuration-resolver.ts";
 
 export type TraceValue = string | number | boolean | undefined;
 export type SessionReference = { sessionId: string };
@@ -208,18 +209,25 @@ export function otlpPayload(event: TraceEvent) {
   };
 }
 
-async function projectConfig(cwd: string): Promise<TracerConfig> {
+function projectConfig(cwd: string): TracerConfig {
   try {
-    const data = JSON.parse(await Bun.file(resolve(cwd, "as-is.json")).text()) as { configuration?: { observability?: { tracing?: Record<string, unknown> } } };
-    const tracing = data.configuration?.observability?.tracing ?? {};
+    const resolution = resolveConfigurationFromCwdSync(cwd);
+    if (!resolution.complete) return {};
+    const configuration = resolution.configuration;
+    const observability = configuration.observability;
+    const tracing = observability && typeof observability === "object" && !Array.isArray(observability)
+      ? (observability as Record<string, unknown>).tracing
+      : undefined;
+    if (!tracing || typeof tracing !== "object" || Array.isArray(tracing)) return {};
+    const values = tracing as Record<string, unknown>;
     return {
-      backend: typeof tracing.backend === "string" ? tracing.backend : undefined,
-      enabled: typeof tracing.enabled === "boolean" ? tracing.enabled : undefined,
-      endpoint: typeof tracing.endpoint === "string" ? tracing.endpoint : undefined,
-      directory: typeof tracing["local-directory"] === "string" ? tracing["local-directory"] : undefined,
-      maxFileBytes: typeof tracing["max-file-bytes"] === "number" ? tracing["max-file-bytes"] : undefined,
-      retentionDays: typeof tracing["retention-days"] === "number" ? tracing["retention-days"] : undefined,
-      maxFiles: typeof tracing["max-files"] === "number" ? tracing["max-files"] : undefined,
+      backend: typeof values.backend === "string" ? values.backend : undefined,
+      enabled: typeof values.enabled === "boolean" ? values.enabled : undefined,
+      endpoint: typeof values.endpoint === "string" ? values.endpoint : undefined,
+      directory: typeof values["local-directory"] === "string" ? values["local-directory"] : undefined,
+      maxFileBytes: typeof values["max-file-bytes"] === "number" ? values["max-file-bytes"] : undefined,
+      retentionDays: typeof values["retention-days"] === "number" ? values["retention-days"] : undefined,
+      maxFiles: typeof values["max-files"] === "number" ? values["max-files"] : undefined,
     };
   } catch {
     return {};
@@ -227,7 +235,7 @@ async function projectConfig(cwd: string): Promise<TracerConfig> {
 }
 
 async function envConfig(cwd: string): Promise<TracerConfig> {
-  const project = await projectConfig(cwd);
+  const project = projectConfig(cwd);
   return {
     ...project,
     backend: process.env.AS_IS_COMPONENT_BUILD_TRACER ?? project.backend ?? "file",

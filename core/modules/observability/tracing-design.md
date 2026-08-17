@@ -11,8 +11,7 @@ performance target.
 The design is staged: stabilize this event model and its capture boundaries;
 then rehearse a dummy delegation flow. The tracer captures key execution
 lifecycle events, including subprocess delegation, while Pi session stores
-remain the source of conversational and tool payloads. External OTLP payloads
-carry only an opaque session ID and never resolve the session store. No
+remain the source of conversational and tool payloads. External OTLP payloads carry only an opaque session ID and never resolve the session store; external sinks carry only opaque session IDs for session correlation. No
 launcher, session, tool, or output source is added by this document.
 
 ## Session correlation and local inspection

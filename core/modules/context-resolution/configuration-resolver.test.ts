@@ -66,6 +66,29 @@ test("finds the configuration root from a nested client directory", () => {
   rmSync(root, { recursive: true, force: true });
 });
 
+test("keeps resolver ownership generic while cascading consumer namespaces and provenance", () => {
+  const root = fixture();
+  writeJson(join(root, "as-is.json"), {
+    configuration: {
+      observability: { tracing: { backend: "file", enabled: true } },
+      agents: { defaultModel: "small" },
+    },
+  });
+  writeJson(join(root, "components", "child", "as-is.json"), {
+    configuration: { observability: { tracing: { enabled: false } }, agents: { defaultThinkingLevel: "high" } },
+    task: { status: "active" },
+  });
+  const result = resolveConfigurationSync(root, "components/child");
+  expect(result.configuration).toEqual({
+    observability: { tracing: { backend: "file", enabled: false } },
+    agents: { defaultModel: "small", defaultThinkingLevel: "high" },
+  });
+  expect(result.provenance["configuration.observability"]?.scope).toBe("repository");
+  expect(result.provenance["configuration.observability.tracing.enabled"]?.scope).toBe("component");
+  expect(result.configuration).not.toHaveProperty("task");
+  rmSync(root, { recursive: true, force: true });
+});
+
 test("reports malformed configuration for an explicit root", () => {
   const root = fixture();
   writeFileSync(join(root, "as-is.json"), "not json");

@@ -81,6 +81,17 @@ describe("universal local tracer", () => {
     expect(lines).not.toContain("secret");
   });
 
+  test("inherits repository tracing configuration and applies a nested component override", async () => {
+    const root = await mkdtemp(join(tmpdir(), "as-is-trace-config-cascade-"));
+    const component = join(root, "component");
+    await mkdir(component, { recursive: true });
+    await writeFile(join(root, "as-is.json"), JSON.stringify({ configuration: { observability: { tracing: { backend: "file", enabled: true, "local-directory": ".as-is/root.jsonl" } } } }));
+    await writeFile(join(component, "as-is.json"), JSON.stringify({ configuration: { observability: { tracing: { "local-directory": ".as-is/component.jsonl" } } } }));
+    await emitTrace({ name: "reference", traceId: "trace", spanId: "span", attributes: {} }, component);
+    await expect(readFile(join(component, ".as-is/component.jsonl"), "utf8")).resolves.toContain('"name":"reference"');
+    await expect(readFile(join(component, ".as-is/root.jsonl"), "utf8")).rejects.toBeTruthy();
+  });
+
   test("tracks parent and child relationships, duration, and success", async () => {
     const events: TraceEvent[] = [];
     let clock = 1000;

@@ -36,10 +36,7 @@ flowchart TD
   correlation rather than task or completion authority.
 - Send external sinks only opaque session IDs, never local session content or
   store references.
-- Own tracing implementation and observability backlog items; bounded query
-  support is implemented as a focused Pi adapter functionality in
-  `tools/evidence/worker-tools-observability.ts`, outside this module's
-  tracer boundary.
+- Own tracing implementation, its configuration keys and defaults, and observability backlog items; bounded query support is implemented as a focused Pi adapter functionality in `tools/evidence/worker-tools-observability.ts`, outside this module's tracer boundary.
 - Do not let trace failures, malformed events, unavailable sinks, or size
   limits change durable task decisions.
 - Evaluate budget extensions from task records and bounded evidence, never from

@@ -11,7 +11,8 @@ import { runBoundedProcess } from "../../../core/adapters/process/bounded-proces
 import { emitTrace, startSpan, serializeSessionReference, type SessionReference } from "../../../core/modules/observability/tracer.ts";
 import { evaluateHandoffEligibility, type HandoffFacts } from "../../../core/modules/task-control/handoff-eligibility.ts";
 import { resolveInstructionContext } from "../../../core/modules/context-resolution/instruction-resolver.ts";
-import { findConfigurationRootSync, isTaskNarrativeFilename, parseAsIsJson, resolveConfigurationSync } from "../../../core/modules/context-resolution/configuration-resolver.ts";
+import { findConfigurationRootSync, parseAsIsJson, resolveConfigurationSync } from "../../../core/modules/context-resolution/configuration-resolver.ts";
+import { taskRecordNameFromConfiguration } from "../../../core/modules/task-control/task-record-policy.ts";
 import { parseThinkingLevel, resolveThinkingLevel, type ThinkingLevel } from "./agent-thinking.ts";
 import { recoveryCandidateFor, type RecoveryCandidateObservation } from "./recovery-reconciliation.ts";
 import {
@@ -300,12 +301,6 @@ type ProjectModelConfig = {
   models: Record<string, string>;
   provider?: string;
   taskRecordNames?: string[];
-  componentBuildTracer?: {
-    backend?: string;
-    enabled?: boolean;
-    endpoint?: string;
-    directory?: string;
-  };
 };
 
 const object = (value: unknown): Record<string, unknown> =>
@@ -321,25 +316,15 @@ const readProjectModelConfig = async (projectRoot: string): Promise<ProjectModel
   if (!resolution.complete) throw new Error(resolution.diagnostics.map((diagnostic) => diagnostic.message).join("; "));
   const config = object(resolution.configuration);
   const agents = object(config.agents);
-  const records = object(object(config.records).filenames);
-  const tracing = object(object(config.observability).tracing);
   const models: Record<string, string> = {};
   for (const [name, value] of Object.entries(object(agents.models))) if (typeof value === "string") models[name] = value;
-  if (records.task !== undefined && !isTaskNarrativeFilename(records.task)) {
-    throw new Error("configuration.records.filenames.task must be a safe task narrative filename");
-  }
+  const taskRecordName = taskRecordNameFromConfiguration(config);
   return {
     defaultModel: string(agents.defaultModel),
     defaultThinkingLevel: parseThinkingLevel(agents.defaultThinkingLevel, "configuration.agents.defaultThinkingLevel"),
     models,
     provider: string(agents.provider),
-    taskRecordNames: isTaskNarrativeFilename(records.task) ? [records.task] : undefined,
-    componentBuildTracer: {
-      backend: string(tracing.backend),
-      enabled: typeof tracing.enabled === "boolean" ? tracing.enabled : undefined,
-      endpoint: string(tracing.endpoint),
-      directory: string(tracing["local-directory"]),
-    },
+    taskRecordNames: [taskRecordName],
   };
 };
 const resolveModel = (value: string | undefined, config: ProjectModelConfig): { model?: string; provider?: string } => {
@@ -605,9 +590,6 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     // the correct caller and parent-job-id without OS parentage.
     AS_IS_IDENTITY: config.identity,
     AS_IS_JOB_ID: config.jobId,
-    AS_IS_COMPONENT_BUILD_TRACER: process.env.AS_IS_COMPONENT_BUILD_TRACER ?? "file",
-    AS_IS_COMPONENT_BUILD_TRACER_ENDPOINT: process.env.AS_IS_COMPONENT_BUILD_TRACER_ENDPOINT ?? "",
-    AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY: process.env.AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY ?? ".as-is/tracing.jsonl",
     AS_IS_TRACE_ID: process.env.AS_IS_TRACE_ID ?? "",
   };
 
@@ -999,13 +981,6 @@ const main = async() => {
   const caller = options.caller ?? inheritedCaller ?? "user";
   const parentJobId = options.parentJobId ?? process.env.AS_IS_JOB_ID ?? null;
   const config: ProjectModelConfig = projectRoot ? await readProjectModelConfig(projectRoot) : { models: {} };
-  const tracer = config.componentBuildTracer;
-  process.env.AS_IS_COMPONENT_BUILD_TRACER = tracer?.enabled === false
-    ? "disabled"
-    : tracer?.backend ?? process.env.AS_IS_COMPONENT_BUILD_TRACER ?? "file";
-  if (tracer?.endpoint && !process.env.AS_IS_COMPONENT_BUILD_TRACER_ENDPOINT) process.env.AS_IS_COMPONENT_BUILD_TRACER_ENDPOINT = tracer.endpoint;
-  if (tracer?.directory && !process.env.AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY) process.env.AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY = tracer.directory;
-
   const resolved = resolveModel(options.model ?? definition.model, config);
   const model = resolved.model;
   const provider = resolved.provider;
@@ -1107,9 +1082,9 @@ const main = async() => {
       worktree: launchProfile.worktree,
       budget,
       tracer: {
-        backend: process.env.AS_IS_COMPONENT_BUILD_TRACER,
-        endpoint: process.env.AS_IS_COMPONENT_BUILD_TRACER_ENDPOINT ? "<configured-endpoint>" : "",
-        directory: process.env.AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY ? "<private-directory>" : "",
+        backend: "consumer-owned",
+        endpoint: "consumer-owned",
+        directory: "consumer-owned",
       },
     }, null, 2)}\n`);
     await sessionSpan.finish("success", {

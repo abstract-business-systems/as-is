@@ -34,10 +34,6 @@ export type AsIsDataResult = {
   complete: boolean;
 };
 
-export function isTaskNarrativeFilename(value: unknown): value is string {
-  return typeof value === "string" && value.length > 0 && value === value.split("/").at(-1) && !value.includes("\\") && value !== "." && value !== ".." && value !== "as-is.md";
-}
-
 function isObject(value: unknown): value is JsonObject {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }

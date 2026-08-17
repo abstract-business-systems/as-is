@@ -16,7 +16,7 @@ This component contains three focused implementation partitions rather than sepa
 
 ## Design
 
-The family is a host-neutral implementation boundary. It provides read-only context and data resolution; it does not authorize task transitions, delegation, tool admission, setup, projection, host behavior, or target-project writes.
+The family is a host-neutral implementation boundary. It provides generic read-only context and configuration-data resolution; it does not own consumer namespaces or defaults and does not authorize task transitions, delegation, tool admission, setup, projection, host behavior, or target-project writes.
 
 **Lineage**: [as-is](../../../as-is.md#design) / [core](../../as-is.md#design) / [core Modules](../as-is.md#design) / **context-resolution**
 
@@ -47,4 +47,4 @@ flowchart TB
 
 - [`../../../designs/component-scoped-context-resolution.md`](../../../designs/component-scoped-context-resolution.md) — staged context-resolution security and provenance design.
 - [`../../../designs/core-modules-tools-and-skills.md`](../../../designs/core-modules-tools-and-skills.md) — migration contract and module-family direction.
-- [`../../../docs/architecture-vocabulary.md#owner-and-authority`](../../../docs/architecture-vocabulary.md#owner-and-authority) — ownership and authority terms.
+- [`../../../core/contracts/architecture-vocabulary.md#owner-and-authority`](../../../core/contracts/architecture-vocabulary.md#owner-and-authority) — ownership and authority terms.

@@ -231,6 +231,44 @@ test("project default thinking level applies when the agent has no declaration",
   } finally { rmSync(launchRoot, { recursive: true, force: true }); }
 });
 
+test("launcher dry-run does not interpret observability configuration", async () => {
+  const launchRoot = mkdtempSync(join(tmpdir(), "as-is-launcher-consumer-config-"));
+  const bundle = join(launchRoot, "bundle");
+  mkdirSync(join(bundle, "agents", "fixture"), { recursive: true });
+  writeFileSync(join(launchRoot, "as-is.json"), JSON.stringify({ configuration: {
+    agents: { defaultModel: "small", provider: "openrouter" },
+    observability: { tracing: { backend: "jaeger", enabled: false, endpoint: "https://provider.invalid", "local-directory": ".as-is/private-trace.jsonl" } },
+  } }));
+  writeFileSync(join(bundle, "agents", "fixture", "agent.md"), ["---", "name: fixture", "mode: subagent", "tools: read", "---", "Return ok."].join("\n"));
+  try {
+    const result = await runLauncher(["--agent", join(bundle, "agents", "fixture", "agent.md"), "--task", "Consumer-owned configuration.", "--cwd", launchRoot, "--dry-run"], process.env, launchRoot);
+    expect(result.exitCode).toBe(0);
+    const parsed = JSON.parse(result.stdout);
+    expect(parsed.model).toBe("small");
+    expect(parsed.provider).toBe("openrouter");
+    expect(parsed.tracer).toEqual({ backend: "consumer-owned", endpoint: "consumer-owned", directory: "consumer-owned" });
+    expect(result.stdout).not.toContain("jaeger");
+    expect(result.stdout).not.toContain("private-trace.jsonl");
+    expect(result.stdout).not.toContain("provider.invalid");
+  } finally { rmSync(launchRoot, { recursive: true, force: true }); }
+});
+
+test("launcher rejects an unsafe task filename through task-control policy", async () => {
+  const launchRoot = mkdtempSync(join(tmpdir(), "as-is-launcher-unsafe-task-name-"));
+  const bundle = join(launchRoot, "bundle");
+  mkdirSync(join(bundle, "agents", "fixture"), { recursive: true });
+  writeFileSync(join(launchRoot, "as-is.json"), JSON.stringify({ configuration: {
+    records: { filenames: { task: "../unsafe.md" } },
+    agents: { defaultModel: "small" },
+  } }));
+  writeFileSync(join(bundle, "agents", "fixture", "agent.md"), ["---", "name: fixture", "mode: subagent", "tools: read", "---", "Return ok."].join("\n"));
+  try {
+    const result = await runLauncher(["--agent", join(bundle, "agents", "fixture", "agent.md"), "--task", "Unsafe task filename.", "--cwd", launchRoot, "--dry-run"], process.env, launchRoot);
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain("configuration.records.filenames.task must be a safe basename");
+  } finally { rmSync(launchRoot, { recursive: true, force: true }); }
+});
+
 test("all repository agent definitions declare the intended thinking level", async () => {
   const paths = [
     ...readdirSync(join(process.cwd(), "agents"), { withFileTypes: true })

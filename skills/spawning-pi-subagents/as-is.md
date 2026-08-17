@@ -9,9 +9,7 @@ declarations; this package owns admission, validation, and forwarding of those
 declarations, while the Pi host/package owns tool implementations. The launcher
 is a Pi adapter/procedure consumer of the host-neutral execution-contract
 concepts; it does not define task authority or become the future contract owner.
-The readiness decision retains the conceptual observation contract in
-`docs/execution-contract.md` and does not create a shared runtime API until an
-additional independent host adapter provides a concrete compatibility need.
+The normative observation contract is maintained in `core/contracts/execution-contract.md`; this package consumes it without becoming its owner or creating a second runtime authority.
 Shared
 agent front-matter parsing, canonical role lookup, declared-tool parsing, and
 identity extraction are provided by the focused `agent-resolution.ts`
@@ -96,7 +94,7 @@ flowchart TD
 
 The package-owned subagent extension now provides a bounded Option A implementation. `skills/spawning-pi-subagents/extensions/worker-tools.ts` owns only a versioned, fail-closed registration boundary; `tools/agent/subagent-tools.ts` remains the repository host implementation; and `.pi/extensions/worker-tools.ts` is the explicit static adapter for interactive settings and launcher loading. The launcher loads `.pi/extensions/worker-tools.ts` under `--no-extensions`, so child behavior does not depend on ambient project package discovery or trust. This task does not claim independent installed-package operation.
 
-The package boundary is a versioned host-services contract. The package owns Pi-facing registration mechanics and validates service version/tool identity; repository authority remains outside the package:
+The package boundary is a versioned host-services contract. The package owns Pi-facing registration mechanics and validates service version/tool identity; the launcher owns its agent/model/provider/thinking configuration keys, defaults, and validation, while repository authority remains outside the package:
 
 - canonical role and declared-tool resolution remains in `core/modules/agent-resolution`;
 - model, provider, and thinking configuration remains in repository configuration resolution;
