@@ -61,7 +61,7 @@
   "task": {
     "status": "completed",
     "worker": "component-builder",
-    "updated": "2026-08-17T05:30:00Z",
+    "updated": "2026-08-17T20:18:41Z",
     "constraints": {
       "cost": {
         "currency": "USD",
@@ -72,8 +72,8 @@
         "fallback-metric": "validation elapsed-seconds"
       },
       "delegation": {
-        "maximum-depth": 1,
-        "maximum-children": 2
+        "maximum-depth": 0,
+        "maximum-children": 0
       },
       "execution": {
         "wall-clock": {
@@ -86,11 +86,10 @@
       "external-effects": "prohibited"
     },
     "acceptance": [
-      "Coordinate sequential bounded process and launcher child tasks to complete the preserved usage-accounting dependency without changing task, budget, worktree, Git, handoff, completion, or host-authority boundaries.",
-      "Capture bounded child stdout through the mechanical process boundary while preserving log/inherited-output behavior, and parse only secret-safe finite Pi usage/cost observations with explicit duplicate, malformed, truncated, and unavailable semantics.",
-      "Remove caller-controlled accounting destinations; persist aggregate accounting only in a host-owned private restrictive-permission runtime directory that survives normal blocking and detached cleanup, while public handles, registries, diagnostics, traces, and structured projections expose no accounting paths, prompts, content, provider payloads, response identifiers, or raw usage records.",
-      "Treat unavailable or truncated stdout as unavailable or partial accounting rather than complete, reject or count invalid negative/nonfinite fields without coercing them to zero, and preserve unknown cost when any included record lacks a valid cost.",
-      "Validate process and launcher behavior, clean-checkout builds, focused accounting/privacy/lifecycle tests, task-record/content/backlog/JSON/whitespace checks, and fresh read-only expert review before completion."
+      "Reconcile and formally close the already implemented root backlog item root:dissolve-documents-into-as-is-records without repeating its implementation.",
+      "Use the unpushed documentation commits and preserved session history as evidence, and record final document dispositions, ownership, consumers, retained entry points, link migration, recovery assessment, and residual risk.",
+      "Validate the exact backlog identity, current references and content, task-record state, JSON, whitespace, and the scoped completion patch before cleanup.",
+      "Add exact-ID completion evidence to the root changelog, remove only the selected backlog row, and clean the paired task artifacts in one scoped completion commit without changing remote state or unrelated ignored artifacts."
     ]
   }
 }
