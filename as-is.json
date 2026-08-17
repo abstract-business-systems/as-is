@@ -57,39 +57,5 @@
     "security": {
       "emitted-paths": "masked-runtime-references"
     }
-  },
-  "task": {
-    "status": "completed",
-    "worker": "component-builder",
-    "updated": "2026-08-17T20:18:41Z",
-    "constraints": {
-      "cost": {
-        "currency": "USD",
-        "allocated": 0.8,
-        "spent": 0,
-        "reserve": 0.16,
-        "source": "host-forwarded",
-        "fallback-metric": "validation elapsed-seconds"
-      },
-      "delegation": {
-        "maximum-depth": 0,
-        "maximum-children": 0
-      },
-      "execution": {
-        "wall-clock": {
-          "allocated-seconds": 600,
-          "spent-seconds": 0,
-          "reserve-seconds": 120,
-          "source": "host-forwarded"
-        }
-      },
-      "external-effects": "prohibited"
-    },
-    "acceptance": [
-      "Reconcile and formally close the already implemented root backlog item root:dissolve-documents-into-as-is-records without repeating its implementation.",
-      "Use the unpushed documentation commits and preserved session history as evidence, and record final document dispositions, ownership, consumers, retained entry points, link migration, recovery assessment, and residual risk.",
-      "Validate the exact backlog identity, current references and content, task-record state, JSON, whitespace, and the scoped completion patch before cleanup.",
-      "Add exact-ID completion evidence to the root changelog, remove only the selected backlog row, and clean the paired task artifacts in one scoped completion commit without changing remote state or unrelated ignored artifacts."
-    ]
   }
 }
