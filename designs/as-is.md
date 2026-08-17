@@ -36,3 +36,5 @@ artifacts in this directory are ordinary documents rather than child
   implementation item is recorded in the root [`backlog.md`](../backlog.md).
 - [core-modules-tools-and-skills.md](core-modules-tools-and-skills.md) — phased handoff for separating core modules, agent-facing tools, skills, roles, adapters, component tasks, and subagent-first implementation.
 - [aspirational-architecture-handoff.md](aspirational-architecture-handoff.md) — current-to-future boundary, ownership, sequencing, and non-authorizations for the remaining aspirational architecture items.
+- [documentation-ownership-reconciliation-handoff.md](documentation-ownership-reconciliation-handoff.md) — bounded recovery handoff for documentation authority, consumer-owned configuration, test follow-up, and the established `core/contracts/` document collection.
+- [opencode-adapter-readiness.md](opencode-adapter-readiness.md) — draft OpenCode host-adapter readiness and blocked capability mapping.

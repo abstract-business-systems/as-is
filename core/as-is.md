@@ -10,6 +10,7 @@ Organize host-neutral deterministic implementation families and their focused mo
 | --- | --- |
 | [Modules](modules/as-is.md#design) | Organize host-neutral deterministic functionality families. |
 | [Adapters](adapters/as-is.md#design) | Map approved core contracts to host or transport execution surfaces. |
+| [Contracts](contracts/as-is.md#design) | Collect normative cross-component contracts without becoming an implementation or task authority. |
 
 ## Design
 
@@ -23,6 +24,9 @@ flowchart TB
         direction TB
         Modules["<a href='./modules/as-is.md#design'>modules</a>"]
         Adapters["<a href='./adapters/as-is.md#design'>adapters</a>"]
+        Contracts["<a href='./contracts/as-is.md#design'>contracts</a>"]
+        Contracts -->|guides| Modules
+        Contracts -->|guides| Adapters
         Modules -->|mapped by| Adapters
     end
 ```
@@ -31,10 +35,12 @@ The `core` area contains approved host-neutral deterministic implementation fami
 
 ## Relationships
 
-- `core` provides host-neutral deterministic functionality to skills, task flows, and adapters through focused APIs.
-- Host adapters and agent-facing tools remain separate future categories; their creation and placement require independent ownership evidence.
+- `core` provides host-neutral deterministic functionality and normative contracts to skills, task flows, and adapters through focused boundaries.
+- `contracts` provides normative document entry points; it does not provide executable APIs or absorb implementation ownership.
+- Host adapters and agent-facing tools remain separate categories; their creation and placement require independent ownership evidence.
 
 ## Links
 
 - [`../designs/core-modules-tools-and-skills.md`](../designs/core-modules-tools-and-skills.md) — approved vocabulary and staged migration direction.
-- [`../docs/architecture-vocabulary.md#component-boundary`](../docs/architecture-vocabulary.md#component-boundary) — component boundary meaning.
+- [`contracts/index.md`](contracts/index.md) — normative contract collection.
+- [`contracts/architecture-vocabulary.md#component-boundary`](contracts/architecture-vocabulary.md#component-boundary) — shared component boundary meaning.

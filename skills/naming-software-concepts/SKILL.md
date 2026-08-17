@@ -10,6 +10,10 @@ concept, role, scope, and responsibility of an artifact.
 
 ## Method
 
+Apply naming after the containing structure, grouping, authority, lifecycle, and
+entry point have been settled. Naming selects the clearest name within that
+structure; it does not silently decide the structure itself.
+
 1. Identify what the artifact is and the responsibility it owns.
 2. Prefer an established de facto or de jure term when one accurately fits.
 3. Select the narrowest clear name that remains accurate as the artifact grows.
@@ -24,12 +28,12 @@ concept, role, scope, and responsibility of an artifact.
 
 - Repository-authored files and directories use lowercase kebab-case.
 - Host- or ecosystem-mandated names are explicit exceptions, including
-  `AGENTS.md` and OpenCode `SKILL.md`.
+  `AGENTS.md`, OpenCode `SKILL.md`, and other host-required names.
 - Skills use capability phrases that read as real skills, such as
   `as-is-setup`, not function-like names such as `setup-as-is`.
 - Agents use role names, such as `component-builder` and `reviewer`.
 - Adapters identify their host, such as `opencode-adapter`.
-- Documents name their subject, such as `docs/design-principles.md`.
+- Documents name their subject, such as root `design-principles.md` or `core/contracts/execution-contract.md`.
 
 ## Quality Checks
 

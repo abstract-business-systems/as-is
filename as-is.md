@@ -20,9 +20,7 @@ record.
 | [Agents](agents/as-is.md#design) | Organize independent configured agent roles. |
 | [Designs](designs/as-is.md#design) | Organize enduring architecture and execution designs. |
 | [Skills](skills/as-is.md#design) | Organize reusable operational procedures. |
-| [Documentation](docs/as-is.md#design) | Organize normative repository protocols and guidance. |
 | [Validation Fixtures](validation-fixtures/as-is.md#design) | Organize retained delegation, adapter, and recovery evidence. |
-| [Host Integration](host-integration/as-is.md#design) | Define the future installed-host integration boundary and its approval gates. |
 | [Core](core/as-is.md#design) | Organize approved host-neutral deterministic implementation families and adapters. |
 | [Tools](tools/as-is.md#design) | Organize bounded agent-facing tool implementations. |
 
@@ -46,9 +44,7 @@ flowchart LR
         Agents["<a href='./agents/as-is.md#design'>Agents</a>"]
         Designs["<a href='./designs/as-is.md#design'>Designs</a>"]
         Skills["<a href='./skills/as-is.md#design'>Skills</a>"]
-        Documentation["<a href='./docs/as-is.md#design'>Documentation</a>"]
         Fixtures["<a href='./validation-fixtures/as-is.md#design'>Validation Fixtures</a>"]
-        HostIntegration["<a href='./host-integration/as-is.md#design'>Host Integration</a>"]
         Core["<a href='./core/as-is.md#design'>Core</a>"]
         Tools["<a href='./tools/as-is.md#design'>Tools</a>"]
         Agents -->|uses procedures from| Skills
@@ -56,22 +52,23 @@ flowchart LR
     classDef component fill:#f8fafc,fill-opacity:0.1,stroke:#334155,stroke-width:2px
     classDef child fill:#2563eb,fill-opacity:0.1,stroke:#64748b,stroke-width:1px
     class Root component
-    class Agents,Designs,Skills,Documentation,Fixtures,HostIntegration,Core,Tools child
+    class Agents,Designs,Skills,Fixtures,Core,Tools child
 ```
 
-Only areas with their own `as-is.md` are components in this record. Other repository directories remain navigable through their own files or links but are not listed as components here. `docs/` is a documented collection rather than a set of child components. `.pi/` remains a projected bundle artifact; the new `host-integration/` record provides durable context for its future installed-host boundary without making `.pi/` canonical or granting projection authority. `.opencode/`, `scripts/`, `temp/`, and `.agents/` also remain ordinary or projected artifacts without independent records.
+Only areas with their own `as-is.md` are components in this record. Other repository directories remain navigable through their own files or links but are not listed as components here. Root `design-principles.md` provides repository-wide principles; `core/contracts/` provides normative contract documents. `.pi/` remains a projected bundle artifact rather than canonical source. `.opencode/`, `scripts/`, `temp/`, and `.agents/` remain ordinary or projected artifacts without independent records.
 
 - The repository is composed of filesystem areas and components with durable
   `as-is.md` records.
 - This root record maps immediate areas; each area owns the detailed records for
   its descendants.
-- The `.pi/` directory remains a projected bundle artifact rather than a canonical resource component; `host-integration/` owns only the future installed-host integration boundary and its approval gates.
+- The `.pi/` directory remains a projected bundle artifact rather than a canonical resource component; future host-integration policy remains in the aspirational architecture handoff and does not authorize projection.
 - Explicit links provide bounded context; parent context is never ambient.
 - Machine configuration belongs in `as-is.json`, and active task state belongs
   in the configured task record.
 
 ## Links
 
-- [`docs/design-principles.md`](docs/design-principles.md) — repository-wide authority and design principles.
-- [`docs/architecture-vocabulary.md`](docs/architecture-vocabulary.md#scope-and-authority) — shared current-system architecture definitions and authority boundary.
-- [`docs/configuration.md`](docs/configuration.md) — machine-configuration boundary.
+- [`design-principles.md`](design-principles.md) — repository-wide authority and design principles.
+- [`core/contracts/architecture-vocabulary.md`](core/contracts/architecture-vocabulary.md#scope-and-authority) — shared current-system architecture definitions and authority boundary.
+- [`core/contracts/index.md`](core/contracts/index.md) — normative task, configuration, and execution contract collection.
+- [`core/contracts/configuration.md`](core/contracts/configuration.md) — generic configuration-data boundary; consumer defaults and namespaces remain with their owners.

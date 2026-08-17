@@ -111,5 +111,4 @@ If the host Markdown renderer suppresses Mermaid navigation, use the component
 names in the table above; those Markdown links remain authoritative.
 ## Links
 
-- [../agent-skills.md](../agent-skills.md) — migration-era conceptual catalog retained as a linked reference.
-- [../docs/design-principles.md](../docs/design-principles.md) — repository-wide authority and design principles.
+- [../design-principles.md](../design-principles.md) — repository-wide authority and design principles.

@@ -36,4 +36,4 @@ flowchart TD
 ## Links
 
 - [`setup.ts`](setup.ts) — detection, wiring, and JSON-safe configuration update as the stable executable setup boundary.
-- [`../../../host-integration/as-is.md#design`](../../../host-integration/as-is.md#design) — future installed-host integration approval boundary; it does not own this adapter's implementation.
+- [`../../../designs/aspirational-architecture-handoff.md`](../../../designs/aspirational-architecture-handoff.md) — future installed-host integration approval boundary; it does not own this adapter's implementation.

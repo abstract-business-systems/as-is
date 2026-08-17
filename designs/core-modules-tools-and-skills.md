@@ -134,13 +134,15 @@ Observability remains supplementary and must not authorize task transitions, rep
 ### Execution contract
 
 ```text
-core/modules/execution-contract/
-    normalized launch, observe, question, cancel, and recover concepts
+core/contracts/
+    index.md
+    execution-contract.md
+    normative launch, observe, question, cancel, and recover concepts
     execution request and observation shapes
     durable versus host-observation boundaries
 ```
 
-The current subprocess foundation and Pi launcher contain overlapping implementation logic for process lifetime, budgets, tracing, worktrees, checkpoints, and handoff evidence. The contract should become the stable core boundary, while host-specific process and Pi behavior moves behind adapters in later phases.
+The contract documents now live in `core/contracts/` as normative cross-component context. The current subprocess foundation and Pi launcher retain implementation ownership for process lifetime, budgets, tracing, worktrees, checkpoints, and handoff evidence. Any future executable contract API is separately bounded and must not create a second authority.
 
 ## Adapter families
 

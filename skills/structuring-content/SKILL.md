@@ -19,7 +19,9 @@ implementation or authority boundary.
 2. Extract its facts, decisions, assumptions, open questions, transient status,
    interfaces, and related artifacts.
 3. Choose the smallest coherent place in the repository hierarchy for that
-   concept, whether a section, file, or directory.
+   concept, whether a section, file, or directory. Decide the parent concept,
+   grouping, authority, lifecycle, and authoritative entry point before choosing
+   the artifact's filename or other local name.
 4. At creation time, explicitly decide whether a known meaningful sibling set or
    established type-directory convention warrants grouping from the first item;
    retain a unique artifact at the current level when the required evidence is
@@ -79,15 +81,21 @@ task authority.
 
 ## Placement Rules
 
-- Put enduring cross-project behavior in `docs/design-principles.md`.
+- Put enduring repository-wide behavior in root `design-principles.md`.
 - Put executable, reusable procedures in `skills/<skill-name>/SKILL.md`.
 - Put current task authority in its configured task record and durable component context in its canonical record. Place historical material according to the target project's applicable record, retention, and recovery conventions; do not impose a filename, heading, or section arrangement without that authority.
 - Separate timeless rationale needed to understand current architecture from dated progress, completion, or task history. Retain, relocate, or remove historical material only after assessing its consumers, recovery or audit value, authority, and replacement path.
 - For a document that grows into a directory, prefer the host pattern
-  `<xyz>.md` -> `<xyz>/index.md` as the entry point, then extract focused
-  section files beside it and link them from the index or root entry. Keep the
-  entry point authoritative and explain the relationship in a Links section.
+  `<subject>.<extension>` -> `<subject>/index.<extension>` as the entry point,
+  then extract focused section files beside it and link them from the index or
+  root entry. For a new meaningful group, default its authoritative entry point
+  to `index.<host-required-extension>` (such as `index.md` or `index.html`)
+  unless a stronger host or repository convention supplies another name. Keep
+  the entry point authoritative and explain the relationship in a Links section.
 - Put architecture, protocols, and design rationale in subject-named documents.
+  Choose that subject name after the containing structure and entry point are
+  settled; both `designs/tracing.md` and `tracing-design.md` may be valid when
+  their placement and sibling vocabulary support them.
 - Put host-specific integration instructions in a host-specific adapter or skill.
 - Keep private runtime state, credentials, caches, verbose logs, and temporary
   tool output outside authoritative project knowledge.
@@ -95,8 +103,8 @@ task authority.
   principles own broad cross-project values; component task records own
   current-task evidence and decisions; each skill or agent document owns its
   detailed contract; [`skills/as-is.md`](../as-is.md) is the concise linked
-  capability catalog. The former root [`agent-skills.md`](../../agent-skills.md)
-  is migration context, not a second catalog authority.
+  capability catalog. The former root catalog is migration history; the live
+  catalog is `skills/as-is.md`, not a second catalog authority.
 
 ## Structure Rules
 
@@ -106,10 +114,13 @@ task authority.
   entry point according to the host's linking conventions when making that
   replacement.
 - When a document is replaced by a directory, prefer the host pattern
-  `<xyz>.md` -> `<xyz>/index.md` for the entry point, and place extracted
-  section files beside it under the same directory so links remain stable.
-  The index or root entry should link to the extracted section files and
-  explain their authority relationship.
+  `<subject>.<extension>` -> `<subject>/index.<extension>` for the entry point,
+  and place extracted section files beside it under the same directory so links
+  remain stable. The index or root entry should link to the extracted section
+  files and explain their authority relationship in a Links section. Do not
+  create both an index entry point and another competing entry point without
+  recording which one is authoritative; host-required names such as `as-is.md`,
+  `AGENTS.md`, and `SKILL.md` remain explicit exceptions.
 - Group sibling components under a type directory when the group communicates a
   meaningful shared role and improves navigation or establishes a real
   boundary. For example, place related UI components in `components/` and

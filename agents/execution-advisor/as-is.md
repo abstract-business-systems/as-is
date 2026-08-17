@@ -41,6 +41,6 @@ flowchart TB
 
 - [`agent.md`](agent.md) — canonical role contract.
 - [`../../skills/exploring-execution-evidence/SKILL.md`](../../skills/exploring-execution-evidence/SKILL.md) — bounded execution evidence procedure.
-- [`../../docs/component-task-record-protocol.md`](../../docs/component-task-record-protocol.md) — task and budget authority.
-- [`../../docs/execution-contract.md`](../../docs/execution-contract.md) — host-neutral execution boundary.
+- [`../../core/contracts/component-task-record-protocol.md`](../../core/contracts/component-task-record-protocol.md) — task metadata, budget, recovery, and observation authority.
+- [`../../core/contracts/execution-contract.md`](../../core/contracts/execution-contract.md) — host-neutral execution boundary.
 - [`../../core/modules/observability/tracing-design.md`](../../core/modules/observability/tracing-design.md) — session-reference-first policy.

@@ -45,8 +45,8 @@ transition or infer completion.
 | `agents/evidence-validator/agent.md` | Read-only plan and diff validation | Inspection-only; cannot edit, delegate, or commit | `agents/evidence-validator/agent.md` |
 | `agents/worker/` | Generalized worker capability and durable worker communication | Worker is a role target, not a hidden orchestrator or alternate task authority | `agents/worker/`, `worker/as-is.md` |
 | `skills/spawning-pi-subagents/` | Host launcher and bounded process/worktree mechanics | Remains an adapter skill/procedure; skills are globally available and role admission/authority stay with agents/orchestrator | `skills/spawning-pi-subagents/SKILL.md` |
-| `docs/execution-contract.md` | Host-neutral lifecycle contract | Defines launch/resume/observe/question/cancel/recover without host policy | `docs/execution-contract.md` |
-| `docs/component-task-record-protocol.md` | Durable record schema, boundaries, budgets, closure | Sole record contract; no parallel task tree or runtime authority | `docs/component-task-record-protocol.md` |
+| `core/contracts/execution-contract.md` | Host-neutral lifecycle contract | Defines launch/resume/observe/question/cancel/recover without host policy | `core/contracts/execution-contract.md` |
+| `core/contracts/component-task-record-protocol.md` | Task metadata, narrative, budgets, recovery, and descendant closure | Sole task-record contract; component architecture remains with the managing-as-is-document skill | `core/contracts/component-task-record-protocol.md` |
 | `designs/orchestration-design.md` | Settled architecture and sequencing | Source of design invariants; this plan refines migration order only | `designs/orchestration-design.md` |
 | `.pi/` and host projections | Adapter-local integration and bundled extensions | Host projection cannot become canonical role source or project authority | `.pi/`, `.agents/` |
 
@@ -197,8 +197,8 @@ behavior and validations are stable.
 
 - Update [`skills/as-is.md`](../skills/as-is.md), `AGENTS.md`, execution/design
   docs, role contracts, launcher guidance, and host projection notes to use one
-  vocabulary and canonical paths. Treat the former root `agent-skills.md` as
-  migration context until its remaining consumers are retired.
+  vocabulary and canonical paths. Treat the former root catalog as removed and
+  use `skills/as-is.md` as the live capability catalog.
 - Link this plan and its resulting implementation records without copying
   task authority into designs or changelogs.
 - Mark superseded guidance explicitly and remove only after auditing tracked,

@@ -6,7 +6,7 @@ This permanent specification defines the host-neutral delegation model for
 `as-is`: work is delegated by launching an independent agent process that does
 not return a result to its parent, and status is observed by polling durable
 records and session logs. It supersedes the synchronous launch/observe/return
-framing in [execution-contract.md](../docs/execution-contract.md); the authority,
+framing in [execution-contract.md](../core/contracts/execution-contract.md); the authority,
 context, and recovery rules of that contract remain in force unless this spec
 states otherwise. It also establishes the recursive `component-builder` role
 that merges the prior `orchestrator` and `implementer` roles.
@@ -64,7 +64,7 @@ builder instance; the extra mediation tier is not spawned.
   component record, per the existing record-as-handoff rule.
 - The child receives its component record plus centrally supplied read-only
   context (repository instructions, design principles, permitted skills), as in
-  [execution-contract.md](../docs/execution-contract.md). The authority and
+  [execution-contract.md](../core/contracts/execution-contract.md). The authority and
   context-normalization rules are unchanged.
 - A host adapter maps this contract to its process/spawn API; the contract
   itself is host-neutral. The Pi adapter realizes it through the
@@ -103,9 +103,9 @@ launched; a supervisor does the same for the children it supervises.
   record is the only signal that work was lost.
 - A supervisor reconciles a dead-PID-plus-non-terminal record through the
   recovery mechanics in
-  [docs/component-task-record-protocol.md](../docs/component-task-record-protocol.md): it
+  [component-task-record-protocol.md](../core/contracts/component-task-record-protocol.md): it
   records the attempt, reason, and observation, and schedules recovery per the
-  configured backoff.
+  task-control-owned backoff policy.
 - A terminal record with a live process is not contradictory; the record wins.
   A non-terminal record with a live process means the child is still working.
 
@@ -128,13 +128,13 @@ launched; a supervisor does the same for the children it supervises.
 ## Relationship To Existing Specifications
 
 - **Supersedes** the synchronous launch/observe/return framing in
-  [execution-contract.md](../docs/execution-contract.md). The launch returns a handle,
+  [execution-contract.md](../core/contracts/execution-contract.md). The launch returns a handle,
   not a result; observe is polling, not blocking. The authority, context,
   permission, and recovery rules of that contract remain in force.
 - **Merges roles**: `orchestrator` + `implementer` become `component-builder`.
   `.agents/agents/orchestrator.md` and `.agents/agents/implementer.md` are
   removed; `.agents/agents/component-builder/agent.md` is added. References in
-  `.agents/agents/as-is/agent.md`, [docs/configuration.md](../docs/configuration.md),
+  `.agents/agents/as-is/agent.md`, the launcher configuration consumer,
   `core/modules/task-control/control-plane.ts`, and the
   [spawning-pi-subagents](../skills/spawning-pi-subagents/SKILL.md) skill are
   updated accordingly.

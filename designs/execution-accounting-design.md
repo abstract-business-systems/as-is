@@ -171,7 +171,7 @@ fields as unavailable; it never treats missing private state as completion.
 The supervisor and OpenCode adapter may continue to use `JobId` internally for
 control and correlation. A JobId-only public lookup is diagnostic compatibility
 at most, not the stable status contract. OpenCode session/event behavior remains
-inside `docs/opencode-adapter.md`; the generic supervisor only consumes normalized,
+inside `designs/opencode-adapter-readiness.md`; the generic supervisor only consumes normalized,
 source-labelled adapter observations.
 
 ## Accounting Ownership And Reconciliation

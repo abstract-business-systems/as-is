@@ -53,4 +53,4 @@ The fixture relationships describe shared validation concerns, not production de
 ## Links
 
 - [`README.md`](README.md) — fixture navigation and retention rationale.
-- [`../docs/component-task-record-protocol.md`](../docs/component-task-record-protocol.md) — task-record behavior exercised by the fixtures.
+- [`../core/contracts/component-task-record-protocol.md`](../core/contracts/component-task-record-protocol.md) — task metadata and narrative behavior exercised by the fixtures.

@@ -1,12 +1,12 @@
 # as-is Repository Instructions
 
-Follow [Design Principles](docs/design-principles.md). Repository-authored files and directories use lowercase kebab-case unless a host requires an exact filename. Markdown files should not use soft-wrapped prose; keep each paragraph or list item on one logical line unless a wrap is justified by readability or formatting constraints, while preserving intentional hard breaks and formatting-sensitive blocks. AGENTS files SHOULD use declarative and concise language.
+Follow [Design Principles](design-principles.md). Repository-authored files and directories use lowercase kebab-case unless a host requires an exact filename. Markdown files should not use soft-wrapped prose; keep each paragraph or list item on one logical line unless a wrap is justified by readability or formatting constraints, while preserving intentional hard breaks and formatting-sensitive blocks. AGENTS files SHOULD use declarative and concise language.
 
 This file holds the generic developmental guardrails that apply to any agent working in this repository. The section below is a temporary home for guidance awaiting the review named in the root backlog.
 
 ## As-Is Guidance
 
-- The as-is task-record, delegation, recovery, and completion mechanics are governed by [component-task-record-protocol.md](docs/component-task-record-protocol.md) and surfaced as reusable procedures under [skills](skills/).
+- Task metadata, narrative, delegation, recovery, and completion mechanics are governed by [component-task-record-protocol.md](core/contracts/component-task-record-protocol.md) and surfaced as reusable procedures under [skills](skills/); durable component architecture records are governed by [managing-as-is-document](skills/managing-as-is-document/SKILL.md).
 - The relevant `as-is.md` record is the canonical representation of its component's purpose, design, relationships, and navigational context; use it as the authoritative architecture context for that component.
 - A child component owns and may update only its own component files and task record. It must not edit a parent component's records, budget allocation, status, or other parent-owned files. Record a bounded request or blocker in the child record and let the parent reconcile and authorize any parent-level change. This boundary also applies during budget exhaustion and recovery.
 - Keep human attention focused on architecture, component boundaries, and interactions. When an applicable agent instruction does not prescribe a detail, the assigned agent may choose the smallest reasonable implementation that preserves the stated purpose, authority boundaries, safety constraints, and acceptance conditions. Record material assumptions and escalate genuine ambiguity; discretion is not permission to expand scope or weaken controls.

@@ -39,5 +39,5 @@ structure and diagram meaning to `managing-as-is-document`.
 
 - [`SKILL.md`](SKILL.md) — setup procedure and safety checks.
 - [`../managing-as-is-document/as-is.md#design`](../managing-as-is-document/as-is.md#design) — individual record lifecycle.
-- [`../../docs/architecture-vocabulary.md#component-boundary`](../../docs/architecture-vocabulary.md#component-boundary) — current-system meaning of component boundaries and canonical records.
+- [`../../core/contracts/architecture-vocabulary.md#component-boundary`](../../core/contracts/architecture-vocabulary.md#component-boundary) — current-system meaning of component boundaries and canonical records.
 - [`../../core/adapters/host-setup/as-is.md#design`](../../core/adapters/host-setup/as-is.md#design) — concrete host-setup adapter implementation evidence.

@@ -43,5 +43,5 @@ agent selection, context resolution, or architectural decisions.
 
 - [SKILL.md](SKILL.md) — authoritative procedure and Mermaid type-selection guidance.
 - [rendered-navigation.md](rendered-navigation.md) — repository-local optional browser-batch input and evidence contract.
-- [../../docs/architecture-vocabulary.md#relationship-labels](../../docs/architecture-vocabulary.md#relationship-labels) — current-system relationship meanings consumed by as-is diagrams; generic Mermaid mechanics remain target-neutral.
+- [../../core/contracts/architecture-vocabulary.md#relationship-labels](../../core/contracts/architecture-vocabulary.md#relationship-labels) — current-system relationship meanings consumed by as-is diagrams; generic Mermaid mechanics remain target-neutral.
 - [../managing-as-is-document/SKILL.md](../managing-as-is-document/SKILL.md) — host-specific as-is diagram conventions are owned outside this generic skill.

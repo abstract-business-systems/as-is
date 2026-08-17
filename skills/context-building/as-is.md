@@ -24,4 +24,4 @@ flowchart TD
 
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
-- [../../agent-skills.md](../../agent-skills.md) — concise capability catalog entry.
+- [../as-is.md](../as-is.md) — concise capability catalog entry.

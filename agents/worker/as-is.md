@@ -42,4 +42,4 @@ The primary path is bounded inspection, implementation within assigned component
 ## Links
 
 - [`agent.md`](agent.md) — canonical worker role authority and report contract.
-- [`../../docs/component-task-record-protocol.md`](../../docs/component-task-record-protocol.md) — durable task and acceptance authority.
+- [`../../core/contracts/component-task-record-protocol.md`](../../core/contracts/component-task-record-protocol.md) — task metadata, narrative, acceptance, and recovery authority.

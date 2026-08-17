@@ -1,10 +1,12 @@
-# OpenCode Adapter
+# OpenCode Adapter Readiness
+
+## Status
+
+Draft/readiness document only. No `core/adapters/opencode/` implementation is established. The current OpenCode evidence is blocked on a validated non-blocking job boundary and configured-role mediation; this document must not be read as an implementation or capability claim.
 
 ## Purpose
 
-This host-specific document records how the current OpenCode dogfood adapter
-maps the host-neutral as-is execution contract. It does not define orchestration
-policy, task-record fields, authority, or completion behavior.
+This host-specific document records how the current OpenCode dogfood surface could map the host-neutral as-is execution contract. It does not define orchestration policy, task-record fields, authority, or completion behavior.
 
 ## Current Mapping
 

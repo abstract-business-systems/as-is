@@ -6,7 +6,7 @@ This document defines the shared architecture vocabulary used by the current rep
 
 ## Scope And Authority
 
-The definitions in this document provide shared meaning for terms that cross document or skill boundaries. Canonical `as-is.md` records remain authoritative for the actual component identities, parent and child graph, boundaries, purposes, designs, and material relationships. Skill `SKILL.md` files remain authoritative for reusable procedures and stay target-neutral. The [component task-record protocol](component-task-record-protocol.md) remains authoritative for component and task-record boundaries; backlog and task records remain authoritative for planning and active task state.
+The definitions in this document provide shared meaning for terms that cross document or skill boundaries. Canonical `as-is.md` records remain authoritative for the actual component identities, parent and child graph, boundaries, purposes, designs, and material relationships. Skill `SKILL.md` files remain authoritative for reusable procedures and stay target-neutral. The [component task-record protocol](component-task-record-protocol.md) remains authoritative for task metadata, narrative, budget, recovery, and completion boundaries; backlog and task records remain authoritative for planning and active task state.
 
 A component record may use a term from this vocabulary only when its local evidence supports that meaning. A local record may explain an exception without redefining the shared term. When a definition and a local architectural fact appear to conflict, preserve the definition here and resolve the local record or evidence rather than inferring a new architecture from terminology alone.
 
@@ -69,15 +69,15 @@ When a repository document needs shared terminology, link the relevant term anch
 
 | Consumer | Relevant vocabulary |
 | --- | --- |
-| [As-Is Setup](../skills/as-is-setup/as-is.md#design) | [component boundary](#component-boundary), [parent and child terms](#parent-immediate-child-descendant-and-sibling), and [evidence](#evidence) |
-| [Integrating As-Is Documentation](../skills/integrate-as-is-documentation/as-is.md#design) | [component boundary](#component-boundary), [structural containment](#structural-containment), and [canonical record](#canonical-record) |
-| [Managing As-Is Documents](../skills/managing-as-is-document/as-is.md#design) | [canonical record](#canonical-record), [structural containment](#structural-containment), [authority and evidence](#owner-and-authority), and [relationship labels](#relationship-labels) |
-| [Building Components](../skills/building-components/as-is.md#design) | [component boundary](#component-boundary), [owner and authority](#owner-and-authority), and [evidence](#evidence) |
-| [Designing Mermaid Diagrams](../skills/designing-mermaid-diagrams/as-is.md#design) | [structural containment](#structural-containment) and [relationship labels](#relationship-labels); generic Mermaid mechanics remain target-neutral |
-| [Documentation](as-is.md#design) | [scope and authority](#scope-and-authority) and this document's role as a shared reference |
+| [As-Is Setup](../../skills/as-is-setup/as-is.md#design) | [component boundary](#component-boundary), [parent and child terms](#parent-immediate-child-descendant-and-sibling), and [evidence](#evidence) |
+| [Integrating As-Is Documentation](../../skills/integrate-as-is-documentation/as-is.md#design) | [component boundary](#component-boundary), [structural containment](#structural-containment), and [canonical record](#canonical-record) |
+| [Managing As-Is Documents](../../skills/managing-as-is-document/as-is.md#design) | [canonical record](#canonical-record), [structural containment](#structural-containment), [authority and evidence](#owner-and-authority), and [relationship labels](#relationship-labels) |
+| [Building Components](../../skills/building-components/as-is.md#design) | [component boundary](#component-boundary), [owner and authority](#owner-and-authority), and [evidence](#evidence) |
+| [Designing Mermaid Diagrams](../../skills/designing-mermaid-diagrams/as-is.md#design) | [structural containment](#structural-containment) and [relationship labels](#relationship-labels); generic Mermaid mechanics remain target-neutral |
+| [Core Contracts](as-is.md#design) | [scope and authority](#scope-and-authority) and this document's role as a shared reference |
 
 These links improve discovery without turning the vocabulary into a second component map. Add a new consumer only when it genuinely relies on a shared term and can name the relevant anchor.
 
 ## Maintenance Boundary
 
-This document is the smallest current-system home for shared architecture terms. Keep actual component facts in their canonical records, reusable procedures in skills, broad values in [design principles](design-principles.md), and active or planned work in task and backlog records. Reassess the document's boundary before adding machine-readable topology, automated validation, ownership workflows, or a new component group; those concerns require evidence of independent lifecycle and authority rather than a larger glossary by default.
+This document is the smallest current-system home for shared architecture terms. Keep actual component facts in their canonical records, reusable procedures in skills, broad values in [design principles](../../design-principles.md), and active or planned work in task and backlog records. Reassess the document's boundary before adding machine-readable topology, automated validation, ownership workflows, or a new component group; those concerns require evidence of independent lifecycle and authority rather than a larger glossary by default.

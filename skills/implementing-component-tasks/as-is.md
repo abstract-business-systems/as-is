@@ -34,5 +34,5 @@ commit.
 ## Links
 
 - [SKILL.md](SKILL.md) — authoritative implementation procedure.
-- [../../docs/component-task-record-protocol.md](../../docs/component-task-record-protocol.md) — task and component boundaries.
+- [../../core/contracts/component-task-record-protocol.md](../../core/contracts/component-task-record-protocol.md) — task metadata, narrative, budget, recovery, and completion authority.
 - [../managing-backlog/SKILL.md](../managing-backlog/SKILL.md) — task selection input.

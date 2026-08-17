@@ -1,16 +1,18 @@
 # Host-Neutral Execution Contract
 
+**Contract collection:** [Core Contracts](index.md)
+
 ## Purpose
 
 This specification defines the host-neutral boundary between the orchestrator and a worker runtime. It describes how the orchestrator launches, resumes, observes, questions, cancels, and recovers a worker while keeping policy and durable authority in the filesystem task record. A host adapter maps this contract to its own sessions, processes, permissions, and measurement APIs; it does not redefine the contract.
 
 ## Readiness Ownership Inventory
 
-This inventory is the readiness boundary for a future execution-contract module. It records current ownership and evidence without creating `core/modules/execution-contract/` or moving implementation.
+This inventory is the readiness boundary for the documented execution contract. It records current ownership and evidence without creating an executable runtime contract module or moving implementation.
 
 | Concern | Current owner | Evidence | Boundary and gap | Recovery boundary |
 | --- | --- | --- | --- | --- |
-| Host-neutral lifecycle concepts and request/result vocabulary | This document, `docs/execution-contract.md` | `ExecutionRequest`, `ExecutionResult`, lifecycle operations, state/checkpoint rules, and recovery policy below | The document is the current conceptual authority; no standalone runtime contract module exists yet. | Preserve this document and current implementation owners until a replacement contract has consumer and behavior evidence; abandon an incomplete extraction without leaving split lifecycle authority. |
+| Host-neutral lifecycle concepts and request/result vocabulary | This document, `core/contracts/execution-contract.md` | `ExecutionRequest`, `ExecutionResult`, lifecycle operations, state/checkpoint rules, and recovery policy below | The document is the current conceptual authority; no standalone executable runtime contract module exists yet. | Preserve this document and current implementation owners until an executable contract API has consumer and behavior evidence; abandon an incomplete extraction without leaving split lifecycle authority. |
 | Durable task status, checkpoints, questions, approvals, cancellation, completion, and descendant closure | `core/modules/task-control/` | `control-plane.ts`, `control-plane.test.ts`, task-record validator, handoff-eligibility tests | Task-control owns durable mutation and validation; it does not own host process or session mechanics. | Recover from the component `as-is.json` task and configured narrative; never infer a transition from a process handle or exit. |
 | Detached process lifetime, process groups, signals, wall-clock stop, stdio, and exit observation | `core/adapters/process/bounded-process-supervisor.ts` | `bounded-process-supervisor.test.ts`; consumed by `core/adapters/process/supervisor.ts` | The bounded adapter owns mechanical process lifetime only; it does not interpret task completion or Git handoff. | Preserve the owned process-group and durable evidence boundary; if control is unavailable, return host-unavailable evidence rather than substitute a runtime. |
 | Durable process-backed launch, observe, permission, cancellation, recovery, stale classification, budget observation, and handoff mapping | `core/adapters/process/supervisor.ts` | `supervisor.ts` and provider-free `supervisor.test.ts` | This is the current broad process-backed mapping of the conceptual contract and is the principal overlap to reconcile before extraction. | Keep task records authoritative, retain source-labelled private host observations, and preserve runtime state when termination or durable cleanup evidence is incomplete. |
@@ -21,11 +23,11 @@ This inventory is the readiness boundary for a future execution-contract module.
 
 The smallest candidate boundary is an observation contract: an operation-specific request names the component, durable record revision, normalized configuration, input, budget, and return condition; a result reports outcome, durable record observation, source-labelled host observation, question, and recovery. The request/result shape below is conceptual and does not authorize a serialization format, runtime API, or relocation.
 
-The current evidence decision is to retain this candidate as a documented contract rather than create `core/modules/execution-contract/` or add a second runtime seam. Provider-free fixtures demonstrate launch admission, accepted launch observation, failure, cancellation or bounded recovery, stale-revision rejection, and unavailable host evidence, but the consumers still require materially different ownership: task-control owns durable mutation, process owns process-backed lifecycle mapping, the Pi launcher owns Pi and repository mechanics, and observability remains supplementary. Extracting a shared API now would duplicate request normalization, path/privacy projection, recovery locking, or task-record interpretation without a second independent host adapter to validate the abstraction. A future task may reopen this decision only when an additional host adapter or independent consumer supplies a concrete compatibility need and can preserve these boundaries.
+The current evidence supports this document as the normative execution contract while retaining implementation ownership in the existing consumers. Provider-free fixtures demonstrate launch admission, accepted launch observation, failure, cancellation or bounded recovery, stale-revision rejection, and unavailable host evidence, but the consumers still require materially different ownership: task-control owns durable mutation, process owns process-backed lifecycle mapping, the Pi launcher owns Pi and repository mechanics, and observability remains supplementary. An executable shared API remains a separate future task: it must prove a concrete consumer need, request/result compatibility, and preservation of these boundaries before it is introduced.
 
 Readiness evidence is retained in the existing owners: process-supervisor fixtures cover launch admission, accepted launch observation, failure, cancellation, bounded recovery, stale-revision rejection, and unavailable-host evidence; task-control fixtures cover durable admission and authority; launcher fixtures cover host mapping and handoff; observability fixtures cover supplementary failure behavior. These fixtures validate the decision above without authorizing a new shared runtime API.
 
-Until that evidence exists, the current document, task-control module, process adapter, Pi launcher, observability owners, and receiving builder retain their existing responsibilities. This is a bounded deferment of physical extraction, not a claim that the conceptual contract is unneeded.
+Until that evidence exists, the current document, task-control module, process adapter, Pi launcher, observability owners, and receiving builder retain their existing responsibilities. The `core/contracts/` collection is the normative document home; it is not an executable runtime seam or a second authority.
 
 ## Emitted Metadata Privacy
 
@@ -409,7 +411,7 @@ attempts but does not redefine these decisions.
 
 - An active record is a stale candidate only when the durable `task.updated`
   checkpoint exists and the observer's current UTC clock is later than that
-  checkpoint by more than the effective `configuration.scheduling.checkInSeconds`.
+  checkpoint by more than the task-control consumer's effective check-in interval.
   The checkpoint, configured interval, and observation clock are recorded as
   the sources of the decision.
 - A missing or malformed checkpoint, an unavailable observation clock, or a
@@ -423,8 +425,8 @@ attempts but does not redefine these decisions.
 
 ### Attempts, Backoff, And Budget
 
-- `configuration.scheduling.maxRecoveryAttempts` is the finite maximum number of
-  recovery attempts after the initial launch. The default effective value for
+- The task-control consumer's recovery policy defines the finite maximum number
+  of recovery attempts after the initial launch. The default effective value for
   this increment is `2`; a host must not start a further attempt after that
   bound, even if private state suggests that one might help.
 - Before recovery attempt `n` (where the first recovery is `n = 1`), the

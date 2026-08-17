@@ -28,4 +28,4 @@ The procedure is intentionally advisory. It may identify a deterministic candida
 - [`SKILL.md`](SKILL.md) — bounded assessment procedure and authority boundaries.
 - [`../maintaining-components/as-is.md#design`](../maintaining-components/as-is.md#design) — evidence-based component maintenance context.
 - [`../exploring-execution-evidence/as-is.md#design`](../exploring-execution-evidence/as-is.md#design) — bounded execution-evidence context.
-- [`../../docs/design-principles.md#execution-model-fit`](../../docs/design-principles.md#execution-model-fit) — repository execution-model principle.
+- [`../../design-principles.md#execution-model-fit`](../../design-principles.md#execution-model-fit) — repository execution-model principle.

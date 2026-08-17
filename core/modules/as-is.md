@@ -43,4 +43,4 @@ The `modules` area groups deterministic functionality by supported responsibilit
 ## Links
 
 - [`../../designs/core-modules-tools-and-skills.md`](../../designs/core-modules-tools-and-skills.md) — staged module-family migration direction.
-- [`../../docs/architecture-vocabulary.md#structural-containment`](../../docs/architecture-vocabulary.md#structural-containment) — documented parent and child boundaries.
+- [`../../core/contracts/architecture-vocabulary.md#structural-containment`](../../core/contracts/architecture-vocabulary.md#structural-containment) — documented parent and child boundaries.

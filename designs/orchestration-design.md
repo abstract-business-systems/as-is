@@ -31,7 +31,7 @@ runs.
   deliberately extensible rather than exhaustive.
 
 See [`skills/as-is.md`](../skills/as-is.md) for the current repository skill
-map and [`agent-skills.md`](../agent-skills.md) for the retained conceptual
+map and [`skills/as-is.md`](../skills/as-is.md) for the canonical capability
 taxonomy and definitions.
 
 ### Durable Agents
@@ -48,8 +48,8 @@ taxonomy and definitions.
 - Durable task intent, scoped policy, decisions, progress summaries, results,
   blockers, and next actions belong in the root or relevant component's
   configured Markdown task narrative, while machine status, constraints, and
-  acceptance belong in the local `task` object in `as-is.json`. The durable
-  component `as-is.md` remains architecture context. Private runtime state
+  acceptance belong in the local `task` object in the component's JSON companion.
+  The durable component context remains architecture context. Private runtime state
   belongs in a user-level state directory; it includes session links, leases,
   caches, detailed logs, and secrets. The project receives no generated
   runtime-state files by default.
@@ -58,8 +58,8 @@ taxonomy and definitions.
   completion. Retain them only while needed for active work, recovery, audit,
   or an explicitly configured retention period; retain durable outcomes in the
   task record instead.
-- Current machine task state is kept in the root or component `as-is.json` `task`
-  object; human task intent and evidence are kept in the configured Markdown
+- Current machine task state is kept in the root or component JSON companion's
+  `task` object; human task intent and evidence are kept in the configured Markdown
   narrative. Historical committed state is recovered from Git history and
   concise entries in the canonical `Changelog` section; the repository does not
   create a `task-archives/` tree or a host-specific historical recovery path.
@@ -155,9 +155,9 @@ session/event behavior remains at the adapter boundary.
 - Once defined, the component task-record protocol is the canonical field list
   for delegated work. Repository instructions and project decisions state only
   its applicable behavioral requirement and refer to the protocol for fields.
-- Task records use the local `task` object in `as-is.json` plus the configured
-  Markdown narrative beside the component's `as-is.md`. Their protocol is
-  defined in [Component Task-Record Protocol](../docs/component-task-record-protocol.md).
+- Task records use the local `task` object in the component's JSON companion
+  plus the configured Markdown narrative. Their protocol is defined in
+  [Component Task-Record Protocol](../core/contracts/component-task-record-protocol.md).
 - The record identifies the configured worker suitable for recovery, not a mutable
   owner or lease. When recovery is required, the orchestrator rereads the record
   and delegates it to that role; the resumed worker decides whether to continue
@@ -199,40 +199,37 @@ session/event behavior remains at the adapter boundary.
   invokes it without copying the core into every target project.
 - A target project has an authored `as-is.md` at its root for project policy and
   project-level task context. When work is first delegated to a component
-  directory, the orchestrator generates its durable `as-is.md` context and
-  local JSON `task` object plus Markdown narrative before launch; the worker
-  then maintains the task pair as durable scoped task state and any permitted
-  policy narrowing. Generated task artifacts are not private runtime state.
-- The core provides a versioned default for every supported setting. Common
-  policy is supplied centrally as read-only execution context; the root and
-  component records contain only their task-specific effective constraints.
-  Generated runtime state remains separate and non-authoritative.
-- A component may narrow applicable policy only within its authority. Protocol
-  validation rejects lower-authority values that weaken a higher-authority
-  constraint.
-- Root `configuration.technology-preferences` provides project-specific, centrally
-  supplied guidance for laying a new component's foundation. It is a preference,
-  not a constraint: implementers use it when it fits the bounded requirement and
-  established local patterns, and record a material departure with its reason.
+  directory, the orchestrator generates or reuses the component's durable
+  context and local JSON `task` object plus Markdown narrative before launch;
+  the worker then maintains the task pair as durable scoped task state and any
+  permitted policy narrowing. Generated task artifacts are not private runtime
+  state.
+- Configuration resolution provides generic JSON parsing, bounded ancestor-to-target
+  cascade, provenance, diagnostics, and local task-data isolation. It does not
+  define a global key registry or consumer defaults.
+- Each consumer owns its configuration namespace, defaults, validation,
+  interpretation, and migration behavior. The root component owns only settings
+  whose scope is genuinely repository-wide. A component may narrow applicable
+  policy only within its authority, and fixed safety constraints remain higher
+  authority than project values.
 - Extensions are supplied by the selected bundle and are declared, ordered, and
   configured through the root machine configuration and host adapter boundary.
   Changing a project's bundle is the controlled way to change its available
   extension set.
-- The configuration API is strict and versioned. Unknown core fields fail
-  validation rather than silently changing automation behavior.
-- Schema validation, separation of generated state from project policy, and
-  HITL approval for irreversible external effects are fixed invariants, not
-  overrideable preferences.
-- Environment variables may resolve named secrets but do not override `as-is.md`
-  policy. Secrets are never persisted in configuration, task, or generated
-  state files.
+- Schema validation is consumer-owned for configuration namespaces; malformed or
+  unknown values fail closed where the owning consumer's contract requires it.
+  Separation of generated state from project policy and HITL approval for
+  irreversible external effects remain fixed invariants.
+- Environment variables may resolve named secrets but do not override project
+  policy. Secrets are never persisted in configuration, task, or generated state
+  files.
 - A core may improve itself through its normal task system, but an active run
   uses a stable normalized configuration snapshot and may not silently rewrite
   its authorization policy.
 
-See `docs/configuration.md` for the superseded JSON-manifest design,
-`docs/component-task-record-protocol.md` for the component record contract, and
-`docs/execution-contract.md` for the host-neutral worker lifecycle contract.
+See `core/contracts/configuration.md` for the generic data boundary and consumer-ownership
+map, `core/contracts/component-task-record-protocol.md` for task authority, and
+`core/contracts/execution-contract.md` for the host-neutral worker lifecycle contract.
 See the configured JSON `task` object and Markdown narrative for transient current project task state.
 
 ### Orchestration and Control
@@ -268,7 +265,7 @@ See the configured JSON `task` object and Markdown narrative for transient curre
   the orchestrator delegates recovery to the configured worker identified in the
   record, rather than relying on an independent generic recovery process.
 - Recovery uses the conservative host-neutral policy in
-  `docs/execution-contract.md`: stale detection is source-labelled from durable
+  `core/contracts/execution-contract.md`: stale detection is source-labelled from durable
   checkpoints, retries are finite with cumulative backoff and budget
   observations, and unavailable-worker replacement requires explicit recorded
   direction or approval. A host adapter may report runtime facts but cannot
@@ -276,22 +273,21 @@ See the configured JSON `task` object and Markdown narrative for transient curre
 
 ### User Check-Ins And Control
 
-- The root project context configures a periodic check-in interval under
-  `configuration.scheduling.checkInSeconds`. The interval is a positive duration and
-  applies to the orchestrator's durable observation cycle; it does not grant a
-  worker additional execution time or replace the task wall-clock budget.
+- The task-control consumer configures a periodic check-in interval under its
+  scheduling namespace. The interval is a positive duration and applies to the
+  orchestrator's durable observation cycle; it does not grant a worker additional
+  execution time or replace the task wall-clock budget.
 - A check-in is due when the configured interval has elapsed from the latest
   durable checkpoint represented by `task.updated`. The next due time is derived
   from that timestamp and the effective interval, so it remains recoverable
   without a private scheduler or session cache. A host may wake earlier for a
   material event.
-- Material-event notification is enabled by the root
-  `configuration.notifications.materialEvents` setting. When enabled, the
-  orchestrator immediately reports delegation, blocking, budget risk or
-  exhaustion, completion, failure, cancellation, and approval-required external
-  effects. The event is observable from the durable task status, checkpoint,
-  blocker or approval text, budget fields, child record, and next action; a
-  private event log is not authoritative.
+- Material-event notification is controlled by the owning task/orchestration
+  consumer. When enabled, the orchestrator immediately reports delegation,
+  blocking, budget risk or exhaustion, completion, failure, cancellation, and
+  approval-required external effects. The event is observable from the durable
+  task status, checkpoint, blocker or approval text, budget fields, child record,
+  and next action; a private event log is not authoritative.
 - User queries are answered from the root and component `as-is.md` records only.
   A response reports active tasks, delegated tasks, each task's status and
   configured worker, budget allocation and observed use (including unavailable
@@ -332,8 +328,8 @@ See the configured JSON `task` object and Markdown narrative for transient curre
 
 ### Concurrency Boundary
 
-- The current effective `configuration.scheduling.maxConcurrentTasks` remains `1`.
-  No runtime concurrency increase is part of the current design-context task.
+- The current effective task-control concurrency limit remains `1`. No runtime
+  concurrency increase is part of the current design-context task.
 - Future `maxConcurrentTasks: 3` semantics count active leaf worker attempts,
   not parent control-plane orchestrators. Parent orchestrators submit and
   return, then observe and integrate on later wake/check-in operations; they do
@@ -350,7 +346,7 @@ See the configured JSON `task` object and Markdown narrative for transient curre
 ### Host-Neutral Execution Contract
 
 The lifecycle boundary for worker execution is defined in
-`docs/execution-contract.md`. It normalizes `launch`, `resume`, `observe`,
+`core/contracts/execution-contract.md`. It normalizes `launch`, `resume`, `observe`,
 `question`, `cancel`, and `recover` operations around the component task
 record. The orchestrator supplies the worker its component record plus central
 read-only execution context; it does not copy repository-wide context into the
@@ -431,7 +427,7 @@ worker, and cost and wall-clock allocations.
 
 The envelope does not implement scheduling, check-ins, runtime session
 recovery, or a host adapter. The host-neutral lifecycle contract is defined in
-`docs/execution-contract.md`; host-specific enforcement and recovery behavior
+`core/contracts/execution-contract.md`; host-specific enforcement and recovery behavior
 remain later increments. When a host cannot report per-component cost, the
 record names its fallback metric and leaves `spent` as non-actual rather than
 presenting an estimate as a cost.
@@ -472,7 +468,7 @@ not begin a later increment until the preceding increment meets its stated
 acceptance conditions.
 
 1. **Define the durable task-record protocol.** Completed. The protocol defines
-   filesystem-derived placement and parentage, strict local `task` objects in `as-is.json`
+   filesystem-derived placement and parentage, strict local `task` objects in JSON companions
    metadata plus front-matter-free Markdown narrative sections, status values,
    configured-worker recovery routing, host-reported
    component cost, child-record handoffs, pre-handoff validation, and safe

@@ -31,5 +31,5 @@ The integration flow produces a reviewable plan first, obtains human disposition
 - [`SKILL.md`](SKILL.md) — authoritative integration procedure.
 - [`../as-is-setup/SKILL.md`](../as-is-setup/SKILL.md) — scope selection and setup behavior.
 - [`../managing-as-is-document/SKILL.md`](../managing-as-is-document/SKILL.md) — durable record lifecycle.
-- [`../../docs/architecture-vocabulary.md#structural-containment`](../../docs/architecture-vocabulary.md#structural-containment) — current-system meaning of component hierarchy and containment.
+- [`../../core/contracts/architecture-vocabulary.md#structural-containment`](../../core/contracts/architecture-vocabulary.md#structural-containment) — current-system meaning of component hierarchy and containment.
 - [`../designing-mermaid-diagrams/SKILL.md`](../designing-mermaid-diagrams/SKILL.md) — generic Mermaid mechanics.

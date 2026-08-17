@@ -45,5 +45,5 @@ This skill is used by agents and orchestrators that maintain component context; 
 ## Links
 
 - [SKILL.md](SKILL.md) — authoritative declarative record, creation, alignment, replacement, and compact ordered application models, plus linked diagram references.
-- [../../docs/architecture-vocabulary.md#relationship-labels](../../docs/architecture-vocabulary.md#relationship-labels) — current-system definitions for canonical records, containment, authority, evidence, and relationship labels.
+- [../../core/contracts/architecture-vocabulary.md#relationship-labels](../../core/contracts/architecture-vocabulary.md#relationship-labels) — current-system definitions for canonical records, containment, authority, evidence, and relationship labels.
 - [diagram-examples.md](diagram-examples.md) — consolidated structural-container, navigation-fallback, and separately scoped diagram-view examples.

@@ -7,8 +7,7 @@ component context remains in `as-is.md`. Component task records use the
 configured filename, currently `tasks.md`.
 Completed items are removed after their concise summary is recorded in the
 owning component's `changelog.md`; this index retains only open or deferred
-items. Record filenames are configured through
-`configuration.records.filenames` in root `as-is.json`.
+items. Task-record filenames are configured and validated by the task-control consumer.
 root `as-is.md`; this repository uses `backlog.md`, `changelog.md`, and
 `tasks.md`.
 
@@ -69,7 +68,7 @@ Current user-directed sequence for the next restructuring work is: (1) completed
 | Context | Component purpose and design belong to component `as-is.md`. |
 | History | Completed summaries belong to component `changelog.md`. |
 | Tracing | Telemetry is supplementary and never replaces task records, validation, recovery, or completion authority. |
-| Configuration | Root `as-is.json.configuration` is the sole project machine-configuration source; `as-is.md` remains human context and `docs/configuration.md` documents the JSON structure. Record filenames are configured at `configuration.records.filenames`. |
+| Configuration | Root and component `as-is.json` files hold machine configuration data; the generic resolver owns cascade, provenance, diagnostics, and task isolation, while each consumer owns its namespaces, defaults, validation, and interpretation. |
 | Completion | Remove completed items from the owning component backlog after recording their concise summary in the owning component's `changelog.md`. |
 | Budget and recovery | Child allocations subtract parent spent use and reserve; excess cost or wall-clock requirements bubble to a durable approval/blocker. Failed, cancelled, or budget-stopped descendants remain accounted for and do not silently trigger duplicate attempts. |
 | Integration | Child commits remain recoverable source evidence; the parent consolidates related worktree commits into one scoped integration commit before merging into the original branch and records source/result SHAs. |
