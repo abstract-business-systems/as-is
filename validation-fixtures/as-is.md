@@ -12,7 +12,6 @@ Retain harmless, bounded fixtures for validating delegation, host mediation, rec
 | [increment 5 dogfood](increment-5-dogfood/as-is.md#design) | Retain completed local dogfood evidence for the Increment 5 OpenCode subprocess adapter. |
 | [increment 6 recovery fixture](increment-6-recovery-fixture/as-is.md#design) | Retain completed record-only recovery evidence after private runtime state is unavailable. |
 | [OpenCode mediation dogfood](opencode-mediation-dogfood/as-is.md#design) | Retain completed explicit primary-agent mediation evidence for the configured implementer. |
-| [Task-record validator reference](task-record-validator-reference/as-is.md#design) | Retain non-runtime Python validator compatibility evidence for the canonical task-control validator. |
 
 ## Design
 
@@ -36,8 +35,6 @@ flowchart TB
         Increment5["<a href='./increment-5-dogfood/as-is.md#design'>increment 5 dogfood</a>"]
         Increment6["<a href='./increment-6-recovery-fixture/as-is.md#design'>increment 6 recovery<br/>fixture</a>"]
         OpenCode["<a href='./opencode-mediation-dogfood/as-is.md#design'>OpenCode mediation<br/>dogfood</a>"]
-        ValidatorReference["<a href='./task-record-validator-reference/as-is.md#design'>task-record validator<br/>reference</a>"]
-
         Dummy -->|rehearses bounded<br/>delegation and<br/>integration evidence| Increment5
         Increment5 -->|retains completed<br/>adapter evidence<br/>alongside| OpenCode
         Increment6 -->|retains completed<br/>recovery evidence<br/>alongside| Dummy

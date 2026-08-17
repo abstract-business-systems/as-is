@@ -27,7 +27,6 @@ not repeated here:
 
 - Skills: `skills/backlog.md` (`deterministic-skills`, `presentation-guidance`,
   `building-components`).
-- Task-record validator reference: `validation-fixtures/task-record-validator-reference/backlog.md` (retained non-runtime compatibility evidence; the Bun validator remains owned by `core/modules/task-control`).
 - Observability: `core/modules/observability/backlog.md` (Jaeger, tracing,
   Collector, all-in design, and richer observability items).
 
