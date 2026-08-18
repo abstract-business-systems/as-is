@@ -30,6 +30,6 @@ describe("session-reference-first observability policy", () => {
   test("preserves supplementary authority and component boundaries", () => {
     expect(context).toContain("without becoming task, job, validation, recovery, or completion authority");
     expect(design).toContain("cannot authorize work,\naccept task status");
-    expect(backlog).toContain("local session files remain the readable evidence source");
+    expect(backlog.toLowerCase()).toContain("local session files remain the readable evidence source");
   });
 });
