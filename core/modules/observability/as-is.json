@@ -1,1 +1,36 @@
-{}
+{
+  "task": {
+    "status": "active",
+    "worker": "component-builder",
+    "updated": "2026-08-18T22:12:37Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.5,
+        "spent": 0,
+        "reserve": 0.1,
+        "source": "unavailable",
+        "fallback-metric": "unavailable"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 300,
+          "spent-seconds": 0,
+          "reserve-seconds": 60,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "require-current-turn-user-approval"
+    },
+    "acceptance": [
+      "Extend the supplementary fail-closed trace envelope with bounded task revision, attempt, role, session label/reference, call and relationship identifiers, phase, outcome, duration, and wall-clock observations.",
+      "Represent source-labelled usage/cost observations and explicit unavailable states without capturing prompts, responses, tools, paths, secrets, or arbitrary exception text.",
+      "Preserve task-record authority, append-only local JSONL behavior, opaque session-ID-only external projection, and telemetry failure isolation.",
+      "Add provider-free fixtures covering delegated execution flow, retries, outcome classes, unavailable measurements, malformed telemetry, and privacy boundaries."
+    ]
+  }
+}
