@@ -23,10 +23,14 @@
     "notifications": {
       "materialEvents": true
     },
+    "dirs": {
+      "project-temp": ".as-is"
+    },
     "agents": {
       "defaultRole": "as-is",
       "defaultModel": "small",
       "provider": "openrouter",
+      "sessionDirectory": "<project-temp>/subagents/sessions",
       "models": {
         "small": "@preset/abs-small",
         "medium": "@preset/abs-medium",

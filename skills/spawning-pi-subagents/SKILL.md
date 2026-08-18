@@ -73,18 +73,30 @@ is parameterless and code-owned: it runs only the fixed local deterministic
 suite and never accepts a command, path, argument, environment, provider,
 session, or working-directory selector. Model policy is resolved from
 root `as-is.json` `configuration.agents`: `defaultModel`, `provider`, and the
+optional private durable `sessionDirectory` (the repository default is
+`<project-temp>/subagents/sessions`); session display labels are supplied
+separately through the bounded task name.
 named `models` map. Thinking policy accepts `off`, `minimal`, `low`, `medium`,
 `high`, `xhigh`, and `max`; it resolves explicit launcher override, then agent
 `thinking:` front matter, then `defaultThinkingLevel`. In-process
 `call_subagent` applies the selected target's `model:` and `thinking:`
 declarations through the same project model presets and provider rather than
-inheriting the caller session's model or thinking level. The resulting model,
+inheriting the caller session's model or thinking level. It creates a file-backed
+worker session in the configured store, applies the same bounded task-derived
+name, and returns bounded worker session metadata including its exact local Pi
+session UUID. `analyze_session` searches only the current, inherited, configured,
+and explicitly supplied readable stores; it returns the bounded session display
+name as metadata but never uses that name as a selector. The resulting model,
 provider, and thinking level are passed explicitly to Pi. Supported project
 presets are `small`, `medium`, `large`, and `xlarge`.
 The launcher does not read model or provider policy from OpenCode configuration
 or environment variables; those are not system configuration sources.
 OpenCode-specific front matter such as `permission:` is not a Pi permission
 mechanism; explicit Pi approval flags remain host controls.
+
+## Configuration
+
+See [configuration.md](configuration.md) for the launcher-owned session-directory contract and the root `configuration.dirs.projectTemp` project-temporary directory setting. The project temporary directory means the repository's `.as-is` runtime directory by default; it is not the operating-system temporary directory.
 
 ## Inputs, Outputs, And Stopping
 
@@ -120,7 +132,7 @@ bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
   --cwd "$PWD"
 ```
 
-The launcher does not use an arbitrary `pi` found on `PATH`. It resolves Pi in
+Pass the bounded task identity explicitly with `--task-name <name>` when the caller has one. The display name is a label only; each launch still receives a distinct local Pi session UUID and the provider request session identity, when supported, is a separate adapter concern. The launcher does not use an arbitrary `pi` found on `PATH`. It resolves Pi in
 this order:
 
 1. `--pi <path>`;
@@ -143,6 +155,8 @@ child runs under a detached bounded job runner without blocking the caller:
   "identity": "component-builder",
   "caller": "as-is",
   "parentJobId": "j-...",
+  "sessionName": "bounded-task-name",
+  "localSessionId": "0190...",
   "logPath": "/tmp/as-is-child-XXX/child.log",
   "recordPath": "./component/as-is.md",
   "worktreePath": "/tmp/as-is-child-XXX/worktree",
@@ -157,7 +171,10 @@ Pi child pid. The runner is the child's direct parent and outlives the
 launcher. `identity` is this child's role; `caller` is the delegating agent's
 identity (propagated via the `AS_IS_IDENTITY` env var, or `--caller`);
 `parentJobId` is the caller's job id (propagated via `AS_IS_JOB_ID`, or
-`--parent-job-id`). When the caller has a persisted Pi session, the launcher
+`--parent-job-id`). `sessionName` is the bounded task-derived display label shared
+by related sessions; `localSessionId` is the independently generated Pi session
+UUID when durable storage is enabled. Neither is a provider identity or job ID;
+`sessionName` is never used as a session selector. When the caller has a persisted Pi session, the launcher
 also forwards only the session store scope (`AS_IS_SESSION_CWD` and
 `AS_IS_SESSION_DIR`) so a child in an isolated worktree can resolve an exact
 session ID through the same readable local store. These variables are
@@ -174,7 +191,7 @@ observes the child by polling its record (structured status) and `logPath`
 On exit the bounded job runner appends a finished outcome to the registry
 (`{jobId, event:"finished", exitCode, budgetStopped, wallClockSeconds,
 commitSha, committed, integrationStatus, handoffEligible, handoffBlockers,
-finishedAt}`). These are launcher observations, not a merge command or a
+sessionName, localSessionId, finishedAt}`). These are launcher observations, not a merge command or a
 semantic completion decision. The receiving parent component-builder owns
 semantic handoff review and any nearest-common-ancestor integration; the
 launcher only reports whether caller-HEAD ancestry currently proves that the
@@ -254,7 +271,7 @@ respect to task records and processes, and never contacts a provider.
   `general`, `explore`, or a direct worker when the configured role is missing.
   The launcher owns an expert capability profile: it ignores caller
   tool/approval/session/extension overrides, forces same-worktree and
-  ephemeral session mode, disables extensions except the bundled inspection
+  durable task-named session mode, disables extensions except the bundled inspection
   extension, and exposes only `read,grep,find,ls,git_inspect`. `git_inspect`
   permits only bounded status, scoped diff, diff-check, and HEAD-summary
   operations; it has no shell or write path. Caller and parent metadata are
@@ -270,7 +287,7 @@ respect to task records and processes, and never contacts a provider.
 - Use `--approve` only when project-local files are explicitly trusted for that
   attempt. Do not place credentials or tokens in task arguments, task files, or
   output.
-- The launcher uses `--mode json` and `--print`; sessions are durable by default under the supervisor job directory, with `--no-session` providing ephemeral runs. The owning skill package supplies its Pi extension and dependencies through the supported package mechanism. The current adapter forwards explicit and agent-front-matter skill paths as an unchanged compatibility surface; these paths do not grant skill-owned selection or authority. The migration target is global skill availability without agent-front-matter selection or allowlist, and requires a later separately authorized adapter change. The `analyze_session` tool uses the effective user's readable project-local session store, including the forwarded store scope for isolated children; it remains exact-ID, bounded, read-only metadata inspection and does not require tracer approval. It resolves model presets and providers from root `as-is.json`, passing explicit `--provider` and `--model`, and uses a shell-free child
+- The launcher uses `--mode json` and `--print`; sessions are durable by default in the configured `configuration.agents.sessionDirectory` (defaulting to the private project temporary store `<project-temp>/subagents/sessions`), with `--no-session` providing an explicit ephemeral ordinary run. Validation sessions are always durable and use the same configured store. The owning skill package supplies its Pi extension and dependencies through the supported package mechanism. The current adapter forwards explicit and agent-front-matter skill paths as an unchanged compatibility surface; these paths do not grant skill-owned selection or authority. The migration target is global skill availability without agent-front-matter selection or allowlist, and requires a later separately authorized adapter change. The `analyze_session` tool uses the effective readable project temporary session store, including the forwarded store scope for isolated children; it remains exact-ID, bounded, read-only metadata inspection and does not require tracer approval. It resolves model presets and providers from root `as-is.json`, passing explicit `--provider` and `--model`, and uses a shell-free child
   process, and a private temporary system-prompt file. In both blocking and
   detach modes the child runs under a detached bounded job runner that is the
   child's direct parent, in an isolated git worktree pruned from the caller's

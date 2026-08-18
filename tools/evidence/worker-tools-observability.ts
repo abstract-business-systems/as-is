@@ -6,6 +6,9 @@ import {
   type ToolDefinition,
 } from "../../skills/spawning-pi-subagents/node_modules/@earendil-works/pi-coding-agent";
 import { Type } from "../../skills/spawning-pi-subagents/node_modules/typebox";
+import { resolveConfigurationFromCwdSync } from "../../core/modules/context-resolution/configuration-resolver.ts";
+import { resolveSessionDirectory } from "../../skills/spawning-pi-subagents/scripts/session-directory.ts";
+import { sessionNameFromTaskName } from "../../skills/spawning-pi-subagents/scripts/session-naming.ts";
 
 const maxResultCharacters = 100_000;
 
@@ -81,7 +84,7 @@ function boundedJson(value: unknown): string {
 }
 
 type SessionStoreScope = { cwd: string; sessionDir?: string };
-type SessionReader = Pick<SessionManager, "getSessionId" | "getCwd" | "getSessionDir" | "getEntries" | "getHeader">;
+type SessionReader = Pick<SessionManager, "getSessionId" | "getSessionName" | "getCwd" | "getSessionDir" | "getEntries" | "getHeader">;
 type SessionDetail = "summary" | "entries" | "messages" | "full";
 
 export async function readTraceEvents(cwd: string): Promise<TraceEvent[]> {
@@ -132,6 +135,24 @@ function inheritedSessionStoreScope(): SessionStoreScope | undefined {
   return { cwd: sourceCwd, sessionDir: typeof sessionDir === "string" && sessionDir.length > 0 ? sessionDir : undefined };
 }
 
+function configuredSessionStoreScope(cwd: string): SessionStoreScope | undefined {
+  try {
+    const resolution = resolveConfigurationFromCwdSync(cwd);
+    if (!resolution.complete) return undefined;
+    const agents = resolution.configuration.agents;
+    if (!agents || typeof agents !== "object" || Array.isArray(agents)) return undefined;
+    const configured = (agents as Record<string, unknown>).sessionDirectory;
+    const dirs = resolution.configuration.dirs;
+    const projectTemp = dirs && typeof dirs === "object" && !Array.isArray(dirs)
+      ? (dirs as Record<string, unknown>)["project-temp"]
+      : undefined;
+    if (typeof configured !== "string") return undefined;
+    return { cwd, sessionDir: resolveSessionDirectory(configured, cwd, resolution.root ?? cwd, typeof projectTemp === "string" ? projectTemp : undefined) };
+  } catch {
+    return undefined;
+  }
+}
+
 function validSessionId(sessionId: string): boolean {
   return typeof sessionId === "string" && sessionId.length <= 128 && !(/[\\/\u0000]/u).test(sessionId) && !/^[A-Za-z][A-Za-z0-9+.-]*:/u.test(sessionId);
 }
@@ -178,9 +199,11 @@ function analyzeSessionManager(manager: SessionReader, sessionId: string, limit:
     return { type: entry.type, timestamp: entry.timestamp, role: typeof message?.role === "string" ? message.role : undefined, toolName: typeof message?.toolName === "string" ? message.toolName : undefined, outcome: typeof message?.stopReason === "string" ? message.stopReason : undefined };
   });
   const header = manager.getHeader();
+  const sessionName = manager.getSessionName();
+  const safeSessionName = typeof sessionName === "string" ? sessionNameFromTaskName(sessionName).name : undefined;
   const messageCount = entries.filter((entry) => entry.type === "message").length;
   const timestamps = entries.map((entry) => entry.timestamp).filter((timestamp): timestamp is string => typeof timestamp === "string");
-  const projected = projectEvidenceResult({ sessionId: projectOpaqueId(sessionId), availability: "available", entryCount: entries.length, messageCount, created: header?.timestamp, modified: timestamps.at(-1), roles, outcomes, toolNames: [...toolNames].sort(), models: [...models].sort(), usage, sample, detail, offset, ...(detail !== "summary" ? { entries: selected } : {}) });
+  const projected = projectEvidenceResult({ sessionId: projectOpaqueId(sessionId), ...(safeSessionName ? { sessionName: safeSessionName } : {}), availability: "available", entryCount: entries.length, messageCount, created: header?.timestamp, modified: timestamps.at(-1), roles, outcomes, toolNames: [...toolNames].sort(), models: [...models].sort(), usage, sample, detail, offset, ...(detail !== "summary" ? { entries: selected } : {}) });
   if (!projected.sessionId) delete projected.sessionId;
   return projected;
 }
@@ -198,6 +221,8 @@ export async function analyzeProjectSession(cwd: string, sessionId: string, limi
     const scopes: SessionStoreScope[] = [];
     if (currentManager) scopes.push({ cwd: currentManager.getCwd(), sessionDir: currentManager.getSessionDir() });
     if (inherited) scopes.push(inherited);
+    const configured = configuredSessionStoreScope(cwd);
+    if (configured) scopes.push(configured);
     scopes.push({ cwd });
     const seenScopes = new Set<string>();
     for (const scope of scopes) {

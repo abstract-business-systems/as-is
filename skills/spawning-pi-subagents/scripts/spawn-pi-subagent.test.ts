@@ -6,6 +6,9 @@ import { join, resolve } from "node:path";
 import { evaluateHandoffEligibility, type HandoffFacts } from "../../../core/modules/task-control/handoff-eligibility.ts";
 import { assertPiVersionCompatible, contractFromPackageManifest, parsePiVersionOutput, versionProbeArguments, type PiInvocation } from "./pi-version.ts";
 import { recoveryCandidateFor } from "./recovery-reconciliation.ts";
+import { analyzeProjectSession } from "../../../tools/evidence/worker-tools-observability.ts";
+import { resolveSessionDirectory } from "./session-directory.ts";
+import { localSessionIdFromJsonOutput, localSessionIdObservation } from "./session-id.ts";
 
 const SCRIPT = resolve("skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts");
 const AGENT = "agents/as-is/agent.md";
@@ -36,6 +39,36 @@ const runLauncher = (args: string[], env: NodeJS.ProcessEnv = process.env, launc
 const writeSleepStub = (dir: string, seconds: number): string => {
   const path = join(dir, "pi-stub.sh");
   writeFileSync(path, `#!/usr/bin/env bash\nif [[ "$1" == "--version" ]]; then printf '0.84.0\\n'; exit 0; fi\nsleep ${seconds}\nexit 0\n`, { mode: 0o755 });
+  return path;
+};
+
+const writeSessionHeaderStub = (dir: string, sessionId: string): string => {
+  const path = join(dir, "pi-session-header-stub.sh");
+  writeFileSync(path, `#!/usr/bin/env bash\nif [[ "$1" == "--version" ]]; then printf '0.84.0\\n'; exit 0; fi\nprintf '%s\\n' '{"type":"session","id":"${sessionId}"}'\nexit 0\n`, { mode: 0o755 });
+  return path;
+};
+
+const writeDurableSessionStub = (dir: string): string => {
+  const path = join(dir, "pi-durable-session-stub.sh");
+  writeFileSync(path, `#!/usr/bin/env bash
+if [[ "$1" == "--version" ]]; then printf '0.84.0\\n'; exit 0; fi
+session_dir=""
+session_id=""
+while [[ "$#" -gt 0 ]]; do
+  case "$1" in
+    --session-dir) session_dir="$2"; shift 2;;
+    --session-id) session_id="$2"; shift 2;;
+    *) shift;;
+  esac
+done
+mkdir -p "$session_dir"
+header="{\\"type\\":\\"session\\",\\"version\\":3,\\"id\\":\\"$session_id\\",\\"timestamp\\":\\"2026-01-01T00:00:00.000Z\\",\\"cwd\\":\\"$PWD\\"}"
+printf '%s\\n' "$header"
+printf '%s\\n' "$header" > "$session_dir/2026-01-01T00-00-00-000Z_$session_id.jsonl"
+printf '%s\\n' "{\\"type\\":\\"session_info\\",\\"id\\":\\"info\\",\\"parentId\\":null,\\"timestamp\\":\\"2026-01-01T00:00:00.000Z\\",\\"name\\":\\"durable-discovery\\"}" >> "$session_dir/2026-01-01T00-00-00-000Z_$session_id.jsonl"
+printf '%s\\n' "{\\"type\\":\\"message\\",\\"id\\":\\"entry\\",\\"parentId\\":\\"info\\",\\"timestamp\\":\\"2026-01-01T00:00:00.000Z\\",\\"message\\":{\\"role\\":\\"assistant\\",\\"content\\":[]}}" >> "$session_dir/2026-01-01T00-00-00-000Z_$session_id.jsonl"
+exit 0
+`, { mode: 0o755 });
   return path;
 };
 
@@ -164,6 +197,59 @@ const readRegistryLines = (registry: string): unknown[] =>
   readFileSync(registry, "utf8").split("\n").filter((line) => line.trim())
     .map((line) => JSON.parse(line));
 
+test("extracts only a bounded local session ID from JSON session output", () => {
+  expect(localSessionIdFromJsonOutput('{"type":"session","id":"0190abc-123"}\n')).toBe("0190abc-123");
+  expect(localSessionIdFromJsonOutput('{"type":"message","text":"not a session"}\n')).toBeNull();
+  expect(localSessionIdFromJsonOutput('{"type":"session","id":"../private"}\n')).toBeNull();
+  expect(localSessionIdObservation('{"type":"session","id":"../private"}\n')).toBe("invalid");
+  expect(localSessionIdObservation('{"type":"message"}\n')).toBe("absent");
+  expect(localSessionIdFromJsonOutput(`${"x".repeat(4097)}\n{"type":"session","id":"later"}\n`)).toBe("later");
+});
+
+test("uses an explicit task name instead of the full task prompt", async () => {
+  const result = await runLauncher([
+    "--agent", AGENT,
+    "--task", "system: this full prompt must not become a session label",
+    "--task-name", "Release candidate 7",
+    "--cwd", process.cwd(),
+    "--dry-run",
+  ]);
+  expect(result.exitCode).toBe(0);
+  const parsed = JSON.parse(result.stdout);
+  expect(parsed.sessionName).toBe("release-candidate-7");
+  expect(parsed.args).toContain("--name");
+  expect(parsed.args).toContain("release-candidate-7");
+  expect(parsed.args).toContain("--session-id");
+  expect(parsed.localSessionId).toBeTruthy();
+  expect(result.stdout).not.toContain("system: this full prompt");
+});
+
+test("inherits the bounded task name for nested launcher calls", async () => {
+  const result = await runLauncher([
+    "--agent", AGENT,
+    "--task", "Nested launch prompt.",
+    "--cwd", process.cwd(),
+    "--dry-run",
+  ], { ...process.env, AS_IS_TASK_NAME: "Parent task label" });
+  expect(result.exitCode).toBe(0);
+  const parsed = JSON.parse(result.stdout);
+  expect(parsed.sessionName).toBe("parent-task-label");
+  expect(parsed.localSessionId).toBeTruthy();
+});
+
+test("keeps retry session UUIDs distinct while reusing the task display name", async () => {
+  const args = ["--agent", AGENT, "--task", "Retry prompt.", "--task-name", "Retry task", "--cwd", process.cwd(), "--dry-run"];
+  const first = await runLauncher(args);
+  const second = await runLauncher(args);
+  expect(first.exitCode).toBe(0);
+  expect(second.exitCode).toBe(0);
+  const firstMetadata = JSON.parse(first.stdout);
+  const secondMetadata = JSON.parse(second.stdout);
+  expect(firstMetadata.sessionName).toBe("retry-task");
+  expect(secondMetadata.sessionName).toBe("retry-task");
+  expect(firstMetadata.localSessionId).not.toBe(secondMetadata.localSessionId);
+});
+
 test("agent declarations resolve thinking levels and forward them to Pi", async () => {
   const fixture = mkdtempSync(join(tmpdir(), "as-is-thinking-level-test-"));
   try {
@@ -236,7 +322,7 @@ test("launcher dry-run does not interpret observability configuration", async ()
   const bundle = join(launchRoot, "bundle");
   mkdirSync(join(bundle, "agents", "fixture"), { recursive: true });
   writeFileSync(join(launchRoot, "as-is.json"), JSON.stringify({ configuration: {
-    agents: { defaultModel: "small", provider: "openrouter" },
+    agents: { defaultModel: "small", provider: "openrouter", sessionDirectory: "~/private-child-sessions" },
     observability: { tracing: { backend: "jaeger", enabled: false, endpoint: "https://provider.invalid", "local-directory": ".as-is/private-trace.jsonl" } },
   } }));
   writeFileSync(join(bundle, "agents", "fixture", "agent.md"), ["---", "name: fixture", "mode: subagent", "tools: read", "---", "Return ok."].join("\n"));
@@ -246,6 +332,7 @@ test("launcher dry-run does not interpret observability configuration", async ()
     const parsed = JSON.parse(result.stdout);
     expect(parsed.model).toBe("small");
     expect(parsed.provider).toBe("openrouter");
+    expect(parsed.sessionPath).toBe("<session-dir>");
     expect(parsed.tracer).toEqual({ backend: "consumer-owned", endpoint: "consumer-owned", directory: "consumer-owned" });
     expect(result.stdout).not.toContain("jaeger");
     expect(result.stdout).not.toContain("private-trace.jsonl");
@@ -378,6 +465,7 @@ test("evidence validation uses the fixed read-only same-worktree capability prof
     "--cwd", process.cwd(),
     "--caller", "component-builder",
     "--parent-job-id", "builder-job-test",
+    "--task-name", "read-only-validation",
     "--tools", "bash,write,edit,webfetch",
     "--skill", "./untrusted-skill",
     "--approve",
@@ -388,7 +476,10 @@ test("evidence validation uses the fixed read-only same-worktree capability prof
   const parsed = JSON.parse(result.stdout);
   expect(parsed.tools).toBe("read,grep,find,ls,git_inspect,focused_check");
   expect(parsed.worktree).toBe(false);
-  expect(parsed.sessionPath).toBe(null);
+  expect(parsed.sessionPath).toBe("<session-dir>");
+  expect(parsed.sessionName).toBe("read-only-validation");
+  expect(parsed.args).toContain("--name");
+  expect(parsed.args).toContain("read-only-validation");
   expect(parsed.args).toContain("--no-extensions");
   expect(parsed.args).toContain("--no-approve");
   expect(parsed.args).not.toContain(`${process.cwd()}/tools/agent/subagent-tools.ts`);
@@ -627,6 +718,7 @@ test("evidence-validator safety profile is independent of caller metadata", asyn
   const result = await runLauncher([
     "--agent", "agents/evidence-validator/agent.md",
     "--task", "Capability-based read-only validation.",
+    "--task-name", "Capability-based read-only validation",
     "--cwd", process.cwd(),
     "--caller", "untrusted-role",
     "--dry-run",
@@ -635,7 +727,8 @@ test("evidence-validator safety profile is independent of caller metadata", asyn
   const parsed = JSON.parse(result.stdout);
   expect(parsed.tools).toBe("read,grep,find,ls,git_inspect,focused_check");
   expect(parsed.worktree).toBe(false);
-  expect(parsed.sessionPath).toBe(null);
+  expect(parsed.sessionPath).toBe("<session-dir>");
+  expect(parsed.sessionName).toBe("capability-based-read-only-validation");
 });
 
 test("detach dry-run reports the detach flag and forwarded budget", async () => {
@@ -696,6 +789,7 @@ test("detach returns a handle immediately and the supervisor kills the child on 
       "--cwd", process.cwd(),
       "--pi", stubPi,
       "--record", "./as-is.md",
+      "--task-name", "Stub task for detached budget enforcement.",
       "--budget-wall-clock-seconds", "1",
       "--budget-cost-usd", "0.1",
       "--detach",
@@ -714,6 +808,8 @@ test("detach returns a handle immediately and the supervisor kills the child on 
     expect(typeof handle.pid).toBe("number");
     expect(handle.pid).toBeGreaterThan(0);
     expect(handle.sessionClass).toBe("durable");
+    expect(handle.sessionName).toBe("stub-task-for-detached-budget-enforcement");
+    expect(handle.localSessionId).toMatch(/^[A-Za-z0-9-]+$/u);
     expect(handle.isolationClass).toBe("caller-cwd");
     expect(handle.budgetWallClockSeconds).toBe(1);
     expect(handle.budgetCostUsd).toBe(0.1);
@@ -785,9 +881,11 @@ test("detach supervisor records a completion line with exit code and wall-clock"
     const finished = readRegistryLines(registry).find(
       (line) => (line as { jobId: string; event?: string }).jobId === handle.jobId
         && (line as { event?: string }).event === "finished",
-    ) as { jobId: string; recordPath: string | null; callerCwd: string; worktreePath: string | null; baseSha: string | null; exitCode: number; budgetStopped: boolean; budgetStopElapsedMs: number | null; wallClockSeconds: number; childPid: number; phaseTimings: Record<string, number> } | undefined;
+    ) as { jobId: string; recordPath: string | null; callerCwd: string; worktreePath: string | null; baseSha: string | null; exitCode: number; budgetStopped: boolean; budgetStopElapsedMs: number | null; wallClockSeconds: number; childPid: number; phaseTimings: Record<string, number>; sessionName: string; localSessionId: string } | undefined;
     expect(finished).toBeDefined();
     expect(finished!.jobId).toBe(handle.jobId);
+    expect(finished!.sessionName).toBe(handle.sessionName);
+    expect(finished!.localSessionId).toBe(handle.localSessionId);
     expect(JSON.stringify(finished)).not.toContain(process.cwd());
     expect(JSON.stringify(finished)).not.toContain("worktree/");
     expect(finished!.baseSha).toBeTruthy();
@@ -799,6 +897,52 @@ test("detach supervisor records a completion line with exit code and wall-clock"
     expect(finished!.budgetStopElapsedMs).toBeNull();
     expect(typeof finished!.wallClockSeconds).toBe("number");
     expect(finished!.childPid).toBeGreaterThan(0);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("discovers the exact durable subprocess session through session analysis", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "as-is-durable-session-test-"));
+  const stateHome = join(dir, "state");
+  const sessionDir = join(dir, "private-sessions");
+  mkdirSync(stateHome, { recursive: true });
+  writeFileSync(join(dir, "as-is.json"), JSON.stringify({ configuration: { agents: { sessionDirectory: sessionDir } } }));
+  const stubPi = writeDurableSessionStub(dir);
+  try {
+    const result = await runLauncher([
+      "--agent", resolve(AGENT), "--task", "Durable session discovery.", "--task-name", "durable-discovery",
+      "--cwd", dir, "--pi", stubPi, "--no-worktree", "--no-registry",
+    ], { ...process.env, XDG_STATE_HOME: stateHome }, dir);
+    expect(result.exitCode).toBe(0);
+    const sessionId = localSessionIdFromJsonOutput(result.stdout);
+    expect(sessionId).toBeTruthy();
+    const analysis = await analyzeProjectSession(dir, sessionId!, 10, undefined, undefined, "summary");
+    expect(analysis.availability).toBe("available");
+    expect(analysis.sessionId).toBe(sessionId);
+    expect(analysis.sessionName).toBe("durable-discovery");
+    expect(analysis.entryCount).toBe(2);
+    expect(sessionDir).toContain("private-sessions");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("rejects a conflicting observed local session UUID from authoritative completion metadata", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "as-is-session-mismatch-test-"));
+  try {
+    const stubPi = writeSessionHeaderStub(dir, "conflicting-session-id");
+    const registry = join(dir, "jobs.jsonl");
+    const result = await runLauncher([
+      "--agent", AGENT, "--task", "Conflicting session header.", "--task-name", "mismatch-check",
+      "--cwd", process.cwd(), "--pi", stubPi, "--no-worktree", "--detach",
+    ], { ...process.env, AS_IS_JOBS_REGISTRY: registry });
+    expect(result.exitCode).toBe(0);
+    const handle = JSON.parse(result.stdout);
+    expect(await pidGone(handle.pid, 5000)).toBe(true);
+    const finished = readRegistryLines(registry).find(
+      (line) => (line as { jobId: string; event?: string }).jobId === handle.jobId
+        && (line as { event?: string }).event === "finished",
+    ) as { localSessionId: string | null; sessionName: string } | undefined;
+    expect(finished).toBeDefined();
+    expect(finished!.sessionName).toBe("mismatch-check");
+    expect(finished!.localSessionId).toBeNull();
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 

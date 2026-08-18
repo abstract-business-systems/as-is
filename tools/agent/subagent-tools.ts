@@ -21,6 +21,8 @@ import { parseThinkingLevel, resolveThinkingLevel, type ThinkingLevel } from "..
 import { resolveCanonicalAgent } from "../../core/modules/agent-resolution/agent-resolution.ts";
 import { readAsIsJson, resolveConfigurationFromCwdSync } from "../../core/modules/context-resolution/configuration-resolver.ts";
 import { resolveLinkedContextTool } from "../context/resolve-linked-context.ts";
+import { sessionNameFromTaskName } from "../../skills/spawning-pi-subagents/scripts/session-naming.ts";
+import { resolveSessionDirectory } from "../../skills/spawning-pi-subagents/scripts/session-directory.ts";
 import {
   emitTrace,
   serializeSessionReference,
@@ -130,22 +132,40 @@ export function currentSessionReference(ctx: { sessionManager?: { getSessionId?:
   }
 }
 
+export type WorkerSessionMetadata = {
+  sessionId: string | null;
+  sessionName: string | null;
+};
+
+export function workerSessionMetadata(worker: { sessionId?: unknown; sessionName?: unknown }): WorkerSessionMetadata {
+  const sessionReference = serializeSessionReference({ sessionId: worker.sessionId });
+  const sessionName = typeof worker.sessionName === "string" ? sessionNameFromTaskName(worker.sessionName) : undefined;
+  return {
+    sessionId: sessionReference?.sessionId ?? null,
+    sessionName: sessionName?.accepted ? sessionName.name : null,
+  };
+}
+
 type ProjectAgentConfig = {
   defaultModel?: string;
   defaultThinkingLevel?: ThinkingLevel;
   models: Record<string, string>;
   provider?: string;
+  sessionDirectory?: string;
+  projectTempDirectory?: string;
+  projectRoot?: string;
 };
 
 const object = (value: unknown): Record<string, unknown> =>
   value !== null && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 const string = (value: unknown): string | undefined => typeof value === "string" ? value : undefined;
 
-function projectAgentConfig(cwd: string): ProjectAgentConfig {
+function projectAgentConfig(cwd: string): ProjectAgentConfig & { sessionDirectory?: string } {
   try {
     const resolution = resolveConfigurationFromCwdSync(cwd);
     if (!resolution.complete) return { models: {} };
-    const agents = object(resolution.configuration.agents);
+    const configuration = resolution.configuration;
+    const agents = object(configuration.agents);
     const models: Record<string, string> = {};
     for (const [name, value] of Object.entries(object(agents.models))) {
       if (typeof value === "string") models[name] = value;
@@ -155,10 +175,17 @@ function projectAgentConfig(cwd: string): ProjectAgentConfig {
       defaultThinkingLevel: parseThinkingLevel(agents.defaultThinkingLevel, "configuration.agents.defaultThinkingLevel"),
       models,
       provider: string(agents.provider),
+      sessionDirectory: string(agents.sessionDirectory),
+      projectTempDirectory: string(object(configuration.dirs)["project-temp"]),
+      projectRoot: resolution.root,
     };
   } catch {
     return { models: {} };
   }
+}
+
+function sessionDirectoryFor(cwd: string, config: ProjectAgentConfig): string {
+  return resolveSessionDirectory(config.sessionDirectory, cwd, config.projectRoot ?? cwd, config.projectTempDirectory);
 }
 
 function workerThinkingLevel(config: ProjectAgentConfig, agentThinking: unknown, role: string): ThinkingLevel | undefined {
@@ -264,6 +291,7 @@ const callSubagent: ToolDefinition = {
     timeoutMs: Type.Optional(Type.Integer({ minimum: 1_000, maximum: maximumTimeoutMs })),
     traceId: Type.Optional(Type.String()),
     runId: Type.Optional(Type.String()),
+    taskName: Type.Optional(Type.String({ maxLength: 128 })),
   }),
   async execute(_toolCallId, params, signal, _onUpdate, ctx) {
     const callId = newId();
@@ -278,6 +306,8 @@ const callSubagent: ToolDefinition = {
       : boundedLimit(requestedTimeoutMs, remainingMs, maximumTimeoutMs);
     if (timeoutMs < 1_000) throw new Error("worker call rejected: task wall-clock budget is exhausted or below the minimum call timeout");
     const roleName = params.role;
+    const config = projectAgentConfig(cwd);
+    const sessionName = sessionNameFromTaskName(params.taskName ?? process.env.AS_IS_TASK_NAME).name;
     const target = await resolveCanonicalTarget(cwd, roleName);
     const sessionReference = currentSessionReference(ctx);
 
@@ -300,6 +330,8 @@ const callSubagent: ToolDefinition = {
     signal?.addEventListener("abort", abortFromParent, { once: true });
 
     let worker;
+    let workerSessionReference: SessionReference | undefined;
+    let workerMetadata: WorkerSessionMetadata = { sessionId: null, sessionName: null };
     try {
       const profile = toolsForTarget(roleName, target.tools);
       const result = await createAgentSession({
@@ -307,10 +339,13 @@ const callSubagent: ToolDefinition = {
         ...workerSessionOptions(ctx, cwd, target.model, target.thinking, roleName),
         resourceLoader: createWorkerLoader(target.body),
         tools: profile.tools,
-        sessionManager: SessionManager.inMemory(cwd),
+        sessionManager: SessionManager.create(cwd, sessionDirectoryFor(cwd, config)),
         customTools: profile.customTools,
       });
       worker = result.session;
+      worker.setSessionName(sessionName);
+      workerMetadata = workerSessionMetadata(worker);
+      workerSessionReference = serializeSessionReference({ sessionId: workerMetadata.sessionId });
 
       const prompt = `Bounded worker request (call ${callId}):\n\n${params.task}\n\nReturn only the worker report format from your role contract.`;
       await Promise.race([
@@ -335,7 +370,7 @@ const callSubagent: ToolDefinition = {
         traceId,
         spanId: newId(),
         parentSpanId: spanId,
-        sessionReference,
+        sessionReference: workerSessionReference,
         attributes: {
           "as_is.role": roleName,
           "as_is.call_id": callId,
@@ -344,7 +379,10 @@ const callSubagent: ToolDefinition = {
           "as_is.result_digest": hash(report),
         },
       }, cwd);
-      return { content: [{ type: "text", text: report }], details: { callId, traceId, durationMs: Date.now() - started } };
+      return {
+        content: [{ type: "text", text: report }],
+        details: { callId, traceId, durationMs: Date.now() - started, sessionId: workerMetadata.sessionId, sessionName: workerMetadata.sessionName },
+      };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       await recordTrace({
@@ -353,7 +391,7 @@ const callSubagent: ToolDefinition = {
         traceId,
         spanId: newId(),
         parentSpanId: spanId,
-        sessionReference,
+        sessionReference: workerSessionReference ?? sessionReference,
         attributes: {
           "as_is.role": roleName,
           "as_is.call_id": callId,

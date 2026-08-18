@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from "node:child_process";
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { homedir } from "node:os";
 import { existsSync, readFileSync } from "node:fs";
 import { appendFile, mkdtemp, open, readFile, rm, writeFile } from "node:fs/promises";
@@ -22,6 +22,9 @@ import {
   type AgentDefinition,
 } from "../../../core/modules/agent-resolution/agent-resolution.ts";
 import { retainPiUsageAggregate, summarizePiUsage, type PiUsageSummary } from "./pi-usage-accounting.ts";
+import { sessionNameFromTaskName } from "./session-naming.ts";
+import { resolveSessionDirectory } from "./session-directory.ts";
+import { localSessionIdObservation } from "./session-id.ts";
 
 type Options = {
   agent?: string;
@@ -30,6 +33,7 @@ type Options = {
   pi?: string;
   model?: string;
   thinking?: string;
+  taskName?: string;
   noSession?: boolean;
   tools?: string;
   skills: string[];
@@ -77,6 +81,8 @@ type Handle = {
   recordPath: string | null;
   worktreePath: string | null;
   sessionPath: string | null;
+  sessionName: string;
+  localSessionId: string | null;
   budgetWallClockSeconds: number | null;
   budgetCostUsd: number | null;
   launchedAt: string;
@@ -92,6 +98,8 @@ type SuperviseConfig = {
   callerCwd: string;
   worktreePath: string | null;
   sessionPath: string | null;
+  sessionName?: string;
+  localSessionId?: string | null;
   mode: "detach" | "blocking";
   logPath: string | null;
   resultPath: string;
@@ -140,6 +148,7 @@ Optional:
   --model <model>            Override the agent file model
   --thinking <level>         Override the agent/project thinking level
                              (off, minimal, low, medium, high, xhigh, max)
+  --task-name <name>         Bounded display name shared by related sessions
   --no-session               Do not persist the child session
   --tools <names>            Comma-separated Pi tool allow-list
   --skill <path>             Additional skill file or directory (repeatable)
@@ -179,6 +188,7 @@ const valueOptions = new Set([
   "--pi",
   "--model",
   "--thinking",
+  "--task-name",
   "--tools",
   "--skill",
   "--record",
@@ -275,6 +285,7 @@ const parseOptions = (args: string[]): Options => {
     else if (option === "--pi") options.pi = value;
     else if (option === "--model") options.model = value;
     else if (option === "--thinking") options.thinking = value;
+    else if (option === "--task-name") options.taskName = value;
     else if (option === "--tools") options.tools = value;
     else if (option === "--record") options.record = value;
     else if (option === "--caller") options.caller = value;
@@ -301,6 +312,8 @@ type ProjectModelConfig = {
   models: Record<string, string>;
   provider?: string;
   taskRecordNames?: string[];
+  sessionDirectory?: string;
+  projectTempDirectory?: string;
 };
 
 const object = (value: unknown): Record<string, unknown> =>
@@ -319,12 +332,16 @@ const readProjectModelConfig = async (projectRoot: string): Promise<ProjectModel
   const models: Record<string, string> = {};
   for (const [name, value] of Object.entries(object(agents.models))) if (typeof value === "string") models[name] = value;
   const taskRecordName = taskRecordNameFromConfiguration(config);
+  const sessionDirectory = string(agents.sessionDirectory);
+  const projectTempDirectory = string(object(config.dirs)["project-temp"]);
   return {
     defaultModel: string(agents.defaultModel),
     defaultThinkingLevel: parseThinkingLevel(agents.defaultThinkingLevel, "configuration.agents.defaultThinkingLevel"),
     models,
     provider: string(agents.provider),
     taskRecordNames: [taskRecordName],
+    sessionDirectory,
+    projectTempDirectory,
   };
 };
 const resolveModel = (value: string | undefined, config: ProjectModelConfig): { model?: string; provider?: string } => {
@@ -391,6 +408,7 @@ const newJobId = (): string =>
 
 const registryPath = (): string => process.env.AS_IS_JOBS_REGISTRY ?? "/tmp/as-is-jobs.jsonl";
 const privateRegistryPath = (): string => `${registryPath()}.private`;
+
 const piUsageAggregatePath = (cwd: string): string => {
   const projectKey = createHash("sha256").update(resolve(cwd)).digest("hex").slice(0, 16);
   const stateHome = process.env.XDG_STATE_HOME ?? join(homedir(), ".local", "state");
@@ -413,6 +431,8 @@ const projectPublicHandle = (handle: Handle): PublicHandle => ({
   launchedAt: handle.launchedAt,
   sessionClass: handle.sessionPath ? "durable" : "ephemeral",
   isolationClass: handle.worktreePath ? "worktree" : "caller-cwd",
+  sessionName: handle.sessionName,
+  localSessionId: handle.localSessionId,
 });
 
 const appendPrivateLaunch = async (handle: Handle): Promise<void> => {
@@ -450,6 +470,8 @@ const publicFinished = (outcome: Record<string, unknown>, childPid: number, fini
   handoffBlockers: Array.isArray(outcome.handoffBlockers) ? outcome.handoffBlockers : [],
   handoffFacts: outcome.handoffFacts,
   recordStatus: typeof outcome.recordStatus === "string" ? outcome.recordStatus : null,
+  sessionName: typeof outcome.sessionName === "string" ? outcome.sessionName : null,
+  localSessionId: typeof outcome.localSessionId === "string" ? outcome.localSessionId : null,
   worktreePreserved: outcome.worktreePreserved === true,
   preservationClass: outcome.worktreePreserved === true ? "uncommitted-recovery-candidate" : null,
 });
@@ -578,14 +600,18 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     : config.contextProjectRoot ?? undefined;
   const childEnv = {
     ...process.env,
+    AS_IS_TASK_NAME: config.sessionName ?? process.env.AS_IS_TASK_NAME ?? "task-unnamed",
+    ...(config.sessionPath
+      ? { AS_IS_SESSION_CWD: childCwd, AS_IS_SESSION_DIR: config.sessionPath }
+      : sessionStoreScope.cwd || sessionStoreScope.directory
+        ? { AS_IS_SESSION_CWD: sessionStoreScope.cwd, AS_IS_SESSION_DIR: sessionStoreScope.directory }
+        : {}),
     ...(contextProjectRoot ? { AS_IS_COMPONENT_CONTEXT_PROJECT_ROOT: contextProjectRoot } : {}),
     ...(config.contextComponentRelativeToProject ? { AS_IS_COMPONENT_CONTEXT_COMPONENT: config.contextComponentRelativeToProject } : {}),
     ...(config.contextTaskRecordNames ? { AS_IS_COMPONENT_CONTEXT_TASK_RECORD_NAMES: JSON.stringify(config.contextTaskRecordNames) } : {}),
-    // Preserve the delegating session's readable store scope when the child
-    // runs in a worktree or detached supervisor directory. This is a data
-    // ownership reference, not an authorization token or session payload.
-    ...(sessionStoreScope.cwd ? { AS_IS_SESSION_CWD: sessionStoreScope.cwd } : {}),
-    ...(sessionStoreScope.directory ? { AS_IS_SESSION_DIR: sessionStoreScope.directory } : {}),
+    // When no child session store was allocated, preserve the delegating
+    // session's readable store scope. This is a data ownership reference, not
+    // an authorization token or session payload.
     // Propagate identity and job id so the child's own delegations can record
     // the correct caller and parent-job-id without OS parentage.
     AS_IS_IDENTITY: config.identity,
@@ -624,6 +650,11 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     phaseTimings,
   });
   const usageAccounting: PiUsageSummary = summarizePiUsage(processResult.stdoutText.split("\n"), processResult.stdoutAvailable, processResult.stdoutTruncated);
+  const observedLocalSessionId = localSessionIdObservation(processResult.stdoutText);
+  const localSessionId = config.localSessionId !== null &&
+    (observedLocalSessionId === "absent" || observedLocalSessionId === config.localSessionId)
+    ? config.localSessionId
+    : null;
   await retainPiUsageAggregate(piUsageAggregatePath(config.callerCwd), usageAccounting);
   const { childPid, exitCode, budgetStopped, budgetStopElapsedMs, wallClockSeconds } = processResult;
 
@@ -717,6 +748,8 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
 
   const outcome = {
     jobId: config.jobId,
+    sessionName: config.sessionName ?? null,
+    localSessionId,
     recordPath: config.recordPath,
     callerCwd: config.callerCwd,
     worktreePath: config.worktreePath,
@@ -981,6 +1014,8 @@ const main = async() => {
   const caller = options.caller ?? inheritedCaller ?? "user";
   const parentJobId = options.parentJobId ?? process.env.AS_IS_JOB_ID ?? null;
   const config: ProjectModelConfig = projectRoot ? await readProjectModelConfig(projectRoot) : { models: {} };
+  const taskName = sessionNameFromTaskName(options.taskName ?? process.env.AS_IS_TASK_NAME).name;
+  const sessionDirectory = resolveSessionDirectory(config.sessionDirectory, cwd, projectRoot ?? cwd, config.projectTempDirectory);
   const resolved = resolveModel(options.model ?? definition.model, config);
   const model = resolved.model;
   const provider = resolved.provider;
@@ -1018,7 +1053,10 @@ const main = async() => {
     expertValidation: isEvidenceValidation,
     tools,
     skills: skillPaths,
-    noSession: isEvidenceValidation || Boolean(options.noSession),
+    // Validation uses the same durable session surface as ordinary workers.
+    // Explicit --no-session remains available for ordinary one-shot launches,
+    // but cannot disable the fixed validation evidence session.
+    noSession: Boolean(options.noSession) && !isEvidenceValidation,
     noExtensions: true,
     extensionPath: resolve(cwd, isEvidenceValidation
       ? "skills/spawning-pi-subagents/scripts/evidence-validator-inspection-extension.ts"
@@ -1042,9 +1080,10 @@ const main = async() => {
   // capability/session/extension differences; identity is not consulted here.
   const piInvocation = resolvePi(options.pi, cwd);
   const piVersion = probePiVersion(piInvocation);
-  const baseArgs = ["--mode", "json", "--print"];
+  const localSessionId = launchProfile.noSession ? null : randomUUID();
+  const baseArgs = ["--mode", "json", "--print", "--name", taskName];
   if (launchProfile.noSession) baseArgs.push("--no-session");
-  else baseArgs.push("--session-dir", "<session-dir>");
+  else baseArgs.push("--session-dir", "<session-dir>", "--session-id", localSessionId!);
   baseArgs.push("--no-extensions", "--extension", launchProfile.extensionPath);
   if (provider) baseArgs.push("--provider", provider);
   if (model) baseArgs.push("--model", model);
@@ -1077,6 +1116,8 @@ const main = async() => {
       piVersion,
       piSource: piInvocation.source,
       sessionPath: launchProfile.noSession ? null : "<session-dir>",
+      sessionName: taskName,
+      localSessionId,
       tools: launchProfile.tools ?? null,
       detach: options.detach ?? false,
       worktree: launchProfile.worktree,
@@ -1088,7 +1129,7 @@ const main = async() => {
       },
     }, null, 2)}\n`);
     await sessionSpan.finish("success", {
-      sessionClass: options.noSession ? "ephemeral" : "durable",
+      sessionClass: launchProfile.noSession ? "ephemeral" : "durable",
       launcherMode: options.detach ? "detach" : "blocking",
     });
     return;
@@ -1141,7 +1182,7 @@ const main = async() => {
   if (options.detach) {
     const jobDirectory = await mkdtemp(join(tmpdir(), "as-is-child-"));
     const promptPath = join(jobDirectory, "system-prompt.md");
-    const sessionPath = options.noSession ? null : join(jobDirectory, "sessions");
+    const sessionPath = launchProfile.noSession ? null : sessionDirectory;
     const logPath = join(jobDirectory, "child.log");
     const resultPath = join(jobDirectory, "result.json");
     const configPath = join(jobDirectory, "supervise.json");
@@ -1160,10 +1201,11 @@ const main = async() => {
       callerCwd: cwd,
       worktreePath,
       sessionPath,
+      sessionName: taskName,
+      localSessionId,
       mode: "detach",
       logPath,
       resultPath,
-      sessionPath,
       registryPath: options.noRegistry ? null : registryPath(),
       jobId,
       identity,
@@ -1194,6 +1236,8 @@ const main = async() => {
       recordPath: options.record ?? null,
       worktreePath,
       sessionPath,
+      sessionName: taskName,
+      localSessionId,
       budgetWallClockSeconds: options.budgetWallClockSeconds ?? null,
       budgetCostUsd: options.budgetCostUsd ?? null,
       launchedAt,
@@ -1201,7 +1245,7 @@ const main = async() => {
     if (!options.noRegistry) await appendHandleToRegistry(handle);
     process.stdout.write(`${JSON.stringify(projectPublicHandle(handle), null, 2)}\n`);
     await sessionSpan.finish("success", {
-      sessionClass: options.noSession ? "ephemeral" : "durable",
+      sessionClass: launchProfile.noSession ? "ephemeral" : "durable",
       launcherMode: "detach",
     });
     return;
@@ -1213,7 +1257,7 @@ const main = async() => {
   // output directly.
   const jobDirectory = await mkdtemp(join(tmpdir(), "as-is-child-"));
   const promptPath = join(jobDirectory, "system-prompt.md");
-  const sessionPath = options.noSession ? null : join(jobDirectory, "sessions");
+  const sessionPath = launchProfile.noSession ? null : sessionDirectory;
   const resultPath = join(jobDirectory, "result.json");
   const configPath = join(jobDirectory, "supervise.json");
   const worktreePath = useWorktree ? join(jobDirectory, "worktree") : null;
@@ -1229,10 +1273,11 @@ const main = async() => {
       callerCwd: cwd,
       worktreePath,
       sessionPath,
+      sessionName: taskName,
+      localSessionId,
       mode: "blocking",
       logPath: null,
       resultPath,
-      sessionPath,
       registryPath: options.noRegistry ? null : registryPath(),
       jobId,
       identity,
@@ -1262,6 +1307,8 @@ const main = async() => {
       recordPath: options.record ?? null,
       worktreePath,
       sessionPath,
+      sessionName: taskName,
+      localSessionId,
       budgetWallClockSeconds: options.budgetWallClockSeconds ?? null,
       budgetCostUsd: options.budgetCostUsd ?? null,
       launchedAt,
@@ -1291,7 +1338,7 @@ const main = async() => {
       /* result file unavailable; fall back to supervisor exit code */
     }
     await sessionSpan.finish(result.budgetStopped || result.exitCode !== 0 ? "failure" : "success", {
-      sessionClass: options.noSession ? "ephemeral" : "durable",
+      sessionClass: launchProfile.noSession ? "ephemeral" : "durable",
       launcherMode: "blocking",
       outcomeClass: result.budgetStopped ? "budget-stopped" : result.exitCode === 0 ? "success" : "failure",
     });

@@ -3,7 +3,7 @@ import { mkdtemp, mkdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createAgentSession, createExtensionRuntime, ModelRuntime, SessionManager } from "../../skills/spawning-pi-subagents/node_modules/@earendil-works/pi-coding-agent";
-import workerTools, { analyzeProjectSession, resolveWorkerThinkingLevel, workerSessionOptions } from "../../.pi/extensions/worker-tools";
+import workerTools, { analyzeProjectSession, resolveWorkerThinkingLevel, workerSessionMetadata, workerSessionOptions } from "../../.pi/extensions/worker-tools";
 import { registerWorkerTools } from "../../skills/spawning-pi-subagents/extensions/worker-tools.ts";
 
 const rootRecord = "# Root\n";
@@ -91,6 +91,21 @@ describe("capability-based worker extension", () => {
   test("rejects invalid in-process thinking declarations", () => {
     expect(() => resolveWorkerThinkingLevel(process.cwd(), "extreme", "worker")).toThrow("max");
   });
+
+  test("exposes bounded in-process worker session metadata separately", () => {
+    expect(workerSessionMetadata({ sessionId: "0190-worker", sessionName: "bounded-task" })).toEqual({
+      sessionId: "0190-worker",
+      sessionName: "bounded-task",
+    });
+    expect(workerSessionMetadata({ sessionId: 42, sessionName: undefined })).toEqual({
+      sessionId: null,
+      sessionName: null,
+    });
+    expect(workerSessionMetadata({ sessionId: "worker/path", sessionName: "system: prompt" })).toEqual({
+      sessionId: null,
+      sessionName: null,
+    });
+  });
   test("call_subagent requires an explicit target role", async () => {
     let registered: { name: string; parameters: unknown } | undefined;
     workerTools({ registerTool: (tool: { name: string; parameters: unknown }) => { if (tool.name === "call_subagent") registered = tool; } } as never);
@@ -156,6 +171,7 @@ describe("capability-based worker extension", () => {
   test("returns bounded metadata for a readable session without tracer approval", async () => {
     const cwd = await mkdtemp(join(tmpdir(), "as-is-session-analysis-"));
     const manager = SessionManager.create(cwd, join(cwd, "sessions"));
+    manager.appendSessionInfo("bounded-session");
     const sessionId = manager.getSessionId();
     await writeFile(join(cwd, "as-is.md"), rootRecord);
     manager.appendMessage({ role: "user", content: "private prompt", timestamp: Date.now() });
@@ -173,7 +189,8 @@ describe("capability-based worker extension", () => {
     const result = await analyzeProjectSession(cwd, sessionId, 1, manager);
     const text = JSON.stringify(result);
     expect(result.availability).toBe("available");
-    expect(result.entryCount).toBe(2);
+    expect(result.sessionName).toBe("bounded-session");
+    expect(result.entryCount).toBe(3);
     expect(result.messageCount).toBe(2);
     expect(result.usage).toEqual({ input: 3, output: 2, totalTokens: 5, totalCost: 0.03 });
     expect(text).not.toContain("private prompt");
@@ -183,6 +200,24 @@ describe("capability-based worker extension", () => {
     expect(detail.detail).toBe("full");
     expect(JSON.stringify(detail)).toContain("private prompt");
     expect(JSON.stringify(detail)).toContain("private response");
+  });
+
+  test("discovers an exact session through the configured private store", async () => {
+    const cwd = await mkdtemp(join(tmpdir(), "as-is-configured-session-analysis-"));
+    const sessionDir = join(cwd, "private-sessions");
+    await writeFile(join(cwd, "as-is.json"), JSON.stringify({ configuration: { agents: { sessionDirectory: sessionDir } } }));
+    await writeFile(join(cwd, "as-is.md"), rootRecord);
+    const manager = SessionManager.create(cwd, sessionDir);
+    const sessionId = manager.getSessionId();
+    manager.appendSessionInfo("configured-task");
+    manager.appendMessage({ role: "user", content: "private prompt", timestamp: Date.now() });
+    manager.appendMessage({ role: "assistant", content: [{ type: "text", text: "private response" }], timestamp: Date.now() });
+    await Bun.sleep(10);
+    const result = await analyzeProjectSession(cwd, sessionId, 10);
+    expect(result.availability).toBe("available");
+    expect(result.sessionId).toBe(sessionId);
+    expect(result.sessionName).toBe("configured-task");
+    expect(JSON.stringify(result)).not.toContain("private prompt");
   });
 
   test("allows any valid readable session ID and keeps unknown sessions bounded", async () => {
