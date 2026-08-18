@@ -1,1 +1,36 @@
-{}
+{
+  "task": {
+    "status": "ready",
+    "worker": "component-builder",
+    "updated": "2026-08-18T22:00:00Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.5,
+        "spent": 0,
+        "reserve": 0.1,
+        "source": "unavailable",
+        "fallback-metric": "unavailable"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 300,
+          "spent-seconds": 0,
+          "reserve-seconds": 60,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "require-current-turn-user-approval"
+    },
+    "acceptance": [
+      "Define the observability-owned correlation contract for task-derived session labels, local Pi session UUIDs, provider/model evidence, job IDs, and trace references without conflating ownership.",
+      "Represent provider request identity as explicitly unavailable unless a named adapter exposes it; retries retain the task-derived label while creating new local sessions; fork lineage remains out of scope.",
+      "Add provider-free fixtures for retry, absent, malformed, and unavailable provider metadata, exact trace-to-session correlation, source-labelled provider/model evidence, and privacy exclusions.",
+      "Do not change task authority, launch behavior, provider requests, session content handling, or external export beyond the bounded contract and tests."
+    ]
+  }
+}
