@@ -1,8 +1,8 @@
 {
   "task": {
-    "status": "completed",
+    "status": "active",
     "worker": "component-builder",
-    "updated": "2026-08-18T22:43:05Z",
+    "updated": "2026-08-19T00:00:00Z",
     "constraints": {
       "cost": {
         "currency": "USD",
@@ -27,10 +27,10 @@
       "external-effects": "require-current-turn-user-approval"
     },
     "acceptance": [
-      "Extend bounded local trace queries with filters for task-derived session name, local session ID, trace ID, call ID, worker role, task revision/attempt, outcome, phase, and bounded time range.",
-      "Provide a bounded correlation summary for delegated parent/child and retry relationships while preserving unavailable and malformed evidence states.",
-      "Keep exact-ID Pi session detail, ownership scope, paging, limits, and privacy projection compatible; conversational and tool payloads remain behind explicit exact-session selectors.",
-      "Add provider-free fixtures for multi-field retrieval, relationship/retry summaries, malformed or unavailable evidence, privacy, and bounded output."
+      "A bounded evidence query joins trace events with an explicitly selected public job registry using opaque job and parent-job identifiers.",
+      "Nested execution, retries, missing/malformed/inaccessible/inconsistent registry links, and trace mismatches remain explicit and bounded.",
+      "Registry and trace output excludes paths, logs, prompts, responses, tools, secrets, and arbitrary unsafe values while preserving existing exact-ID session and trace behavior.",
+      "Provider-free fixtures cover nested launches, retry attempts, malformed and unavailable registry evidence, privacy, cycles, duplicates, and output limits."
     ]
   }
 }
