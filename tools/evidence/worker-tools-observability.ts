@@ -142,12 +142,8 @@ function configuredSessionStoreScope(cwd: string): SessionStoreScope | undefined
     const agents = resolution.configuration.agents;
     if (!agents || typeof agents !== "object" || Array.isArray(agents)) return undefined;
     const configured = (agents as Record<string, unknown>).sessionDirectory;
-    const dirs = resolution.configuration.dirs;
-    const projectTemp = dirs && typeof dirs === "object" && !Array.isArray(dirs)
-      ? (dirs as Record<string, unknown>)["project-temp"]
-      : undefined;
     if (typeof configured !== "string") return undefined;
-    return { cwd, sessionDir: resolveSessionDirectory(configured, cwd, resolution.root ?? cwd, typeof projectTemp === "string" ? projectTemp : undefined) };
+    return { cwd, sessionDir: resolveSessionDirectory(configured, cwd, resolution.root ?? cwd) };
   } catch {
     return undefined;
   }

@@ -1,9 +1,9 @@
 import { homedir } from "node:os";
 import { isAbsolute, join, resolve } from "node:path";
 
-const defaultProjectTempDirectory = ".as-is";
+const defaultSessionDirectory = ".as-is/subagents/sessions";
 
-function expandDirectory(value: string, projectRoot: string): string {
+function resolveConfiguredDirectory(value: string, projectRoot: string): string {
   const expanded = value === "~"
     ? homedir()
     : value.startsWith("~/")
@@ -12,11 +12,7 @@ function expandDirectory(value: string, projectRoot: string): string {
   return isAbsolute(expanded) ? expanded : resolve(projectRoot, expanded);
 }
 
-export function resolveSessionDirectory(configured: string | undefined, cwd: string, projectRoot = cwd, configuredProjectTemp = defaultProjectTempDirectory): string {
+export function resolveSessionDirectory(configured: string | undefined, cwd: string, projectRoot = cwd): string {
   const resolvedProjectRoot = resolve(projectRoot);
-  const projectTemp = expandDirectory(configuredProjectTemp || defaultProjectTempDirectory, resolvedProjectRoot);
-  if (configured === "<project-temp>") return projectTemp;
-  if (configured?.startsWith("<project-temp>/")) return join(projectTemp, configured.slice("<project-temp>/".length));
-  if (configured) return expandDirectory(configured, resolvedProjectRoot);
-  return join(projectTemp, "subagents", "sessions");
+  return resolveConfiguredDirectory(configured ?? defaultSessionDirectory, resolvedProjectRoot);
 }

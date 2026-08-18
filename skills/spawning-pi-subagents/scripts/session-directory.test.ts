@@ -7,14 +7,14 @@ test("resolves an absolute configured session directory", () => {
   expect(resolveSessionDirectory("/var/tmp/as-is-sessions", "/repo/work", "/repo")).toBe("/var/tmp/as-is-sessions");
 });
 
-test("resolves project-temp, relative, and home-relative configured directories", () => {
-  expect(resolveSessionDirectory("<project-temp>/subagents/sessions", "/repo/work", "/repo")).toBe("/repo/.as-is/subagents/sessions");
-  expect(resolveSessionDirectory("<project-temp>/sessions", "/repo/work", "/repo", ".runtime")).toBe("/repo/.runtime/sessions");
+test("resolves literal, relative, and home-relative configured directories", () => {
+  expect(resolveSessionDirectory(".as-is/subagents/sessions", "/repo/work", "/repo")).toBe("/repo/.as-is/subagents/sessions");
+  expect(resolveSessionDirectory(".runtime/sessions", "/repo/work", "/repo", ".runtime")).toBe("/repo/.runtime/sessions");
   expect(resolveSessionDirectory(".private/sessions", "/repo/work", "/repo")).toBe("/repo/.private/sessions");
   expect(resolveSessionDirectory("~/as-is-sessions", "/repo/work", "/repo")).toBe(join(homedir(), "as-is-sessions"));
 });
 
-test("uses a stable private project-scoped temp default", () => {
+test("uses the literal private project-temporary default", () => {
   const first = resolveSessionDirectory(undefined, "/repo/work", "/repo");
   const second = resolveSessionDirectory(undefined, "/repo/work", "/repo");
   expect(first).toBe(second);

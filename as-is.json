@@ -30,7 +30,7 @@
       "defaultRole": "as-is",
       "defaultModel": "small",
       "provider": "openrouter",
-      "sessionDirectory": "<project-temp>/subagents/sessions",
+      "sessionDirectory": ".as-is/subagents/sessions",
       "models": {
         "small": "@preset/abs-small",
         "medium": "@preset/abs-medium",

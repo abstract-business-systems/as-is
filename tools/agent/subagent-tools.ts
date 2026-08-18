@@ -152,7 +152,6 @@ type ProjectAgentConfig = {
   models: Record<string, string>;
   provider?: string;
   sessionDirectory?: string;
-  projectTempDirectory?: string;
   projectRoot?: string;
 };
 
@@ -176,7 +175,6 @@ function projectAgentConfig(cwd: string): ProjectAgentConfig & { sessionDirector
       models,
       provider: string(agents.provider),
       sessionDirectory: string(agents.sessionDirectory),
-      projectTempDirectory: string(object(configuration.dirs)["project-temp"]),
       projectRoot: resolution.root,
     };
   } catch {
@@ -185,7 +183,7 @@ function projectAgentConfig(cwd: string): ProjectAgentConfig & { sessionDirector
 }
 
 function sessionDirectoryFor(cwd: string, config: ProjectAgentConfig): string {
-  return resolveSessionDirectory(config.sessionDirectory, cwd, config.projectRoot ?? cwd, config.projectTempDirectory);
+  return resolveSessionDirectory(config.sessionDirectory, cwd, config.projectRoot ?? cwd);
 }
 
 function workerThinkingLevel(config: ProjectAgentConfig, agentThinking: unknown, role: string): ThinkingLevel | undefined {

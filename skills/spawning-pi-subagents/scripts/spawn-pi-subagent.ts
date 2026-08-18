@@ -313,7 +313,6 @@ type ProjectModelConfig = {
   provider?: string;
   taskRecordNames?: string[];
   sessionDirectory?: string;
-  projectTempDirectory?: string;
 };
 
 const object = (value: unknown): Record<string, unknown> =>
@@ -333,7 +332,6 @@ const readProjectModelConfig = async (projectRoot: string): Promise<ProjectModel
   for (const [name, value] of Object.entries(object(agents.models))) if (typeof value === "string") models[name] = value;
   const taskRecordName = taskRecordNameFromConfiguration(config);
   const sessionDirectory = string(agents.sessionDirectory);
-  const projectTempDirectory = string(object(config.dirs)["project-temp"]);
   return {
     defaultModel: string(agents.defaultModel),
     defaultThinkingLevel: parseThinkingLevel(agents.defaultThinkingLevel, "configuration.agents.defaultThinkingLevel"),
@@ -341,7 +339,6 @@ const readProjectModelConfig = async (projectRoot: string): Promise<ProjectModel
     provider: string(agents.provider),
     taskRecordNames: [taskRecordName],
     sessionDirectory,
-    projectTempDirectory,
   };
 };
 const resolveModel = (value: string | undefined, config: ProjectModelConfig): { model?: string; provider?: string } => {
@@ -1015,7 +1012,7 @@ const main = async() => {
   const parentJobId = options.parentJobId ?? process.env.AS_IS_JOB_ID ?? null;
   const config: ProjectModelConfig = projectRoot ? await readProjectModelConfig(projectRoot) : { models: {} };
   const taskName = sessionNameFromTaskName(options.taskName ?? process.env.AS_IS_TASK_NAME).name;
-  const sessionDirectory = resolveSessionDirectory(config.sessionDirectory, cwd, projectRoot ?? cwd, config.projectTempDirectory);
+  const sessionDirectory = resolveSessionDirectory(config.sessionDirectory, cwd, projectRoot ?? cwd);
   const resolved = resolveModel(options.model ?? definition.model, config);
   const model = resolved.model;
   const provider = resolved.provider;

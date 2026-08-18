@@ -73,8 +73,8 @@ is parameterless and code-owned: it runs only the fixed local deterministic
 suite and never accepts a command, path, argument, environment, provider,
 session, or working-directory selector. Model policy is resolved from
 root `as-is.json` `configuration.agents`: `defaultModel`, `provider`, and the
-optional private durable `sessionDirectory` (the repository default is
-`<project-temp>/subagents/sessions`); session display labels are supplied
+optional private durable `sessionDirectory` (the launcher default is
+`.as-is/subagents/sessions`); session display labels are supplied
 separately through the bounded task name.
 named `models` map. Thinking policy accepts `off`, `minimal`, `low`, `medium`,
 `high`, `xhigh`, and `max`; it resolves explicit launcher override, then agent
@@ -96,7 +96,7 @@ mechanism; explicit Pi approval flags remain host controls.
 
 ## Configuration
 
-See [configuration.md](configuration.md) for the launcher-owned session-directory contract and the root `configuration.dirs.projectTemp` project-temporary directory setting. The project temporary directory means the repository's `.as-is` runtime directory by default; it is not the operating-system temporary directory.
+See [configuration.md](configuration.md) for the launcher-owned session-directory contract and the root `configuration.dirs` directory settings. The project temporary directory means the repository's `.as-is` runtime directory by default; it is not the operating-system temporary directory.
 
 ## Inputs, Outputs, And Stopping
 
@@ -287,7 +287,7 @@ respect to task records and processes, and never contacts a provider.
 - Use `--approve` only when project-local files are explicitly trusted for that
   attempt. Do not place credentials or tokens in task arguments, task files, or
   output.
-- The launcher uses `--mode json` and `--print`; sessions are durable by default in the configured `configuration.agents.sessionDirectory` (defaulting to the private project temporary store `<project-temp>/subagents/sessions`), with `--no-session` providing an explicit ephemeral ordinary run. Validation sessions are always durable and use the same configured store. The owning skill package supplies its Pi extension and dependencies through the supported package mechanism. The current adapter forwards explicit and agent-front-matter skill paths as an unchanged compatibility surface; these paths do not grant skill-owned selection or authority. The migration target is global skill availability without agent-front-matter selection or allowlist, and requires a later separately authorized adapter change. The `analyze_session` tool uses the effective readable project temporary session store, including the forwarded store scope for isolated children; it remains exact-ID, bounded, read-only metadata inspection and does not require tracer approval. It resolves model presets and providers from root `as-is.json`, passing explicit `--provider` and `--model`, and uses a shell-free child
+- The launcher uses `--mode json` and `--print`; sessions are durable by default in the configured `configuration.agents.sessionDirectory` (defaulting to `.as-is/subagents/sessions`), with `--no-session` providing an explicit ephemeral ordinary run. Validation sessions are always durable and use the same configured store. The owning skill package supplies its Pi extension and dependencies through the supported package mechanism. The current adapter forwards explicit and agent-front-matter skill paths as an unchanged compatibility surface; these paths do not grant skill-owned selection or authority. The migration target is global skill availability without agent-front-matter selection or allowlist, and requires a later separately authorized adapter change. The `analyze_session` tool uses the effective readable project-temporary session store, including the forwarded store scope for isolated children; it remains exact-ID, bounded, read-only metadata inspection and does not require tracer approval. It resolves model presets and providers from root `as-is.json`, passing explicit `--provider` and `--model`, and uses a shell-free child
   process, and a private temporary system-prompt file. In both blocking and
   detach modes the child runs under a detached bounded job runner that is the
   child's direct parent, in an isolated git worktree pruned from the caller's
