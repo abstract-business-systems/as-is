@@ -23,6 +23,7 @@ record.
 | [Validation Fixtures](validation-fixtures/as-is.md#design) | Organize retained delegation, adapter, and recovery evidence. |
 | [Core](core/as-is.md#design) | Organize approved host-neutral deterministic implementation families and adapters. |
 | [Tools](tools/as-is.md#design) | Organize bounded agent-facing tool implementations. |
+| [Drafts](drafts/as-is.md#design) | Preserve bounded proposals that are not yet current authority. |
 
 ## Design
 
@@ -47,12 +48,13 @@ flowchart LR
         Fixtures["<a href='./validation-fixtures/as-is.md#design'>Validation Fixtures</a>"]
         Core["<a href='./core/as-is.md#design'>Core</a>"]
         Tools["<a href='./tools/as-is.md#design'>Tools</a>"]
+        Drafts["<a href='./drafts/as-is.md#design'>Drafts</a>"]
         Agents -->|uses procedures from| Skills
     end
     classDef component fill:#f8fafc,fill-opacity:0.1,stroke:#334155,stroke-width:2px
     classDef child fill:#2563eb,fill-opacity:0.1,stroke:#64748b,stroke-width:1px
     class Root component
-    class Agents,Designs,Skills,Fixtures,Core,Tools child
+    class Agents,Designs,Skills,Fixtures,Core,Tools,Drafts child
 ```
 
 Only areas with their own `as-is.md` are components in this record. Other repository directories remain navigable through their own files or links but are not listed as components here. Root `design-principles.md` provides repository-wide principles; `core/contracts/` provides normative contract documents. `.pi/` remains a projected bundle artifact rather than canonical source. `.opencode/`, `scripts/`, `temp/`, and `.agents/` remain ordinary or projected artifacts without independent records.
