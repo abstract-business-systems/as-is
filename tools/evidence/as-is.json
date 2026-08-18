@@ -1,1 +1,36 @@
-{}
+{
+  "task": {
+    "status": "active",
+    "worker": "component-builder",
+    "updated": "2026-08-18T22:38:37Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.5,
+        "spent": 0,
+        "reserve": 0.1,
+        "source": "unavailable",
+        "fallback-metric": "unavailable"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 300,
+          "spent-seconds": 0,
+          "reserve-seconds": 60,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "require-current-turn-user-approval"
+    },
+    "acceptance": [
+      "Extend bounded local trace queries with filters for task-derived session name, local session ID, trace ID, call ID, worker role, task revision/attempt, outcome, phase, and bounded time range.",
+      "Provide a bounded correlation summary for delegated parent/child and retry relationships while preserving unavailable and malformed evidence states.",
+      "Keep exact-ID Pi session detail, ownership scope, paging, limits, and privacy projection compatible; conversational and tool payloads remain behind explicit exact-session selectors.",
+      "Add provider-free fixtures for multi-field retrieval, relationship/retry summaries, malformed or unavailable evidence, privacy, and bounded output."
+    ]
+  }
+}
