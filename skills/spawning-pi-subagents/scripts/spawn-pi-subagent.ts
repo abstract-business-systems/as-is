@@ -8,7 +8,7 @@ import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "nod
 import { assertPiVersionCompatible, loadPiVersionContract, versionProbeArguments, type PiInvocation } from "./pi-version.ts";
 import { boundedLimit } from "../../../core/modules/task-control/budget.ts";
 import { runBoundedProcess } from "../../../core/adapters/process/bounded-process-supervisor.ts";
-import { emitTrace, startSpan, serializeSessionReference, type SessionReference } from "../../../core/modules/observability/tracer.ts";
+import { emitTrace, startSpan, serializeSessionReference, type SessionReference, type TraceObservation, type TraceObservationKind, type TraceObservationSource } from "../../../core/modules/observability/tracer.ts";
 import { isLocalSessionUuid } from "../../../core/modules/observability/provider-correlation.ts";
 import { evaluateHandoffEligibility, type HandoffFacts } from "../../../core/modules/task-control/handoff-eligibility.ts";
 import { resolveInstructionContext } from "../../../core/modules/context-resolution/instruction-resolver.ts";
@@ -111,6 +111,12 @@ type SuperviseConfig = {
   identity: string;
   caller: string;
   parentJobId: string | null;
+  parentCallId: string | null;
+  taskRevision: number | null;
+  taskRevisionMalformed: boolean;
+  attempt: number | null;
+  attemptMalformed: boolean;
+  componentIdentity: string | null;
   recordPath: string | null;
   budgetWallClockSeconds: number | null;
   budgetCostUsd: number | null;
@@ -126,6 +132,48 @@ const sessionReferenceFromEnvironment = (): SessionReference | undefined => {
   return match ? serializeSessionReference({ sessionId: match[1] }) : undefined;
 };
 
+const observation = (kind: TraceObservationKind, source: TraceObservationSource, value: unknown, unit?: TraceObservation["unit"], malformed = false): TraceObservation => {
+  if (malformed) return { kind, source, availability: "malformed", reason: "invalid-value", ...(unit ? { unit } : {}) };
+  if (value === undefined || value === null || value === "") {
+    return { kind, source, availability: "unavailable", reason: "not-observed", ...(unit ? { unit } : {}) };
+  }
+  if (typeof value === "number") {
+    if (!Number.isSafeInteger(value) || value < 0) return { kind, source, availability: "malformed", reason: "invalid-value", ...(unit ? { unit } : {}) };
+    return { kind, source, availability: "available", value, ...(unit ? { unit } : {}) };
+  }
+  if (typeof value !== "string" || value.length > 128 || !/^[\x21-\x7e]+$/u.test(value) || /[\\/]/u.test(value) || /^[A-Za-z][A-Za-z0-9+.-]*:/u.test(value)) {
+    return { kind, source, availability: "malformed", reason: "invalid-value", ...(unit ? { unit } : {}) };
+  }
+  return { kind, source, availability: "available", value, ...(unit ? { unit } : {}) };
+};
+
+const launchObservations = (event: Record<string, unknown>): TraceObservation[] => {
+  const parentJobId = typeof event.parentJobId === "string" ? event.parentJobId : undefined;
+  const jobId = typeof event.jobId === "string" ? event.jobId : undefined;
+  const callId = typeof event.callId === "string" ? event.callId : jobId ? `call-${jobId}` : undefined;
+  const parentCallId = typeof event.parentCallId === "string" ? event.parentCallId : parentJobId ? `call-${parentJobId}` : undefined;
+  const relationshipId = parentJobId && jobId ? `relationship-${parentJobId}-${jobId}` : undefined;
+  const outcome = event.outcome ?? (event.outcomeClass === "budget-stopped" ? "budget-stopped" : event.outcomeClass);
+  const normalizedOutcome = outcome === "budget-stopped" || outcome === "success" || outcome === "failure" ? outcome : undefined;
+  const wallClockMs = typeof event.wallClockMs === "number" ? event.wallClockMs
+    : typeof event.wallClockSeconds === "number" ? Math.max(0, Math.round(event.wallClockSeconds * 1000))
+      : undefined;
+  return [
+    observation("taskRevision", "task", event.taskRevision, "count", event.taskRevisionMalformed === true),
+    observation("attempt", "task", event.attempt, "count", event.attemptMalformed === true),
+    observation("componentIdentity", "task", event.componentIdentity),
+    observation("workerRole", "launcher", event.workerRole ?? event.identity),
+    observation("sessionName", "launcher", event.sessionName),
+    observation("jobId", "launcher", jobId),
+    observation("callId", "launcher", callId),
+    observation("parentCallId", "launcher", parentCallId),
+    observation("relationshipId", "launcher", relationshipId),
+    observation("phase", "launcher", event.phase),
+    observation("outcome", "launcher", normalizedOutcome),
+    observation("wallClockMs", "tracer", wallClockMs, "milliseconds"),
+  ];
+};
+
 const recordComponentTrace = async (cwd: string, event: Record<string, unknown>): Promise<void> => {
   const traceId = String(event.traceId ?? process.env.AS_IS_TRACE_ID ?? "component-build");
   const spanId = String(event.spanId ?? Math.random().toString(16).slice(2));
@@ -133,8 +181,11 @@ const recordComponentTrace = async (cwd: string, event: Record<string, unknown>)
     name: String(event.name ?? "component-build"),
     traceId,
     spanId,
+    parentSpanId: typeof event.parentSpanId === "string" ? event.parentSpanId : undefined,
+    durationMs: typeof event.durationMs === "number" ? event.durationMs : undefined,
     attributes: Object.fromEntries(Object.entries(event).filter(([key]) => ["outcome", "outcomeClass", "launcherMode", "workerRole", "handoffClass", "reason", "parentJobId"].includes(key))) as Record<string, string | number | boolean | undefined>,
-    sessionReference: sessionReferenceFromEnvironment(),
+    observations: launchObservations(event),
+    sessionReference: serializeSessionReference(typeof event.localSessionId === "string" ? { sessionId: event.localSessionId } : sessionReferenceFromEnvironment()),
   }, cwd);
 };
 
@@ -619,10 +670,14 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     AS_IS_IDENTITY: config.identity,
     AS_IS_JOB_ID: config.jobId,
     AS_IS_TRACE_ID: config.traceId ?? process.env.AS_IS_TRACE_ID ?? "",
+    ...(config.taskRevision !== null ? { AS_IS_TASK_REVISION: String(config.taskRevision) } : {}),
+    ...(config.attempt !== null ? { AS_IS_ATTEMPT: String(config.attempt) } : {}),
+    ...(config.componentIdentity ? { AS_IS_COMPONENT_IDENTITY: config.componentIdentity } : {}),
   };
 
   await recordComponentTrace(config.callerCwd, {
     name: "subprocess.launch",
+    phase: "spawn",
     backend: process.env.AS_IS_COMPONENT_BUILD_TRACER ?? "file",
     endpoint: process.env.AS_IS_COMPONENT_BUILD_TRACER_ENDPOINT || undefined,
     traceId: config.traceId,
@@ -630,6 +685,14 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     identity: config.identity,
     caller: config.caller,
     parentJobId: config.parentJobId,
+    parentCallId: config.parentJobId ? `call-${config.parentJobId}` : undefined,
+    taskRevision: config.taskRevision,
+    taskRevisionMalformed: config.taskRevisionMalformed,
+    attempt: config.attempt,
+    attemptMalformed: config.attemptMalformed,
+    componentIdentity: config.componentIdentity,
+    sessionName: config.sessionName,
+    localSessionId: config.localSessionId,
   });
 
   const workerSpan = startSpan("worker.lifecycle", {
@@ -667,12 +730,21 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
   });
   await recordComponentTrace(config.callerCwd, {
     name: "subprocess.exit",
+    phase: budgetStopped ? "wait" : "handoff",
     backend: process.env.AS_IS_COMPONENT_BUILD_TRACER ?? "file",
     traceId: config.traceId,
     jobId: config.jobId,
     identity: config.identity,
     caller: config.caller,
     parentJobId: config.parentJobId,
+    taskRevision: config.taskRevision,
+    taskRevisionMalformed: config.taskRevisionMalformed,
+    attempt: config.attempt,
+    attemptMalformed: config.attemptMalformed,
+    componentIdentity: config.componentIdentity,
+    sessionName: config.sessionName,
+    localSessionId,
+    wallClockSeconds,
     exitCode,
     outcome: budgetStopped ? "budget-stopped" : exitCode === 0 ? "success" : "failure",
   });
@@ -712,13 +784,23 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
 
   await recordComponentTrace(config.callerCwd, {
     name: "subprocess.handoff",
+    phase: "handoff",
     backend: process.env.AS_IS_COMPONENT_BUILD_TRACER ?? "file",
     traceId: config.traceId,
     jobId: config.jobId,
     identity: config.identity,
+    parentJobId: config.parentJobId,
+    taskRevision: config.taskRevision,
+    taskRevisionMalformed: config.taskRevisionMalformed,
+    attempt: config.attempt,
+    attemptMalformed: config.attemptMalformed,
+    componentIdentity: config.componentIdentity,
+    sessionName: config.sessionName,
+    localSessionId,
     committed,
     commitSha: finalSha ?? undefined,
     wallClockSeconds,
+    outcome: budgetStopped ? "budget-stopped" : exitCode === 0 ? "success" : "failure",
   });
 
   await delegationSpan.finish(budgetStopped || exitCode !== 0 ? "failure" : "success", {
@@ -1019,6 +1101,15 @@ const main = async() => {
   const inheritedCaller = process.env.AS_IS_JOB_ID ? process.env.AS_IS_IDENTITY : undefined;
   const caller = options.caller ?? inheritedCaller ?? "user";
   const parentJobId = options.parentJobId ?? process.env.AS_IS_JOB_ID ?? null;
+  const rawTaskRevision = process.env.AS_IS_TASK_REVISION;
+  const rawAttempt = process.env.AS_IS_ATTEMPT;
+  const parsedTaskRevision = rawTaskRevision === undefined ? null : Number(rawTaskRevision);
+  const parsedAttempt = rawAttempt === undefined ? null : Number(rawAttempt);
+  const taskRevision = Number.isSafeInteger(parsedTaskRevision) && parsedTaskRevision >= 0 ? parsedTaskRevision : null;
+  const taskRevisionMalformed = rawTaskRevision !== undefined && taskRevision === null;
+  const attempt = Number.isSafeInteger(parsedAttempt) && parsedAttempt >= 0 ? parsedAttempt : null;
+  const attemptMalformed = rawAttempt !== undefined && attempt === null;
+  const componentIdentity = typeof process.env.AS_IS_COMPONENT_IDENTITY === "string" ? process.env.AS_IS_COMPONENT_IDENTITY : null;
   const config: ProjectModelConfig = projectRoot ? await readProjectModelConfig(projectRoot) : { models: {} };
   const taskName = sessionNameFromTaskName(options.taskName ?? process.env.AS_IS_TASK_NAME).name;
   const sessionDirectory = resolveSessionDirectory(config.sessionDirectory, cwd, projectRoot ?? cwd);
@@ -1212,6 +1303,12 @@ const main = async() => {
       sessionName: taskName,
       localSessionId,
       traceId,
+      parentCallId: parentJobId ? `call-${parentJobId}` : null,
+      taskRevision,
+      taskRevisionMalformed,
+      attempt,
+      attemptMalformed,
+      componentIdentity,
       mode: "detach",
       logPath,
       resultPath,
@@ -1286,6 +1383,12 @@ const main = async() => {
       sessionName: taskName,
       localSessionId,
       traceId,
+      parentCallId: parentJobId ? `call-${parentJobId}` : null,
+      taskRevision,
+      taskRevisionMalformed,
+      attempt,
+      attemptMalformed,
+      componentIdentity,
       mode: "blocking",
       logPath: null,
       resultPath,

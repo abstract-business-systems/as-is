@@ -872,6 +872,134 @@ test("child commit handoff is explicitly pending parent integration", async () =
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
+test("producer traces populate bounded lifecycle observations and explicit lineage", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "as-is-observation-producer-test-"));
+  const tracePath = join(dir, "trace.jsonl");
+  try {
+    const stubPi = writeSleepStub(dir, 0);
+    const registry = join(dir, "jobs.jsonl");
+    const result = await runLauncher([
+      "--agent", AGENT, "--task", "Producer observation task.", "--task-name", "producer-observation",
+      "--cwd", process.cwd(), "--pi", stubPi, "--detach", "--no-worktree", "--caller", "component-builder",
+    ], {
+      ...process.env,
+      AS_IS_JOBS_REGISTRY: registry,
+      AS_IS_COMPONENT_BUILD_TRACER: "file",
+      AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY: tracePath,
+      AS_IS_TASK_REVISION: "7",
+      AS_IS_ATTEMPT: "2",
+      AS_IS_COMPONENT_IDENTITY: "spawning-pi-subagents",
+      AS_IS_JOB_ID: "j-parent",
+      AS_IS_IDENTITY: "component-builder",
+    });
+    expect(result.exitCode).toBe(0);
+    const handle = JSON.parse(result.stdout) as { pid: number; jobId: string; traceId: string; localSessionId: string };
+    expect(await pidGone(handle.pid, 5000)).toBe(true);
+    const traceText = readFileSync(tracePath, "utf8").trim();
+    const records = traceText.split("\n").map((line) => JSON.parse(line) as {
+      name: string;
+      traceId: string;
+      observations?: Array<{ kind: string; availability: string; value?: string | number }>;
+    });
+    const launch = records.find((record) => record.name === "subprocess.launch");
+    const exit = records.find((record) => record.name === "subprocess.exit");
+    expect(launch?.traceId).toBe(handle.traceId);
+    expect(exit?.traceId).toBe(handle.traceId);
+    expect(launch?.observations?.find((item) => item.kind === "taskRevision")?.value).toBe(7);
+    expect(launch?.observations?.find((item) => item.kind === "attempt")?.value).toBe(2);
+    expect(launch?.observations?.find((item) => item.kind === "componentIdentity")?.value).toBe("spawning-pi-subagents");
+    expect(launch?.observations?.find((item) => item.kind === "jobId")?.value).toBe(handle.jobId);
+    expect(launch?.observations?.find((item) => item.kind === "parentCallId")?.value).toBe("call-j-parent");
+    expect(launch?.observations?.find((item) => item.kind === "relationshipId")?.availability).toBe("available");
+    expect(exit?.observations?.find((item) => item.kind === "outcome")?.value).toBe("success");
+    expect(exit?.observations?.find((item) => item.kind === "wallClockMs")?.availability).toBe("available");
+    const forbidden = [
+      "Producer observation task",
+      "assistant response with private content",
+      "tool payload containing secret-token",
+      "secret-token",
+      "/private/project/path",
+      "arbitrary provider exception",
+    ];
+    expect(forbidden.every((value) => !traceText.includes(value))).toBe(true);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("producer traces preserve malformed inputs and failure or budget-stop outcomes", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "as-is-observation-outcomes-test-"));
+  const tracePath = join(dir, "trace.jsonl");
+  try {
+    const malformedStub = writeSleepStub(dir, 0);
+    const malformed = await runLauncher([
+      "--agent", AGENT, "--task", "Malformed producer observation.", "--cwd", process.cwd(),
+      "--pi", malformedStub, "--no-session", "--no-worktree", "--no-registry",
+    ], { ...process.env, AS_IS_COMPONENT_BUILD_TRACER: "file", AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY: tracePath, AS_IS_TASK_REVISION: "not-a-number", AS_IS_ATTEMPT: "-1" });
+    expect(malformed.exitCode).toBe(0);
+    const malformedRecords = readFileSync(tracePath, "utf8").trim().split("\n").map((line) => JSON.parse(line) as { name: string; observations?: Array<{ kind: string; availability: string }> });
+    const malformedLaunch = malformedRecords.find((record) => record.name === "subprocess.launch");
+    expect(malformedLaunch?.observations?.find((item) => item.kind === "taskRevision")?.availability).toBe("malformed");
+    expect(malformedLaunch?.observations?.find((item) => item.kind === "attempt")?.availability).toBe("malformed");
+
+    const absentEnv = { ...process.env };
+    for (const key of ["AS_IS_TASK_REVISION", "AS_IS_ATTEMPT", "AS_IS_COMPONENT_IDENTITY", "AS_IS_JOB_ID"]) delete absentEnv[key];
+    const absent = await runLauncher([
+      "--agent", AGENT, "--task", "Absent producer observation.", "--cwd", process.cwd(),
+      "--pi", malformedStub, "--no-session", "--no-worktree", "--no-registry",
+    ], { ...absentEnv, AS_IS_COMPONENT_BUILD_TRACER: "file", AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY: tracePath });
+    expect(absent.exitCode).toBe(0);
+    const absentRecords = readFileSync(tracePath, "utf8").trim().split("\n").map((line) => JSON.parse(line) as { name: string; observations?: Array<{ kind: string; availability: string }> });
+    const absentLaunch = absentRecords.filter((record) => record.name === "subprocess.launch").at(-1);
+    expect(absentLaunch?.observations?.find((item) => item.kind === "taskRevision")?.availability).toBe("unavailable");
+    expect(absentLaunch?.observations?.find((item) => item.kind === "attempt")?.availability).toBe("unavailable");
+    expect(absentLaunch?.observations?.find((item) => item.kind === "componentIdentity")?.availability).toBe("unavailable");
+    expect(absentLaunch?.observations?.find((item) => item.kind === "parentCallId")?.availability).toBe("unavailable");
+
+    const failingStub = join(dir, "pi-failing.sh");
+    writeFileSync(failingStub, "#!/usr/bin/env bash\nif [[ \"$1\" == \"--version\" ]]; then printf '0.84.0\\n'; exit 0; fi\nexit 2\n", { mode: 0o755 });
+    const failed = await runLauncher([
+      "--agent", AGENT, "--task", "Failed producer observation.", "--cwd", process.cwd(),
+      "--pi", failingStub, "--no-session", "--no-worktree", "--no-registry",
+    ], { ...process.env, AS_IS_COMPONENT_BUILD_TRACER: "file", AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY: tracePath });
+    expect(failed.exitCode).toBe(2);
+
+    const budgetStub = writeSleepStub(dir, 30);
+    const stopped = await runLauncher([
+      "--agent", AGENT, "--task", "Budget producer observation.", "--cwd", process.cwd(),
+      "--pi", budgetStub, "--no-session", "--no-worktree", "--no-registry", "--budget-wall-clock-seconds", "1",
+    ], { ...process.env, AS_IS_COMPONENT_BUILD_TRACER: "file", AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY: tracePath });
+    expect(stopped.exitCode).toBe(124);
+    const records = readFileSync(tracePath, "utf8").trim().split("\n").map((line) => JSON.parse(line) as { name: string; observations?: Array<{ kind: string; availability: string; value?: string | number }> });
+    const exits = records.filter((record) => record.name === "subprocess.exit");
+    expect(exits.some((record) => record.observations?.some((item) => item.kind === "outcome" && item.value === "failure"))).toBe(true);
+    expect(exits.some((record) => record.observations?.some((item) => item.kind === "outcome" && item.value === "budget-stopped"))).toBe(true);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+}, 15000);
+
+test("producer traces link two launches with distinct traces and bounded parent relationships", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "as-is-observation-nested-test-"));
+  const tracePath = join(dir, "trace.jsonl");
+  try {
+    const stubPi = writeSleepStub(dir, 0);
+    const baseEnv = { ...process.env, AS_IS_COMPONENT_BUILD_TRACER: "file", AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY: tracePath, AS_IS_TASK_REVISION: "3", AS_IS_ATTEMPT: "1", AS_IS_COMPONENT_IDENTITY: "nested-fixture", AS_IS_IDENTITY: "component-builder" };
+    const outer = await runLauncher(["--agent", AGENT, "--task", "Outer producer observation.", "--task-name", "nested-producer", "--cwd", process.cwd(), "--pi", stubPi, "--no-session", "--no-worktree", "--no-registry", "--caller", "component-builder", "--detach"], { ...baseEnv, AS_IS_JOB_ID: undefined });
+    const outerHandle = JSON.parse(outer.stdout) as { jobId: string; pid: number };
+    const inner = await runLauncher(["--agent", AGENT, "--task", "Inner producer observation.", "--task-name", "nested-producer", "--cwd", process.cwd(), "--pi", stubPi, "--no-session", "--no-worktree", "--no-registry", "--caller", "component-builder", "--parent-job-id", outerHandle.jobId, "--detach"], { ...baseEnv, AS_IS_JOB_ID: outerHandle.jobId, AS_IS_IDENTITY: "component-builder" });
+    const innerHandle = JSON.parse(inner.stdout) as { pid: number };
+    expect(outer.exitCode).toBe(0);
+    expect(inner.exitCode).toBe(0);
+    expect(await pidGone(outerHandle.pid, 5000)).toBe(true);
+    expect(await pidGone(innerHandle.pid, 5000)).toBe(true);
+    const records = readFileSync(tracePath, "utf8").trim().split("\n").map((line) => JSON.parse(line) as { name: string; traceId: string; observations?: Array<{ kind: string; value?: string | number; availability: string }> });
+    const launches = records.filter((record) => record.name === "subprocess.launch");
+    expect(launches).toHaveLength(2);
+    expect(new Set(launches.map((record) => record.traceId)).size).toBe(2);
+    const nestedLaunch = launches.find((record) => record.observations?.some((item) => item.kind === "relationshipId" && item.availability === "available"));
+    expect(nestedLaunch).toBeDefined();
+    expect(nestedLaunch?.observations?.find((item) => item.kind === "parentCallId")?.value).toBe(`call-${outerHandle.jobId}`);
+    expect(nestedLaunch?.observations?.find((item) => item.kind === "relationshipId")?.value).toBe(`relationship-${outerHandle.jobId}-${nestedLaunch?.observations?.find((item) => item.kind === "jobId")?.value}`);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
 test("detach supervisor records a completion line with exit code and wall-clock", async () => {
   const dir = mkdtempSync(join(tmpdir(), "as-is-completion-test-"));
   try {
