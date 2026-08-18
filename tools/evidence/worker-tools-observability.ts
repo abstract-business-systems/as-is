@@ -12,15 +12,44 @@ import { sessionNameFromTaskName } from "../../skills/spawning-pi-subagents/scri
 
 const maxResultCharacters = 100_000;
 
+type TraceObservation = {
+  kind: string;
+  source?: string;
+  availability?: string;
+  value?: string | number;
+  unit?: string;
+  reason?: string;
+};
+
 type TraceEvent = {
+  schemaVersion?: number;
   name: string;
   timestamp: string;
   traceId: string;
   spanId: string;
   parentSpanId?: string;
+  durationMs?: number;
   attributes: Record<string, unknown>;
+  observations?: TraceObservation[];
   sessionReference?: unknown;
 };
+
+export type TraceQueryFilters = {
+  name?: string;
+  traceId?: string;
+  sessionName?: string;
+  localSessionId?: string;
+  callId?: string;
+  workerRole?: string;
+  taskRevision?: number;
+  attempt?: number;
+  outcome?: string;
+  phase?: string;
+  from?: string;
+  to?: string;
+};
+
+type TraceEvidence = { events: TraceEvent[]; malformedLines: number; availability: "available" | "missing" | "inaccessible" };
 
 type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue };
 
@@ -87,32 +116,127 @@ type SessionStoreScope = { cwd: string; sessionDir?: string };
 type SessionReader = Pick<SessionManager, "getSessionId" | "getSessionName" | "getCwd" | "getSessionDir" | "getEntries" | "getHeader">;
 type SessionDetail = "summary" | "entries" | "messages" | "full";
 
-export async function readTraceEvents(cwd: string): Promise<TraceEvent[]> {
+export async function readTraceEvidence(cwd: string): Promise<TraceEvidence> {
   const filePath = join(cwd, ".as-is", "tracing.jsonl");
   const events: TraceEvent[] = [];
+  let malformedLines = 0;
   try {
     const lines = (await readFile(filePath, "utf8")).split("\n");
     for (const line of lines) {
       if (!line.trim()) continue;
       try {
         const event = JSON.parse(line) as Partial<TraceEvent>;
-        if (event && typeof event.name === "string" && typeof event.timestamp === "string" && typeof event.traceId === "string" && typeof event.spanId === "string") events.push({
+        if (!event || typeof event.name !== "string" || typeof event.timestamp !== "string" || typeof event.traceId !== "string" || typeof event.spanId !== "string") {
+          malformedLines += 1;
+          continue;
+        }
+        events.push({
+          ...(event.schemaVersion === 1 ? { schemaVersion: 1 } : {}),
           name: event.name,
           timestamp: event.timestamp,
           traceId: event.traceId,
           spanId: event.spanId,
           ...(typeof event.parentSpanId === "string" ? { parentSpanId: event.parentSpanId } : {}),
+          ...(typeof event.durationMs === "number" && Number.isFinite(event.durationMs) ? { durationMs: event.durationMs } : {}),
           attributes: event.attributes && typeof event.attributes === "object" && !Array.isArray(event.attributes) ? event.attributes as Record<string, unknown> : {},
+          ...(Array.isArray(event.observations) ? { observations: event.observations.filter((observation): observation is TraceObservation => Boolean(observation) && typeof observation === "object" && typeof observation.kind === "string").slice(0, 64) } : {}),
           ...(event.sessionReference !== undefined ? { sessionReference: event.sessionReference } : {}),
         });
       } catch {
-        // Ignore incomplete or malformed best-effort trace lines.
+        malformedLines += 1;
       }
     }
-  } catch {
-    // A missing optional trace file is an empty result.
+    return { events: events.sort((left, right) => left.timestamp.localeCompare(right.timestamp)), malformedLines, availability: "available" };
+  } catch (error) {
+    const code = error && typeof error === "object" && "code" in error ? String((error as { code?: unknown }).code) : "";
+    return { events: [], malformedLines: 0, availability: code === "ENOENT" ? "missing" : "inaccessible" };
   }
-  return events.sort((left, right) => left.timestamp.localeCompare(right.timestamp));
+}
+
+export async function readTraceEvents(cwd: string): Promise<TraceEvent[]> {
+  return (await readTraceEvidence(cwd)).events;
+}
+
+const queryValue = (event: TraceEvent, kind: string): string | number | undefined => event.observations?.find((observation) => observation.kind === kind && observation.availability !== "malformed")?.value;
+const queryAttribute = (event: TraceEvent, ...keys: string[]): string | number | undefined => {
+  for (const key of keys) {
+    const value = event.attributes[key];
+    if (typeof value === "string" || (typeof value === "number" && Number.isFinite(value))) return value;
+  }
+  return undefined;
+};
+const eventSessionId = (event: TraceEvent): string | undefined => {
+  const reference = event.sessionReference;
+  return reference && typeof reference === "object" && !Array.isArray(reference) && typeof (reference as Record<string, unknown>).sessionId === "string"
+    ? (reference as Record<string, string>).sessionId
+    : typeof queryValue(event, "localSessionId") === "string" ? queryValue(event, "localSessionId") as string : undefined;
+};
+const eventField = (event: TraceEvent, field: keyof TraceQueryFilters): string | number | undefined => {
+  if (field === "sessionName") return queryValue(event, "sessionName");
+  if (field === "localSessionId") return eventSessionId(event);
+  if (field === "callId") return queryValue(event, "callId");
+  if (field === "workerRole") return queryValue(event, "workerRole") ?? queryAttribute(event, "workerRole", "as_is.role");
+  if (field === "taskRevision") return queryValue(event, "taskRevision") ?? queryAttribute(event, "as_is.task_revision");
+  if (field === "attempt") return queryValue(event, "attempt");
+  if (field === "outcome") return queryValue(event, "outcome") ?? queryAttribute(event, "outcome", "outcomeClass", "as_is.outcome");
+  if (field === "phase") return queryValue(event, "phase") ?? queryAttribute(event, "phase");
+  return undefined;
+};
+
+function validQueryTime(value: unknown): value is string {
+  return typeof value === "string" && value.length <= 32 && !Number.isNaN(Date.parse(value));
+}
+
+function validQueryFilters(filters: TraceQueryFilters): boolean {
+  if (filters.from !== undefined && !validQueryTime(filters.from)) return false;
+  if (filters.to !== undefined && !validQueryTime(filters.to)) return false;
+  if (filters.from && filters.to && Date.parse(filters.from) > Date.parse(filters.to)) return false;
+  if (filters.taskRevision !== undefined && (!Number.isSafeInteger(filters.taskRevision) || filters.taskRevision < 0)) return false;
+  if (filters.attempt !== undefined && (!Number.isSafeInteger(filters.attempt) || filters.attempt < 0)) return false;
+  return Object.entries(filters).every(([key, value]) => value === undefined || ["name", "traceId", "sessionName", "localSessionId", "callId", "workerRole", "outcome", "phase", "from", "to", "limit"].includes(key) || key === "taskRevision" || key === "attempt");
+}
+
+function matchesTraceEvent(event: TraceEvent, filters: TraceQueryFilters): boolean {
+  if (filters.name !== undefined && !event.name.includes(filters.name)) return false;
+  if (filters.traceId !== undefined && event.traceId !== filters.traceId) return false;
+  for (const field of ["sessionName", "localSessionId", "callId", "workerRole", "outcome", "phase"] as const) {
+    if (filters[field] !== undefined && eventField(event, field) !== filters[field]) return false;
+  }
+  for (const field of ["taskRevision", "attempt"] as const) {
+    if (filters[field] !== undefined && eventField(event, field) !== filters[field]) return false;
+  }
+  const timestamp = Date.parse(event.timestamp);
+  if (filters.from && (Number.isNaN(timestamp) || timestamp < Date.parse(filters.from))) return false;
+  if (filters.to && (Number.isNaN(timestamp) || timestamp > Date.parse(filters.to))) return false;
+  return true;
+}
+
+export function filterTraceEvents(events: TraceEvent[], filters: TraceQueryFilters, limit = 100): { availability: string; events: TraceEvent[] } {
+  if (!validQueryFilters(filters) || !Number.isInteger(limit) || limit < 1 || limit > 1000) return { availability: "invalid-selector", events: [] };
+  return { availability: "available", events: events.filter((event) => matchesTraceEvent(event, filters)).slice(-limit) };
+}
+
+export function summarizeTraceCorrelation(events: TraceEvent[], malformedLines = 0, availability?: TraceEvidence["availability"]): Record<string, unknown> {
+  const calls = events.map((event) => ({ callId: queryValue(event, "callId"), parentCallId: queryValue(event, "parentCallId"), parentSpanId: event.parentSpanId, relationshipId: queryValue(event, "relationshipId"), traceId: event.traceId })).filter((call) => call.callId || call.parentCallId || call.parentSpanId || call.relationshipId);
+  const relationships = calls.map((call) => {
+    const child = call.callId ?? call.traceId;
+    const parent = call.parentCallId ?? call.parentSpanId;
+    return parent ? { parent, child, ...(call.relationshipId !== undefined ? { relationshipId: call.relationshipId } : {}), availability: "available" } : { child, availability: "unavailable", reason: "parent-not-observed" };
+  }).slice(0, 256);
+  const attempts = [...new Set(events.map((event) => eventField(event, "attempt")).filter((value): value is number => typeof value === "number"))].sort((left, right) => left - right);
+  const retries = new Map<string, { sessionName?: string | number; taskRevision?: string | number; attempts: number[]; traceIds: string[] }>();
+  for (const event of events) {
+    const sessionName = eventField(event, "sessionName");
+    const taskRevision = eventField(event, "taskRevision");
+    const attempt = eventField(event, "attempt");
+    if (typeof attempt !== "number") continue;
+    const key = `${String(sessionName ?? "unavailable")}\u0000${String(taskRevision ?? "unavailable")}`;
+    const group = retries.get(key) ?? { sessionName, taskRevision, attempts: [], traceIds: [] };
+    if (!group.attempts.includes(attempt)) group.attempts.push(attempt);
+    if (!group.traceIds.includes(event.traceId)) group.traceIds.push(event.traceId);
+    retries.set(key, group);
+  }
+  return { availability: availability && availability !== "available" ? availability : events.length > 0 ? "available" : malformedLines > 0 ? "malformed" : "unavailable", eventCount: events.length, malformedLines, traceIds: [...new Set(events.map((event) => event.traceId))], calls, relationships, attempts, retries: [...retries.values()].filter((group) => group.attempts.length > 1) };
 }
 
 function numericUsage(value: unknown): { input: number; output: number; totalTokens: number; totalCost: number } {
@@ -251,11 +375,99 @@ export function createSessionAnalysisTool(sourceManager?: SessionReader): ToolDe
   };
 }
 
+const traceQueryParameters = Type.Object({
+  name: Type.Optional(Type.String({ maxLength: 128 })),
+  traceId: Type.Optional(Type.String({ maxLength: 128 })),
+  sessionName: Type.Optional(Type.String({ maxLength: 128 })),
+  localSessionId: Type.Optional(Type.String({ maxLength: 128 })),
+  callId: Type.Optional(Type.String({ maxLength: 128 })),
+  workerRole: Type.Optional(Type.String({ maxLength: 64 })),
+  taskRevision: Type.Optional(Type.Integer({ minimum: 0, maximum: 2_147_483_647 })),
+  attempt: Type.Optional(Type.Integer({ minimum: 0, maximum: 2_147_483_647 })),
+  outcome: Type.Optional(Type.String({ maxLength: 64 })),
+  phase: Type.Optional(Type.String({ maxLength: 64 })),
+  from: Type.Optional(Type.String({ maxLength: 32 })),
+  to: Type.Optional(Type.String({ maxLength: 32 })),
+  limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
+});
+
+const privateTraceKey = /(?:secret|token|password|credential|prompt|response|tool|content|exception|error|payload)/iu;
+
+function projectTraceQueryEvent(event: TraceEvent): Record<string, unknown> {
+  const attributes: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(event.attributes)) {
+    if (privateTraceKey.test(key)) continue;
+    const projected = projectEvidenceValue(value);
+    if (projected !== undefined) attributes[key] = projected;
+  }
+  return {
+    ...(event.schemaVersion === 1 ? { schemaVersion: 1 } : {}),
+    name: event.name,
+    timestamp: event.timestamp,
+    traceId: event.traceId,
+    spanId: event.spanId,
+    ...(event.parentSpanId ? { parentSpanId: event.parentSpanId } : {}),
+    ...(event.durationMs !== undefined ? { durationMs: event.durationMs } : {}),
+    attributes,
+    ...(event.observations ? { observations: event.observations.map((observation) => ({ kind: observation.kind, source: observation.source, availability: observation.availability, ...(observation.value !== undefined ? { value: observation.value } : {}), ...(observation.unit ? { unit: observation.unit } : {}), ...(observation.reason ? { reason: observation.reason } : {}) })) } : {}),
+  };
+}
+
+function queryOutput(evidence: TraceEvidence, events: TraceEvent[], availability = evidence.availability): string {
+  return boundedJson({ availability, malformedLines: evidence.malformedLines, events: events.map(projectTraceQueryEvent) });
+}
+
 export function createTraceQueryTools(): ToolDefinition[] {
   return [
-    { name: "search_traces", label: "Search local traces", description: "Search bounded, redacted local trace events by name or trace ID.", parameters: Type.Object({ name: Type.Optional(Type.String()), traceId: Type.Optional(Type.String()), limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })) }), async execute(_id, params, _signal, _update, ctx) { const events = (await readTraceEvents(ctx.cwd)).filter((event) => (!params.name || event.name.includes(params.name)) && (!params.traceId || event.traceId === params.traceId)).slice(-(params.limit ?? 20)); return { content: [{ type: "text", text: boundedJson(events) }], details: { count: events.length } }; } },
-    { name: "get_trace", label: "Get local trace", description: "Get redacted events for one local trace ID.", parameters: Type.Object({ traceId: Type.String(), limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })) }), async execute(_id, params, _signal, _update, ctx) { const events = (await readTraceEvents(ctx.cwd)).filter((event) => event.traceId === params.traceId).slice(-(params.limit ?? 100)); return { content: [{ type: "text", text: boundedJson(events) }], details: { count: events.length } }; } },
-    { name: "summarize_trace", label: "Summarize local trace", description: "Summarize event names, outcomes, and durations for one local trace.", parameters: Type.Object({ traceId: Type.String() }), async execute(_id, params, _signal, _update, ctx) { const events = (await readTraceEvents(ctx.cwd)).filter((event) => event.traceId === params.traceId); const outcomes: Record<string, number> = {}; for (const event of events) { const outcome = String(event.attributes?.["as_is.outcome"] ?? "unspecified"); outcomes[outcome] = (outcomes[outcome] ?? 0) + 1; } return { content: [{ type: "text", text: boundedJson({ traceId: params.traceId, eventCount: events.length, names: [...new Set(events.map((event) => event.name))], outcomes }) }], details: { eventCount: events.length } }; } },
-    { name: "compare_traces", label: "Compare local traces", description: "Compare bounded event counts and outcomes for two local traces.", parameters: Type.Object({ leftTraceId: Type.String(), rightTraceId: Type.String() }), async execute(_id, params, _signal, _update, ctx) { const events = await readTraceEvents(ctx.cwd); const summarize = (traceId: string) => { const selected = events.filter((event) => event.traceId === traceId); return { traceId, eventCount: selected.length, names: [...new Set(selected.map((event) => event.name))] }; }; return { content: [{ type: "text", text: boundedJson({ left: summarize(params.leftTraceId), right: summarize(params.rightTraceId) }) }], details: {} }; } },
+    {
+      name: "search_traces",
+      label: "Search local traces",
+      description: "Search bounded, redacted local trace events by correlation, worker, outcome, phase, or time range.",
+      parameters: traceQueryParameters,
+      async execute(_id, params, _signal, _update, ctx) {
+        const evidence = await readTraceEvidence(ctx.cwd);
+        const result = filterTraceEvents(evidence.events, params, params.limit ?? 20);
+        return { content: [{ type: "text", text: queryOutput(evidence, result.events, result.availability === "invalid-selector" ? result.availability : evidence.availability) }], details: { count: result.events.length } };
+      },
+    },
+    {
+      name: "get_trace",
+      label: "Get local trace",
+      description: "Get bounded redacted events for one exact local trace ID, with optional correlation filters.",
+      parameters: Type.Intersect([Type.Object({ traceId: Type.String({ maxLength: 128 }) }), traceQueryParameters]),
+      async execute(_id, params, _signal, _update, ctx) {
+        const evidence = await readTraceEvidence(ctx.cwd);
+        const result = filterTraceEvents(evidence.events, params, params.limit ?? 100);
+        const selected = result.events.filter((event) => event.traceId === params.traceId);
+        return { content: [{ type: "text", text: queryOutput(evidence, selected, result.availability === "invalid-selector" ? result.availability : evidence.availability) }], details: { count: selected.length } };
+      },
+    },
+    {
+      name: "summarize_trace",
+      label: "Summarize local trace",
+      description: "Summarize bounded event names, outcomes, durations, calls, parent-child relationships, and retries for one trace.",
+      parameters: Type.Object({ traceId: Type.String({ maxLength: 128 }) }),
+      async execute(_id, params, _signal, _update, ctx) {
+        const evidence = await readTraceEvidence(ctx.cwd);
+        const events = evidence.events.filter((event) => event.traceId === params.traceId);
+        const outcomes: Record<string, number> = {};
+        for (const event of events) {
+          const outcome = String(eventField(event, "outcome") ?? "unavailable");
+          outcomes[outcome] = (outcomes[outcome] ?? 0) + 1;
+        }
+        return { content: [{ type: "text", text: boundedJson({ ...summarizeTraceCorrelation(events, evidence.malformedLines, evidence.availability), traceId: params.traceId, names: [...new Set(events.map((event) => event.name))], outcomes, durationsMs: events.flatMap((event) => typeof event.durationMs === "number" ? [event.durationMs] : []) }) }], details: { eventCount: events.length } };
+      },
+    },
+    {
+      name: "compare_traces",
+      label: "Compare local traces",
+      description: "Compare bounded event counts and correlation names for two exact local trace IDs.",
+      parameters: Type.Object({ leftTraceId: Type.String({ maxLength: 128 }), rightTraceId: Type.String({ maxLength: 128 }) }),
+      async execute(_id, params, _signal, _update, ctx) {
+        const evidence = await readTraceEvidence(ctx.cwd);
+        const summarize = (traceId: string) => summarizeTraceCorrelation(evidence.events.filter((event) => event.traceId === traceId), evidence.malformedLines, evidence.availability);
+        return { content: [{ type: "text", text: boundedJson({ left: { traceId: params.leftTraceId, ...summarize(params.leftTraceId) }, right: { traceId: params.rightTraceId, ...summarize(params.rightTraceId) } }) }], details: {} };
+      },
+    },
   ];
 }
