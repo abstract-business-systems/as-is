@@ -5,7 +5,23 @@ import { resolveConfigurationFromCwdSync } from "../context-resolution/configura
 
 export type TraceValue = string | number | boolean | undefined;
 export type SessionReference = { sessionId: string };
+export type TraceObservationKind =
+  | "taskRevision" | "attempt" | "componentIdentity" | "workerRole" | "sessionName"
+  | "localSessionId" | "jobId" | "callId" | "parentCallId" | "relationshipId"
+  | "phase" | "outcome" | "wallClockMs" | "usageInputTokens" | "usageOutputTokens"
+  | "usageTotalTokens" | "usageCostUsd";
+export type TraceObservationSource = "task" | "launcher" | "tracer" | "pi-session" | "provider-adapter";
+export type TraceObservationAvailability = "available" | "absent" | "malformed" | "unavailable";
+export type TraceObservation = {
+  kind: TraceObservationKind;
+  source: TraceObservationSource;
+  availability: TraceObservationAvailability;
+  value?: string | number;
+  unit?: "count" | "milliseconds" | "usd";
+  reason?: "not-supplied" | "not-observed" | "invalid-value" | "source-unavailable";
+};
 export type TraceEvent = {
+  schemaVersion?: 1;
   name: string;
   timestamp?: string;
   traceId: string;
@@ -13,6 +29,7 @@ export type TraceEvent = {
   parentSpanId?: string;
   durationMs?: number;
   attributes: Record<string, TraceValue>;
+  observations?: TraceObservation[];
   sessionReference?: SessionReference;
 };
 export type SpanOutcome = "success" | "failure";
@@ -51,6 +68,8 @@ const RETENTION_DAYS = 7;
 const MAX_FILES = 5;
 const MAX_CORRELATION_LENGTH = 128;
 const MAX_DURATION_MS = 86_400_000;
+const MAX_OBSERVATIONS = 64;
+const MAX_OBSERVATION_STRING_LENGTH = 128;
 const OTLP_EXPORT_TIMEOUT_MS = 1_000;
 const UNKNOWN = "unknown";
 
@@ -65,6 +84,23 @@ const approvedAttributeKeys = new Set([
   "outcome", "bounded", "workerRole", "outcomeClass", "handoffClass", "launcherMode", "reason", "phase",
   "duration_ms", "as_is.outcome", "as_is.run_id", "as_is.component_path", "as_is.task_revision",
   "as_is.role", "parentJobId",
+]);
+
+const observationKinds = new Set<TraceObservationKind>([
+  "taskRevision", "attempt", "componentIdentity", "workerRole", "sessionName", "localSessionId",
+  "jobId", "callId", "parentCallId", "relationshipId", "phase", "outcome", "wallClockMs",
+  "usageInputTokens", "usageOutputTokens", "usageTotalTokens", "usageCostUsd",
+]);
+const observationSources = new Set<TraceObservationSource>(["task", "launcher", "tracer", "pi-session", "provider-adapter"]);
+const observationAvailabilities = new Set<TraceObservationAvailability>(["available", "absent", "malformed", "unavailable"]);
+const observationReasons = new Set(["not-supplied", "not-observed", "invalid-value", "source-unavailable"]);
+const observationPhases = new Set(["setup", "log", "spawn", "wait", "handoff", "task", "worker", "delegation"]);
+const observationOutcomes = new Set(["success", "failure", "cancelled", "blocked", "timed-out", "budget-stopped", "unavailable"]);
+const observationNumericKinds = new Set<TraceObservationKind>([
+  "taskRevision", "attempt", "wallClockMs", "usageInputTokens", "usageOutputTokens", "usageTotalTokens", "usageCostUsd",
+]);
+const observationIntegerKinds = new Set<TraceObservationKind>([
+  "taskRevision", "attempt", "wallClockMs", "usageInputTokens", "usageOutputTokens", "usageTotalTokens",
 ]);
 
 const stringDomains: Record<string, Set<string>> = {
@@ -139,6 +175,47 @@ function projectedCorrelation(value: unknown): string {
   return opaqueCorrelation(value) ? value : UNKNOWN;
 }
 
+function projectedObservation(value: unknown): TraceObservation | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const candidate = value as Record<string, unknown>;
+  const kind = candidate.kind as TraceObservationKind;
+  const source = candidate.source as TraceObservationSource;
+  const availability = candidate.availability as TraceObservationAvailability;
+  if (!observationKinds.has(kind) || !observationSources.has(source) || !observationAvailabilities.has(availability)) return undefined;
+  const projected: TraceObservation = { kind, source, availability };
+  if (candidate.reason !== undefined && (typeof candidate.reason !== "string" || !observationReasons.has(candidate.reason))) return undefined;
+  if (candidate.reason !== undefined) projected.reason = candidate.reason as TraceObservation["reason"];
+  if (availability === "available") {
+    if (typeof candidate.value === "number") {
+      if (!Number.isFinite(candidate.value) || candidate.value < 0 || candidate.value > Number.MAX_SAFE_INTEGER) return undefined;
+      if (observationIntegerKinds.has(kind) && !Number.isSafeInteger(candidate.value)) return undefined;
+      if (kind === "wallClockMs" && candidate.value > MAX_DURATION_MS) return undefined;
+      projected.value = candidate.value;
+    } else if (!observationNumericKinds.has(kind) && typeof candidate.value === "string" && candidate.value.length > 0 && candidate.value.length <= MAX_OBSERVATION_STRING_LENGTH && opaqueCorrelation(candidate.value)) {
+      projected.value = candidate.value;
+    } else return undefined;
+  } else if (candidate.value !== undefined) return undefined;
+  if (candidate.unit !== undefined) {
+    if (!["count", "milliseconds", "usd"].includes(String(candidate.unit))) return undefined;
+    projected.unit = candidate.unit as TraceObservation["unit"];
+  }
+  if (observationNumericKinds.has(kind)) {
+    const expectedUnit = kind === "wallClockMs" ? "milliseconds" : kind === "usageCostUsd" ? "usd" : "count";
+    if (availability === "available" && projected.unit !== expectedUnit) return undefined;
+  }
+  if (kind === "localSessionId" && availability === "available" && (typeof projected.value !== "string" || !/^\\w{8}-\\w{4}-[1-8]\\w{3}-[89ab]\\w{3}-\\w{12}$/iu.test(projected.value))) return undefined;
+  if (kind === "workerRole" && availability === "available" && (typeof projected.value !== "string" || !new Set(["as-is", "component-builder", "expert", "execution-advisor", "worker"]).has(projected.value))) return undefined;
+  if (kind === "phase" && availability === "available" && typeof projected.value === "string" && !observationPhases.has(projected.value)) return undefined;
+  if (kind === "outcome" && availability === "available" && typeof projected.value === "string" && !observationOutcomes.has(projected.value)) return undefined;
+  return projected;
+}
+
+function projectedObservations(value: unknown): TraceObservation[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const projected = value.slice(0, MAX_OBSERVATIONS).map(projectedObservation).filter((item): item is TraceObservation => item !== undefined);
+  return projected.length > 0 ? projected : undefined;
+}
+
 /** Apply one fail-closed projection before either local or external serialization. */
 function projectTraceEvent(event: TraceEvent): TraceEvent {
   const source = event as unknown as Record<string, unknown>;
@@ -157,6 +234,7 @@ function projectTraceEvent(event: TraceEvent): TraceEvent {
     ? source.durationMs
     : undefined;
   return {
+    schemaVersion: 1,
     name: projectedEventName(source.name),
     timestamp: projectedTimestamp(source.timestamp),
     traceId: projectedCorrelation(source.traceId),
@@ -164,6 +242,7 @@ function projectTraceEvent(event: TraceEvent): TraceEvent {
     parentSpanId: source.parentSpanId === undefined ? undefined : projectedCorrelation(source.parentSpanId),
     durationMs,
     attributes,
+    observations: projectedObservations(source.observations),
     sessionReference: serializeSessionReference(source.sessionReference),
   };
 }
@@ -175,13 +254,33 @@ const attributeValue = (value: TraceValue) =>
       ? { intValue: value }
       : { stringValue: value ?? "" };
 
+function observationAttributes(observations: TraceObservation[] | undefined): Array<{ key: string; value: ReturnType<typeof attributeValue> }> {
+  const attributes: Array<{ key: string; value: ReturnType<typeof attributeValue> }> = [];
+  for (const observation of observations ?? []) {
+    // Session names and local IDs remain local correlation data. The validated
+    // session reference below is the only session-specific external field.
+    if (observation.kind === "sessionName" || observation.kind === "localSessionId") continue;
+    const prefix = `observation.${observation.kind}`;
+    attributes.push({ key: `${prefix}.availability`, value: attributeValue(observation.availability) });
+    attributes.push({ key: `${prefix}.source`, value: attributeValue(observation.source) });
+    if (observation.value !== undefined) attributes.push({ key: `${prefix}.value`, value: attributeValue(observation.value) });
+    if (observation.unit !== undefined) attributes.push({ key: `${prefix}.unit`, value: attributeValue(observation.unit) });
+    if (observation.reason !== undefined) attributes.push({ key: `${prefix}.reason`, value: attributeValue(observation.reason) });
+  }
+  return attributes;
+}
+
 export function otlpPayload(event: TraceEvent) {
   const projected = projectTraceEvent(event);
   const start = projected.timestamp ?? new Date().toISOString();
   const startTimeUnixNano = Date.parse(start) * 1_000_000;
-  const attrs = Object.entries(projected.attributes)
-    .filter(([, value]) => value !== undefined)
-    .map(([key, value]) => ({ key, value: attributeValue(value) }));
+  const attrs = [
+    { key: "as_is.schema_version", value: attributeValue(projected.schemaVersion ?? 1) },
+    ...Object.entries(projected.attributes)
+      .filter(([, value]) => value !== undefined)
+      .map(([key, value]) => ({ key, value: attributeValue(value) })),
+    ...observationAttributes(projected.observations),
+  ];
   const reference = serializeSessionReference(projected.sessionReference);
   if (reference) {
     // External sinks receive the correlation ID only. They never receive a

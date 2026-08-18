@@ -91,9 +91,11 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-## Project-local as-is runtime telemetry
+## Project-local as-is runtime state
 !.as-is
-.as-is/tracing.jsonl
+.as-is/*
+**/.as-is/*
+!.as-is/.gitkeep
 
 # Testing & Temporary
 temp/
