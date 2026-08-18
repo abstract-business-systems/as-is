@@ -9,6 +9,7 @@ import { assertPiVersionCompatible, loadPiVersionContract, versionProbeArguments
 import { boundedLimit } from "../../../core/modules/task-control/budget.ts";
 import { runBoundedProcess } from "../../../core/adapters/process/bounded-process-supervisor.ts";
 import { emitTrace, startSpan, serializeSessionReference, type SessionReference } from "../../../core/modules/observability/tracer.ts";
+import { isLocalSessionUuid } from "../../../core/modules/observability/provider-correlation.ts";
 import { evaluateHandoffEligibility, type HandoffFacts } from "../../../core/modules/task-control/handoff-eligibility.ts";
 import { resolveInstructionContext } from "../../../core/modules/context-resolution/instruction-resolver.ts";
 import { findConfigurationRootSync, parseAsIsJson, resolveConfigurationSync } from "../../../core/modules/context-resolution/configuration-resolver.ts";
@@ -83,6 +84,7 @@ type Handle = {
   sessionPath: string | null;
   sessionName: string;
   localSessionId: string | null;
+  traceId: string | null;
   budgetWallClockSeconds: number | null;
   budgetCostUsd: number | null;
   launchedAt: string;
@@ -100,6 +102,7 @@ type SuperviseConfig = {
   sessionPath: string | null;
   sessionName?: string;
   localSessionId?: string | null;
+  traceId?: string;
   mode: "detach" | "blocking";
   logPath: string | null;
   resultPath: string;
@@ -430,6 +433,7 @@ const projectPublicHandle = (handle: Handle): PublicHandle => ({
   isolationClass: handle.worktreePath ? "worktree" : "caller-cwd",
   sessionName: handle.sessionName,
   localSessionId: handle.localSessionId,
+  traceId: handle.traceId,
 });
 
 const appendPrivateLaunch = async (handle: Handle): Promise<void> => {
@@ -469,6 +473,7 @@ const publicFinished = (outcome: Record<string, unknown>, childPid: number, fini
   recordStatus: typeof outcome.recordStatus === "string" ? outcome.recordStatus : null,
   sessionName: typeof outcome.sessionName === "string" ? outcome.sessionName : null,
   localSessionId: typeof outcome.localSessionId === "string" ? outcome.localSessionId : null,
+  traceId: typeof outcome.traceId === "string" ? outcome.traceId : null,
   worktreePreserved: outcome.worktreePreserved === true,
   preservationClass: outcome.worktreePreserved === true ? "uncommitted-recovery-candidate" : null,
 });
@@ -561,7 +566,7 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
   const startedMonotonic = Date.now();
   const delegationSpan = startSpan("delegation.lifecycle", {
     cwd: config.callerCwd,
-    traceId: process.env.AS_IS_TRACE_ID || undefined,
+    traceId: config.traceId || process.env.AS_IS_TRACE_ID || undefined,
     parentSpanId: process.env.AS_IS_TRACE_PARENT_SPAN_ID || undefined,
     sessionReference: sessionReferenceFromEnvironment(),
   });
@@ -613,13 +618,14 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     // the correct caller and parent-job-id without OS parentage.
     AS_IS_IDENTITY: config.identity,
     AS_IS_JOB_ID: config.jobId,
-    AS_IS_TRACE_ID: process.env.AS_IS_TRACE_ID ?? "",
+    AS_IS_TRACE_ID: config.traceId ?? process.env.AS_IS_TRACE_ID ?? "",
   };
 
   await recordComponentTrace(config.callerCwd, {
     name: "subprocess.launch",
     backend: process.env.AS_IS_COMPONENT_BUILD_TRACER ?? "file",
     endpoint: process.env.AS_IS_COMPONENT_BUILD_TRACER_ENDPOINT || undefined,
+    traceId: config.traceId,
     jobId: config.jobId,
     identity: config.identity,
     caller: config.caller,
@@ -648,7 +654,7 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
   });
   const usageAccounting: PiUsageSummary = summarizePiUsage(processResult.stdoutText.split("\n"), processResult.stdoutAvailable, processResult.stdoutTruncated);
   const observedLocalSessionId = localSessionIdObservation(processResult.stdoutText);
-  const localSessionId = config.localSessionId !== null &&
+  const localSessionId = config.localSessionId !== null && isLocalSessionUuid(config.localSessionId) &&
     (observedLocalSessionId === "absent" || observedLocalSessionId === config.localSessionId)
     ? config.localSessionId
     : null;
@@ -662,6 +668,7 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
   await recordComponentTrace(config.callerCwd, {
     name: "subprocess.exit",
     backend: process.env.AS_IS_COMPONENT_BUILD_TRACER ?? "file",
+    traceId: config.traceId,
     jobId: config.jobId,
     identity: config.identity,
     caller: config.caller,
@@ -706,6 +713,7 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
   await recordComponentTrace(config.callerCwd, {
     name: "subprocess.handoff",
     backend: process.env.AS_IS_COMPONENT_BUILD_TRACER ?? "file",
+    traceId: config.traceId,
     jobId: config.jobId,
     identity: config.identity,
     committed,
@@ -747,6 +755,7 @@ const runBoundedJob = async (config: SuperviseConfig): Promise<void> => {
     jobId: config.jobId,
     sessionName: config.sessionName ?? null,
     localSessionId,
+    traceId: config.traceId ?? null,
     recordPath: config.recordPath,
     callerCwd: config.callerCwd,
     worktreePath: config.worktreePath,
@@ -1063,6 +1072,7 @@ const main = async() => {
   };
   // One launcher-boundary session span: lifecycle metadata only. In
   // particular, never pass prompts, responses, tools, or exception text to it.
+  const traceId = randomUUID().replaceAll("-", "");
   const sessionSpan = startSpan("session.lifecycle", {
     cwd,
     sessionReference: sessionReferenceFromEnvironment(),
@@ -1070,7 +1080,7 @@ const main = async() => {
       backend: process.env.AS_IS_COMPONENT_BUILD_TRACER,
       directory: process.env.AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY,
     },
-    traceId: process.env.AS_IS_TRACE_ID || undefined,
+    traceId,
   });
   process.env.AS_IS_TRACE_PARENT_SPAN_ID = sessionSpan.spanId;
   // Generic dispatch consumes the selected launch profile. The profile owns
@@ -1115,6 +1125,7 @@ const main = async() => {
       sessionPath: launchProfile.noSession ? null : "<session-dir>",
       sessionName: taskName,
       localSessionId,
+      traceId,
       tools: launchProfile.tools ?? null,
       detach: options.detach ?? false,
       worktree: launchProfile.worktree,
@@ -1200,6 +1211,7 @@ const main = async() => {
       sessionPath,
       sessionName: taskName,
       localSessionId,
+      traceId,
       mode: "detach",
       logPath,
       resultPath,
@@ -1235,6 +1247,7 @@ const main = async() => {
       sessionPath,
       sessionName: taskName,
       localSessionId,
+      traceId,
       budgetWallClockSeconds: options.budgetWallClockSeconds ?? null,
       budgetCostUsd: options.budgetCostUsd ?? null,
       launchedAt,
@@ -1272,6 +1285,7 @@ const main = async() => {
       sessionPath,
       sessionName: taskName,
       localSessionId,
+      traceId,
       mode: "blocking",
       logPath: null,
       resultPath,
@@ -1306,6 +1320,7 @@ const main = async() => {
       sessionPath,
       sessionName: taskName,
       localSessionId,
+      traceId,
       budgetWallClockSeconds: options.budgetWallClockSeconds ?? null,
       budgetCostUsd: options.budgetCostUsd ?? null,
       launchedAt,

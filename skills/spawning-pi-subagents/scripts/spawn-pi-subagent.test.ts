@@ -198,12 +198,12 @@ const readRegistryLines = (registry: string): unknown[] =>
     .map((line) => JSON.parse(line));
 
 test("extracts only a bounded local session ID from JSON session output", () => {
-  expect(localSessionIdFromJsonOutput('{"type":"session","id":"0190abc-123"}\n')).toBe("0190abc-123");
+  expect(localSessionIdFromJsonOutput('{"type":"session","id":"0190abcd-1234-4abc-8def-0123456789ab"}\n')).toBe("0190abcd-1234-4abc-8def-0123456789ab");
   expect(localSessionIdFromJsonOutput('{"type":"message","text":"not a session"}\n')).toBeNull();
   expect(localSessionIdFromJsonOutput('{"type":"session","id":"../private"}\n')).toBeNull();
   expect(localSessionIdObservation('{"type":"session","id":"../private"}\n')).toBe("invalid");
   expect(localSessionIdObservation('{"type":"message"}\n')).toBe("absent");
-  expect(localSessionIdFromJsonOutput(`${"x".repeat(4097)}\n{"type":"session","id":"later"}\n`)).toBe("later");
+  expect(localSessionIdFromJsonOutput(`${"x".repeat(4097)}\n{"type":"session","id":"0190abcd-1234-4abc-8def-0123456789ab"}\n`)).toBe("0190abcd-1234-4abc-8def-0123456789ab");
 });
 
 test("uses an explicit task name instead of the full task prompt", async () => {
@@ -237,10 +237,11 @@ test("inherits the bounded task name for nested launcher calls", async () => {
   expect(parsed.localSessionId).toBeTruthy();
 });
 
-test("keeps retry session UUIDs distinct while reusing the task display name", async () => {
+test("keeps retry session and trace UUIDs distinct while reusing the task display name", async () => {
   const args = ["--agent", AGENT, "--task", "Retry prompt.", "--task-name", "Retry task", "--cwd", process.cwd(), "--dry-run"];
-  const first = await runLauncher(args);
-  const second = await runLauncher(args);
+  const inherited = { ...process.env, AS_IS_TRACE_ID: "parent-trace" };
+  const first = await runLauncher(args, inherited);
+  const second = await runLauncher(args, inherited);
   expect(first.exitCode).toBe(0);
   expect(second.exitCode).toBe(0);
   const firstMetadata = JSON.parse(first.stdout);
@@ -248,6 +249,12 @@ test("keeps retry session UUIDs distinct while reusing the task display name", a
   expect(firstMetadata.sessionName).toBe("retry-task");
   expect(secondMetadata.sessionName).toBe("retry-task");
   expect(firstMetadata.localSessionId).not.toBe(secondMetadata.localSessionId);
+  expect(firstMetadata.localSessionId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu);
+  expect(secondMetadata.localSessionId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu);
+  expect(firstMetadata.traceId).toMatch(/^[0-9a-f]{32}$/iu);
+  expect(secondMetadata.traceId).toMatch(/^[0-9a-f]{32}$/iu);
+  expect(firstMetadata.traceId).not.toBe(secondMetadata.traceId);
+  expect(firstMetadata.traceId).not.toBe("parent-trace");
 });
 
 test("agent declarations resolve thinking levels and forward them to Pi", async () => {
@@ -808,8 +815,9 @@ test("detach returns a handle immediately and the supervisor kills the child on 
     expect(typeof handle.pid).toBe("number");
     expect(handle.pid).toBeGreaterThan(0);
     expect(handle.sessionClass).toBe("durable");
+    expect(handle.traceId).toMatch(/^[0-9a-f]{32}$/iu);
     expect(handle.sessionName).toBe("stub-task-for-detached-budget-enforcement");
-    expect(handle.localSessionId).toMatch(/^[A-Za-z0-9-]+$/u);
+    expect(handle.localSessionId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu);
     expect(handle.isolationClass).toBe("caller-cwd");
     expect(handle.budgetWallClockSeconds).toBe(1);
     expect(handle.budgetCostUsd).toBe(0.1);
@@ -927,7 +935,7 @@ test("discovers the exact durable subprocess session through session analysis", 
 test("rejects a conflicting observed local session UUID from authoritative completion metadata", async () => {
   const dir = mkdtempSync(join(tmpdir(), "as-is-session-mismatch-test-"));
   try {
-    const stubPi = writeSessionHeaderStub(dir, "conflicting-session-id");
+    const stubPi = writeSessionHeaderStub(dir, "0190abcd-1234-4abc-8def-0123456789ac");
     const registry = join(dir, "jobs.jsonl");
     const result = await runLauncher([
       "--agent", AGENT, "--task", "Conflicting session header.", "--task-name", "mismatch-check",
@@ -1241,7 +1249,7 @@ test("detached delegation emits bounded lifecycle spans for success and budget-s
     const traceFile = join(dir, "trace.jsonl");
     const registry = join(dir, "jobs.jsonl");
     const successStub = writeSleepStub(dir, 0);
-    const env = { ...process.env, AS_IS_JOBS_REGISTRY: registry, AS_IS_COMPONENT_BUILD_TRACER: "file", AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY: traceFile };
+    const env = { ...process.env, AS_IS_TRACE_ID: "parent-trace", AS_IS_JOBS_REGISTRY: registry, AS_IS_COMPONENT_BUILD_TRACER: "file", AS_IS_COMPONENT_BUILD_TRACER_DIRECTORY: traceFile };
     const success = await runLauncher([
       "--agent", AGENT, "--task", "Lifecycle success.", "--cwd", process.cwd(), "--pi", successStub,
       "--detach", "--no-worktree", "--caller", "as-is", "--parent-job-id", "parent-opaque",
@@ -1270,6 +1278,15 @@ test("detached delegation emits bounded lifecycle spans for success and budget-s
     const workers = events.filter((event) => event.name === "worker.lifecycle");
     expect(delegations).toHaveLength(3);
     expect(workers).toHaveLength(3);
+    const launchEvents = events.filter((event) => ["subprocess.launch", "subprocess.exit", "subprocess.handoff"].includes(event.name));
+    const launchTraceIds = new Set(launchEvents.map((event) => event.traceId));
+    expect(launchTraceIds).toHaveLength(3);
+    expect(launchTraceIds.has("parent-trace")).toBe(false);
+    for (let index = 0; index < 3; index += 1) {
+      const launchTraceIdsForRun = new Set(launchEvents.slice(index * 3, index * 3 + 3).map((event) => event.traceId));
+      expect(launchTraceIdsForRun).toHaveLength(1);
+      expect(launchTraceIdsForRun.has("parent-trace")).toBe(false);
+    }
     for (const worker of workers) {
       const delegation = delegations.find((event) => event.spanId === worker.parentSpanId);
       expect(delegation).toBeDefined();
