@@ -3,7 +3,7 @@ import { mkdtemp, mkdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createAgentSession, createExtensionRuntime, ModelRuntime, SessionManager } from "../../skills/spawning-pi-subagents/node_modules/@earendil-works/pi-coding-agent";
-import workerTools, { analyzeProjectSession, resolveWorkerThinkingLevel, workerSessionMetadata, workerSessionOptions } from "../../.pi/extensions/worker-tools";
+import workerTools, { analyzeProjectSession, resolveWorkerThinkingLevel, toolsForTarget, workerSessionMetadata, workerSessionOptions } from "../../.pi/extensions/worker-tools";
 import { registerWorkerTools } from "../../skills/spawning-pi-subagents/extensions/worker-tools.ts";
 
 const rootRecord = "# Root\n";
@@ -106,6 +106,12 @@ describe("capability-based worker extension", () => {
       sessionName: null,
     });
   });
+  test("preserves every declared worker tool in the SDK allowlist", () => {
+    const profile = toolsForTarget("agent-capability-probe", ["read", "grep", "call_subagent", "resolve_component_context"]);
+    expect(profile.tools).toEqual(["read", "grep", "call_subagent", "resolve_component_context"]);
+    expect(profile.customTools.map((tool) => tool.name)).toEqual(["call_subagent", "resolve_component_context"]);
+  });
+
   test("call_subagent requires an explicit target role", async () => {
     let registered: { name: string; parameters: unknown } | undefined;
     workerTools({ registerTool: (tool: { name: string; parameters: unknown }) => { if (tool.name === "call_subagent") registered = tool; } } as never);

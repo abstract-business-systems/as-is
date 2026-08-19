@@ -31,7 +31,6 @@ import {
 
 const maxResultCharacters = 100_000;
 const defaultReadOnlyTools = ["read", "grep", "find", "ls"];
-const builtinTools = new Set(["read", "write", "edit", "bash", "grep", "find", "ls", "webfetch", "websearch"]);
 const defaultTimeoutMs = 60_000;
 const maximumTimeoutMs = 900_000;
 
@@ -231,9 +230,12 @@ async function resolveCanonicalTarget(cwd: string, role: string) {
   return resolveCanonicalAgent(cwd, role);
 }
 
-function toolsForTarget(role: string, declared: string[]): { tools: string[]; customTools: ToolDefinition[] } {
+export function toolsForTarget(role: string, declared: string[]): { tools: string[]; customTools: ToolDefinition[] } {
   if (role === "evidence-validator") return { tools: [...defaultReadOnlyTools, "git_inspect"], customTools: [gitInspectTool] };
-  const tools = declared.filter((tool) => builtinTools.has(tool));
+  // The Pi SDK applies `tools` as the allowlist for built-in and custom tools.
+  // Preserve the canonical role's declaration verbatim so every admitted tool,
+  // including repository-owned custom tools, is available to the worker.
+  const tools = [...declared];
   const customTools: ToolDefinition[] = [];
   const focusedTraceQueryTools = createFocusedTraceQueryTools();
   if (declared.includes("analyze_session")) customTools.push(createFocusedSessionAnalysisTool());
