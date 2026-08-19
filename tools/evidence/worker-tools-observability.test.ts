@@ -1,8 +1,8 @@
 import { expect, test } from "bun:test";
-import { mkdtemp, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { analyzeProjectSession, createTraceQueryTools, filterTraceEvents, readTraceEvents, readTraceEvidence, summarizeTraceCorrelation } from "./worker-tools-observability.ts";
+import { analyzeProjectSession, correlateJobRegistryWithTraces, createTraceQueryTools, filterTraceEvents, readJobRegistryEvidence, readTraceEvents, readTraceEvidence, summarizeTraceCorrelation } from "./worker-tools-observability.ts";
 import { SessionManager } from "../../skills/spawning-pi-subagents/node_modules/@earendil-works/pi-coding-agent";
 
 test("focused observability functionality keeps session summaries bounded and details explicit", async () => {
@@ -108,6 +108,80 @@ test("unavailable trace evidence is explicit and invalid selectors are bounded",
     const result = await tool.execute("call", tool.name === "summarize_trace" ? { traceId: "absent" } : { leftTraceId: "left", rightTraceId: "right" }, undefined, undefined, { cwd: inaccessibleCwd } as never);
     expect(result.content[0].text).toContain('"availability": "inaccessible"');
   }
+});
+
+test("job registry correlation joins nested launches and retries without registry paths", async () => {
+  const cwd = await mkdtemp(join(tmpdir(), "as-is-job-registry-correlation-"));
+  const traceEvents = [
+    ["root-job", "root-trace", undefined, 1, "failure"],
+    ["child-job", "child-trace", "root-job", 1, "failure"],
+    ["retry-job", "retry-trace", "root-job", 2, "success"],
+  ].map(([jobId, traceId, parentJobId, attempt, outcome]) => ({
+    name: "delegation.lifecycle", timestamp: "2026-01-01T00:00:00Z", traceId: String(traceId), spanId: `span-${jobId}`, attributes: parentJobId ? { parentJobId } : {},
+    observations: [
+      { kind: "jobId", source: "launcher", availability: "available", value: jobId },
+      ...(parentJobId ? [{ kind: "parentCallId", source: "launcher", availability: "available", value: `call-${parentJobId}` }] : []),
+      { kind: "sessionName", source: "launcher", availability: "available", value: "nested-task" },
+      { kind: "taskRevision", source: "task", availability: "available", value: 7, unit: "count" },
+      { kind: "attempt", source: "task", availability: "available", value: attempt, unit: "count" },
+      { kind: "outcome", source: "launcher", availability: "available", value: outcome },
+    ],
+  }));
+  const registry = {
+    records: [
+      { event: "launched", jobId: "root-job", traceId: "root-trace", sessionName: "nested-task", launchedAt: "2026-01-01T00:00:00Z" },
+      { event: "launched", jobId: "child-job", parentJobId: "root-job", traceId: "child-trace", sessionName: "nested-task", launchedAt: "2026-01-01T00:00:01Z" },
+      { event: "launched", jobId: "retry-job", parentJobId: "root-job", traceId: "retry-trace", sessionName: "nested-task", launchedAt: "2026-01-01T00:00:02Z" },
+      { event: "finished", jobId: "root-job", exitCode: 1 },
+      { event: "finished", jobId: "child-job", exitCode: 1 },
+      { event: "finished", jobId: "retry-job", exitCode: 0 },
+    ], malformedLines: 0, availability: "available" as const,
+  };
+  const summary = correlateJobRegistryWithTraces(traceEvents as never, registry);
+  expect(summary.availability).toBe("available");
+  expect(summary.nodeCount).toBe(3);
+  expect((summary.relationships as unknown[])).toHaveLength(2);
+  expect((summary.retries as unknown[])).toHaveLength(1);
+  expect(JSON.stringify(summary)).not.toContain(cwd);
+  expect(JSON.stringify(summary)).not.toContain("prompt");
+});
+
+test("job registry evidence distinguishes malformed, missing, inaccessible, and inconsistent links", async () => {
+  const cwd = await mkdtemp(join(tmpdir(), "as-is-job-registry-states-"));
+  const path = join(cwd, "jobs.jsonl");
+  await Bun.write(path, [JSON.stringify({ event: "launched", jobId: "job-a", parentJobId: "missing-parent", traceId: "trace-a" }), "not-json", JSON.stringify({ event: "finished", jobId: "job-a", exitCode: 0 }), JSON.stringify({ event: "finished", jobId: "job-a", exitCode: 1 })].join("\n"));
+  const evidence = await readJobRegistryEvidence(path);
+  expect(evidence.availability).toBe("available");
+  expect(evidence.malformedLines).toBe(1);
+  const summary = correlateJobRegistryWithTraces([{ name: "x", timestamp: "2026-01-01T00:00:00Z", traceId: "wrong-trace", spanId: "span", attributes: {}, observations: [{ kind: "jobId", source: "launcher", availability: "available", value: "job-a" }] }] as never, evidence);
+  const kinds = (summary.inconsistencies as Array<{ kind: string }>).map((item) => item.kind);
+  expect(kinds).toContain("duplicate-job");
+  expect(kinds).toContain("registry-trace-mismatch");
+  expect(kinds).toContain("missing-parent");
+  expect(await readJobRegistryEvidence(join(cwd, "missing.jsonl"))).toMatchObject({ availability: "missing" });
+  await mkdir(join(cwd, "directory"));
+  expect(await readJobRegistryEvidence(join(cwd, "directory"))).toMatchObject({ availability: "inaccessible" });
+});
+
+test("job registry correlation reports cycles and bounded node limits", () => {
+  const event = (jobId: string, parentJobId: string, attempt: number) => ({ name: "x", timestamp: "2026-01-01T00:00:00Z", traceId: `trace-${jobId}`, spanId: `span-${jobId}`, attributes: { parentJobId }, observations: [{ kind: "jobId", source: "launcher", availability: "available", value: jobId }, { kind: "attempt", source: "task", availability: "available", value: attempt, unit: "count" }, { kind: "taskRevision", source: "task", availability: "available", value: 1, unit: "count" }, { kind: "sessionName", source: "launcher", availability: "available", value: "cycle-task" }] });
+  const records = ["a", "b", "c"].flatMap((jobId, index) => [{ event: "launched", jobId, parentJobId: ["c", "a", "b"][index], sessionName: "cycle-task" as const }]);
+  const summary = correlateJobRegistryWithTraces([event("a", "c", 1), event("b", "a", 2), event("c", "b", 3)] as never, { records, malformedLines: 0, availability: "available" }, { maxNodes: 2, maxDepth: 2 });
+  const kinds = (summary.inconsistencies as Array<{ kind: string }>).map((item) => item.kind);
+  expect(kinds).toContain("node-limit");
+  expect(kinds).toContain("cycle-or-depth-limit");
+  expect((summary.nodes as unknown[])).toHaveLength(2);
+});
+
+test("job registry query tool keeps explicit source selection bounded", async () => {
+  const cwd = await mkdtemp(join(tmpdir(), "as-is-job-registry-tool-"));
+  const registryPath = join(cwd, "jobs.jsonl");
+  await Bun.write(registryPath, JSON.stringify({ event: "launched", jobId: "job-tool", traceId: "trace-tool" }));
+  await Bun.write(join(cwd, ".as-is", "tracing.jsonl"), JSON.stringify({ name: "x", timestamp: "2026-01-01T00:00:00Z", traceId: "trace-tool", spanId: "span", attributes: {}, observations: [{ kind: "jobId", source: "launcher", availability: "available", value: "job-tool" }] }));
+  const tool = createTraceQueryTools().find((candidate) => candidate.name === "correlate_job_registry")!;
+  const result = await tool.execute("call", { registryPath, maxNodes: 10, maxDepth: 4 }, undefined, undefined, { cwd } as never);
+  expect(result.content[0].text).toContain("job-tool");
+  expect(result.content[0].text).not.toContain(registryPath);
 });
 
 test("evidence results omit direct and nested filesystem metadata", async () => {

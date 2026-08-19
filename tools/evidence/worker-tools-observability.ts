@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 import {
   SessionManager,
@@ -11,6 +11,11 @@ import { resolveSessionDirectory } from "../../skills/spawning-pi-subagents/scri
 import { sessionNameFromTaskName } from "../../skills/spawning-pi-subagents/scripts/session-naming.ts";
 
 const maxResultCharacters = 100_000;
+const maxRegistryBytes = 1_000_000;
+const maxRegistryLines = 5_000;
+const maxRegistryRecords = 1_000;
+const maxCorrelationNodes = 512;
+const maxCorrelationDepth = 32;
 
 type TraceObservation = {
   kind: string;
@@ -50,6 +55,26 @@ export type TraceQueryFilters = {
 };
 
 type TraceEvidence = { events: TraceEvent[]; malformedLines: number; availability: "available" | "missing" | "inaccessible" };
+
+type RegistryAvailability = "available" | "missing" | "malformed" | "inaccessible";
+
+type PublicRegistryRecord = {
+  event: "launched" | "finished";
+  jobId: string;
+  parentJobId?: string;
+  traceId?: string;
+  sessionName?: string;
+  localSessionId?: string;
+  launchedAt?: string;
+  finishedAt?: string;
+  outcome?: "success" | "failure" | "budget-stopped";
+};
+
+export type JobRegistryEvidence = {
+  records: PublicRegistryRecord[];
+  malformedLines: number;
+  availability: RegistryAvailability;
+};
 
 type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue };
 
@@ -165,6 +190,16 @@ const queryAttribute = (event: TraceEvent, ...keys: string[]): string | number |
   }
   return undefined;
 };
+const eventJobId = (event: TraceEvent): string | undefined => {
+  const value = queryValue(event, "jobId");
+  return typeof value === "string" ? projectOpaqueId(value) : undefined;
+};
+const eventParentJobId = (event: TraceEvent): string | undefined => {
+  const value = queryAttribute(event, "parentJobId");
+  if (typeof value === "string") return projectOpaqueId(value);
+  const parentCallId = queryValue(event, "parentCallId");
+  return typeof parentCallId === "string" && parentCallId.startsWith("call-") ? projectOpaqueId(parentCallId.slice(5)) : undefined;
+};
 const eventSessionId = (event: TraceEvent): string | undefined => {
   const reference = event.sessionReference;
   return reference && typeof reference === "object" && !Array.isArray(reference) && typeof (reference as Record<string, unknown>).sessionId === "string"
@@ -214,6 +249,170 @@ function matchesTraceEvent(event: TraceEvent, filters: TraceQueryFilters): boole
 export function filterTraceEvents(events: TraceEvent[], filters: TraceQueryFilters, limit = 100): { availability: string; events: TraceEvent[] } {
   if (!validQueryFilters(filters) || !Number.isInteger(limit) || limit < 1 || limit > 1000) return { availability: "invalid-selector", events: [] };
   return { availability: "available", events: events.filter((event) => matchesTraceEvent(event, filters)).slice(-limit) };
+}
+
+function registryString(value: unknown): string | undefined {
+  return typeof value === "string" && projectOpaqueId(value) ? value : undefined;
+}
+
+function registryTimestamp(value: unknown): string | undefined {
+  return typeof value === "string" && validQueryTime(value) ? value : undefined;
+}
+
+function registryOutcome(value: unknown): PublicRegistryRecord["outcome"] {
+  return value === "success" || value === "failure" || value === "budget-stopped" ? value : undefined;
+}
+
+function normalizeRegistryRecord(value: unknown): PublicRegistryRecord | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const input = value as Record<string, unknown>;
+  if (input.event !== "launched" && input.event !== "finished") return undefined;
+  const jobId = registryString(input.jobId);
+  if (!jobId) return undefined;
+  const parentJobId = input.event === "launched" ? registryString(input.parentJobId) : undefined;
+  const traceId = registryString(input.traceId);
+  const sessionName = registryString(input.sessionName);
+  const localSessionId = registryString(input.localSessionId);
+  const launchedAt = registryTimestamp(input.launchedAt);
+  const finishedAt = registryTimestamp(input.finishedAt);
+  const outcome = input.event === "finished"
+    ? input.budgetStopped === true ? "budget-stopped" : typeof input.exitCode === "number" && input.exitCode === 0 ? "success" : "failure"
+    : undefined;
+  return { event: input.event, jobId, ...(parentJobId ? { parentJobId } : {}), ...(traceId ? { traceId } : {}), ...(sessionName ? { sessionName } : {}), ...(localSessionId ? { localSessionId } : {}), ...(launchedAt ? { launchedAt } : {}), ...(finishedAt ? { finishedAt } : {}), ...(outcome ? { outcome } : {}) };
+}
+
+export async function readJobRegistryEvidence(registryPath: string): Promise<JobRegistryEvidence> {
+  if (typeof registryPath !== "string" || registryPath.length === 0 || registryPath.length > 4096) return { records: [], malformedLines: 0, availability: "inaccessible" };
+  try {
+    const metadata = await stat(registryPath);
+    if (!metadata.isFile()) return { records: [], malformedLines: 0, availability: "inaccessible" };
+    const file = Bun.file(registryPath);
+    if (!await file.exists()) return { records: [], malformedLines: 0, availability: "missing" };
+    if (file.size > maxRegistryBytes) return { records: [], malformedLines: 1, availability: "malformed" };
+    const lines = (await file.text()).split("\n");
+    const records: PublicRegistryRecord[] = [];
+    let malformedLines = lines.length > maxRegistryLines ? 1 : 0;
+    for (const line of lines.slice(0, maxRegistryLines)) {
+      if (!line.trim()) continue;
+      try {
+        const record = normalizeRegistryRecord(JSON.parse(line));
+        if (!record || records.length >= maxRegistryRecords) malformedLines += 1;
+        else records.push(record);
+      } catch {
+        malformedLines += 1;
+      }
+    }
+    return { records, malformedLines, availability: records.length > 0 ? "available" : malformedLines > 0 ? "malformed" : "missing" };
+  } catch (error) {
+    const code = error && typeof error === "object" && "code" in error ? String((error as { code?: unknown }).code) : "";
+    return { records: [], malformedLines: 0, availability: code === "ENOENT" ? "missing" : "inaccessible" };
+  }
+}
+
+export function correlateJobRegistryWithTraces(events: TraceEvent[], registry: JobRegistryEvidence, limits: { maxNodes?: number; maxDepth?: number; traceMalformedLines?: number } = {}): Record<string, unknown> {
+  const maxNodes = Number.isInteger(limits.maxNodes) && limits.maxNodes! > 0 && limits.maxNodes! <= maxCorrelationNodes ? limits.maxNodes! : maxCorrelationNodes;
+  const maxDepth = Number.isInteger(limits.maxDepth) && limits.maxDepth! > 0 && limits.maxDepth! <= maxCorrelationDepth ? limits.maxDepth! : maxCorrelationDepth;
+  const launches = new Map<string, PublicRegistryRecord>();
+  const finishes = new Map<string, PublicRegistryRecord>();
+  const inconsistencies: Array<Record<string, unknown>> = [];
+  for (const record of registry.records) {
+    const target = record.event === "launched" ? launches : finishes;
+    if (target.has(record.jobId)) {
+      inconsistencies.push({ kind: "duplicate-job", jobId: record.jobId, event: record.event });
+      continue;
+    }
+    target.set(record.jobId, record);
+  }
+  const traceByJob = new Map<string, { traceIds: string[]; parentJobIds: string[]; outcomes: string[] }>();
+  for (const event of events) {
+    const jobId = eventJobId(event);
+    if (!jobId) continue;
+    const current = traceByJob.get(jobId) ?? { traceIds: [], parentJobIds: [], outcomes: [] };
+    const traceId = projectOpaqueId(event.traceId);
+    if (traceId && !current.traceIds.includes(traceId)) current.traceIds.push(traceId);
+    const parentJobId = eventParentJobId(event);
+    if (parentJobId && !current.parentJobIds.includes(parentJobId)) current.parentJobIds.push(parentJobId);
+    const outcome = eventField(event, "outcome");
+    if (typeof outcome === "string" && !current.outcomes.includes(outcome)) current.outcomes.push(outcome);
+    traceByJob.set(jobId, current);
+  }
+  const allJobs = [...new Set([...launches.keys(), ...finishes.keys(), ...traceByJob.keys()])].sort();
+  const nodes: Array<Record<string, unknown>> = [];
+  for (const jobId of allJobs.slice(0, maxNodes)) {
+    const launch = launches.get(jobId);
+    const finish = finishes.get(jobId);
+    const trace = traceByJob.get(jobId);
+    const traceIds = [...new Set([...(launch?.traceId ? [projectOpaqueId(launch.traceId)] : []), ...(trace?.traceIds ?? [])].filter((value): value is string => Boolean(value)))];
+    if (launch?.traceId && trace && !trace.traceIds.includes(launch.traceId)) inconsistencies.push({ kind: "registry-trace-mismatch", jobId });
+    if (launch?.parentJobId === jobId || trace?.parentJobIds.includes(jobId)) inconsistencies.push({ kind: "cycle-or-self-parent", jobId });
+    const outcomes = [...new Set([...(finish?.outcome ? [finish.outcome] : []), ...(trace?.outcomes ?? [])])];
+    if (outcomes.length > 1) inconsistencies.push({ kind: "conflicting-outcome", jobId });
+    if (launch && !trace) inconsistencies.push({ kind: "missing-trace", jobId });
+    const attempts = events.filter((event) => eventJobId(event) === jobId).map((event) => eventField(event, "attempt")).filter((value): value is number => typeof value === "number");
+    nodes.push({ jobId, ...(launch?.parentJobId ? { parentJobId: launch.parentJobId } : {}), ...(traceIds.length ? { traceIds } : {}), ...(attempts.length ? { attempts: [...new Set(attempts)].sort((left, right) => left - right) } : {}), ...(launch?.sessionName ? { sessionName: launch.sessionName } : {}), ...(launch?.localSessionId ? { localSessionId: launch.localSessionId } : {}), ...(launch?.launchedAt ? { launchedAt: launch.launchedAt } : {}), ...(finish?.finishedAt ? { finishedAt: finish.finishedAt } : {}), outcome: outcomes[0] ?? "unavailable", ...(trace ? {} : { availability: "unavailable" }) });
+  }
+  if (allJobs.length > maxNodes) inconsistencies.push({ kind: "node-limit" });
+  const nodeIds = new Set(nodes.map((node) => node.jobId));
+  const parentOf = new Map(nodes.map((node) => [String(node.jobId), typeof node.parentJobId === "string" ? node.parentJobId : undefined]));
+  for (const node of nodes) {
+    const seen = new Set<string>();
+    let current: string | undefined = String(node.jobId);
+    let depth = 0;
+    while (current && depth <= maxDepth) {
+      if (seen.has(current)) {
+        inconsistencies.push({ kind: "cycle-or-depth-limit", jobId: node.jobId });
+        break;
+      }
+      seen.add(current);
+      current = parentOf.get(current);
+      depth += 1;
+    }
+    if (depth > maxDepth) inconsistencies.push({ kind: "cycle-or-depth-limit", jobId: node.jobId });
+  }
+  const relationships: Array<Record<string, unknown>> = [];
+  for (const node of nodes) {
+    const parentJobId = node.parentJobId;
+    if (typeof parentJobId !== "string") continue;
+    if (!nodeIds.has(parentJobId)) {
+      inconsistencies.push({ kind: "missing-parent", jobId: node.jobId, parentJobId });
+      relationships.push({ parentJobId, childJobId: node.jobId, availability: "unavailable", reason: "missing-parent" });
+    } else {
+      relationships.push({ parentJobId, childJobId: node.jobId, availability: "available" });
+    }
+  }
+  const retryGroups = new Map<string, { jobIds: string[]; traceIds: string[]; attempts: number[]; outcomes: string[] }>();
+  for (const node of nodes) {
+    const job = String(node.jobId);
+    const attempts = Array.isArray(node.attempts) ? node.attempts.filter((value): value is number => typeof value === "number") : [];
+    if (attempts.length === 0) continue;
+    const sessionName = typeof node.sessionName === "string" ? node.sessionName : "unavailable";
+    const event = events.find((candidate) => eventJobId(candidate) === job);
+    const revision = event ? eventField(event, "taskRevision") ?? "unavailable" : "unavailable";
+    const key = `${sessionName}\u0000${String(revision)}`;
+    const group = retryGroups.get(key) ?? { jobIds: [], traceIds: [], attempts: [], outcomes: [] };
+    if (!group.jobIds.includes(job)) group.jobIds.push(job);
+    for (const attempt of attempts) if (!group.attempts.includes(attempt)) group.attempts.push(attempt);
+    for (const traceId of (traceByJob.get(job)?.traceIds ?? [])) if (!group.traceIds.includes(traceId)) group.traceIds.push(traceId);
+    const outcome = typeof node.outcome === "string" ? node.outcome : "unavailable";
+    if (!group.outcomes.includes(outcome)) group.outcomes.push(outcome);
+    retryGroups.set(key, group);
+  }
+  const retries = [...retryGroups.values()].filter((group) => group.jobIds.length > 1).map((group) => ({ ...group, attempts: group.attempts.sort((left, right) => left - right) }));
+  const traceMalformedLines = Number.isInteger(limits.traceMalformedLines) && limits.traceMalformedLines! >= 0 ? limits.traceMalformedLines! : 0;
+  return {
+    availability: registry.availability === "available" && events.length === 0 && traceMalformedLines > 0 ? "malformed" : registry.availability === "available" && (events.length > 0 || registry.records.length > 0) ? "available" : registry.availability,
+    registryAvailability: registry.availability,
+    traceAvailability: events.length > 0 ? "available" : traceMalformedLines > 0 ? "malformed" : "missing",
+    malformedRegistryLines: registry.malformedLines,
+    traceMalformedLines,
+    eventCount: events.length,
+    nodeCount: nodes.length,
+    nodes,
+    relationships,
+    retries,
+    inconsistencies: inconsistencies.slice(0, 256),
+    limits: { maxNodes, maxDepth },
+  };
 }
 
 export function summarizeTraceCorrelation(events: TraceEvent[], malformedLines = 0, availability?: TraceEvidence["availability"]): Record<string, unknown> {
@@ -467,6 +666,18 @@ export function createTraceQueryTools(): ToolDefinition[] {
         const evidence = await readTraceEvidence(ctx.cwd);
         const summarize = (traceId: string) => summarizeTraceCorrelation(evidence.events.filter((event) => event.traceId === traceId), evidence.malformedLines, evidence.availability);
         return { content: [{ type: "text", text: boundedJson({ left: { traceId: params.leftTraceId, ...summarize(params.leftTraceId) }, right: { traceId: params.rightTraceId, ...summarize(params.rightTraceId) } }) }], details: {} };
+      },
+    },
+    {
+      name: "correlate_job_registry",
+      label: "Correlate job registry and traces",
+      description: "Join bounded trace observations with one explicitly selected public job registry source without exposing registry paths or private records.",
+      parameters: Type.Object({ registryPath: Type.String({ minLength: 1, maxLength: 4096 }), maxNodes: Type.Optional(Type.Integer({ minimum: 1, maximum: maxCorrelationNodes })), maxDepth: Type.Optional(Type.Integer({ minimum: 1, maximum: maxCorrelationDepth })) }),
+      async execute(_id, params, _signal, _update, ctx) {
+        const [traceEvidence, registryEvidence] = await Promise.all([readTraceEvidence(ctx.cwd), readJobRegistryEvidence(params.registryPath)]);
+        const result = correlateJobRegistryWithTraces(traceEvidence.events, registryEvidence, { maxNodes: params.maxNodes, maxDepth: params.maxDepth, traceMalformedLines: traceEvidence.malformedLines });
+        const output = result;
+        return { content: [{ type: "text", text: boundedJson(output) }], details: { availability: output.availability, nodeCount: output.nodeCount } };
       },
     },
   ];
