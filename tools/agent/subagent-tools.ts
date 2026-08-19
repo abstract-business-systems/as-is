@@ -207,6 +207,17 @@ export function currentSessionReference(ctx: { sessionManager?: { getSessionId?:
   }
 }
 
+export function currentSessionName(ctx: { sessionManager?: { getSessionName?: () => unknown } }): string | undefined {
+  try {
+    const sessionName = ctx.sessionManager?.getSessionName?.();
+    if (typeof sessionName !== "string") return undefined;
+    const normalized = sessionNameFromTaskName(sessionName);
+    return normalized.accepted ? normalized.name : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export type WorkerSessionMetadata = {
   sessionId: string | null;
   sessionName: string | null;
@@ -390,7 +401,11 @@ const callSubagent: ToolDefinition = {
     const config = projectAgentConfig(cwd);
     const sessionName = sessionNameFromTaskName(params.taskName ?? process.env.AS_IS_TASK_NAME).name;
     const sessionReference = currentSessionReference(ctx);
-    const callObservations = nestedObservations(parentContext, callId, relationshipId, roleName, sessionName, sessionReference, "admission", depth);
+    // A worker session does not exist at admission. Pair the admission label
+    // with the invoking session reference; the child label/reference pair is
+    // emitted only after the worker session has been created.
+    const admissionSessionName = currentSessionName(ctx);
+    const callObservations = nestedObservations(parentContext, callId, relationshipId, roleName, admissionSessionName, sessionReference, "admission", depth);
 
     await recordTrace({
       name: "call_subagent",

@@ -3,7 +3,7 @@ import { mkdtemp, mkdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createAgentSession, createExtensionRuntime, ModelRuntime, SessionManager } from "../../skills/spawning-pi-subagents/node_modules/@earendil-works/pi-coding-agent";
-import workerTools, { analyzeProjectSession, newNestedDelegationContext, resolveWorkerThinkingLevel, toolsForTarget, workerSessionMetadata, workerSessionOptions } from "../../.pi/extensions/worker-tools";
+import workerTools, { analyzeProjectSession, currentSessionName, currentSessionReference, newNestedDelegationContext, resolveWorkerThinkingLevel, toolsForTarget, workerSessionMetadata, workerSessionOptions } from "../../.pi/extensions/worker-tools";
 import { registerWorkerTools } from "../../skills/spawning-pi-subagents/extensions/worker-tools.ts";
 
 const rootRecord = "# Root\n";
@@ -105,6 +105,20 @@ describe("capability-based worker extension", () => {
       sessionId: null,
       sessionName: null,
     });
+  });
+
+  test("pairs admission identity with the invoking session and keeps invalid metadata unavailable", async () => {
+    const cwd = await mkdtemp(join(tmpdir(), "as-is-admission-session-identity-"));
+    const manager = SessionManager.create(cwd, join(cwd, "sessions"));
+    manager.appendSessionInfo("tracing-trial");
+    const context = { sessionManager: manager };
+    expect(currentSessionName(context)).toBe("tracing-trial");
+    expect(currentSessionReference(context)).toEqual({ sessionId: manager.getSessionId() });
+    expect(currentSessionName({ sessionManager: { getSessionName: () => "system: private prompt" } })).toBeUndefined();
+    expect(currentSessionReference({ sessionManager: { getSessionId: () => "session/path" } })).toBeUndefined();
+    const implementation = await Bun.file(join(process.cwd(), "tools", "agent", "subagent-tools.ts")).text();
+    expect(implementation).toContain("nestedObservations(parentContext, callId, relationshipId, roleName, admissionSessionName, sessionReference, \"admission\", depth)");
+    expect(implementation).toContain("nestedObservations(parentContext, callId, relationshipId, roleName, workerMetadata.sessionName, workerSessionReference, \"result\", depth)");
   });
   test("preserves every declared worker tool in the SDK allowlist", () => {
     const profile = toolsForTarget("agent-capability-probe", ["read", "grep", "call_subagent", "resolve_component_context"]);
