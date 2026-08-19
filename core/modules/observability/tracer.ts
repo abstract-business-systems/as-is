@@ -107,6 +107,12 @@ const observationNumericKinds = new Set<TraceObservationKind>([
 const observationIntegerKinds = new Set<TraceObservationKind>([
   "taskRevision", "attempt", "wallClockMs", "usageInputTokens", "usageOutputTokens", "usageTotalTokens", "depth", "childCount", "budgetWallClockMs",
 ]);
+const observationUnits: Partial<Record<TraceObservationKind, TraceObservation["unit"]>> = {
+  wallClockMs: "milliseconds",
+  budgetWallClockMs: "milliseconds",
+  usageCostUsd: "usd",
+  budgetCostUsd: "usd",
+};
 
 const stringDomains: Record<string, Set<string>> = {
   outcome: new Set(["success", "failure"]),
@@ -187,34 +193,37 @@ function projectedObservation(value: unknown): TraceObservation | undefined {
   const source = candidate.source as TraceObservationSource;
   const availability = candidate.availability as TraceObservationAvailability;
   if (!observationKinds.has(kind) || !observationSources.has(source) || !observationAvailabilities.has(availability)) return undefined;
+  const expectedUnit = observationUnits[kind] ?? (observationNumericKinds.has(kind) ? "count" : undefined);
+  const suppliedUnit = candidate.unit === undefined ? undefined : String(candidate.unit);
+  const unitIsValid = suppliedUnit === undefined || ["count", "milliseconds", "usd"].includes(suppliedUnit);
+  const reasonIsValid = candidate.reason === undefined || (typeof candidate.reason === "string" && observationReasons.has(candidate.reason));
   const projected: TraceObservation = { kind, source, availability };
-  if (candidate.reason !== undefined && (typeof candidate.reason !== "string" || !observationReasons.has(candidate.reason))) return undefined;
-  if (candidate.reason !== undefined) projected.reason = candidate.reason as TraceObservation["reason"];
-  if (availability === "available") {
-    if (typeof candidate.value === "number") {
-      if (!Number.isFinite(candidate.value) || candidate.value < 0 || candidate.value > Number.MAX_SAFE_INTEGER) return undefined;
-      if (observationIntegerKinds.has(kind) && !Number.isSafeInteger(candidate.value)) return undefined;
-      if (kind === "wallClockMs" && candidate.value > MAX_DURATION_MS) return undefined;
-      projected.value = candidate.value;
-    } else if (!observationNumericKinds.has(kind) && typeof candidate.value === "string" && candidate.value.length > 0 && candidate.value.length <= MAX_OBSERVATION_STRING_LENGTH && opaqueCorrelation(candidate.value)) {
-      projected.value = candidate.value;
-    } else return undefined;
-  } else if (candidate.value !== undefined) return undefined;
-  if (candidate.unit !== undefined) {
-    if (!["count", "milliseconds", "usd"].includes(String(candidate.unit))) return undefined;
-    projected.unit = candidate.unit as TraceObservation["unit"];
+  if (expectedUnit !== undefined) projected.unit = expectedUnit;
+  else if (unitIsValid && suppliedUnit !== undefined) projected.unit = suppliedUnit as TraceObservation["unit"];
+  if (availability !== "available") {
+    if (reasonIsValid && candidate.reason !== undefined) projected.reason = candidate.reason as TraceObservation["reason"];
+    else projected.reason = availability === "malformed" ? "invalid-value" : "not-observed";
+    return projected;
   }
-  if (observationNumericKinds.has(kind)) {
-    const expectedUnit = kind === "wallClockMs" ? "milliseconds" : kind === "usageCostUsd" ? "usd" : "count";
-    if (availability === "available" && projected.unit !== expectedUnit) return undefined;
+  let validValue = false;
+  if (typeof candidate.value === "number") {
+    validValue = Number.isFinite(candidate.value) && candidate.value >= 0 && candidate.value <= Number.MAX_SAFE_INTEGER && (!observationIntegerKinds.has(kind) || Number.isSafeInteger(candidate.value));
+    if (kind === "wallClockMs" && candidate.value > MAX_DURATION_MS) validValue = false;
+    if (validValue) projected.value = candidate.value;
+  } else if (!observationNumericKinds.has(kind) && typeof candidate.value === "string" && candidate.value.length > 0 && candidate.value.length <= MAX_OBSERVATION_STRING_LENGTH && opaqueCorrelation(candidate.value)) {
+    validValue = true;
+    projected.value = candidate.value;
   }
-  if (kind === "localSessionId" && availability === "available" && (typeof projected.value !== "string" || /^\w{8}-\w{4}-[1-8]\w{3}-[89ab]\w{3}-\w{12}$/iu.test(projected.value) === false)) return undefined;
-  if (kind === "workerRole" && availability === "available" && (typeof projected.value !== "string" || !opaqueCorrelation(projected.value))) return undefined;
-  if (["runId", "parentTraceId", "depth", "childCount", "budgetWallClockMs", "budgetCostUsd"].includes(kind) && availability === "available" && projected.value === undefined) return undefined;
-  if (kind === "phase" && availability === "available" && typeof projected.value === "string" && !observationPhases.has(projected.value)) return undefined;
-  if (kind === "outcome" && availability === "available" && typeof projected.value === "string" && !observationOutcomes.has(projected.value)) return undefined;
-  if (kind === "admission" && availability === "available" && (typeof projected.value !== "string" || !observationAdmissions.has(projected.value))) return undefined;
-  if (kind === "errorClass" && availability === "available" && (typeof projected.value !== "string" || !observationErrorClasses.has(projected.value))) return undefined;
+  if (expectedUnit !== undefined && suppliedUnit !== expectedUnit) validValue = false;
+  if (!unitIsValid || !reasonIsValid) validValue = false;
+  if (kind === "localSessionId" && (typeof projected.value !== "string" || /^\w{8}-\w{4}-[1-8]\w{3}-[89ab]\w{3}-\w{12}$/iu.test(projected.value) === false)) validValue = false;
+  if (kind === "workerRole" && (typeof projected.value !== "string" || !opaqueCorrelation(projected.value))) validValue = false;
+  if (["runId", "parentTraceId", "depth", "childCount", "budgetWallClockMs", "budgetCostUsd"].includes(kind) && projected.value === undefined) validValue = false;
+  if (kind === "phase" && typeof projected.value === "string" && !observationPhases.has(projected.value)) validValue = false;
+  if (kind === "outcome" && typeof projected.value === "string" && !observationOutcomes.has(projected.value)) validValue = false;
+  if (kind === "admission" && (typeof projected.value !== "string" || !observationAdmissions.has(projected.value))) validValue = false;
+  if (kind === "errorClass" && (typeof projected.value !== "string" || !observationErrorClasses.has(projected.value))) validValue = false;
+  if (!validValue) return { kind, source, availability: "malformed", reason: "invalid-value", ...(expectedUnit ? { unit: expectedUnit } : {}) };
   return projected;
 }
 

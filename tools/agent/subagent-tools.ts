@@ -53,12 +53,6 @@ function taskWallClockRemaining(cwd: string): number | undefined {
   return undefined;
 }
 
-type TraceContext = {
-  traceId?: string;
-  runId?: string;
-  parentSessionId?: string;
-};
-
 type NestedDelegationContext = {
   traceId: string;
   callId: string;
@@ -72,18 +66,38 @@ const nestedDelegationContexts = new WeakMap<object, NestedDelegationContext>();
 const maximumNestedDepth = 8;
 const maximumNestedChildren = 16;
 
+export function newNestedDelegationContext(parent?: NestedDelegationContext): NestedDelegationContext {
+  return {
+    traceId: newId(),
+    callId: newId(),
+    runId: parent?.runId ?? newId(),
+    relationshipId: newId(),
+    depth: parent ? parent.depth + 1 : 0,
+    childCount: 0,
+  };
+}
+
 function nestedContextFor(ctx: { sessionManager?: unknown }): NestedDelegationContext | undefined {
   return ctx.sessionManager && typeof ctx.sessionManager === "object"
     ? nestedDelegationContexts.get(ctx.sessionManager)
     : undefined;
 }
 
-function unavailableObservation(kind: TraceObservation["kind"], source: TraceObservation["source"] = "agent-tool"): TraceObservation {
-  return { kind, source, availability: "unavailable", reason: "not-observed" };
+function unavailableObservation(kind: TraceObservation["kind"], source: TraceObservation["source"] = "agent-tool", unit?: TraceObservation["unit"]): TraceObservation {
+  return { kind, source, availability: "unavailable", reason: "not-observed", ...(unit ? { unit } : {}) };
 }
 
 function availableObservation(kind: TraceObservation["kind"], value: string | number, source: TraceObservation["source"] = "agent-tool", unit?: TraceObservation["unit"]): TraceObservation {
   return { kind, source, availability: "available", value, ...(unit ? { unit } : {}) };
+}
+
+function taskContextObservation(kind: "taskRevision" | "attempt" | "componentIdentity"): TraceObservation {
+  const raw = kind === "taskRevision" ? process.env.AS_IS_TASK_REVISION : kind === "attempt" ? process.env.AS_IS_ATTEMPT : process.env.AS_IS_COMPONENT_IDENTITY;
+  if (kind === "componentIdentity") return raw ? availableObservation(kind, hash(raw), "task") : unavailableObservation(kind, "task");
+  const value = raw === undefined ? undefined : Number(raw);
+  return value !== undefined && Number.isSafeInteger(value) && value >= 0
+    ? availableObservation(kind, value, "task", "count")
+    : unavailableObservation(kind, "task");
 }
 
 function errorClass(error: unknown): TraceObservation["value"] {
@@ -97,6 +111,9 @@ function errorClass(error: unknown): TraceObservation["value"] {
 
 function nestedObservations(context: NestedDelegationContext | undefined, callId: string, relationshipId: string, role: string, sessionName: string | undefined, sessionReference: SessionReference | undefined, phase: "admission" | "result", depth: number): TraceObservation[] {
   return [
+    taskContextObservation("taskRevision"),
+    taskContextObservation("attempt"),
+    taskContextObservation("componentIdentity"),
     availableObservation("callId", callId),
     availableObservation("relationshipId", relationshipId),
     availableObservation("workerRole", role),
@@ -108,11 +125,11 @@ function nestedObservations(context: NestedDelegationContext | undefined, callId
     context ? availableObservation("parentTraceId", context.traceId) : unavailableObservation("parentTraceId"),
     context ? availableObservation("parentCallId", context.callId) : unavailableObservation("parentCallId"),
     context ? availableObservation("childCount", context.childCount, "agent-tool", "count") : unavailableObservation("childCount"),
-    unavailableObservation("budgetCostUsd", "task"),
-    unavailableObservation("usageInputTokens", "pi-session",),
-    unavailableObservation("usageOutputTokens", "pi-session"),
-    unavailableObservation("usageTotalTokens", "pi-session"),
-    unavailableObservation("usageCostUsd", "pi-session"),
+    unavailableObservation("budgetCostUsd", "task", "usd"),
+    unavailableObservation("usageInputTokens", "pi-session", "count"),
+    unavailableObservation("usageOutputTokens", "pi-session", "count"),
+    unavailableObservation("usageTotalTokens", "pi-session", "count"),
+    unavailableObservation("usageCostUsd", "pi-session", "usd"),
   ];
 }
 
@@ -348,17 +365,15 @@ const callSubagent: ToolDefinition = {
     role: Type.String({ description: "Canonical agent role under agents/<role>/agent.md." }),
     task: Type.String({ description: "One bounded request for the selected canonical agent." }),
     timeoutMs: Type.Optional(Type.Integer({ minimum: 1_000, maximum: maximumTimeoutMs })),
-    traceId: Type.Optional(Type.String()),
-    runId: Type.Optional(Type.String()),
     taskName: Type.Optional(Type.String({ maxLength: 128 })),
   }),
   async execute(_toolCallId, params, signal, _onUpdate, ctx) {
-    const callId = newId();
     const parentContext = nestedContextFor(ctx);
-    const depth = parentContext ? parentContext.depth + 1 : 0;
-    const relationshipId = newId();
-    const traceId = params.traceId ?? newId();
-    const runId = params.runId ?? parentContext?.runId ?? newId();
+    // Delegation identity is host-owned. Model arguments cannot rewrite the
+    // trace namespace or detach a child from its inherited logical run.
+    const identity = newNestedDelegationContext(parentContext);
+    const { callId, relationshipId, traceId, runId } = identity;
+    const depth = identity.depth;
     const spanId = newId();
     const started = Date.now();
     const cwd = ctx.cwd;
@@ -443,12 +458,12 @@ const callSubagent: ToolDefinition = {
         spanId: newId(),
         parentSpanId: spanId,
         sessionReference: workerSessionReference,
-        observations: [availableObservation("runId", runId), ...nestedObservations(parentContext, callId, relationshipId, roleName, workerMetadata.sessionName, workerSessionReference, "result", depth), availableObservation("outcome", "success"), availableObservation("wallClockMs", Date.now() - started, "tracer", "milliseconds"), availableObservation("budgetWallClockMs", timeoutMs, "task", "milliseconds")],
+        durationMs: Date.now() - started,
+        observations: [availableObservation("runId", runId), ...nestedObservations(parentContext, callId, relationshipId, roleName, workerMetadata.sessionName, workerSessionReference, "result", depth), availableObservation("outcome", "success"), availableObservation("budgetWallClockMs", timeoutMs, "task", "milliseconds")],
         attributes: {
           "as_is.role": roleName,
           "as_is.call_id": callId,
           "as_is.outcome": "success",
-          "as_is.duration_ms": Date.now() - started,
           "as_is.result_digest": hash(report),
         },
       }, cwd);
@@ -465,12 +480,12 @@ const callSubagent: ToolDefinition = {
         spanId: newId(),
         parentSpanId: spanId,
         sessionReference: workerSessionReference ?? sessionReference,
-        observations: [availableObservation("runId", runId), ...nestedObservations(parentContext, callId, relationshipId, roleName, workerMetadata.sessionName, workerSessionReference ?? sessionReference, "result", depth), availableObservation("outcome", "failure"), availableObservation("wallClockMs", Date.now() - started, "tracer", "milliseconds"), availableObservation("budgetWallClockMs", timeoutMs, "task", "milliseconds"), availableObservation("errorClass", errorClass(error))],
+        durationMs: Date.now() - started,
+        observations: [availableObservation("runId", runId), ...nestedObservations(parentContext, callId, relationshipId, roleName, workerMetadata.sessionName, workerSessionReference ?? sessionReference, "result", depth), availableObservation("outcome", "failure"), availableObservation("budgetWallClockMs", timeoutMs, "task", "milliseconds"), availableObservation("errorClass", errorClass(error))],
         attributes: {
           "as_is.role": roleName,
           "as_is.call_id": callId,
           "as_is.outcome": "failure",
-          "as_is.duration_ms": Date.now() - started,
           "as_is.error_type": error instanceof Error ? error.name : "unknown",
         },
       }, cwd);

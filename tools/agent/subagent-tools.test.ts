@@ -3,7 +3,7 @@ import { mkdtemp, mkdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createAgentSession, createExtensionRuntime, ModelRuntime, SessionManager } from "../../skills/spawning-pi-subagents/node_modules/@earendil-works/pi-coding-agent";
-import workerTools, { analyzeProjectSession, resolveWorkerThinkingLevel, toolsForTarget, workerSessionMetadata, workerSessionOptions } from "../../.pi/extensions/worker-tools";
+import workerTools, { analyzeProjectSession, newNestedDelegationContext, resolveWorkerThinkingLevel, toolsForTarget, workerSessionMetadata, workerSessionOptions } from "../../.pi/extensions/worker-tools";
 import { registerWorkerTools } from "../../skills/spawning-pi-subagents/extensions/worker-tools.ts";
 
 const rootRecord = "# Root\n";
@@ -112,13 +112,30 @@ describe("capability-based worker extension", () => {
     expect(profile.customTools.map((tool) => tool.name)).toEqual(["call_subagent", "resolve_component_context"]);
   });
 
-  test("nested delegation observations have bounded lineage and unavailable spend", async () => {
+  test("nested delegation context inherits runs and creates fresh trace lineage", () => {
+    const root = newNestedDelegationContext();
+    const child = newNestedDelegationContext(root);
+    const leaf = newNestedDelegationContext(child);
+    expect(child.runId).toBe(root.runId);
+    expect(leaf.runId).toBe(root.runId);
+    expect(new Set([root.traceId, child.traceId, leaf.traceId]).size).toBe(3);
+    expect(child.depth).toBe(root.depth + 1);
+    expect(leaf.depth).toBe(child.depth + 1);
+  });
+
+  test("nested delegation identities are runtime-owned and result budgets are explicit", async () => {
     const implementation = await Bun.file(join(process.cwd(), "tools", "agent", "subagent-tools.ts")).text();
     expect(implementation).toContain('name: "call_subagent"');
     expect(implementation).toContain("maximumNestedDepth");
     expect(implementation).toContain("maximumNestedChildren");
     expect(implementation).toContain('availableObservation("parentTraceId"');
     expect(implementation).toContain('unavailableObservation("budgetCostUsd"');
+    expect(implementation).toContain("traceId: newId()");
+    expect(implementation).toContain("runId: parent?.runId ?? newId()");
+    expect(implementation).toContain("durationMs: Date.now() - started");
+    expect(implementation).not.toContain('traceId: Type.Optional');
+    expect(implementation).not.toContain('runId: Type.Optional');
+    expect(implementation).not.toContain('availableObservation(\"wallClockMs\", Date.now() - started');
   });
 
   test("call_subagent requires an explicit target role", async () => {
