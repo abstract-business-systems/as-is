@@ -9,8 +9,9 @@ export type TraceObservationKind =
   | "taskRevision" | "attempt" | "componentIdentity" | "workerRole" | "sessionName"
   | "localSessionId" | "jobId" | "callId" | "parentCallId" | "relationshipId"
   | "phase" | "outcome" | "wallClockMs" | "usageInputTokens" | "usageOutputTokens"
-  | "usageTotalTokens" | "usageCostUsd";
-export type TraceObservationSource = "task" | "launcher" | "tracer" | "pi-session" | "provider-adapter";
+  | "usageTotalTokens" | "usageCostUsd" | "runId" | "parentTraceId" | "depth"
+  | "childCount" | "admission" | "errorClass" | "budgetWallClockMs" | "budgetCostUsd";
+export type TraceObservationSource = "task" | "launcher" | "tracer" | "pi-session" | "provider-adapter" | "agent-tool";
 export type TraceObservationAvailability = "available" | "absent" | "malformed" | "unavailable";
 export type TraceObservation = {
   kind: TraceObservationKind;
@@ -77,7 +78,7 @@ const allowedEventNames = new Set([
   "parent", "child", "failed", "reference", "worker.result", "subprocess.launch",
   "worker.lifecycle", "subprocess.exit", "subprocess.handoff", "first", "second",
   "json-authority", "control-plane.delegate", "session.lifecycle", "delegation.lifecycle",
-  "child-wait", "component-build",
+  "child-wait", "component-build", "call_subagent",
 ]);
 
 const approvedAttributeKeys = new Set([
@@ -89,18 +90,22 @@ const approvedAttributeKeys = new Set([
 const observationKinds = new Set<TraceObservationKind>([
   "taskRevision", "attempt", "componentIdentity", "workerRole", "sessionName", "localSessionId",
   "jobId", "callId", "parentCallId", "relationshipId", "phase", "outcome", "wallClockMs",
-  "usageInputTokens", "usageOutputTokens", "usageTotalTokens", "usageCostUsd",
+  "usageInputTokens", "usageOutputTokens", "usageTotalTokens", "usageCostUsd", "runId", "parentTraceId",
+  "depth", "childCount", "admission", "errorClass", "budgetWallClockMs", "budgetCostUsd",
 ]);
-const observationSources = new Set<TraceObservationSource>(["task", "launcher", "tracer", "pi-session", "provider-adapter"]);
+const observationSources = new Set<TraceObservationSource>(["task", "launcher", "tracer", "pi-session", "provider-adapter", "agent-tool"]);
 const observationAvailabilities = new Set<TraceObservationAvailability>(["available", "absent", "malformed", "unavailable"]);
 const observationReasons = new Set(["not-supplied", "not-observed", "invalid-value", "source-unavailable"]);
-const observationPhases = new Set(["setup", "log", "spawn", "wait", "handoff", "task", "worker", "delegation"]);
+const observationPhases = new Set(["setup", "log", "spawn", "wait", "handoff", "task", "worker", "delegation", "admission", "result"]);
 const observationOutcomes = new Set(["success", "failure", "cancelled", "blocked", "timed-out", "budget-stopped", "unavailable"]);
+const observationAdmissions = new Set(["admitted", "rejected"]);
+const observationErrorClasses = new Set(["invalid-target", "timeout", "aborted", "session-create", "prompt-failed", "budget-stopped", "admission-rejected", "unknown"]);
 const observationNumericKinds = new Set<TraceObservationKind>([
   "taskRevision", "attempt", "wallClockMs", "usageInputTokens", "usageOutputTokens", "usageTotalTokens", "usageCostUsd",
+  "depth", "childCount", "budgetWallClockMs", "budgetCostUsd",
 ]);
 const observationIntegerKinds = new Set<TraceObservationKind>([
-  "taskRevision", "attempt", "wallClockMs", "usageInputTokens", "usageOutputTokens", "usageTotalTokens",
+  "taskRevision", "attempt", "wallClockMs", "usageInputTokens", "usageOutputTokens", "usageTotalTokens", "depth", "childCount", "budgetWallClockMs",
 ]);
 
 const stringDomains: Record<string, Set<string>> = {
@@ -203,10 +208,13 @@ function projectedObservation(value: unknown): TraceObservation | undefined {
     const expectedUnit = kind === "wallClockMs" ? "milliseconds" : kind === "usageCostUsd" ? "usd" : "count";
     if (availability === "available" && projected.unit !== expectedUnit) return undefined;
   }
-  if (kind === "localSessionId" && availability === "available" && (typeof projected.value !== "string" || !/^\\w{8}-\\w{4}-[1-8]\\w{3}-[89ab]\\w{3}-\\w{12}$/iu.test(projected.value))) return undefined;
-  if (kind === "workerRole" && availability === "available" && (typeof projected.value !== "string" || !new Set(["as-is", "component-builder", "expert", "execution-advisor", "worker"]).has(projected.value))) return undefined;
+  if (kind === "localSessionId" && availability === "available" && (typeof projected.value !== "string" || /^\w{8}-\w{4}-[1-8]\w{3}-[89ab]\w{3}-\w{12}$/iu.test(projected.value) === false)) return undefined;
+  if (kind === "workerRole" && availability === "available" && (typeof projected.value !== "string" || !opaqueCorrelation(projected.value))) return undefined;
+  if (["runId", "parentTraceId", "depth", "childCount", "budgetWallClockMs", "budgetCostUsd"].includes(kind) && availability === "available" && projected.value === undefined) return undefined;
   if (kind === "phase" && availability === "available" && typeof projected.value === "string" && !observationPhases.has(projected.value)) return undefined;
   if (kind === "outcome" && availability === "available" && typeof projected.value === "string" && !observationOutcomes.has(projected.value)) return undefined;
+  if (kind === "admission" && availability === "available" && (typeof projected.value !== "string" || !observationAdmissions.has(projected.value))) return undefined;
+  if (kind === "errorClass" && availability === "available" && (typeof projected.value !== "string" || !observationErrorClasses.has(projected.value))) return undefined;
   return projected;
 }
 

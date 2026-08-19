@@ -27,6 +27,7 @@ import {
   emitTrace,
   serializeSessionReference,
   type SessionReference,
+  type TraceObservation,
 } from "../../core/modules/observability/tracer.ts";
 
 const maxResultCharacters = 100_000;
@@ -58,6 +59,63 @@ type TraceContext = {
   parentSessionId?: string;
 };
 
+type NestedDelegationContext = {
+  traceId: string;
+  callId: string;
+  runId: string;
+  relationshipId: string;
+  depth: number;
+  childCount: number;
+};
+
+const nestedDelegationContexts = new WeakMap<object, NestedDelegationContext>();
+const maximumNestedDepth = 8;
+const maximumNestedChildren = 16;
+
+function nestedContextFor(ctx: { sessionManager?: unknown }): NestedDelegationContext | undefined {
+  return ctx.sessionManager && typeof ctx.sessionManager === "object"
+    ? nestedDelegationContexts.get(ctx.sessionManager)
+    : undefined;
+}
+
+function unavailableObservation(kind: TraceObservation["kind"], source: TraceObservation["source"] = "agent-tool"): TraceObservation {
+  return { kind, source, availability: "unavailable", reason: "not-observed" };
+}
+
+function availableObservation(kind: TraceObservation["kind"], value: string | number, source: TraceObservation["source"] = "agent-tool", unit?: TraceObservation["unit"]): TraceObservation {
+  return { kind, source, availability: "available", value, ...(unit ? { unit } : {}) };
+}
+
+function errorClass(error: unknown): TraceObservation["value"] {
+  const message = error instanceof Error ? error.message.toLowerCase() : "";
+  if (message.includes("timed out")) return "timeout";
+  if (message.includes("aborted")) return "aborted";
+  if (message.includes("model declaration") || message.includes("canonical agent")) return "invalid-target";
+  if (message.includes("prompt")) return "prompt-failed";
+  return "unknown";
+}
+
+function nestedObservations(context: NestedDelegationContext | undefined, callId: string, relationshipId: string, role: string, sessionName: string | undefined, sessionReference: SessionReference | undefined, phase: "admission" | "result", depth: number): TraceObservation[] {
+  return [
+    availableObservation("callId", callId),
+    availableObservation("relationshipId", relationshipId),
+    availableObservation("workerRole", role),
+    sessionName ? availableObservation("sessionName", sessionName, "task") : unavailableObservation("sessionName", "task"),
+    sessionReference ? availableObservation("localSessionId", sessionReference.sessionId, "pi-session") : unavailableObservation("localSessionId", "pi-session"),
+    availableObservation("phase", phase),
+    phase === "admission" ? availableObservation("admission", "admitted") : unavailableObservation("admission"),
+    availableObservation("depth", depth, "agent-tool", "count"),
+    context ? availableObservation("parentTraceId", context.traceId) : unavailableObservation("parentTraceId"),
+    context ? availableObservation("parentCallId", context.callId) : unavailableObservation("parentCallId"),
+    context ? availableObservation("childCount", context.childCount, "agent-tool", "count") : unavailableObservation("childCount"),
+    unavailableObservation("budgetCostUsd", "task"),
+    unavailableObservation("usageInputTokens", "pi-session",),
+    unavailableObservation("usageOutputTokens", "pi-session"),
+    unavailableObservation("usageTotalTokens", "pi-session"),
+    unavailableObservation("usageCostUsd", "pi-session"),
+  ];
+}
+
 type TraceEvent = {
   name: string;
   timestamp: string;
@@ -65,6 +123,7 @@ type TraceEvent = {
   spanId: string;
   parentSpanId?: string;
   attributes: Record<string, string | number | boolean | undefined>;
+  observations?: TraceObservation[];
   sessionReference?: SessionReference;
 };
 
@@ -295,10 +354,17 @@ const callSubagent: ToolDefinition = {
   }),
   async execute(_toolCallId, params, signal, _onUpdate, ctx) {
     const callId = newId();
+    const parentContext = nestedContextFor(ctx);
+    const depth = parentContext ? parentContext.depth + 1 : 0;
+    const relationshipId = newId();
     const traceId = params.traceId ?? newId();
+    const runId = params.runId ?? parentContext?.runId ?? newId();
     const spanId = newId();
     const started = Date.now();
     const cwd = ctx.cwd;
+    if (depth > maximumNestedDepth) throw new Error("worker call rejected: nested delegation depth limit reached");
+    if (parentContext && parentContext.childCount >= maximumNestedChildren) throw new Error("worker call rejected: nested child limit reached");
+    if (parentContext) parentContext.childCount += 1;
     const requestedTimeoutMs = params.timeoutMs ?? defaultTimeoutMs;
     const remainingMs = taskWallClockRemaining(cwd);
     const timeoutMs = remainingMs === undefined
@@ -308,8 +374,8 @@ const callSubagent: ToolDefinition = {
     const roleName = params.role;
     const config = projectAgentConfig(cwd);
     const sessionName = sessionNameFromTaskName(params.taskName ?? process.env.AS_IS_TASK_NAME).name;
-    const target = await resolveCanonicalTarget(cwd, roleName);
     const sessionReference = currentSessionReference(ctx);
+    const callObservations = nestedObservations(parentContext, callId, relationshipId, roleName, sessionName, sessionReference, "admission", depth);
 
     await recordTrace({
       name: "call_subagent",
@@ -317,8 +383,9 @@ const callSubagent: ToolDefinition = {
       traceId,
       spanId,
       sessionReference,
+      observations: [availableObservation("runId", runId), ...callObservations],
       attributes: {
-        "as_is.run_id": params.runId,
+        "as_is.run_id": runId,
         "as_is.role": roleName,
         "as_is.call_id": callId,
         "as_is.task_digest": hash(params.task),
@@ -329,23 +396,28 @@ const callSubagent: ToolDefinition = {
     const abortFromParent = () => controller.abort(signal?.reason);
     signal?.addEventListener("abort", abortFromParent, { once: true });
 
+    let target: Awaited<ReturnType<typeof resolveCanonicalTarget>>;
     let worker;
     let workerSessionReference: SessionReference | undefined;
     let workerMetadata: WorkerSessionMetadata = { sessionId: null, sessionName: null };
+    let workerManager: ReturnType<typeof SessionManager.create> | undefined;
     try {
+      target = await resolveCanonicalTarget(cwd, roleName);
       const profile = toolsForTarget(roleName, target.tools);
+      workerManager = SessionManager.create(cwd, sessionDirectoryFor(cwd, config));
       const result = await createAgentSession({
         cwd,
         ...workerSessionOptions(ctx, cwd, target.model, target.thinking, roleName),
         resourceLoader: createWorkerLoader(target.body),
         tools: profile.tools,
-        sessionManager: SessionManager.create(cwd, sessionDirectoryFor(cwd, config)),
+        sessionManager: workerManager,
         customTools: profile.customTools,
       });
       worker = result.session;
       worker.setSessionName(sessionName);
       workerMetadata = workerSessionMetadata(worker);
       workerSessionReference = serializeSessionReference({ sessionId: workerMetadata.sessionId });
+      nestedDelegationContexts.set(workerManager, { traceId, callId, runId, relationshipId, depth, childCount: 0 });
 
       const prompt = `Bounded worker request (call ${callId}):\n\n${params.task}\n\nReturn only the worker report format from your role contract.`;
       await Promise.race([
@@ -371,6 +443,7 @@ const callSubagent: ToolDefinition = {
         spanId: newId(),
         parentSpanId: spanId,
         sessionReference: workerSessionReference,
+        observations: [availableObservation("runId", runId), ...nestedObservations(parentContext, callId, relationshipId, roleName, workerMetadata.sessionName, workerSessionReference, "result", depth), availableObservation("outcome", "success"), availableObservation("wallClockMs", Date.now() - started, "tracer", "milliseconds"), availableObservation("budgetWallClockMs", timeoutMs, "task", "milliseconds")],
         attributes: {
           "as_is.role": roleName,
           "as_is.call_id": callId,
@@ -392,6 +465,7 @@ const callSubagent: ToolDefinition = {
         spanId: newId(),
         parentSpanId: spanId,
         sessionReference: workerSessionReference ?? sessionReference,
+        observations: [availableObservation("runId", runId), ...nestedObservations(parentContext, callId, relationshipId, roleName, workerMetadata.sessionName, workerSessionReference ?? sessionReference, "result", depth), availableObservation("outcome", "failure"), availableObservation("wallClockMs", Date.now() - started, "tracer", "milliseconds"), availableObservation("budgetWallClockMs", timeoutMs, "task", "milliseconds"), availableObservation("errorClass", errorClass(error))],
         attributes: {
           "as_is.role": roleName,
           "as_is.call_id": callId,

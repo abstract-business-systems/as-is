@@ -54,6 +54,18 @@ test("focused trace functionality ignores malformed lines and bounds matching", 
   expect(result.content[0].text).toContain("trace-a");
 });
 
+test("trace query projection preserves only opaque session references", async () => {
+  const cwd = await mkdtemp(join(tmpdir(), "as-is-trace-session-reference-query-"));
+  await Bun.write(join(cwd, ".as-is", "tracing.jsonl"), JSON.stringify({
+    name: "call_subagent", timestamp: "2026-01-01T00:00:00Z", traceId: "trace-session", spanId: "span-session",
+    attributes: {}, sessionReference: { sessionId: "0190abcd-1234-4abc-8def-0123456789ab", store: "/private/store" },
+  }));
+  const result = await createTraceQueryTools()[0].execute("call", { traceId: "trace-session", limit: 10 }, undefined, undefined, { cwd } as never);
+  expect(result.content[0].text).toContain("sessionReference");
+  expect(result.content[0].text).toContain("0190abcd-1234-4abc-8def-0123456789ab");
+  expect(result.content[0].text).not.toContain("/private/store");
+});
+
 test("bounded trace queries retrieve by multiple correlation fields and summarize retries", async () => {
   const cwd = await mkdtemp(join(tmpdir(), "as-is-evidence-correlation-"));
   const events = [1, 2, 3].map((attempt) => ({

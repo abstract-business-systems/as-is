@@ -8,7 +8,7 @@ Expose bounded agent-assistance operations, currently canonical-role subagent ca
 
 **Lineage**: [as-is](../../as-is.md#design) / [tools](../as-is.md#design) / **agent tools**
 
-`subagent-tools.ts` contains the repository-owned Pi-facing tool definitions and supporting host-service composition for `call_subagent`, while canonical role resolution belongs to `core/modules/agent-resolution`. The package-owned `skills/spawning-pi-subagents/extensions/worker-tools.ts` provides only a versioned registration boundary; `.pi/extensions/worker-tools.ts` statically injects the repository tools into that boundary.
+`subagent-tools.ts` contains the repository-owned Pi-facing tool definitions and supporting host-service composition for `call_subagent`, including bounded nested lineage propagation and deterministic depth/child limits while preserving every declared capability; canonical role resolution belongs to `core/modules/agent-resolution`. The package-owned `skills/spawning-pi-subagents/extensions/worker-tools.ts` provides only a versioned registration boundary; `.pi/extensions/worker-tools.ts` statically injects the repository tools into that boundary.
 
 ## Links
 

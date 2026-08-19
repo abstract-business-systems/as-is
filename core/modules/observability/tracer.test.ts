@@ -92,6 +92,26 @@ describe("universal local tracer", () => {
     await expect(readFile(join(component, ".as-is/root.jsonl"), "utf8")).rejects.toBeTruthy();
   });
 
+  test("allowlists nested call events and structured lineage observations", async () => {
+    const payload = JSON.stringify(otlpPayload({
+      name: "call_subagent",
+      traceId: "trace-nested",
+      spanId: "span-nested",
+      attributes: {},
+      observations: [
+        { kind: "runId", source: "agent-tool", availability: "available", value: "run-nested" },
+        { kind: "parentTraceId", source: "agent-tool", availability: "available", value: "trace-parent" },
+        { kind: "depth", source: "agent-tool", availability: "available", value: 2, unit: "count" },
+        { kind: "admission", source: "agent-tool", availability: "available", value: "admitted" },
+        { kind: "errorClass", source: "agent-tool", availability: "unavailable", reason: "not-observed" },
+      ],
+    }));
+    expect(payload).toContain('"name":"call_subagent"');
+    expect(payload).toContain("observation.parentTraceId.value");
+    expect(payload).toContain("observation.admission.value");
+    expect(payload).not.toContain("private");
+  });
+
   test("projects bounded execution observations and explicit unavailable measurements", async () => {
     const event = {
       name: "worker.lifecycle",

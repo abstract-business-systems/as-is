@@ -7,7 +7,7 @@ It must be run only after the root `tasks.md` authorizes the rehearsal.
 
 - One durable dummy component task is created before launch.
 - The deterministic efficacy rehearsal launches exactly two bounded component-builder attempts: one failed attempt followed by one fresh retry linked by bounded parent-job metadata.
-- No nested builder, worker, or expert delegation beyond that explicitly modeled retry is required.
+- Deterministic validation remains provider-free; the separately gated live fixture exercises a three-level in-process delegation hierarchy and verifies its trace/session lineage.
 - The attempt has bounded cost and wall-clock allocation.
 - Any excess allocation request bubbles to the parent as a durable blocker or approval request.
 - The child changes only this fixture and creates one scoped commit.

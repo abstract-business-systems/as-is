@@ -112,6 +112,15 @@ describe("capability-based worker extension", () => {
     expect(profile.customTools.map((tool) => tool.name)).toEqual(["call_subagent", "resolve_component_context"]);
   });
 
+  test("nested delegation observations have bounded lineage and unavailable spend", async () => {
+    const implementation = await Bun.file(join(process.cwd(), "tools", "agent", "subagent-tools.ts")).text();
+    expect(implementation).toContain('name: "call_subagent"');
+    expect(implementation).toContain("maximumNestedDepth");
+    expect(implementation).toContain("maximumNestedChildren");
+    expect(implementation).toContain('availableObservation("parentTraceId"');
+    expect(implementation).toContain('unavailableObservation("budgetCostUsd"');
+  });
+
   test("call_subagent requires an explicit target role", async () => {
     let registered: { name: string; parameters: unknown } | undefined;
     workerTools({ registerTool: (tool: { name: string; parameters: unknown }) => { if (tool.name === "call_subagent") registered = tool; } } as never);

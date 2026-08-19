@@ -45,6 +45,10 @@ export type TraceQueryFilters = {
   sessionName?: string;
   localSessionId?: string;
   callId?: string;
+  parentCallId?: string;
+  relationshipId?: string;
+  runId?: string;
+  parentTraceId?: string;
   workerRole?: string;
   taskRevision?: number;
   attempt?: number;
@@ -210,6 +214,10 @@ const eventField = (event: TraceEvent, field: keyof TraceQueryFilters): string |
   if (field === "sessionName") return queryValue(event, "sessionName");
   if (field === "localSessionId") return eventSessionId(event);
   if (field === "callId") return queryValue(event, "callId");
+  if (field === "parentCallId") return queryValue(event, "parentCallId");
+  if (field === "relationshipId") return queryValue(event, "relationshipId");
+  if (field === "runId") return queryValue(event, "runId");
+  if (field === "parentTraceId") return queryValue(event, "parentTraceId");
   if (field === "workerRole") return queryValue(event, "workerRole") ?? queryAttribute(event, "workerRole", "as_is.role");
   if (field === "taskRevision") return queryValue(event, "taskRevision") ?? queryAttribute(event, "as_is.task_revision");
   if (field === "attempt") return queryValue(event, "attempt");
@@ -228,13 +236,13 @@ function validQueryFilters(filters: TraceQueryFilters): boolean {
   if (filters.from && filters.to && Date.parse(filters.from) > Date.parse(filters.to)) return false;
   if (filters.taskRevision !== undefined && (!Number.isSafeInteger(filters.taskRevision) || filters.taskRevision < 0)) return false;
   if (filters.attempt !== undefined && (!Number.isSafeInteger(filters.attempt) || filters.attempt < 0)) return false;
-  return Object.entries(filters).every(([key, value]) => value === undefined || ["name", "traceId", "sessionName", "localSessionId", "callId", "workerRole", "outcome", "phase", "from", "to", "limit"].includes(key) || key === "taskRevision" || key === "attempt");
+  return Object.entries(filters).every(([key, value]) => value === undefined || ["name", "traceId", "sessionName", "localSessionId", "callId", "parentCallId", "relationshipId", "runId", "parentTraceId", "workerRole", "outcome", "phase", "from", "to", "limit"].includes(key) || key === "taskRevision" || key === "attempt");
 }
 
 function matchesTraceEvent(event: TraceEvent, filters: TraceQueryFilters): boolean {
   if (filters.name !== undefined && !event.name.includes(filters.name)) return false;
   if (filters.traceId !== undefined && event.traceId !== filters.traceId) return false;
-  for (const field of ["sessionName", "localSessionId", "callId", "workerRole", "outcome", "phase"] as const) {
+  for (const field of ["sessionName", "localSessionId", "callId", "parentCallId", "relationshipId", "runId", "parentTraceId", "workerRole", "outcome", "phase"] as const) {
     if (filters[field] !== undefined && eventField(event, field) !== filters[field]) return false;
   }
   for (const field of ["taskRevision", "attempt"] as const) {
@@ -580,6 +588,10 @@ const traceQueryParameters = Type.Object({
   sessionName: Type.Optional(Type.String({ maxLength: 128 })),
   localSessionId: Type.Optional(Type.String({ maxLength: 128 })),
   callId: Type.Optional(Type.String({ maxLength: 128 })),
+  parentCallId: Type.Optional(Type.String({ maxLength: 128 })),
+  relationshipId: Type.Optional(Type.String({ maxLength: 128 })),
+  runId: Type.Optional(Type.String({ maxLength: 128 })),
+  parentTraceId: Type.Optional(Type.String({ maxLength: 128 })),
   workerRole: Type.Optional(Type.String({ maxLength: 64 })),
   taskRevision: Type.Optional(Type.Integer({ minimum: 0, maximum: 2_147_483_647 })),
   attempt: Type.Optional(Type.Integer({ minimum: 0, maximum: 2_147_483_647 })),
@@ -592,8 +604,15 @@ const traceQueryParameters = Type.Object({
 
 const privateTraceKey = /(?:secret|token|password|credential|prompt|response|tool|content|exception|error|payload)/iu;
 
+function projectTraceSessionReference(value: unknown): { sessionId: string } | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const sessionId = (value as Record<string, unknown>).sessionId;
+  return typeof sessionId === "string" && projectOpaqueId(sessionId) ? { sessionId } : undefined;
+}
+
 function projectTraceQueryEvent(event: TraceEvent): Record<string, unknown> {
   const attributes: Record<string, unknown> = {};
+  const sessionReference = projectTraceSessionReference(event.sessionReference);
   for (const [key, value] of Object.entries(event.attributes)) {
     if (privateTraceKey.test(key)) continue;
     const projected = projectEvidenceValue(value);
@@ -607,6 +626,7 @@ function projectTraceQueryEvent(event: TraceEvent): Record<string, unknown> {
     spanId: event.spanId,
     ...(event.parentSpanId ? { parentSpanId: event.parentSpanId } : {}),
     ...(event.durationMs !== undefined ? { durationMs: event.durationMs } : {}),
+    ...(sessionReference ? { sessionReference } : {}),
     attributes,
     ...(event.observations ? { observations: event.observations.map((observation) => ({ kind: observation.kind, source: observation.source, availability: observation.availability, ...(observation.value !== undefined ? { value: observation.value } : {}), ...(observation.unit ? { unit: observation.unit } : {}), ...(observation.reason ? { reason: observation.reason } : {}) })) } : {}),
   };

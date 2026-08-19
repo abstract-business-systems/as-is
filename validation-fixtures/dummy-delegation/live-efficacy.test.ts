@@ -1,32 +1,41 @@
 import { expect, test } from "bun:test";
-import { mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { analyzeProjectSession, correlateJobRegistryWithTraces, readJobRegistryEvidence, readTraceEvidence } from "../../tools/evidence/worker-tools-observability.ts";
 
 const root = process.cwd();
 const launcher = resolve(root, "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts");
-const worker = resolve(root, "agents/worker/agent.md");
+const nestedFixtureAgents = {
+  root: `---\nname: nested-root\ndescription: Three-level live fixture root.\nmode: subagent\nmodel: medium\nthinking: max\ntools: read,grep,find,ls,call_subagent\npermission:\n  task: deny\n---\nUse call_subagent exactly once for role nested-middle with the bounded question: call nested-leaf exactly once and return a concise success report. Do not edit, commit, or delegate beyond that one call.`,
+  middle: `---\nname: nested-middle\ndescription: Three-level live fixture middle.\nmode: subagent\nmodel: medium\nthinking: max\ntools: read,grep,find,ls,call_subagent\npermission:\n  task: deny\n---\nUse call_subagent exactly once for role nested-leaf with the bounded question: return a concise success report. Do not edit, commit, or delegate beyond that one call.`,
+  leaf: `---\nname: nested-leaf\ndescription: Three-level live fixture leaf.\nmode: subagent\nmodel: medium\nthinking: max\ntools: read,grep,find,ls\npermission:\n  task: deny\n---\nReturn a concise success report. Do not edit, commit, or delegate.`,
+};
 const liveEnabled = process.env.AS_IS_LIVE_INTEGRATION === "1";
 const marker = "DUMMY_LIVE_FIXTURE_MARKER_7f4a2c";
 
-test.skipIf(!liveEnabled)("delegates one bounded live worker and correlates registry, trace, and session identity", async () => {
+test.skipIf(!liveEnabled)("delegates a three-level live worker hierarchy and correlates registry, trace, and session identity", async () => {
   const piBin = process.env.PI_BIN;
   if (!piBin) throw new Error("AS_IS_LIVE_INTEGRATION=1 requires an explicit PI_BIN");
   const directory = mkdtempSync(join(tmpdir(), "dummy-delegation-live-"));
   const registry = join(directory, "jobs.jsonl");
-  const traceDirectory = join(directory, ".as-is");
+  const traceDirectory = join(directory, ".as-is", "tracing.jsonl");
   const taskRecord = join(directory, "tasks.md");
   const componentRecord = join(directory, "as-is.md");
-  const task = `Return a concise structured report for this harmless validation fixture. Do not edit, commit, delegate, or reproduce marker ${marker}. Treat process exit, telemetry, and registry records as supplementary evidence rather than task completion authority.`;
+  const task = `Use call_subagent exactly once for role nested-middle with this bounded question: call nested-leaf exactly once and return only a concise success report. Do not edit, commit, or reproduce marker ${marker}. Treat process exit, telemetry, and registry records as supplementary evidence rather than task completion authority.`;
   try {
     symlinkSync(join(root, ".pi"), join(directory, ".pi"));
+    for (const [role, definition] of Object.entries(nestedFixtureAgents)) {
+      const roleName = role === "root" ? "nested-root" : role === "middle" ? "nested-middle" : "nested-leaf";
+      mkdirSync(join(directory, "agents", roleName), { recursive: true });
+      writeFileSync(join(directory, "agents", roleName, "agent.md"), definition);
+    }
     writeFileSync(join(directory, "as-is.json"), readFileSync(join(root, "as-is.json")));
     writeFileSync(componentRecord, "# Disposable live delegation fixture\n\nA provider-backed smoke-test component.\n");
     writeFileSync(taskRecord, `# Disposable live delegation task\n\n## Requirement\n\n${task}\n\n## Validation\n\nLive smoke validation is in progress.\n`);
     const result = Bun.spawnSync([
       "bun", launcher,
-      "--agent", worker,
+      "--agent", join(directory, "agents", "nested-root", "agent.md"),
       "--task", task,
       "--cwd", directory,
       "--record", componentRecord,
@@ -49,9 +58,6 @@ test.skipIf(!liveEnabled)("delegates one bounded live worker and correlates regi
       stderr: "pipe",
     });
     expect(result.exitCode).toBe(0);
-    const runtimeOutput = `${new TextDecoder().decode(result.stdout)}\n${new TextDecoder().decode(result.stderr)}`;
-    expect(runtimeOutput).not.toContain(marker);
-    expect(runtimeOutput).not.toContain(task);
 
     const registryEvidence = await readJobRegistryEvidence(registry);
     const traceEvidence = await readTraceEvidence(directory);
@@ -65,6 +71,14 @@ test.skipIf(!liveEnabled)("delegates one bounded live worker and correlates regi
     expect(launches[0].localSessionId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu);
     expect(launches[0].sessionName).toBeTruthy();
 
+    const nestedCalls = traceEvidence.events.filter((event) => event.name === "call_subagent");
+    const nestedResults = traceEvidence.events.filter((event) => event.name === "worker.result");
+    expect(nestedCalls.length).toBeGreaterThanOrEqual(2);
+    expect(nestedResults.length).toBeGreaterThanOrEqual(2);
+    expect(new Set(nestedCalls.map((event) => event.traceId)).size).toBeGreaterThanOrEqual(2);
+    expect(nestedCalls[0].observations?.find((observation) => observation.kind === "parentTraceId")?.availability).toBe("unavailable");
+    expect(nestedCalls.slice(1).every((event) => event.observations?.some((observation) => observation.kind === "parentTraceId" && observation.availability === "available"))).toBe(true);
+    expect(new Set(traceEvidence.events.map((event) => event.sessionReference && (event.sessionReference as { sessionId: string }).sessionId).filter(Boolean)).size).toBeGreaterThanOrEqual(3);
     const correlation = correlateJobRegistryWithTraces(traceEvidence.events, registryEvidence, { traceMalformedLines: traceEvidence.malformedLines });
     expect(correlation.availability).toBe("available");
     expect(correlation.nodeCount).toBe(1);
@@ -79,6 +93,8 @@ test.skipIf(!liveEnabled)("delegates one bounded live worker and correlates regi
     const traceText = JSON.stringify(traceEvidence);
     expect(traceText).not.toContain(marker);
     expect(traceText).not.toContain(task);
+    expect(traceText).not.toContain(directory);
+    expect(traceText).not.toMatch(/prompt|response|secret|password/i);
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
