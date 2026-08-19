@@ -2,31 +2,33 @@
   "task": {
     "status": "completed",
     "worker": "component-builder",
-    "updated": "2026-08-06T01:15:00Z",
+    "updated": "2026-08-19T00:58:00Z",
     "constraints": {
       "cost": {
         "currency": "USD",
-        "allocated": 0.05,
+        "allocated": 0.15,
         "spent": 0,
-        "reserve": 0.02,
+        "reserve": 0.05,
         "source": "unavailable",
         "fallback-metric": "validation elapsed-seconds"
       },
-      "delegation": { "maximum-depth": 1, "maximum-children": 1 },
+      "delegation": { "maximum-depth": 2, "maximum-children": 2 },
       "execution": {
         "wall-clock": {
-          "allocated-seconds": 30,
+          "allocated-seconds": 120,
           "spent-seconds": 0,
-          "reserve-seconds": 10,
+          "reserve-seconds": 30,
           "source": "unavailable"
         }
       },
-      "external-effects": "prohibited"
+      "external-effects": "require-current-turn-user-approval"
     },
     "acceptance": [
-      "The deterministic dummy delegation rehearsal has a bounded, scoped handoff.",
-      "Focused validation proves an as-is caller launches exactly one component-builder attempt with caller identity, record path, budgets, and finished registry evidence.",
-      "The task record remains the authoritative protocol source; process exit is not completion evidence."
+      "Deterministic local stubs answer the exact 0.84.0 Pi version probe.",
+      "A failed attempt followed by one fresh retry is reconstructed with distinct job, trace, and local session identifiers.",
+      "Bounded registry and trace evidence reports parent-child relationships, attempts, outcomes, unavailable fields, and retry grouping without private content or paths.",
+      "One live provider-backed smoke test is separately gated by AS_IS_LIVE_INTEGRATION=1 and explicit PI_BIN with bounded registry, trace, and session assertions; a skip is not a pass.",
+      "No product component is modified and task-record evidence remains authoritative over runtime results."
     ]
   }
 }
