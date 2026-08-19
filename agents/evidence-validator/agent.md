@@ -3,7 +3,7 @@ name: evidence-validator
 description: Performs bounded read-only validation of supplied controlled-worktree evidence in the current worktree.
 mode: subagent
 model: large
-thinking: medium
+thinking: high
 tools: read,grep,find,ls,git_inspect,focused_check
 permission:
   task: deny
