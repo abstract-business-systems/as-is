@@ -1,4 +1,21 @@
 {
+  "task": {
+    "status": "active",
+    "worker": "component-builder",
+    "updated": "2026-08-19T00:00:00Z",
+    "constraints": {
+      "cost": { "currency": "USD", "allocated": 0.5, "spent": 0, "reserve": 0.1, "source": "unavailable", "fallback-metric": "unavailable" },
+      "delegation": { "maximum-depth": 0, "maximum-children": 0 },
+      "execution": { "wall-clock": { "allocated-seconds": 300, "spent-seconds": 0, "reserve-seconds": 60, "source": "unavailable" } },
+      "external-effects": "require-current-turn-user-approval"
+    },
+    "acceptance": [
+      "Runtime-owned nested identities preserve one inherited run ID and fresh per-call trace IDs with immediate parent lineage.",
+      "Available budgetWallClockMs and budgetCostUsd observations project with milliseconds and USD units; durationMs represents measured in-process result elapsed time without a duplicate wall-clock measurement.",
+      "Known malformed and unavailable observations remain value-free and explicit in local and evidence projections; unknown or unsafe observations are omitted.",
+      "Provider-free focused tests and the gated three-level fixture verify identity, lineage, budgets, duration, privacy, and unavailable states."
+    ]
+  },
   "configuration": {
     "records": {
       "filenames": {
