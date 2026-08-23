@@ -16,6 +16,37 @@ This document is a draft proposal and durable handoff record. It is not implemen
 I tried create an agentic devlopment system, with the help of AI. There's a working implementation (existing arcitecture will be provided); which looks like it could be rearchitectured. The goal of the system is allow autonomus development of applications, content and genral task completion (later). Humans will be consulted only in the prototyping (primarilly through visuals) and design phases. They allso will provide feedback and raise issues. The system should take care of the implementation, with subagents, while giving the human the ability interact with it to understand status, provide feedback, etc. We don't have to worry about the user interface. The same philosopy could be used to implement the system itself. Feel free to question, suggest and highlight issues.
 ```
 
+## Refined user prompt
+
+The following is the approved refinement of the user's request for downstream planning. It preserves the original ask above while making the intended scope, authority boundaries, and review outputs explicit. It remains a request for assessment and planning, not implementation authority.
+
+```text
+I have an existing working implementation of an AI-assisted agentic development system. I will provide its current architecture and implementation for review. The implementation works, but its architecture may need to be restructured. Do not assume that the existing architecture is correct, and do not propose a large rewrite before understanding what should be retained, adapted, isolated, deprecated, or replaced.
+
+The long-term goal is a system that can autonomously develop applications, produce content, and eventually complete more general tasks. Software development is the initial priority. Content generation and general task completion are later backlog areas that should influence the extensibility of the initial design without expanding the first implementation beyond its justified scope.
+
+The system should take a human-approved goal through suitable prototyping and design activities into implementation performed by bounded subagents. Humans should primarily participate in prototyping and design, including visual feedback where useful, and should be able to provide feedback, raise issues, inspect status, and intervene when necessary. Routine implementation should not require continuous human involvement. The system should provide sensible minimal defaults for approval and escalation gates, while the implementing project should define and evolve the concrete gates and workflows. Legal, security, financial, operational, and other specialist concerns should be represented as future expert-agent and domain-expert collaboration backlog items rather than ignored or treated as solved by generic orchestration.
+
+User-interface design is out of scope. Define the behavioral and information contracts needed for human status inspection, feedback, issue reporting, approval, and escalation without designing the UI itself.
+
+The system should support modular, swappable skills. Tools should be globally available through the platform and used by skills when appropriate; skills should not duplicate tool implementations or become hidden authority boundaries. Challenge this arrangement if the supplied implementation shows that explicit capability declarations, host safety profiles, or another composition boundary are required.
+
+Assess how the system should represent goals, requirements, prototypes, designs, feedback, issues, and expert input; decompose approved work into bounded tasks; assign tasks to appropriately capable subagents; constrain subagent scope, context, tools, budgets, and authority; coordinate dependencies and integrate results; validate results with deterministic checks and independent review; report status and preserve evidence; handle failures, retries, partial work, recovery, and escalation; revise plans when implementation or human feedback changes requirements; and support future content and general-task workflows without overgeneralizing the initial software-development design.
+
+The same development philosophy may be used to improve the agentic system itself. Treat that as a possible bootstrap application, not as permission for generated plans or model output to become implementation authority automatically.
+
+Use the supplied implementation and repository guidance as evidence. Question the assumptions in this request, identify risks and contradictions, and suggest alternatives. Prefer an incremental migration and a small end-to-end vertical slice over a speculative whole-system rewrite. Capture future workloads, specialist expert agents, domain-expert collaboration, and related workflow extensions in backlogs with explicit dependencies and sequencing.
+
+Produce an assessment of the existing architecture; a proposed target architecture and responsibility boundaries; the smallest useful first vertical slice; an incremental migration and implementation plan; task, evidence, validation, feedback, expert-input, and approval contracts; the model and subagent orchestration strategy; deterministic verification and recovery requirements; risks, non-goals, unresolved decisions, and assumptions; and an evaluation plan comparing the proposed workflow with the current implementation. Do not implement changes during the architecture and planning review. Clearly separate observations, recommendations, decisions requiring human approval, backlog items, and implementation tasks.
+```
+
+### Interpretation notes
+
+- "Humans consulted primarily in prototyping and design" means humans do not perform routine implementation; it does not remove necessary approval, intervention, or escalation authority.
+- Legal, security, financial, operational, and other specialist concerns are future workflow capabilities. The system should plan backlog items for AI expert agents working with human domain experts, while the implementing project defines concrete gates and workflows from minimal defaults.
+- Content generation and general task completion are later backlog areas. They should inform modular boundaries and extension points, but should not silently expand the first vertical slice.
+- Modular and swappable skills, with globally available tools composed by skills, are a proposal to validate against the existing architecture. Skills must not duplicate tools or acquire hidden authority merely through composition.
+
 ## Refined development brief
 
 ### Problem
@@ -24,14 +55,14 @@ There is an existing working implementation of an AI-assisted agentic developmen
 
 ### Desired outcome
 
-Design and incrementally implement a reliable agentic system that can take a human-approved goal through prototyping and design into autonomous implementation by bounded subagents. The system should preserve human visibility and feedback channels while minimizing routine human participation in implementation. The same development method should be usable to build and improve the system itself.
+Design and incrementally implement a reliable agentic system that can take a human-approved goal through prototyping and design into autonomous implementation by bounded subagents. The system should preserve human visibility, feedback, issue reporting, approval, and escalation channels while minimizing routine human participation in implementation. The implementing project should define concrete gates and workflows, starting from sensible minimal defaults. The same development method should be usable to build and improve the system itself.
 
 ### Initial scope
 
 - Assess the supplied implementation and its architecture before proposing a rewrite.
 - Define the system's goals, boundaries, responsibilities, and authority model.
 - Support software/application development as the first primary workload.
-- Treat content generation and later general task completion as planned extensions, not assumptions that must be solved in the first implementation.
+- Treat content generation and later general task completion as backlog areas and planned extensions. They should influence modularity and extensibility decisions without becoming first-iteration implementation scope unless a review establishes a necessary dependency.
 - Define how human input enters during visual prototyping, design, feedback, issue raising, approval, and escalation.
 - Define how the system decomposes work, assigns bounded subagent tasks, integrates results, verifies outcomes, reports status, and recovers from failure.
 - Define an incremental implementation strategy with a small end-to-end vertical slice before broad rearchitecture.
@@ -39,9 +70,15 @@ Design and incrementally implement a reliable agentic system that can take a hum
 
 ### Human role
 
-Humans participate actively in prototyping and design, primarily through visual artefacts where useful, and can provide feedback or raise issues throughout the lifecycle. The phrase "consulted only" must be clarified: it may mean that humans do not perform routine implementation, but it must not silently remove approval, safety, security, legal, release, or exception authority where those controls are necessary.
+Humans participate actively in prototyping and design, primarily through visual artefacts where useful, and can provide feedback or raise issues throughout the lifecycle. "Consulted primarily in prototyping and design" means that humans do not perform routine implementation; it does not silently remove approval, intervention, safety, specialist, release, or exception authority where those controls are necessary. The implementing project should define and evolve the concrete gates and workflows, starting from sensible minimal defaults. Future backlog items may introduce AI expert agents that work with human domain experts on legal, security, financial, operational, and other specialist concerns.
 
 The system should expose status and feedback interaction as a capability contract even though the user-interface design is out of scope. The contract should specify what information humans can inspect, what feedback can change, which changes require re-planning, and which actions require explicit approval.
+
+### Modularity and composition
+
+Skills should be modular and swappable where their contracts permit substitution. Tools should be globally available through the platform and used by skills as appropriate, rather than reimplemented inside each skill. This is a design hypothesis to validate against the existing implementation: explicit capability declarations, host safety profiles, and agent-owned authority may still be required even when tool implementations are globally available. A skill remains a reusable procedure and must not silently select, authorize, start, delegate, integrate, or complete work merely because it can call a tool.
+
+Future content-generation, general-task, and specialist expert-agent workflows should be captured in backlogs with dependencies and migration sequencing. Their existence should inform stable interfaces and extension points without forcing premature implementation.
 
 ### Agentic role model
 
@@ -72,11 +109,12 @@ The first experiment should use the existing Pi launcher and separate child work
 ### Explicit non-goals for the first iteration
 
 - Designing the user interface.
-- Solving general task completion before the software-development workflow is reliable.
-- Building a fully autonomous system without safety, approval, or escalation boundaries.
+- Implementing general task completion before the software-development workflow is reliable; it remains a backlog concern that informs architecture.
+- Building a fully autonomous system without safety, approval, specialist, release, or escalation boundaries.
 - Performing a wholesale rewrite before understanding the current implementation.
 - Treating model-reported file access, correctness, or completion as authoritative without independent evidence.
 - Adding enforced context pruning or OS sandboxing without a demonstrated requirement, except where risk classification requires it.
+- Implementing future content, general-task, or specialist expert-agent workflows before their backlog item is selected and its dependencies are understood.
 
 ## Questions the reviewers must answer
 
@@ -92,6 +130,9 @@ The first experiment should use the existing Pi launcher and separate child work
 - Which workload differences between software development, content generation, and general tasks require separate contracts or validators?
 - What risks are acceptable for prompt-guided context discipline, and which tasks require enforced isolation?
 - How should efficacy be compared with the current `master` workflow using controlled, repeatable tasks?
+- Which skills can be genuinely modular and swappable, and which require explicit compatibility contracts or stable capabilities?
+- Can globally available tools be safely composed by skills, or do some tools require agent-, host-, or risk-specific admission and safety profiles?
+- Which backlog items are required for content generation, general task completion, and AI expert agents working with human domain experts?
 - Which independent model family or specialist reviewer would most effectively challenge the proposed architecture?
 
 ## Durable handoff: Terra refinement
