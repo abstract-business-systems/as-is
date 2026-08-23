@@ -208,6 +208,26 @@ Terra should review routine changes and diagnose ordinary failures. Escalate to 
 - The implementation reveals that the original architecture is unsuitable.
 - A large or suspicious diff is produced.
 
+## Plan review and refinement
+
+The initial orchestration proposal should be reviewed before implementation. Terra should refine the current plan into an implementation-ready sequence with task boundaries, dependencies, acceptance criteria, deterministic checks, and explicit ownership. Sol should independently validate and red-team that refinement, with particular attention to authority boundaries, failure and retry behavior, budget handling, context assumptions, and whether the launcher remains the single Pi delegation mechanism. A bounded revision loop should preserve disagreements and escalate unresolved architectural decisions rather than silently averaging them away.
+
+Terra and Sol may recommend a reviewer from another model family, but that recommendation is advisory. The alternate reviewer should be selected for the risk under examination and should challenge the plan without acquiring approval, implementation, or task authority. For context work, a reviewer with build/dependency-closure, workspace-isolation, and reproducibility expertise is preferable. A full-context reviewer can identify omitted dependencies; a reviewer operating in the proposed restricted context can assess whether the supplied context is coherent and sufficient.
+
+## Context discipline
+
+The first context experiment should use a soft boundary rather than full dependency-closure pruning. Each Pi child should run in a separate worktree and CWD, which protects the caller's uncommitted work and provides a clear execution root, but does not enforce read isolation. The child should be instructed to read only the task record, applicable repository guidance, and files needed for the assigned work and verification. It should not explore unrelated components, historical records, or runtime state merely for background.
+
+If a required dependency is outside the assigned scope, the child should report the missing dependency and stop rather than silently broadening the task. The child should report files read, changed, and verified; this report is advisory evidence, not proof of compliance. The first version should not add materialized dependency workspaces, BBWrap or another OS sandbox, or enforced read manifests. Those controls should be introduced only if measured failures show that prompt-guided discipline is insufficient, beginning with the smallest control that addresses the observed failure.
+
+Use stronger boundaries for higher-risk work. Low-risk bounded work may use a separate CWD and prompt guidance; medium-risk work may add read auditing and stronger review; security-sensitive or high-risk work should require an enforced boundary, sandbox, or explicit human approval before implementation.
+
+## Staged adoption and evaluation
+
+First land the reviewed orchestration plan as proposal material on the `implementing-composable-skills` branch. Then develop the soft-context experiment and its implementation plan separately, keeping that plan document-only until Terra and Sol review it. Implement the accepted context experiment back on `implementing-composable-skills`, preserving the planning document as provenance, and compare its efficacy with `master` before merging or adopting the result.
+
+The comparison should use paired tasks, fresh worktrees, identical task descriptions, model settings, budgets, deterministic checks, and retry policy. Measure task success, deterministic verification results, irrelevant-file reads, scope violations, missing-dependency failures, cost, latency, retries, escalations, later review defects, and integration rework. Treat missing-dependency failures separately from unexplained implementation failures: explicit discovery of an incomplete boundary is preferable to silently relying on irrelevant context. The experiment should not claim enforced read isolation unless a later implementation adds and tests an actual access boundary.
+
 ## Example task contract
 
 ```yaml
