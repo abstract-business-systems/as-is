@@ -90,6 +90,19 @@ const unsafePathValue = /(?:^|[^A-Za-z0-9._~-])(?:[A-Za-z]:[\\/]|[\\/]|\.{1,2}[\
 const unsafeUriValue = /^[A-Za-z][A-Za-z0-9+.-]*:(?:\/\/|\/)/u;
 const safeOpaqueToken = /^[A-Za-z0-9][A-Za-z0-9._+~-]{0,127}$/u;
 const safeSlashValues = new Set(["read/grep", "provider/model"]);
+const traceObservationKinds = new Set(["taskRevision", "attempt", "componentIdentity", "workerRole", "sessionName", "localSessionId", "jobId", "callId", "parentCallId", "relationshipId", "phase", "outcome", "wallClockMs", "usageInputTokens", "usageOutputTokens", "usageTotalTokens", "usageCostUsd", "runId", "parentTraceId", "depth", "childCount", "admission", "errorClass", "budgetWallClockMs", "budgetCostUsd"]);
+const traceObservationSources = new Set(["task", "launcher", "tracer", "pi-session", "provider-adapter", "agent-tool"]);
+const traceObservationAvailabilities = new Set(["available", "absent", "malformed", "unavailable"]);
+const traceObservationReasons = new Set(["not-supplied", "not-observed", "invalid-value", "source-unavailable"]);
+const traceNumericKinds = new Set(["taskRevision", "attempt", "wallClockMs", "usageInputTokens", "usageOutputTokens", "usageTotalTokens", "usageCostUsd", "depth", "childCount", "budgetWallClockMs", "budgetCostUsd"]);
+const traceIntegerKinds = new Set(["taskRevision", "attempt", "wallClockMs", "usageInputTokens", "usageOutputTokens", "usageTotalTokens", "depth", "childCount", "budgetWallClockMs"]);
+const traceExpectedUnits: Record<string, string> = { wallClockMs: "milliseconds", budgetWallClockMs: "milliseconds", usageCostUsd: "usd", budgetCostUsd: "usd" };
+const traceValueDomains: Record<string, Set<string>> = {
+  phase: new Set(["setup", "log", "spawn", "wait", "handoff", "task", "worker", "delegation", "admission", "result"]),
+  outcome: new Set(["success", "failure", "cancelled", "blocked", "timed-out", "budget-stopped", "unavailable"]),
+  admission: new Set(["admitted", "rejected"]),
+  errorClass: new Set(["invalid-target", "timeout", "aborted", "session-create", "prompt-failed", "budget-stopped", "admission-rejected", "unknown"]),
+};
 
 function isUnsafeEvidenceString(value: string): boolean {
   if (value.includes("\u0000") || unsafeUriValue.test(value)) return true;
@@ -186,21 +199,13 @@ export async function readTraceEvents(cwd: string): Promise<TraceEvent[]> {
   return (await readTraceEvidence(cwd)).events;
 }
 
-const queryValue = (event: TraceEvent, kind: string): string | number | undefined => event.observations?.find((observation) => observation.kind === kind && observation.availability !== "malformed")?.value;
-const queryAttribute = (event: TraceEvent, ...keys: string[]): string | number | undefined => {
-  for (const key of keys) {
-    const value = event.attributes[key];
-    if (typeof value === "string" || (typeof value === "number" && Number.isFinite(value))) return value;
-  }
-  return undefined;
-};
+const queryValue = (event: TraceEvent, kind: string): string | number | undefined => event.observations?.find((observation) => observation.kind === kind && observation.availability === "available")?.value;
+const hasObservation = (event: TraceEvent, kind: string): boolean => event.observations?.some((observation) => observation.kind === kind) === true;
 const eventJobId = (event: TraceEvent): string | undefined => {
   const value = queryValue(event, "jobId");
   return typeof value === "string" ? projectOpaqueId(value) : undefined;
 };
 const eventParentJobId = (event: TraceEvent): string | undefined => {
-  const value = queryAttribute(event, "parentJobId");
-  if (typeof value === "string") return projectOpaqueId(value);
   const parentCallId = queryValue(event, "parentCallId");
   return typeof parentCallId === "string" && parentCallId.startsWith("call-") ? projectOpaqueId(parentCallId.slice(5)) : undefined;
 };
@@ -218,11 +223,11 @@ const eventField = (event: TraceEvent, field: keyof TraceQueryFilters): string |
   if (field === "relationshipId") return queryValue(event, "relationshipId");
   if (field === "runId") return queryValue(event, "runId");
   if (field === "parentTraceId") return queryValue(event, "parentTraceId");
-  if (field === "workerRole") return queryValue(event, "workerRole") ?? queryAttribute(event, "workerRole", "as_is.role");
-  if (field === "taskRevision") return queryValue(event, "taskRevision") ?? queryAttribute(event, "as_is.task_revision");
+  if (field === "workerRole") return queryValue(event, "workerRole");
+  if (field === "taskRevision") return queryValue(event, "taskRevision");
   if (field === "attempt") return queryValue(event, "attempt");
-  if (field === "outcome") return queryValue(event, "outcome") ?? queryAttribute(event, "outcome", "outcomeClass", "as_is.outcome");
-  if (field === "phase") return queryValue(event, "phase") ?? queryAttribute(event, "phase");
+  if (field === "outcome") return queryValue(event, "outcome");
+  if (field === "phase") return queryValue(event, "phase");
   return undefined;
 };
 
@@ -610,6 +615,29 @@ function projectTraceSessionReference(value: unknown): { sessionId: string } | u
   return typeof sessionId === "string" && projectOpaqueId(sessionId) ? { sessionId } : undefined;
 }
 
+function projectTraceObservation(observation: TraceObservation): Record<string, unknown> | undefined {
+  if (!traceObservationKinds.has(observation.kind) || !traceObservationSources.has(observation.source ?? "") || !traceObservationAvailabilities.has(observation.availability ?? "")) return undefined;
+  const availability = observation.availability!;
+  const expectedUnit = traceExpectedUnits[observation.kind] ?? (traceNumericKinds.has(observation.kind) ? "count" : undefined);
+  const reason = observation.reason;
+  if (reason !== undefined && !traceObservationReasons.has(reason)) return undefined;
+  const result: Record<string, unknown> = { kind: observation.kind, source: observation.source, availability };
+  if (expectedUnit !== undefined) result.unit = expectedUnit;
+  if (availability !== "available") {
+    result.reason = reason ?? (availability === "malformed" ? "invalid-value" : "not-observed");
+    return result;
+  }
+  if (observation.value === undefined) return { kind: observation.kind, source: observation.source, availability: "malformed", reason: "invalid-value", ...(expectedUnit ? { unit: expectedUnit } : {}) };
+  if (typeof observation.value === "number") {
+    if (!Number.isFinite(observation.value) || observation.value < 0 || observation.value > Number.MAX_SAFE_INTEGER || (traceIntegerKinds.has(observation.kind) && !Number.isSafeInteger(observation.value))) return { kind: observation.kind, source: observation.source, availability: "malformed", reason: "invalid-value", ...(expectedUnit ? { unit: expectedUnit } : {}) };
+  } else if (typeof observation.value !== "string" || !safeOpaqueToken.test(observation.value)) return { kind: observation.kind, source: observation.source, availability: "malformed", reason: "invalid-value", ...(expectedUnit ? { unit: expectedUnit } : {}) };
+  if (expectedUnit !== undefined && observation.unit !== expectedUnit) return { kind: observation.kind, source: observation.source, availability: "malformed", reason: "invalid-value", unit: expectedUnit };
+  if (traceValueDomains[observation.kind] !== undefined && (typeof observation.value !== "string" || !traceValueDomains[observation.kind].has(observation.value))) return { kind: observation.kind, source: observation.source, availability: "malformed", reason: "invalid-value" };
+  result.value = observation.value;
+  if (expectedUnit === undefined && observation.unit !== undefined && ["count", "milliseconds", "usd"].includes(observation.unit)) result.unit = observation.unit;
+  return result;
+}
+
 function projectTraceQueryEvent(event: TraceEvent): Record<string, unknown> {
   const attributes: Record<string, unknown> = {};
   const sessionReference = projectTraceSessionReference(event.sessionReference);
@@ -628,7 +656,7 @@ function projectTraceQueryEvent(event: TraceEvent): Record<string, unknown> {
     ...(event.durationMs !== undefined ? { durationMs: event.durationMs } : {}),
     ...(sessionReference ? { sessionReference } : {}),
     attributes,
-    ...(event.observations ? { observations: event.observations.map((observation) => ({ kind: observation.kind, source: observation.source, availability: observation.availability, ...(observation.value !== undefined ? { value: observation.value } : {}), ...(observation.unit ? { unit: observation.unit } : {}), ...(observation.reason ? { reason: observation.reason } : {}) })) } : {}),
+    ...(event.observations ? { observations: event.observations.map(projectTraceObservation).filter((observation): observation is Record<string, unknown> => observation !== undefined).slice(0, 64) } : {}),
   };
 }
 

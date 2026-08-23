@@ -3,7 +3,7 @@ import { mkdtemp, mkdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createAgentSession, createExtensionRuntime, ModelRuntime, SessionManager } from "../../skills/spawning-pi-subagents/node_modules/@earendil-works/pi-coding-agent";
-import workerTools, { analyzeProjectSession, resolveWorkerThinkingLevel, toolsForTarget, workerSessionMetadata, workerSessionOptions } from "../../.pi/extensions/worker-tools";
+import workerTools, { analyzeProjectSession, currentSessionName, currentSessionReference, newNestedDelegationContext, resolveWorkerThinkingLevel, toolsForTarget, workerSessionMetadata, workerSessionOptions } from "../../.pi/extensions/worker-tools";
 import { registerWorkerTools } from "../../skills/spawning-pi-subagents/extensions/worker-tools.ts";
 
 const rootRecord = "# Root\n";
@@ -106,19 +106,50 @@ describe("capability-based worker extension", () => {
       sessionName: null,
     });
   });
+
+  test("pairs admission identity with the invoking session and keeps invalid metadata unavailable", async () => {
+    const cwd = await mkdtemp(join(tmpdir(), "as-is-admission-session-identity-"));
+    const manager = SessionManager.create(cwd, join(cwd, "sessions"));
+    manager.appendSessionInfo("tracing-trial");
+    const context = { sessionManager: manager };
+    expect(currentSessionName(context)).toBe("tracing-trial");
+    expect(currentSessionReference(context)).toEqual({ sessionId: manager.getSessionId() });
+    expect(currentSessionName({ sessionManager: { getSessionName: () => "system: private prompt" } })).toBeUndefined();
+    expect(currentSessionReference({ sessionManager: { getSessionId: () => "session/path" } })).toBeUndefined();
+    const implementation = await Bun.file(join(process.cwd(), "tools", "agent", "subagent-tools.ts")).text();
+    expect(implementation).toContain("nestedObservations(parentContext, callId, relationshipId, roleName, admissionSessionName, sessionReference, \"admission\", depth)");
+    expect(implementation).toContain("nestedObservations(parentContext, callId, relationshipId, roleName, workerMetadata.sessionName, workerSessionReference, \"result\", depth)");
+  });
   test("preserves every declared worker tool in the SDK allowlist", () => {
     const profile = toolsForTarget("agent-capability-probe", ["read", "grep", "call_subagent", "resolve_component_context"]);
     expect(profile.tools).toEqual(["read", "grep", "call_subagent", "resolve_component_context"]);
     expect(profile.customTools.map((tool) => tool.name)).toEqual(["call_subagent", "resolve_component_context"]);
   });
 
-  test("nested delegation observations have bounded lineage and unavailable spend", async () => {
+  test("nested delegation context inherits runs and creates fresh trace lineage", () => {
+    const root = newNestedDelegationContext();
+    const child = newNestedDelegationContext(root);
+    const leaf = newNestedDelegationContext(child);
+    expect(child.runId).toBe(root.runId);
+    expect(leaf.runId).toBe(root.runId);
+    expect(new Set([root.traceId, child.traceId, leaf.traceId]).size).toBe(3);
+    expect(child.depth).toBe(root.depth + 1);
+    expect(leaf.depth).toBe(child.depth + 1);
+  });
+
+  test("nested delegation identities are runtime-owned and result budgets are explicit", async () => {
     const implementation = await Bun.file(join(process.cwd(), "tools", "agent", "subagent-tools.ts")).text();
     expect(implementation).toContain('name: "call_subagent"');
     expect(implementation).toContain("maximumNestedDepth");
     expect(implementation).toContain("maximumNestedChildren");
     expect(implementation).toContain('availableObservation("parentTraceId"');
     expect(implementation).toContain('unavailableObservation("budgetCostUsd"');
+    expect(implementation).toContain("traceId: newId()");
+    expect(implementation).toContain("runId: parent?.runId ?? newId()");
+    expect(implementation).toContain("durationMs: Date.now() - started");
+    expect(implementation).not.toContain('traceId: Type.Optional');
+    expect(implementation).not.toContain('runId: Type.Optional');
+    expect(implementation).not.toContain('availableObservation(\"wallClockMs\", Date.now() - started');
   });
 
   test("call_subagent requires an explicit target role", async () => {

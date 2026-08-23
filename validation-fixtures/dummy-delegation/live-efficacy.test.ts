@@ -75,9 +75,14 @@ test.skipIf(!liveEnabled)("delegates a three-level live worker hierarchy and cor
     const nestedResults = traceEvidence.events.filter((event) => event.name === "worker.result");
     expect(nestedCalls.length).toBeGreaterThanOrEqual(2);
     expect(nestedResults.length).toBeGreaterThanOrEqual(2);
-    expect(new Set(nestedCalls.map((event) => event.traceId)).size).toBeGreaterThanOrEqual(2);
+    expect(new Set(nestedCalls.map((event) => event.traceId)).size).toBe(nestedCalls.length);
+    const runIds = nestedCalls.map((event) => event.observations?.find((observation) => observation.kind === "runId")?.value).filter(Boolean);
+    expect(new Set(runIds).size).toBe(1);
     expect(nestedCalls[0].observations?.find((observation) => observation.kind === "parentTraceId")?.availability).toBe("unavailable");
     expect(nestedCalls.slice(1).every((event) => event.observations?.some((observation) => observation.kind === "parentTraceId" && observation.availability === "available"))).toBe(true);
+    const resultEvents = traceEvidence.events.filter((event) => event.name === "worker.result");
+    expect(resultEvents.every((event) => typeof event.durationMs === "number" && !event.observations?.some((observation) => observation.kind === "wallClockMs"))).toBe(true);
+    expect(resultEvents.every((event) => event.observations?.some((observation) => observation.kind === "budgetWallClockMs" && observation.availability === "available" && observation.unit === "milliseconds"))).toBe(true);
     expect(new Set(traceEvidence.events.map((event) => event.sessionReference && (event.sessionReference as { sessionId: string }).sessionId).filter(Boolean)).size).toBeGreaterThanOrEqual(3);
     const correlation = correlateJobRegistryWithTraces(traceEvidence.events, registryEvidence, { traceMalformedLines: traceEvidence.malformedLines });
     expect(correlation.availability).toBe("available");

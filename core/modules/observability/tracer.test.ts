@@ -112,6 +112,54 @@ describe("universal local tracer", () => {
     expect(payload).not.toContain("private");
   });
 
+  test("projects budget limits with their semantic units and preserves unavailable cost safely", () => {
+    const event = {
+      name: "worker.result",
+      traceId: "trace-budget-units",
+      spanId: "span-budget-units",
+      attributes: {},
+      observations: [
+        { kind: "budgetWallClockMs", source: "task", availability: "available", value: 900, unit: "milliseconds" },
+        { kind: "budgetCostUsd", source: "task", availability: "available", value: 0.2, unit: "usd" },
+        { kind: "usageCostUsd", source: "pi-session", availability: "unavailable", reason: "source-unavailable", unit: "usd" },
+      ],
+    } as unknown as TraceEvent;
+    const local = JSON.stringify((() => {
+      const payload = otlpPayload(event);
+      return payload;
+    })());
+    expect(local).toContain('"observation.budgetWallClockMs.unit"');
+    expect(local).toContain('"stringValue":"milliseconds"');
+    expect(local).toContain('"observation.budgetCostUsd.unit"');
+    expect(local).toContain('"stringValue":"usd"');
+    expect(local).toContain('"observation.usageCostUsd.availability"');
+    expect(local).toContain('"stringValue":"unavailable"');
+    expect(JSON.stringify(otlpPayload({
+      name: "worker.result", traceId: "trace-unavailable-unit", spanId: "span-unavailable-unit", attributes: {}, observations: [
+        { kind: "budgetWallClockMs", source: "task", availability: "unavailable", reason: "not-observed", unit: "count" },
+      ],
+    } as unknown as TraceEvent))).toContain('"stringValue":"milliseconds"');
+  });
+
+  test("converts invalid known observations to value-free malformed evidence", () => {
+    const payload = JSON.stringify(otlpPayload({
+      name: "worker.lifecycle", traceId: "trace-malformed-marker", spanId: "span-malformed-marker", attributes: {},
+      observations: [
+        { kind: "budgetWallClockMs", source: "task", availability: "available", value: 10, unit: "count" },
+        { kind: "usageCostUsd", source: "pi-session", availability: "available", value: -1, unit: "usd" },
+        { kind: "phase", source: "launcher", availability: "unavailable", reason: "not-observed", value: "leak" },
+        { kind: "not-allowlisted", source: "task", availability: "available", value: "secret" },
+      ],
+    } as unknown as TraceEvent));
+    expect(payload).toContain('"observation.budgetWallClockMs.availability"');
+    expect(payload).toContain('"observation.budgetWallClockMs.reason"');
+    expect(payload).toContain('"stringValue":"invalid-value"');
+    expect(payload).not.toContain('"value":10');
+    expect(payload).not.toContain('"value":-1');
+    expect(payload).not.toContain("secret");
+    expect(payload).not.toContain("leak");
+  });
+
   test("projects bounded execution observations and explicit unavailable measurements", async () => {
     const event = {
       name: "worker.lifecycle",

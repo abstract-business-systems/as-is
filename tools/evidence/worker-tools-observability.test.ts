@@ -54,6 +54,51 @@ test("focused trace functionality ignores malformed lines and bounds matching", 
   expect(result.content[0].text).toContain("trace-a");
 });
 
+test("trace query projection normalizes units and value-free malformed observations", async () => {
+  const cwd = await mkdtemp(join(tmpdir(), "as-is-evidence-observation-projection-"));
+  await mkdir(join(cwd, ".as-is"), { recursive: true });
+  await Bun.write(join(cwd, ".as-is", "tracing.jsonl"), JSON.stringify({
+    name: "worker.result", timestamp: "2026-01-01T00:00:00Z", traceId: "trace-projection", spanId: "span-projection", attributes: {}, observations: [
+      { kind: "budgetWallClockMs", source: "task", availability: "available", value: 100, unit: "count" },
+      { kind: "budgetCostUsd", source: "task", availability: "available", value: 0.2, unit: "usd" },
+      { kind: "usageCostUsd", source: "pi-session", availability: "unavailable", reason: "source-unavailable", unit: "usd" },
+      { kind: "unknown", source: "task", availability: "available", value: "PRIVATE-UNKNOWN" },
+    ],
+  }));
+  const tool = createTraceQueryTools()[0];
+  const result = await tool.execute("call", { traceId: "trace-projection", limit: 10 }, undefined, undefined, { cwd } as never);
+  const text = result.content[0].text;
+  expect(text).toContain('"kind": "budgetWallClockMs"');
+  expect(text).toContain('"availability": "malformed"');
+  expect(text).toContain('"reason": "invalid-value"');
+  expect(text).toContain('"kind": "budgetCostUsd"');
+  expect(text).toContain('"unit": "usd"');
+  expect(text).toContain('"kind": "usageCostUsd"');
+  expect(text).toContain('"availability": "unavailable"');
+  expect(text).not.toContain("PRIVATE-UNKNOWN");
+  expect(text).not.toContain('"value": 100');
+
+  await Bun.write(join(cwd, ".as-is", "tracing.jsonl"), JSON.stringify({
+    name: "call_subagent", timestamp: "2026-01-01T00:00:00Z", traceId: "trace-unavailable-value", spanId: "span-unavailable-value", attributes: {}, observations: [
+      { kind: "callId", source: "agent-tool", availability: "unavailable", value: "PRIVATE-CALL-ID" },
+      { kind: "parentCallId", source: "agent-tool", availability: "absent", value: "PRIVATE-PARENT-ID" },
+    ],
+  }));
+  const summary = await createTraceQueryTools()[2].execute("call", { traceId: "trace-unavailable-value" }, undefined, undefined, { cwd } as never);
+  expect(summary.content[0].text).not.toContain("PRIVATE-CALL-ID");
+  expect(summary.content[0].text).not.toContain("PRIVATE-PARENT-ID");
+
+  await Bun.write(join(cwd, ".as-is", "tracing.jsonl"), JSON.stringify({
+    name: "worker.result", timestamp: "2026-01-01T00:00:00Z", traceId: "trace-attribute-fallback", spanId: "span-attribute-fallback", attributes: { "as_is.outcome": "success", workerRole: "worker", parentJobId: "PRIVATE-PARENT-JOB" }, observations: [
+      { kind: "outcome", source: "agent-tool", availability: "unavailable", reason: "not-observed" },
+    ],
+  }));
+  const filtered = filterTraceEvents((await readTraceEvidence(cwd)).events, { outcome: "success", workerRole: "worker" }, 10);
+  expect(filtered.events).toHaveLength(0);
+  const correlation = correlateJobRegistryWithTraces((await readTraceEvidence(cwd)).events, { records: [], malformedLines: 0, availability: "available" });
+  expect(JSON.stringify(correlation)).not.toContain("PRIVATE-PARENT-JOB");
+});
+
 test("trace query projection preserves only opaque session references", async () => {
   const cwd = await mkdtemp(join(tmpdir(), "as-is-trace-session-reference-query-"));
   await Bun.write(join(cwd, ".as-is", "tracing.jsonl"), JSON.stringify({
