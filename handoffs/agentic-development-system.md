@@ -2,7 +2,7 @@
 
 ## Purpose and authority
 
-This document is the consolidated continuation checkpoint for the agentic-development-system rearchitecture. It is a draft and durable handoff, not current-architecture authority, target-contract authority, task authority, implementation authorization, or runtime configuration. It consolidates the active decisions, user inputs, review outcomes, unresolved questions, disposition tables, and next-session instructions. The longer reports listed under provenance remain source evidence and audit history in `reviews/agentic-development-system/`; this document is the canonical navigation point for a new orchestration session.
+This document is the consolidated continuation checkpoint for the agentic-development-system rearchitecture. It is a draft and durable handoff, not current-architecture authority, target-contract authority, task authority, implementation authorization, or runtime configuration. It consolidates active decisions, user inputs, review outcomes, unresolved questions, disposition tables, and next-session instructions. Longer reports under provenance remain source evidence and audit history in `reviews/agentic-development-system/`; this is the canonical navigation point for a new orchestration session.
 
 **Core principle:** Humans focus on design and features; agents take care of implementation. Implementation is the verified, evidence-bearing realization of human-facing design, analogous to compiled output for human review. This is a metaphor, not a claim that implementation is literally compilation or trustworthy without deterministic verification and review.
 
@@ -14,15 +14,14 @@ This document is the consolidated continuation checkpoint for the agentic-develo
 | Branch | `implementing-composable-skills` |
 | Branch role | Candidate and recovery/reversal boundary for this exercise; it need not be `master` |
 | Baseline | A pinned `master` revision is an evaluation baseline only; it is not a universal working branch or approval source |
-| Working tree | Handoff and two review reports added by this session; no implementation changes or commits |
-| Planning stage | Architecture/review loop complete for the design-creation flow; target-design package generation is next |
-| Latest Terra verdict | Advisory revised design-creation flow ready for fresh Sol review |
-| Latest Sol verdict | **Approve readiness for the human-facing target-design package** |
+| Working tree | Uncommitted proposed target-design package, review reports, Grok trial records, and this handoff; no implementation changes or commits |
+| Planning stage | Draft-36 is the single successor incorporating the bounded Sol/Terra closure repairs; caller-side verification passed and transient Sol returned `ready (pass)` against the finite closure contract |
+| Latest Terra verdict | `repair` for all six Kimi findings, requiring draft-29, recorded at `reviews/agentic-development-system/terra-kimi-findings-reconciliation.md` |
+| Latest Sol verdict | Draft-35 `revise` was closed by draft-36; transient Sol returned `ready (pass)` in `reviews/agentic-development-system/sol-closure-review-draft36.md` against the fixed repair contract |
+| Latest alternate-family review state | Kimi draft-28 findings were validated by Sol and Terra reconciled all six as `repair`; draft-36 passed the finite Sol closure contract; Kimi suitability remains gated by exact identity/provenance and explicit human confirmation before full review or alignment |
 | Implementation | Not authorized and must not begin |
-| Current owner | Present orchestration session, then the user for explicit target-design alignment |
-| Next review gate | Terra-Sol ping-pong review of the generated target-design package; nothing un-reviewed is presented to the user |
-| Later review gate | Fresh Sol review of the design-derived build plan after user alignment |
-| Alternate reviewer | Human selected Grok 4.6 as the intended additional-family reviewer; bounded verification/trial remains required before use |
+| Current owner | Present orchestration session, preserving review state and routing the exact draft-36 package for closure review |
+| Next action | Preserve the closure result, then obtain the required exact-identity/provenance and bounded Kimi suitability gate; explicit human confirmation remains required before full Kimi review or presentation |
 
 ## User direction consolidated
 
@@ -30,6 +29,7 @@ This document is the consolidated continuation checkpoint for the agentic-develo
 - Agents own workflow orchestration and authority-bearing decisions within their scope. Skills provide reusable procedures; tools provide operations. Skills do not grant tools or authority.
 - The initial roster may use a component-builder and bounded task implementer, with additional roles created when ownership gaps are demonstrated. A dedicated design/prototyping agent group is optional.
 - Human feedback occurs after design and after implementation. Feedback that changes the design returns to design; it must not be silently appended to an active or completed implementation task.
+- **Current human feedback:** the target-design package must be genuinely human-readable. The human-facing design must explain purpose, proposed behavior, boundaries, first slice, decisions, and review status without requiring readers to parse machine-oriented schemas, digest tables, or exhaustive predicate registries; detailed contracts should be separated into clearly labelled appendices or linked artifacts.
 - Path A is the intended lifecycle: planned target design drives derived artifacts and implementation. Path B should not be used while models can reliably distinguish current and planned designs. If that distinction fails, repair or escalate rather than silently switching lifecycles.
 - Design completion is tied to the base `as-is.md` design records required for the implementation. The complete program has a human-facing target design, while implementation proceeds through separately approved bounded units. Before a unit starts, all base records needed for that unit are available, linked, current, and approved by the then-current user/reviewer.
 - The current and planned states must remain explicitly distinguishable. Initially use a frozen, revisioned target-design package linked from current records; a later bounded record-contract unit may add explicit current, approved-target, and design-relationship sections.
@@ -39,92 +39,116 @@ This document is the consolidated continuation checkpoint for the agentic-develo
 - The active branch is the candidate/recovery boundary. `master` is only a pinned comparison baseline. No separate rollback subsystem is required absent evidence.
 - `drafts/composable-skills.md` is proposal direction, not implementation authority. Its historical proposal to replace every existing skill is not an adopted retirement decision.
 - No live agent or skill may be silently removed. Replacement, merge, rename, deprecation, or drop requires an explicit source-to-target migration and evidence.
+- **Current user direction:** use Kimi's structured findings as input to Sol validation and provide the verified packet digest to Terra. Sol validated the findings and Terra reconciled all six as repairs requiring successor draft-29. This is a review-path direction only and does not authorize implementation or presentation.
 
 ## Review outcomes and provenance
 
 | Source | Outcome | Status |
 | --- | --- | --- |
-| `reviews/agentic-development-system/terra-refinement-report.md` | Existing component/task control plane is a strong substrate; add design governance | Advisory source report |
-| `reviews/agentic-development-system/sol-validation-report.md` | Initial approach required revision | Advisory source report |
-| `reviews/agentic-development-system/terra-reconciliation-report.md` | Incorporated first user feedback; proposed Path A and right-sized controls | Intermediate advisory source report |
-| `reviews/agentic-development-system/sol-re-review-report.md` | Approved direction for limited design review, not implementation | Advisory source report |
-| `reviews/agentic-development-system/terra-follow-up-report.md` | Added current/planned distinction, mock slice, live disposition tables | Advisory source report |
-| `reviews/agentic-development-system/sol-final-re-review-report.md` | Approved readiness for the next design package, not implementation | Advisory source report |
-| `reviews/agentic-development-system/terra-expanded-replan-report.md` | Recommended staged heavy refactor; added setup-inclusive comparison and target tables | Advisory source report; superseded by later revisions |
-| `reviews/agentic-development-system/sol-expanded-re-review-report.md` | `revise`; identified normalization and scope issues | Advisory source report; superseded by later revisions |
-| `reviews/agentic-development-system/terra-final-design-creation-flow-revision.md` | Final design-creation-flow revision; ready for fresh Sol review | Latest Terra revision; advisory |
-| `reviews/agentic-development-system/sol-final-design-creation-flow-review.md` | **Approve readiness for human-facing target-design package** | Latest Sol review; advisory readiness only |
-| `reviews/agentic-development-system/openrouter-benchmark-screening.md` | Screened alternate-family reviewer candidates | External screening evidence; not selection or family proof |
+| `reviews/agentic-development-system/terra-final-design-creation-flow-revision.md` | Final design-creation-flow revision; ready for fresh Sol review | Advisory |
+| `reviews/agentic-development-system/sol-final-design-creation-flow-review.md` | Approve readiness for human-facing target-design package | Advisory readiness only |
+| `reviews/agentic-development-system/openrouter-benchmark-screening.md` | Screened alternate-family reviewer candidates | Screening evidence; not family proof |
+| `reviews/agentic-development-system/terra-target-design-package-review.md` | `revise` | Advisory package review |
+| `reviews/agentic-development-system/sol-target-design-package-review.md` | `revise` | Advisory earlier package review |
+| `reviews/agentic-development-system/sol-target-design-package-review-draft22.md` | `revise` | Advisory |
+| `reviews/agentic-development-system/sol-target-design-package-review-draft23.md` | `revise` | Advisory |
+| `reviews/agentic-development-system/sol-target-design-package-review-draft24.md` | `revise` | Advisory |
+| `reviews/agentic-development-system/sol-target-design-package-review-draft25.md` | `revise` | Advisory |
+| `reviews/agentic-development-system/sol-target-design-package-review-draft27.md` | Budget-stopped before verdict | Incomplete advisory evidence |
+| `reviews/agentic-development-system/sol-target-design-package-review-draft27-final.md` | Budget-stopped before verdict | Incomplete advisory evidence |
+| `reviews/agentic-development-system/sol-target-design-package-review-draft28-final.md` | `revise` before gate normalization | Advisory |
+| `reviews/agentic-development-system/sol-target-design-package-review-draft28-rereview.md` | `approve-readiness-for-Grok` | Advisory gate readiness only |
+| `reviews/agentic-development-system/grok-target-design-review-partial.md` | Budget-stopped partial review | Incomplete alternate-family evidence |
+| `reviews/agentic-development-system/grok-target-design-review-trial.md` | Draft-28 Grok trial gate record | Retry exhausted; inconclusive; no package review |
+| `reviews/agentic-development-system/grok-target-design-review-trial-draft28-attempt1.md` | `inconclusive` | Complete trial response; no reviewer confirmation |
+| `reviews/agentic-development-system/grok-target-design-review-trial-draft28-retry-attempt2.md` | `inconclusive` | Budget-stopped retry; no reviewer confirmation |
+| `reviews/agentic-development-system/anthropic-target-design-review-trial.md` | Replacement alternate-family trial gate | Attempt 1 budget-stopped; inconclusive; no package review | Advisory gate record |
+| `reviews/agentic-development-system/anthropic-target-design-review-trial-draft28-attempt1.md` | `inconclusive` | Budget-stopped Anthropic trial; no reviewer confirmation | Advisory trial evidence |
+| `reviews/agentic-development-system/anthropic-target-design-review-trial-draft28-attempt2.md` | `inconclusive` | Budget-stopped Anthropic retry at 900 seconds; no reviewer confirmation | Advisory trial evidence |
+| `reviews/agentic-development-system/replacement-reviewer-selection.md` | `z-ai/glm-5.3` selected | Selection recorded; suitability trial pending | Advisory selection record |
+| `reviews/agentic-development-system/glm-target-design-review-trial.md` | GLM suitability-trial gate | Attempt 1 inconclusive; provider admission failed | Advisory gate record |
+| `reviews/agentic-development-system/glm-target-design-review-trial-draft28-attempt1.md` | `inconclusive` | GLM provider admission failed with HTTP 404; no reviewer analysis | Advisory trial evidence |
+| `reviews/agentic-development-system/kimi-target-design-review-trial.md` | Kimi suitability-trial gate | Structured findings; Sol-validated for Terra reconciliation; full Kimi review still blocked | Advisory gate record |
+| `reviews/agentic-development-system/kimi-target-design-review-trial-draft28-attempt1.md` | `inconclusive` pending gate closure | Kimi structured `revise` response; caller-side digest verification passed | Advisory trial evidence |
+| `reviews/agentic-development-system/sol-validation-of-kimi-trial.md` | Validated for Terra reconciliation | Sol validated Kimi findings individually; no package approval | Advisory validation |
+| `reviews/agentic-development-system/terra-kimi-findings-reconciliation-input.md` | Routed to Terra | Exact draft-28 digest and validated findings supplied | Advisory reconciliation input |
+| `reviews/agentic-development-system/terra-kimi-findings-reconciliation.md` | `repair` | Terra accepted all six findings; successor draft-29 required | Advisory reconciliation |
+| `reviews/agentic-development-system/expert-target-design-package-review-draft29.md` | `revise` | Expert advisory review found three blocking documentation inconsistencies in draft-29 | Advisory review |
+| `reviews/agentic-development-system/target-design-draft30-manifest-verification.md` | Verified caller-side draft-30 digest set | Superseded by draft-31 and draft-32 | Advisory verification |
+| `reviews/agentic-development-system/sol-target-design-package-review-draft30.md` | `revise` | Transient Sol found three blocking package issues | Advisory review |
+| `reviews/agentic-development-system/sol-target-design-package-review-draft31.md` | `revise` | Transient Sol found four blocking package issues | Advisory review |
+| `reviews/agentic-development-system/terra-kimi-findings-reconciliation-draft31-sol.md` | `repair` | Transient Terra reconciled four Sol blockers; draft-30 navigation deferred | Advisory reconciliation |
+| `reviews/agentic-development-system/target-design-draft31-manifest-verification.md` | Verified caller-side draft-31 digest set | Superseded by draft-32 after fresh Sol `revise` | Advisory verification |
+| `reviews/agentic-development-system/target-design-draft35-manifest-verification.md` | Prior caller-side draft-35 digest set | Stale after working-copy readability edits; retained as historical evidence | Historical verification |
+| `reviews/agentic-development-system/target-design-draft36-manifest-verification.md` | Caller-side draft-36 digest set | All eight non-manifest digests matched; packet digest `5c4e4726c80f41765147e4f7e21f5ffe86dea845a8ea384bdbfeb31d0e601e0f` recorded | Advisory verification |
+| `reviews/agentic-development-system/sol-closure-review-draft36.md` | `ready (pass)` | Finite draft-35 repair contract satisfied; no blocking findings | Advisory closure review |
+| `reviews/agentic-development-system/kimi-target-design-review-trial-draft36-attempt1.md` | `pass` suitability | No blocking suitability finding; explicit human confirmation still required | Advisory suitability trial |
+| `reviews/agentic-development-system/kimi-target-design-review-trial-draft36.md` | `inconclusive pending explicit human confirmation` | Kimi draft-36 suitability gate; full review remains blocked until human confirms | Advisory gate record |
+| `drafts/agentic-development-system-target-design-draft30/` | Draft-30 successor package | Superseded after fresh Sol `revise` | Historical successor |
+| `drafts/agentic-development-system-target-design-draft32/` | Draft-32 successor package | Four Sol blockers repaired; manifest verified; superseded by later successors | Historical successor |
+| `drafts/agentic-development-system-target-design-draft35/` | Draft-35 successor package | Sol returned `revise`; preserved as historical basis for draft-36 | Historical successor |
+| `drafts/agentic-development-system-target-design-draft36/` | Draft-36 closure successor package | Sol/Terra bounded repairs incorporated; caller-side manifest verified; final Sol closure review pending | Planned successor |
+| `drafts/agentic-development-system-target-design/` | Draft-28 planned target package | Not fully reviewed; not presented |
 | `drafts/composable-skills.md` | Composable reusable/master skill proposal | Proposal direction only |
 | `drafts/backlog.md` | Planning index and historical proposal context | Not task authority |
 
-The final Terra-Sol pair resolved the prior objections and corrected the design-creation flow. Neither report approves implementation or adopts target contracts.
+The target-package Terra-Sol loop resolved individual package findings through draft-28 readiness-for-Grok review. Grok attempt 1 was inconclusive, and retry attempt 2 was budget-stopped. The human then selected `anthropic/claude-opus-5` as replacement; both Anthropic attempts were budget-stopped before a final structured response and are `inconclusive`. Additional non-tried candidates were screened, and the human selected `z-ai/glm-5.3`. Its bounded suitability trial failed provider admission with HTTP 404 under the configured guardrail/data-policy restrictions and produced no reviewer analysis. The human then selected `moonshotai/kimi-k3`; its bounded suitability trial returned structured findings recommending `revise`, and caller-side packet verification subsequently confirmed all eight manifest digests and the packet digest. At the user's direction, Sol validated the findings and Terra received the exact verified digest plus reconciliation input. Terra reconciled all six as `repair`, requiring successor draft-29. An expert advisory review then identified three blocking documentation inconsistencies; successor draft-30 incorporates those corrections, its digest set has been regenerated and verified, and fresh Sol review returned `revise`; successor draft-31 incorporated those findings but fresh Sol review returned four further blockers; Terra reconciled those as repairs, successor draft-32 incorporates them, its digest set has been regenerated and verified, and fresh Sol review is pending before the full Kimi review and package alignment. No alternate-family reviewer is confirmed, and no report or process exit authorizes adoption, task creation, or implementation.
 
-## Design-creation flow now in force for planning
+## Required sequence from this checkpoint
 
-1. Generate a human-facing target-design package, ideally a folder with a root overview, component target designs, one canonical migration ledger, setup/benchmark design, and decision log.
-2. Keep current implementation records and planned target designs explicitly separate. Initially use a frozen, revisioned target package linked from current records rather than silently changing current `as-is.md` meaning.
-3. Review the generated package internally through Terra-Sol ping-pong. Terra revises from concrete objections; a fresh Sol review assesses each material revision. The user has selected `x-ai/grok-4.6` as the intended additional-family reviewer based on the OpenRouter screening, and Sol does not appoint it. Before use, verify its exact model identity/family provenance and run the bounded local trial. The selected alternate reviewer reviews the same frozen package and returns findings to Terra, followed by fresh Sol review. Only a fully reviewed package is presented to the user.
-4. Present the reviewed package to the user for explicit alignment and decisions.
-5. Classify user responses as editorial clarification or **design-changing feedback**. Any design-changing feedback returns the package to Terra-Sol review before presentation.
-6. After user alignment, derive a bounded build plan from the aligned designs. It must identify affected components, required base records, dependencies, owners, acceptance, validation, recovery, candidate/baseline worktrees, and protected fixtures.
-7. Send the build plan to a fresh Sol review. If Sol objects, return it to Terra for revision and repeat until Sol approves readiness for human-facing build-plan review.
-8. Present only the Sol-reviewed build plan to the user for explicit confirmation. This still does not authorize implementation.
-9. Begin implementation only after the applicable base design records are available, linked, current, and approved; required holders and capability boundaries are confirmed; and a separate bounded implementation task is explicitly authorized.
+1. Preserve the Grok attempt records and the Anthropic attempt-1 record, including the budget-stopped outcome and partial observations.
+2. Preserve the draft-29 expert advisory review at `reviews/agentic-development-system/expert-target-design-package-review-draft29.md` and its three blocking documentation findings.
+3. Do not run a full Anthropic package review: attempt 1 is inconclusive and lacks a final structured response.
+4. Preserve Anthropic retry attempt 2 as inconclusive; it was stopped at the 900-second bound before a final structured response.
+5. Preserve the draft-36 Sol closure result. Before any full Kimi package review, complete exact identity/provenance verification, bounded suitability, and explicit human confirmation; do not present the package before the required review chain completes.
+6. For a completed alternate-family package review, route findings to Terra for reconciliation and obtain a fresh Sol final review of the reconciled package.
+7. Present the package to the user only after the required review chain completes. Human alignment remains a separate decision.
+8. After alignment, classify feedback, derive the bounded build plan, send it through fresh Terra-Sol review, obtain human confirmation, and seek separate bounded implementation authorization.
 
-## Proposed target-design package structure
+## Review and implementation boundaries
 
-This is a planning proposal, not a directory-creation instruction:
+The target package remains planned state only. Existing `as-is.md` records, live contracts, task records, and fixtures remain current-state authority. The package does not create tasks, alter current records, adopt target contracts, authorize provider use beyond the bounded review action, or authorize implementation.
 
-```text
-target-design-package/
-  target-design.md
-  component-designs/
-  migration-ledger.md
-  setup-and-benchmark.md
-  decision-log.md
-```
-
-The root document covers program scope, lifecycle, authority, target categories, strategy, setup, evaluation, migration, feedback, validation, recovery, and unresolved decisions. Component documents use a consistent planned-target template: purpose/users; current reference; planned responsibility/boundary; relationships and authority limits; inputs/outputs and consequential flows; migration mapping; acceptance/validation; open decisions/dependencies. The migration ledger is the sole source of migration and disposition truth. The package may remain one folder/document set for human review; it must not become an unreviewed implementation instruction.
-
-## Worktree and collision policy
-
-Candidate implementation and evaluation use separate directories/worktrees:
-
-- candidate worktree from the active candidate branch;
-- baseline/current worktree from the pinned `master` revision;
-- separately owned mock-project seed;
-- separate current and candidate consumer copies from that seed.
-
-The launcher defaults delegated child work to isolated worktrees and preserves uncommitted recovery candidates. Git worktrees prevent ordinary repository working-tree collisions but do not prove filesystem, process, network, credential, or external-effect isolation. Those remain explicit first-slice acceptance conditions. The candidate must not silently fall back to the caller directory, and protected designs, tasks, baselines, seeds, validators, scorers, rubrics, and fixture controls must remain outside worker write scope.
-
-## Decisions still requiring the user
-
-- Confirm the target-design package structure and current/planned representation.
-- Confirm staged heavy refactoring with the broad evidence-based total-rewrite escape.
-- Select the first mock feature or qualifying simple backlog item.
-- Appoint accountable holders for design orchestration, design facilitation, setup, semantic review, evaluation/scoring, migration, fixture ownership, and task authorization.
-- Confirm the repository-local first-slice boundary: no credentials, external effects, package/distribution claim, or security-isolation claim.
-- Confirm or revise the human-selected Grok 4.6 alternate-family reviewer after its identity/provenance check and bounded local trial.
-- Approve the benchmark rubric, safety-critical failures, and exact advancement rule.
-- Align explicitly on the generated target-design package.
-- After design alignment, align on the Sol-reviewed build plan before any separate task authorization.
+The first proof remains repository-local and excludes credentials, task-facing network access, external effects, package installation/distribution, deployment, security isolation, and multi-project claims. Candidate/recovery and pinned-`master` baseline separation, separate mock-consumer copies, protected fixtures, and explicit no-external-effect boundaries remain required.
 
 ## Residual uncertainty
 
-- Runtime enforcement of worktree, filesystem, network, credential, directory, and fixture protections remains untested.
-- No mock feature, seed revision, baseline revision, candidate revision, or accountable holder identity is selected.
-- The exact design-link/currentness representation remains unadopted.
-- No consumer inventory or migration trial exists for future renames/adaptations.
-- The selected alternate reviewer is `x-ai/grok-4.6` (benchmark entry `x-ai/grok-4.6-20260810`); exact identity/family provenance and bounded local review performance remain unverified. The human selected it; Sol does not appoint it. Screening evidence is recorded in `reviews/agentic-development-system/openrouter-benchmark-screening.md`.
-- External installation, distribution, package provenance, upgrades, downgrade, uninstall, and multi-project isolation remain unproven.
+- Draft-35 received fresh Sol `revise`; its bounded repair specification was conditionally accepted by Terra. Draft-36 is the single closure successor, with all five repairs and Terra's navigation amendment incorporated; caller-side verification passed and transient Sol returned `ready (pass)` against the finite closure contract. The alternate-family gate remains gated by exact identity/provenance, suitability, and human confirmation.
+- Grok attempt 1 returned an inconclusive response, and retry attempt 2 was budget-stopped at 300 seconds.
+- The selected Anthropic attempt 1 was also budget-stopped at 300 seconds before a final structured response; no alternate-family reviewer is confirmed.
+- Anthropic retry attempt 2 used the explicitly authorized 900-second wall-clock and USD 1.00 forwarded-cost bound and ended inconclusively; no alternate-family reviewer is confirmed.
+- Additional candidates are recorded in `reviews/agentic-development-system/replacement-reviewer-selection.md`; the human selected `z-ai/glm-5.3`, but its suitability trial failed provider admission with HTTP 404 and is inconclusive.
+- The human selected `moonshotai/kimi-k3`; its draft-28 suitability trial returned structured `revise` findings, caller-side packet verification passed, and Sol validated the findings for Terra reconciliation. The draft-36 suitability trial returned `pass` with no blocking suitability finding, but explicit human confirmation remains required.
+- Terra reconciled the six findings as repairs in `reviews/agentic-development-system/terra-kimi-findings-reconciliation.md`; an expert advisory review identified documentation blockers, and draft-30 verification is recorded in `reviews/agentic-development-system/target-design-draft30-manifest-verification.md`; draft-31 fresh Sol review returned `revise`; draft-32 verification was superseded by draft-33; draft-33 verification was superseded by draft-34; draft-34 verification was superseded by draft-35; draft-35 verification is historical and stale for the current working copy; Sol returned `revise`, the repair specification was conditionally accepted by Terra, draft-36 caller-side verification passed, and the finite closure review returned `ready (pass)`. Exact alternate-family gates and human alignment remain pending.
+- Exact first feature, seed, baseline/candidate revisions, holders, final rubric approval, design-link adoption, and final human-facing package structure remain unresolved.
+- The draft-36 Kimi suitability trial returned `pass`, but the required explicit human outcome (`confirmed`, `replaced`, or `inconclusive`) has not been recorded; full Kimi package review remains blocked.
+- Runtime enforcement of filesystem, process, credential, network, and protected-fixture boundaries remains untested.
+- No package presentation, human alignment, build plan, task authority, or implementation authorization exists.
 
 ## Explicit authority statement
 
-The latest Sol verdict approves readiness to prepare and present the human-facing target-design package. It does not approve the package itself, approve a build plan, adopt target contracts, create task authority, or authorize implementation.
+This handoff records review state and the user-directed next review path. It does not authorize implementation, target adoption, task creation, or user presentation. The Grok, Anthropic, and GLM suitability attempts are inconclusive. The human selected `moonshotai/kimi-k3`; its draft-28 bounded suitability trial returned structured `revise` findings, caller-side packet verification passed, Sol validated them, and Terra reconciled all six as repairs requiring successor draft-29. Successive package revisions addressed documentation, rationale, provenance, chronology, navigation, and readability findings. Sol supplied a bounded repair specification, Terra conditionally accepted it, draft-36 incorporated the bounded repairs, caller-side verification passed, and the finite Sol closure review returned `ready (pass)`. The draft-36 Kimi suitability trial returned `pass`, but explicit human confirmation is still required before a full alternate-family review. Human readability is an explicit design acceptance condition. No full alternate-family package review, presentation, alignment, task creation, or implementation authorization exists.
 
-Nothing unreviewed is to be presented to the user. Terra-Sol ping-pong is required during design generation and after any design-changing feedback. For the generated design package, the human-selected `x-ai/grok-4.6` review must use the same frozen package, remain read-only, and return findings to Terra followed by fresh Sol review before presentation. After user alignment, a fresh Terra-Sol cycle is required for the design-derived build plan. Only explicit user alignment plus a separately authorized bounded implementation task may begin implementation.
+## Replan: bounded planning closure
+
+The prior planning flow generated too many successor revisions because broad package review and repair were allowed to reopen already-settled concerns. The revised flow freezes the scope of each review phase and permits only one closure successor for a bounded finding set.
+
+1. **Human selects the review path.** The human may confirm Kimi for one full read-only review, replace it, or leave the gate inconclusive. No reviewer output or benchmark result substitutes for this decision.
+2. **Closure gate.** Draft-36 has passed the finite Sol closure contract and the Kimi suitability trial. If Kimi is explicitly confirmed, run exactly one full Kimi review against the exact draft-36 packet. If the review finds concerns within its declared scope, Terra reconciles them and Sol reviews the reconciled successor. New concerns outside the declared scope or unresolved disagreement escalate to the human; they do not trigger automatic draft churn.
+3. **Human alignment.** Present only the reviewed package and a concise decision brief. Record the human's alignment decision and any design-changing feedback. Editorial clarification may update presentation; design-changing feedback starts a new bounded design revision.
+4. **Build-plan derivation.** After alignment, derive one bounded build plan from the aligned package. The plan must name the first feature, affected components, required base records, holders, dependencies, capability profile, acceptance, validation, recovery, protected fixtures, and candidate/baseline comparison inputs. Do not create implementation tasks yet.
+5. **Build-plan review.** Terra and fresh Sol review the exact build-plan revision once against fixed acceptance conditions: traceability to aligned design, bounded scope, authority separation, dependency completeness, validation/recovery, and honest exclusions. One repair successor is allowed; out-of-scope disagreement escalates to the human.
+6. **Separate authorization.** Present the reviewed build plan for explicit human confirmation. Only a separately authorized bounded task may then be created and implemented. Task creation, implementation, and commits remain prohibited until that authorization exists.
+
+### Replan invariants
+
+- At most one successor is created for the current bounded closure or build-plan review.
+- A successor requires a new revision, manifest, digest verification, and review record; historical records are never rewritten.
+- Reviewer output, process exit, hashes, benchmark results, and suitability results are evidence only.
+- No reviewer may introduce new acceptance criteria during closure review.
+- Human alignment, build-plan confirmation, task authorization, and implementation are separate transitions.
+- If a reviewer raises a genuinely new material concern or the reviewers disagree about an acceptance condition, stop and escalate to the human instead of opening another automatic revision loop.
 
 ## New-session next action
 
-Read this handoff first. Then generate the target-design package in the proposed structure, keeping it as planned design and preserving current-state links. Do not present drafts to the user before Terra review, fresh Sol review, and the human-selected Grok 4.6 review after identity/provenance verification and bounded trial. Preserve every review report durably. After all required reviews approve readiness, present the package for user alignment. After alignment, derive the build plan and send it through a fresh Terra-Sol review before any implementation authorization is considered.
+Read this handoff first. The exact current package is `drafts/agentic-development-system-target-design-draft36/`, with packet digest `5c4e4726c80f41765147e4f7e21f5ffe86dea845a8ea384bdbfeb31d0e601e0f`. Caller verification is `reviews/agentic-development-system/target-design-draft36-manifest-verification.md`; Sol closure review is `reviews/agentic-development-system/sol-closure-review-draft36.md`; Kimi suitability result and gate are `reviews/agentic-development-system/kimi-target-design-review-trial-draft36-attempt1.md` and `reviews/agentic-development-system/kimi-target-design-review-trial-draft36.md`. The only immediate decision is the explicit human Kimi outcome: `confirmed`, `replaced`, or `inconclusive`. If confirmed, run one full read-only Kimi package review against exact draft-36, then route findings through Terra and one fresh Sol review only if the package is materially revised. Do not present, align, derive a build plan, create tasks, implement, or commit until the stated gates and separate authorizations complete.

@@ -1,0 +1,15 @@
+# Sol repair specification for draft-35
+
+This is an advisory, bounded repair specification from the transient Sol reviewer. It does not authorize edits, adoption, task creation, implementation, or human alignment. Terra must validate each item before incorporation.
+
+## Required fixes
+
+1. **Make the predicate rationale finite and substantive.** Retain the exact 36 `(case-id, dimension-id)` entries, but require each rationale to answer three questions in one or two plain-language sentences: what observable behavior is checked; why that behavior matters for this exact case; and why it supports the named dimension. For shared predicates, state the cross-dimension relationship rather than merely repeating the predicate definition. A rationale that only restates the predicate or appends a dimension label does not satisfy this requirement. Remove or replace a predicate when no defensible relationship to its named dimension exists. Acceptance: a reviewer can identify the observation, case interpretation, and dimension connection for every listed predicate without inference from another row.
+2. **Use one exact verification reference.** Every active package reference must name the verification record for the same revision. Historical records may be linked only as historical evidence and must be labelled as such. Acceptance: no active draft-35 package file points to a prior revision's verification record.
+3. **Record one chronology and supersession chain.** State the immediate predecessor, its review outcome, and the reason for the successor. Record each successor relationship once in the decision log. Acceptance: the active package, manifest, decision log, and review navigation agree on the immediate predecessor and active revision.
+4. **Make the review path navigable.** Link the Sol review and Terra reconciliation that directly produced the current successor, without duplicating links. Keep the human-confirmation gate explicit between suitability and full alternate-family review. Acceptance: a reader can navigate from the package to the current review, its reconciliation, the exact verification record, and the next gate.
+5. **Human readability is a release condition.** Add a plain-language executive summary and package guide. Keep machine-oriented schemas, exhaustive registries, digest tables, and detailed contracts in clearly labelled technical sections or companion artifacts. Acceptance: a human can understand purpose, first proof, boundaries, authority, lifecycle, and unresolved decisions by reading `target-design.md` without reading `setup-and-benchmark.md`'s schema registry.
+
+## Closure rule
+
+After Terra validates and incorporates these fixes into one successor, run one final Sol review against this specification. A requirement passes when its stated acceptance condition is met. New preferences or stylistic suggestions are non-blocking and must not reopen the package. Any remaining disagreement is escalated to the human rather than triggering an unbounded automatic revision loop.
