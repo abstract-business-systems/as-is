@@ -14,15 +14,15 @@ This document is the consolidated continuation checkpoint for the agentic-develo
 | Branch | `implementing-composable-skills` |
 | Branch role | Candidate and recovery/reversal boundary for this exercise; it need not be `master` |
 | Baseline | A pinned `master` revision is an evaluation baseline only; it is not a universal working branch or approval source |
-| Working tree | Handoff and two review reports added by this session; no implementation changes or commits |
-| Planning stage | User proposed a simplified flow: Sol creates the human-reviewable high-level design, Kimi reviews it in a bounded repair loop of at most 10 rounds, the user reviews it, then Terra creates bounded detail-plan chunks and Sol reviews them |
-| Latest Terra verdict | Advisory revised design-creation flow ready for fresh Sol review |
-| Latest Sol verdict | **Approve readiness for the human-facing target-design package** |
+| Working tree | High-level design drafts and bounded Kimi/Sol review records are committed; draft 5 is an uncommitted presentation-only successor containing a ToC; no implementation changes |
+| Planning stage | Sol created draft 1; Kimi/Sol completed the bounded high-level review through counted round 8 with no supported checklist-scoped repair remaining; draft 5 preserves draft 4 and adds only a ToC for human review |
+| Latest Terra verdict | Advisory revised design-creation flow remains historical input; Terra detail planning has not started because user alignment is pending |
+| Latest Sol verdict | Draft 4 was ready for user presentation; draft 5 is a presentation-only successor with a ToC and has not received a fresh review; neither is design approval |
 | Implementation | Not authorized and must not begin |
-| Current owner | Present orchestration session, clarifying the design-revision and bounded detail-chunk model before Sol creates the high-level design |
-| Next review gate | Sol creates the high-level human-facing design, including proposed skill and agent changes; Kimi and Sol may exchange at most 10 bounded review rounds before user review |
-| Later review gate | After design alignment, Terra creates bounded detail-plan chunks and Sol reviews/advises each chunk; the user then decides whether to kick off the first bounded slice |
-| Alternate reviewer | User direction selects Kimi for the bounded design review/advisor role; exact packet identity, read-only admission, and suitability evidence remain required before use |
+| Current owner | User, for review and explicit high-level design alignment |
+| Next review gate | User reviews and aligns, requests a bounded design change, or defers the draft-5 presentation packet; a fresh review is required if draft 5 is to be treated as a reviewed packet |
+| Later review gate | After user alignment, Terra creates bounded detail-plan chunks and Sol reviews/advises each chunk; the user then decides whether to kick off the first bounded slice |
+| Alternate reviewer | Kimi reviewed drafts 1–4 under the bounded alternate-family reviewer procedure; caller-side identity, packet, and read-only evidence remain recorded as evidence, not authority |
 
 ## User direction consolidated
 
@@ -39,7 +39,7 @@ This document is the consolidated continuation checkpoint for the agentic-develo
 - The active branch is the candidate/recovery boundary. `master` is only a pinned comparison baseline. No separate rollback subsystem is required absent evidence.
 - `drafts/composable-skills.md` is proposal direction, not implementation authority. Its historical proposal to replace every existing skill is not an adopted retirement decision.
 - No live agent or skill may be silently removed. Replacement, merge, rename, deprecation, or drop requires an explicit source-to-target migration and evidence.
-- **Current user direction:** simplify planning to Sol-created human-facing design → bounded Kimi review/advice → Sol repair/closure → user design review and alignment → Terra-created implementation plan → bounded Sol review/advice → user plan confirmation → downstream execution flow. This direction is not implementation authorization.
+- **Current user direction:** Sol owns the high-level design, including proposed introduction, modification, composition, retention, deprecation, replacement, or dropping of skills, agents, workflows, and boundaries. Kimi and Sol may exchange at most 10 bounded review rounds. The user then reviews and aligns the design. Only after alignment does Terra add detail in bounded chunks, with Sol reviewing/advising each chunk. The user may then request a kick-off for a named bounded implementation slice. This direction is not implementation authorization.
 
 ## Review outcomes and provenance
 
@@ -54,12 +54,16 @@ This document is the consolidated continuation checkpoint for the agentic-develo
 | `reviews/agentic-development-system/terra-expanded-replan-report.md` | Recommended staged heavy refactor; added setup-inclusive comparison and target tables | Advisory source report; superseded by later revisions |
 | `reviews/agentic-development-system/sol-expanded-re-review-report.md` | `revise`; identified normalization and scope issues | Advisory source report; superseded by later revisions |
 | `reviews/agentic-development-system/terra-final-design-creation-flow-revision.md` | Final design-creation-flow revision; ready for fresh Sol review | Latest Terra revision; advisory |
-| `reviews/agentic-development-system/sol-final-design-creation-flow-review.md` | **Approve readiness for human-facing target-design package** | Latest Sol review; advisory readiness only |
+| `reviews/agentic-development-system/sol-final-design-creation-flow-review.md` | **Approve readiness for human-facing target-design package** | Historical Sol review; superseded as the active flow by the user-refined bounded Sol/Kimi design loop |
+| `drafts/agentic-development-system-high-level-design-draft4/` | Frozen human-facing high-level design; packet digest `4f174a90734ecbbab61b98adbd2cdbc9ba75595ba123697edd5248333afa48f9` | Active design packet; user alignment pending |
+| `reviews/agentic-development-system/kimi-high-level-design-review-draft1.md` through `kimi-high-level-design-review-draft4.md` | Kimi alternate-family review records; rounds 1, 3, 5, and 7 | Advisory evidence; draft 4 reported no supported manifest-scoped repair |
+| `reviews/agentic-development-system/sol-disposition-kimi-review-draft1-round2.md`, `sol-disposition-kimi-review-draft2-round4.md`, `sol-disposition-kimi-review-draft3-round6.md` | Sol dispositions of Kimi findings | Advisory repair specifications; all applied to successors |
+| `reviews/agentic-development-system/sol-closure-high-level-design-draft4-round8.md` | Sol closure disposition | Advisory readiness for user high-level design alignment; no successor required |
 | `reviews/agentic-development-system/openrouter-benchmark-screening.md` | Screened alternate-family reviewer candidates | External screening evidence; not selection or family proof |
-| `drafts/composable-skills.md` | Composable reusable/master skill proposal | Proposal direction only |
+| `drafts/composable-skills.md` | Composable reusable/master skill proposal | Retained as non-authoritative input; selectively incorporated, not adopted as a catalog or replacement mandate |
 | `drafts/backlog.md` | Planning index and historical proposal context | Not task authority |
 
-The final Terra-Sol pair resolved the prior objections and corrected the design-creation flow. Neither report approves implementation or adopts target contracts.
+The final Terra-Sol pair is historical advisory input. The active design run is the frozen Sol-authored draft-4 packet and its bounded Kimi/Sol review records. No report approves implementation or adopts target contracts.
 
 ## Simplified design-and-planning flow now proposed
 
@@ -144,15 +148,28 @@ The launcher defaults delegated child work to isolated worktrees and preserves u
 - No mock feature, seed revision, baseline revision, candidate revision, or accountable holder identity is selected.
 - The exact design-link/currentness representation remains unadopted.
 - No consumer inventory or migration trial exists for future renames/adaptations.
-- The selected alternate reviewer is `x-ai/grok-4.6` (benchmark entry `x-ai/grok-4.6-20260810`); exact identity/family provenance and bounded local review performance remain unverified. The human selected it; Sol does not appoint it. Screening evidence is recorded in `reviews/agentic-development-system/openrouter-benchmark-screening.md`.
+- Kimi is the user-selected alternate-family reviewer for the active high-level design run. Drafts 1–4 were reviewed through the bounded process; the caller-side model/provider, packet, and read-only evidence are recorded, while hidden backend identity remains unavailable. The active draft-4 packet digest is `4f174a90734ecbbab61b98adbd2cdbc9ba75595ba123697edd5248333afa48f9`; its target-design file digest is `464a2dcd541a1533ef54845412ee1356a1802b6d75d884d1f3c48966a3a27679`. Evidence is recorded in the Kimi/Sol reports listed below.
 - External installation, distribution, package provenance, upgrades, downgrade, uninstall, and multi-project isolation remain unproven.
 
 ## Explicit authority statement
 
 This handoff records the user's simplified design-and-planning direction. It does not approve the high-level design, approve detail chunks, adopt target contracts, create task authority, authorize kick-off, or authorize implementation. Sol's design, Kimi's review, Terra's detail chunks, Sol's chunk reviews, hashes, suitability results, and process exits are evidence only. The user retains high-level design-alignment and kick-off authority; a separate bounded task authorization remains required.
 
-The active path is Sol high-level design → Kimi review/advice (maximum 10 rounds) → Sol dispositions/repairs → user design review and alignment → Terra detail chunks → Sol chunk review/advice → user kick-off decision → separate task authorization → execution. Target skills, agents, workflows, and their dispositions are part of Sol's design scope, but no proposed introduction, modification, deprecation, or drop becomes current architecture without later authorized migration.
+The active path is Sol high-level design → Kimi review/advice (maximum 10 rounds) → Sol dispositions/repairs → user design review and alignment → Terra detail chunks → Sol chunk review/advice → user kick-off decision → separate task authorization → execution. The active draft-4 packet has no supported manifest-scoped repair remaining; the next authority-bearing transition is the user's high-level design alignment. Target skills, agents, workflows, and their dispositions are part of Sol's design scope, but no proposed introduction, modification, deprecation, or drop becomes current architecture without later authorized migration.
+
+### Why the active design has multiple drafts
+
+Drafts 1–4 are not four competing designs or an unbounded loop. Each successor preserves its predecessor and records one bounded repair response to specific review findings:
+
+| Revision | Reason for successor | Review result |
+| --- | --- | --- |
+| `draft1` | Initial Sol-authored high-level design. | Kimi identified seven bounded repairs. |
+| `draft2` | Applied the seven accepted or narrowed repairs from Sol round 2. | Kimi identified three bounded repairs: section numbering, G3/detail ordering, and terminology/duplication. |
+| `draft3` | Applied those three bounded repairs. | Kimi identified one minor duplicate paragraph. |
+| `draft4` | Removed that duplicate and aligned one non-blocking term. | Kimi found no supported manifest-scoped repair; Sol closed the review early. |
+
+This revisioning was necessary to keep each review tied to exact bytes and to prevent edits from silently changing what an earlier reviewer saw. It was not intended as a normal requirement for many drafts. Under the active rule, the design loop is capped at 10 counted Kimi/Sol rounds, exits early when the fixed manifest checklist has no supported repair remaining, and escalates unresolved material disagreement at the bound. No draft 5 is planned unless the user requests a design change or a new material issue requires a bounded successor.
 
 ## New-session next action
 
-Read this handoff first. Prepare the exact current-state inputs and fixed high-level acceptance checklist for Sol to create one human-facing design draft, including proposed changes to skills, agents, workflows, and boundaries. Freeze and verify each revision before Kimi reviews it. Permit no more than 10 Kimi/Sol review rounds; stop early on satisfaction, or escalate unresolved material disagreement at the bound. Then present the reviewed high-level design to the user. Do not derive implementation detail or request kick-off before user design alignment. After alignment, ask Terra to create the detail-plan chunks and have Sol review each bounded chunk before presenting the proposed first implementation slice for the user's kick-off decision.
+Read this handoff first. The current continuation point is the user decision on the exact frozen presentation packet `drafts/agentic-development-system-high-level-design-draft5/`, whose packet digest is `b5b70c77beef41b72c4ac9bbf7df6471bb49423e4d3eae987b675d67318f07fc`. Draft 5 preserves Sol's draft-4 design and adds only a ToC; it has not received a fresh bounded review. Read its `target-design.md` and `review-manifest.md`, and consult draft 4's Kimi review and Sol closure report as predecessor provenance. Present draft 5 to the user for explicit high-level design alignment. If the user requests a substantive design change, create a further successor and perform the required bounded review; if the user aligns, record that decision before proceeding. Do not derive implementation detail, create tasks, or request kick-off before user design alignment. After alignment, ask Terra to create bounded detail-plan chunks and have Sol review each chunk before presenting the proposed first implementation slice for the user's kick-off decision.
