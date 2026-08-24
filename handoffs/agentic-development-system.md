@@ -15,14 +15,14 @@ This document is the consolidated continuation checkpoint for the agentic-develo
 | Branch role | Candidate and recovery/reversal boundary for this exercise; it need not be `master` |
 | Baseline | A pinned `master` revision is an evaluation baseline only; it is not a universal working branch or approval source |
 | Working tree | Handoff and two review reports added by this session; no implementation changes or commits |
-| Planning stage | Architecture/review loop complete for the design-creation flow; target-design package generation is next |
+| Planning stage | User proposed a simplified flow: Sol creates the human-reviewable high-level design, Kimi reviews it in a bounded repair loop of at most 10 rounds, the user reviews it, then Terra creates bounded detail-plan chunks and Sol reviews them |
 | Latest Terra verdict | Advisory revised design-creation flow ready for fresh Sol review |
 | Latest Sol verdict | **Approve readiness for the human-facing target-design package** |
 | Implementation | Not authorized and must not begin |
-| Current owner | Present orchestration session, then the user for explicit target-design alignment |
-| Next review gate | Terra-Sol ping-pong review of the generated target-design package; nothing un-reviewed is presented to the user |
-| Later review gate | Fresh Sol review of the design-derived build plan after user alignment |
-| Alternate reviewer | Human selected Grok 4.6 as the intended additional-family reviewer; bounded verification/trial remains required before use |
+| Current owner | Present orchestration session, clarifying the design-revision and bounded detail-chunk model before Sol creates the high-level design |
+| Next review gate | Sol creates the high-level human-facing design, including proposed skill and agent changes; Kimi and Sol may exchange at most 10 bounded review rounds before user review |
+| Later review gate | After design alignment, Terra creates bounded detail-plan chunks and Sol reviews/advises each chunk; the user then decides whether to kick off the first bounded slice |
+| Alternate reviewer | User direction selects Kimi for the bounded design review/advisor role; exact packet identity, read-only admission, and suitability evidence remain required before use |
 
 ## User direction consolidated
 
@@ -39,6 +39,7 @@ This document is the consolidated continuation checkpoint for the agentic-develo
 - The active branch is the candidate/recovery boundary. `master` is only a pinned comparison baseline. No separate rollback subsystem is required absent evidence.
 - `drafts/composable-skills.md` is proposal direction, not implementation authority. Its historical proposal to replace every existing skill is not an adopted retirement decision.
 - No live agent or skill may be silently removed. Replacement, merge, rename, deprecation, or drop requires an explicit source-to-target migration and evidence.
+- **Current user direction:** simplify planning to Sol-created human-facing design → bounded Kimi review/advice → Sol repair/closure → user design review and alignment → Terra-created implementation plan → bounded Sol review/advice → user plan confirmation → downstream execution flow. This direction is not implementation authorization.
 
 ## Review outcomes and provenance
 
@@ -60,17 +61,42 @@ This document is the consolidated continuation checkpoint for the agentic-develo
 
 The final Terra-Sol pair resolved the prior objections and corrected the design-creation flow. Neither report approves implementation or adopts target contracts.
 
-## Design-creation flow now in force for planning
+## Simplified design-and-planning flow now proposed
 
-1. Generate a human-facing target-design package, ideally a folder with a root overview, component target designs, one canonical migration ledger, setup/benchmark design, and decision log.
-2. Keep current implementation records and planned target designs explicitly separate. Initially use a frozen, revisioned target package linked from current records rather than silently changing current `as-is.md` meaning.
-3. Review the generated package internally through Terra-Sol ping-pong. Terra revises from concrete objections; a fresh Sol review assesses each material revision. The user has selected `x-ai/grok-4.6` as the intended additional-family reviewer based on the OpenRouter screening, and Sol does not appoint it. Before use, verify its exact model identity/family provenance and run the bounded local trial. The selected alternate reviewer reviews the same frozen package and returns findings to Terra, followed by fresh Sol review. Only a fully reviewed package is presented to the user.
-4. Present the reviewed package to the user for explicit alignment and decisions.
-5. Classify user responses as editorial clarification or **design-changing feedback**. Any design-changing feedback returns the package to Terra-Sol review before presentation.
-6. After user alignment, derive a bounded build plan from the aligned designs. It must identify affected components, required base records, dependencies, owners, acceptance, validation, recovery, candidate/baseline worktrees, and protected fixtures.
-7. Send the build plan to a fresh Sol review. If Sol objects, return it to Terra for revision and repeat until Sol approves readiness for human-facing build-plan review.
-8. Present only the Sol-reviewed build plan to the user for explicit confirmation. This still does not authorize implementation.
-9. Begin implementation only after the applicable base design records are available, linked, current, and approved; required holders and capability boundaries are confirmed; and a separate bounded implementation task is explicitly authorized.
+The user refined the flow into one high-level design loop followed by bounded detail chunks. The word “package” means a frozen, human-reviewable document bundle—not an installable software package, an implementation task, or an approval. A package has an exact revision, file set, manifest, and identity so reviewers can say precisely what they saw. A later detail package is one bounded design or implementation-plan chunk with its own context, scope, inputs, outputs, and acceptance conditions; it may cover a component, capability, or cross-component slice.
+
+### A. High-level design loop: Sol creates, Kimi challenges
+
+1. **Sol creates the high-level human-facing design.** Sol owns authorship of the proposed system design, using current `as-is.md` records and the refined brief as evidence and historical material only as context. Sol may propose introducing, modifying, composing, retaining, deprecating, or dropping target skills, agents, workflows, and related boundaries. The root design must explain purpose, proposed behavior, human and agent authority, current-versus-planned state, first proof, lifecycle, major trade-offs, unresolved decisions, and what is not being claimed. Technical contracts and exhaustive inventories support the narrative but must not be required reading for human understanding.
+2. **Freeze each review revision.** Before Kimi reviews, record the exact package revision, file set, manifest, packet identity, review scope, and fixed acceptance criteria. A package edit creates a successor revision; it does not rewrite the reviewed predecessor.
+3. **Kimi reviews and advises.** Kimi is a read-only alternate-family reviewer. It challenges the high-level architecture and proposed skill/agent changes for supported risks, omissions, contradictions, migration consequences, authority problems, and unsupported claims. It may recommend repairs but cannot edit, approve, create tasks, or authorize implementation.
+4. **Sol and Kimi may exchange at most 10 review rounds.** One round is one Kimi review of one frozen Sol revision followed by one Sol disposition and, when accepted, a successor revision. Sol may stop earlier when the fixed acceptance criteria pass. The tenth round is a hard bound, not a promise that the design is “right”: if material disagreement or an unmet criterion remains, escalate it to the user rather than continuing automatically. New stylistic preferences do not consume a round or reopen a passed criterion.
+5. **The user reviews and aligns the high-level design here.** Present the human-facing design, concise decision brief, Kimi/Sol dispositions, unresolved decisions, and residual risks. The user may align, request design changes, or defer. Design-changing feedback returns to this bounded high-level loop; editorial clarification changes presentation only. User alignment approves design direction, not implementation.
+
+Before Kimi reviews an exact draft, verify model identity/family provenance, packet identity, read-only admission, and the bounded suitability gate. If any is unavailable, record a blocker and stop rather than silently substituting another reviewer.
+
+### B. Bounded detail-plan chunks after high-level design alignment
+
+6. **Terra derives one detail chunk at a time.** After the user aligns the high-level design, Terra adds implementation-ready detail without silently changing the approved direction. Each chunk has a named bounded context, purpose, affected component(s), design references, dependencies, owners, capabilities, protected inputs, acceptance, deterministic validation, semantic review, integration, recovery, explicit non-goals, and unresolved questions. Chunks may be reviewed independently and may not assume authority over unrelated components.
+7. **Sol reviews and advises each chunk.** Sol checks the chunk for traceability to the aligned high-level design, bounded scope, authority separation, dependency completeness, validation, recovery, and honest exclusions. Terra responds to each finding. Each chunk gets at most one bounded repair cycle; genuinely new design concerns or disagreement about an acceptance condition escalate to the user instead of opening another automatic loop.
+8. **Close the detail-plan set.** Terra records which chunks are complete, blocked, deferred, or dependent on another chunk. Sol confirms that the set is coherent enough for the next human decision, without turning that confirmation into task authority.
+9. **Ask the user for a kick-off decision.** Present the aligned high-level design, the reviewed detail chunks, dependencies, open risks, and the proposed first bounded implementation slice. The user may authorize kick-off, request changes, defer, or decline. “Kick-off” must mean permission to prepare or start the named first bounded task only; it must not be interpreted as blanket authorization for the whole rearchitecture.
+
+### C. Downstream execution after kick-off
+
+10. Confirm applicable base records, holders, capabilities, protected controls, exact task scope, and task-specific authorization.
+11. Create and authorize one bounded implementation task.
+12. Run the admitted worker, deterministic validation, independent semantic result review, receiving-owner integration, and post-integration revalidation.
+13. Record failure, recovery, escalation, evidence, and residual risk. Compare current and candidate workflows only under the separately approved setup/evaluation protocol.
+
+### Simplification limits
+
+- The high-level loop has one Sol authoring stream, at most 10 Kimi/Sol review rounds, and one user design-alignment gate.
+- Each detail chunk has one Terra authoring stream, one Sol review/advisory cycle, and at most one repair successor.
+- Reviewers may suggest improvements, but may not silently add acceptance criteria, alter user decisions, or grant authority.
+- A genuinely new material concern or unresolved reviewer disagreement is escalated to the user; it does not trigger automatic draft proliferation.
+- Every revised package or detail chunk preserves its predecessor and receives fresh identity and verification evidence.
+- High-level design alignment, detail-plan closure, user kick-off, task authorization, and implementation remain separate transitions.
 
 ## Proposed target-design package structure
 
@@ -100,15 +126,17 @@ The launcher defaults delegated child work to isolated worktrees and preserves u
 
 ## Decisions still requiring the user
 
-- Confirm the target-design package structure and current/planned representation.
+- Confirm the simplified role order: Sol creates the high-level design, Kimi reviews/advises it for at most 10 rounds, the user aligns the design, Terra creates bounded detail-plan chunks, Sol reviews/advises each chunk, and the user decides whether to kick off the first bounded implementation slice.
+- Confirm that Sol may propose introducing, modifying, composing, retaining, deprecating, or dropping target skills, agents, workflows, and boundaries, subject to migration evidence and human alignment.
+- Confirm that Kimi's identity/provenance and suitability gate must be completed before each exact-package review, with no silent reviewer substitution.
+- Review and align on the high-level human-facing design after the bounded Sol/Kimi loop.
+- Confirm the maximum 10-round high-level review bound and escalation behavior at the bound.
 - Confirm staged heavy refactoring with the broad evidence-based total-rewrite escape.
 - Select the first mock feature or qualifying simple backlog item.
-- Appoint accountable holders for design orchestration, design facilitation, setup, semantic review, evaluation/scoring, migration, fixture ownership, and task authorization.
+- Appoint accountable holders for setup, semantic review, evaluation/scoring, migration, fixture ownership, detail-plan creation, and task authorization.
 - Confirm the repository-local first-slice boundary: no credentials, external effects, package/distribution claim, or security-isolation claim.
-- Confirm or revise the human-selected Grok 4.6 alternate-family reviewer after its identity/provenance check and bounded local trial.
 - Approve the benchmark rubric, safety-critical failures, and exact advancement rule.
-- Align explicitly on the generated target-design package.
-- After design alignment, align on the Sol-reviewed build plan before any separate task authorization.
+- Decide whether the user kick-off authorizes preparation only or preparation plus execution of the named first bounded task; no blanket rearchitecture authorization is implied.
 
 ## Residual uncertainty
 
@@ -121,10 +149,10 @@ The launcher defaults delegated child work to isolated worktrees and preserves u
 
 ## Explicit authority statement
 
-The latest Sol verdict approves readiness to prepare and present the human-facing target-design package. It does not approve the package itself, approve a build plan, adopt target contracts, create task authority, or authorize implementation.
+This handoff records the user's simplified design-and-planning direction. It does not approve the high-level design, approve detail chunks, adopt target contracts, create task authority, authorize kick-off, or authorize implementation. Sol's design, Kimi's review, Terra's detail chunks, Sol's chunk reviews, hashes, suitability results, and process exits are evidence only. The user retains high-level design-alignment and kick-off authority; a separate bounded task authorization remains required.
 
-Nothing unreviewed is to be presented to the user. Terra-Sol ping-pong is required during design generation and after any design-changing feedback. For the generated design package, the human-selected `x-ai/grok-4.6` review must use the same frozen package, remain read-only, and return findings to Terra followed by fresh Sol review before presentation. After user alignment, a fresh Terra-Sol cycle is required for the design-derived build plan. Only explicit user alignment plus a separately authorized bounded implementation task may begin implementation.
+The active path is Sol high-level design → Kimi review/advice (maximum 10 rounds) → Sol dispositions/repairs → user design review and alignment → Terra detail chunks → Sol chunk review/advice → user kick-off decision → separate task authorization → execution. Target skills, agents, workflows, and their dispositions are part of Sol's design scope, but no proposed introduction, modification, deprecation, or drop becomes current architecture without later authorized migration.
 
 ## New-session next action
 
-Read this handoff first. Then generate the target-design package in the proposed structure, keeping it as planned design and preserving current-state links. Do not present drafts to the user before Terra review, fresh Sol review, and the human-selected Grok 4.6 review after identity/provenance verification and bounded trial. Preserve every review report durably. After all required reviews approve readiness, present the package for user alignment. After alignment, derive the build plan and send it through a fresh Terra-Sol review before any implementation authorization is considered.
+Read this handoff first. Prepare the exact current-state inputs and fixed high-level acceptance checklist for Sol to create one human-facing design draft, including proposed changes to skills, agents, workflows, and boundaries. Freeze and verify each revision before Kimi reviews it. Permit no more than 10 Kimi/Sol review rounds; stop early on satisfaction, or escalate unresolved material disagreement at the bound. Then present the reviewed high-level design to the user. Do not derive implementation detail or request kick-off before user design alignment. After alignment, ask Terra to create the detail-plan chunks and have Sol review each bounded chunk before presenting the proposed first implementation slice for the user's kick-off decision.
