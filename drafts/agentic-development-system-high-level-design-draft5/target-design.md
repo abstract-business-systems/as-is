@@ -13,6 +13,7 @@
   - [Architectural planes](#42-architectural-planes)
 - [5. Human-facing design and representation](#5-human-facing-design-and-representation)
   - [Proposed design package](#51-proposed-design-package)
+  - [Workflow benchmark and evaluation](#workflow-benchmark-and-evaluation--advisory-not-authority)
   - [Required human-facing views](#52-required-human-facing-views)
   - [Human status and interaction needs](#53-human-status-and-interaction-needs)
 - [6. Design completion and approval gates](#6-design-completion-and-approval-gates)
@@ -54,7 +55,7 @@
 - [16. Non-goals](#16-non-goals)
 - [17. Decisions requiring the user](#17-decisions-requiring-the-user)
 - [18. Unresolved design questions](#18-unresolved-design-questions)
-- [19. Provisional contract questions for Sol](#19-provisional-contract-questions-for-sol)
+- [19. Provisional contract questions for target roles](#19-provisional-contract-questions-for-target-roles)
   - [Design and revision](#design-and-revision)
   - [Feedback and issues](#feedback-and-issues)
   - [Agent admission and tools](#agent-admission-and-tools)
@@ -81,10 +82,12 @@ The proposed target has five cooperating planes:
 
 Implementation would remain unauthorized until:
 
-- the high-level design has been reviewed through the bounded Sol/Kimi loop;
+- the high-level design has been reviewed through the bounded design-author/alternate-reviewer loop;
 - the user has aligned on that design direction;
 - the complete set of required base target-design records is available and approved;
-- Terra has produced reviewed bounded detail chunks;
+- the component-builder has produced an initial bounded detail plan;
+- the design/prototyping agent has reviewed that exact plan;
+- the user has reviewed and approved that exact design-agent-reviewed plan;
 - the user has authorized the named first slice; and
 - a separate bounded task has received execution authority.
 
@@ -98,7 +101,7 @@ This is a design proposal only. It does not adopt contracts, retire current arti
 
 - The named current records describe a working system with seven configured agent roles, seventeen reusable skills, deterministic host-neutral modules, Pi-facing adapters, and bounded tools.
 - The consolidated handoff is later than the brief’s older pending Terra–Sol cycle. It records readiness to produce a human-facing target design, not approval of that design or implementation.
-- The handoff records user direction toward: Sol design → bounded Kimi review → user alignment → Terra detail chunks → Sol chunk review → user kick-off decision.
+- The handoff records user direction toward: design/prototyping agent authorship → bounded alternate-family expert review → user alignment → component-builder detail plans → design-agent review → user detail-plan review and kick-off decision.
 - The current records explicitly separate agents, skills, tools, deterministic modules, adapters, task authority, and supplementary telemetry.
 - The composable-skills draft proposes useful composition direction but explicitly does not authorize wholesale skill replacement.
 - **Artifact disposition:** The composable-skills draft is retained as non-authoritative design input and provenance. Its composition principles are selectively incorporated, but its proposed catalog is not adopted and wholesale capability creation or skill replacement is rejected as a mandate. It is not a target contract or an artifact scheduled for removal by this design.
@@ -129,7 +132,7 @@ Only the named documents and relevant current `as-is.md` records were used. Impl
 | Agent roster | Seven roles with some consultation and implementation overlap. | Purpose-based orchestrators, designer, implementer, validator, and advisory roles; model assignments remain replaceable. |
 | Skill organization | Seventeen operational skills, with some broad workflows and adjacent responsibilities. | Master-first composition over reusable capabilities, introduced incrementally rather than by replacing every skill at once. |
 | Tool availability | Agents declare tools; launch admission validates and forwards them. | Tools are globally catalogued by the platform but admitted per agent, task, host profile, and risk. Skills declare capability needs but never grant tools. |
-| Model strategy | The design inputs describe Sol, Terra, and Luna as proposed assignments for this design exercise; the inspected current architecture does not establish those labels as architectural roles. | Architectural roles are purpose-based. Model/provider assignments—including Sol, Terra, Luna, and Kimi labels used in this exercise—are replaceable, separately admitted selections rather than role identities. |
+| Model strategy | The design exercise used named model/profile assignments, but the inspected current architecture does not establish those labels as architectural roles. | Architectural roles are purpose-based. Model/provider assignments are replaceable, separately admitted selections rather than role identities; exercise-only assignments are recorded separately from target roles. |
 | Task control | Durable deterministic task state, budget, recovery, validation, and handoff eligibility already exist. | Retained as the control spine, extended only where design, approval, feedback, and migration states require explicit contracts. |
 | Verification | Deterministic checks plus receiving-builder or expert review. | Acceptance-to-evidence mapping is mandatory; semantic review and integration ownership are explicit for every implementation result. |
 | Setup | Canonical resources can be wired to detected clients; independent installed-package operation is unproven. | First prove repository-local consumption and isolation; choose a distribution model only after setup-inclusive evaluation. |
@@ -142,27 +145,41 @@ Only the named documents and relevant current `as-is.md` records were used. Impl
 
 ## 4.1 Human-readable system view
 
+The current baseline is shown separately from the planned target so that the diagram does not imply that the target architecture already exists.
+
 ```mermaid
 flowchart TB
-    Human["Human goal, prototype feedback,<br/>design decisions, issues"] --> Design["Design plane<br/>goal + visual prototype + target design"]
-    Design --> Gate["User design-alignment and<br/>design-completion gates"]
+    subgraph CURRENT["Current system - reported baseline"]
+        direction LR
+        C1["Canonical current records"]
+        C2["Deterministic task, context,<br/>budget, recovery, and handoff control"]
+        C3["Configured agents, skills,<br/>and bounded tools"]
+        C4["Deterministic checks and<br/>supplementary evidence paths"]
+        C5["Host-neutral modules,<br/>Pi adapters, and setup"]
+    end
 
-    Gate --> Planner["Bounded detail planning<br/>and dependency definition"]
-    Planner --> Control["Deterministic control plane<br/>authority + scope + budget + recovery"]
-    Control --> Builder["Component orchestrator<br/>decomposition + integration"]
-    Builder --> Worker["Bounded task implementer"]
-    Worker --> Checks["Deterministic checks"]
-    Checks --> Review["Independent semantic review"]
-    Review --> Integrate["Receiving-owner integration<br/>and revalidation"]
+    subgraph TARGET["Planned target - design proposal only, not realized"]
+        direction TB
+        H["Human intent and design plane<br/>goals, prototypes, design revisions,<br/>feedback, and decisions"]
+        O["Orchestration and control plane<br/>authority, gates, admission,<br/>escalation, budgets, and recovery"]
+        R["Realization plane<br/>bounded detail planning<br/>and authorized implementation"]
+        A["Assurance plane<br/>deterministic checks, semantic review,<br/>integration, and evidence"]
+        X["Host and consumption plane<br/>core modules, adapters, setup,<br/>project-local state, and isolation"]
 
-    Integrate --> Status["Human-visible status,<br/>evidence, risks, and outcome"]
-    Status --> Feedback{"Feedback or issue?"}
-    Feedback -->|defect within approved design| Control
-    Feedback -->|changes approved intent or boundary| Design
+        H -->|"alignment and approved design inputs"| O
+        O -->|"planning after G2; implementation only after G5"| R
+        R -->|"results and evidence"| A
+        A -->|"human-visible status, findings, and residual risk"| H
+        X -.-> O
+        X -.-> R
+        X -.-> A
+    end
 
-    Evidence["Supplementary traces and<br/>execution evidence"] -.-> Review
-    Host["Host adapters, tools,<br/>project-local configuration"] -.-> Control
-    Host -.-> Worker
+    C1 -->|"baseline for explicit current and target views"| H
+    C2 -->|"retain as the control spine; extend only through approved contracts"| O
+    C3 -->|"adapt purpose-based roles and skill composition through staged migration"| R
+    C4 -->|"retain and strengthen assurance boundaries"| A
+    C5 -->|"retain host-neutral and adapter boundaries"| X
 ```
 
 ## 4.2 Architectural planes
@@ -236,18 +253,9 @@ Provider credentials remain environmental inputs and must not enter prompts, rec
 
 ## 5.1 Proposed design package
 
-The target design should be reviewed as one frozen, revisioned document bundle:
+The normal human review unit is one revisioned `target-design.md`, containing the core design followed by appendices for component deltas, migration, setup and benchmark protocol, decision history, and unresolved questions. A minimal `review-manifest.md` identifies the exact reviewed revision and attachments but does not duplicate the design narrative. Separate files are used only where an independently owned canonical base record, machine-consumed artifact, or lifecycle boundary requires them; each such attachment is frozen and referenced from the combined document.
 
-```text
-target-design-package/
-  target-design.md
-  component-designs/
-  migration-ledger.md
-  setup-and-benchmark.md
-  decision-log.md
-```
-
-This is a proposed information shape, not an instruction to create these paths.
+Current `as-is.md` records are the baseline. Every target change is classified as retained, adapted, introduced, deprecated, replaced, dropped, or deferred. An extension beyond current records must identify the unmet capability, owner, consumers, authority and tool implications, compatibility path, validation evidence, and migration or removal gate. Unjustified extensions remain deferred.
 
 Each frozen revision should identify:
 
@@ -276,6 +284,12 @@ Each frozen revision should identify:
 | Decision brief | What does the user need to decide, and what happens under each option? |
 
 Mermaid is appropriate for architecture and lifecycle diagrams. UI mockups, rendered component views, tables, examples, and screenshots may be used when they communicate intent better. No user-interface implementation is implied.
+
+### Workflow benchmark and evaluation — advisory, not authority
+
+The benchmark discussion concerns the workflow, not reviewer or model selection. The proposed evaluation compares the pinned current workflow and the candidate workflow on the same controlled feature, using the same separately owned seed, setup conditions, primary model settings, budget, retry policy, deterministic checks, protected fixtures, rubric, and scorer. **No project-specific workflow benchmark has run.** Sections 12–13 describe a proposed protocol, not results or adoption evidence.
+
+The benchmark should measure setup, correctness, scope discipline, human effort, agent operation, integration, evidence quality, design alignment, and recovery. Before execution, record the exact seed, pinned baseline revision, candidate revision, feature, settings, budget, retry policy, checks, protected inputs, rubric, scorer, safety-critical failures, thresholds, and advancement rule. A model or reviewer-selection experiment must be labelled separately; it must not be presented as evidence that one workflow is superior. Human approval remains required for the benchmark protocol and any advancement decision.
 
 ## 5.3 Human status and interaction needs
 
@@ -311,11 +325,11 @@ Categories 3 and 4 return to design. They must not be appended silently to an ac
 
 | Gate | Meaning | What it permits |
 | --- | --- | --- |
-| G0 — Draft ready | Sol has produced a frozen human-facing design revision. | Admitted alternate-family review of the exact frozen packet only. |
-| G1 — Independent review bounded | An admitted alternate-family reviewer has assessed the exact frozen revision against its manifest’s fixed checklist, and Sol has dispositioned every supported finding. Either the latest counted review reports no supported checklist-scoped repair remaining, or ten counted rounds have completed and all unresolved disagreement has been preserved and packaged for user decision. | User review only; neither path approves the design. |
+| G0 — Draft ready | The design/prototyping agent has produced a frozen human-facing design revision. | Admitted alternate-family expert review of the exact frozen packet only. |
+| G1 — Independent review bounded | An admitted alternate-family expert has assessed the exact frozen revision against its manifest’s fixed checklist, and the design/prototyping agent has dispositioned every supported finding. Either the latest counted review reports no supported checklist-scoped repair remaining, or ten counted rounds have completed and all unresolved disagreement has been preserved and packaged for user decision. | User review only; neither path approves the design. |
 | G2 — High-level direction aligned | User accepts the major architecture, lifecycle, boundaries, and proposed dispositions. | Detailed design and planning; not implementation. |
 | G3 — Base design complete | The then-current user has approved the exact frozen base-record inventory and the exact revision of every listed base record; those records are available, linked, current, and collectively describe the complete revised system. Derived leaves are outside G3 unless they trigger promotion by changing an approved concern. | Completion of the design phase. |
-| G4 — Bounded unit ready | G3 has passed, and the Terra detail chunk is complete, Sol-reviewed, traceable to approved design, and has owners, validation, recovery, and non-goals. | User kick-off decision for that unit. |
+| G4 — Bounded unit ready | G3 has passed, the component-builder detail plan is complete and design-agent-reviewed, and the user has reviewed and approved that exact plan; it has owners, validation, recovery, and non-goals. | User kick-off decision for that unit. |
 | G5 — Task authorized | Exact bounded task, holder, tools, budget, acceptance, and recovery are authorized. | Implementation of that task only. |
 | G6 — Result acceptable | Deterministic checks, semantic review, integration, and revalidation pass. | Completion handoff; not automatic release. |
 | G7 — Post-implementation feedback resolved | Feedback is accepted as defect, design change, new request, or no action. | Closure or return to design. |
@@ -324,11 +338,64 @@ Categories 3 and 4 return to design. They must not be appended silently to an ac
 
 Treat G2 and G3 as separate. High-level alignment should authorize detailed design work, while **design completion** should retain the user’s stated meaning: the base design records needed for the complete revised system have been approved.
 
+```mermaid
+flowchart TB
+    S["Design/prototyping agent<br/>freezes a high-level design revision"]
+    S --> G0["G0 - Draft ready<br/>permits exact-packet review only"]
+    G0 --> K["Expert<br/>admitted alternate-family review of the exact frozen packet"]
+    K --> D["Design/prototyping agent dispositions every supported finding"]
+    D --> R{"Review stopping condition"}
+
+    R -->|"No supported checklist-scoped repair remains"| G1["G1 - Independent review bounded<br/>permits user review only"]
+    R -->|"Repair remains and fewer than ten rounds completed"| S2["Design/prototyping agent freezes a successor revision"]
+    S2 --> G0
+    R -->|"Ten rounds completed"| P["Preserve disagreements and material unknowns<br/>in a user-decision packet"]
+    P --> G1
+
+    G1 --> U2{"User aligns the high-level direction?"}
+    U2 -->|"Request changes or defer"| S
+    U2 -->|"Align"| G2["G2 - High-level direction aligned<br/>permits detailed design, not implementation"]
+
+    G2 --> T["Component-builder<br/>prepares one bounded detail plan"]
+    T --> SR["Design/prototyping agent<br/>reviews traceability, scope,<br/>validation, recovery, and non-goals"]
+    SR -->|"Reviewed and ready"| HC["Human reviews exact design-agent-reviewed plan"]
+    HC -->|"Request changes, defer, or reject"| T
+    HC -->|"Approve"| C["Human-approved detail plan"]
+    SR -->|"Repair needed and successor unused"| T2["Component-builder prepares the one permitted repair successor"]
+    T2 --> SR
+    SR -->|"New design question, unresolved disagreement,<br/>or further repair needed"| UQ["User decision<br/>return to design as needed"]
+    UQ --> S
+
+    G2 --> B["Complete and freeze the exact base-record inventory<br/>and all listed base target records"]
+    B --> U3{"User approves the exact inventory<br/>and every listed record revision?"}
+    U3 -->|"Request revision"| B
+    U3 -->|"Approve"| G3["G3 - Base design complete<br/>completes the design phase only"]
+
+    C --> J["G3 and the human-approved detail plan<br/>are both required"]
+    G3 --> J
+    J --> G4["G4 - Bounded unit ready<br/>permits a user kick-off decision only"]
+
+    G4 --> U4{"User authorizes kick-off<br/>for the named slice?"}
+    U4 -->|"No or defer"| STOP["No implementation authority"]
+    U4 -->|"Yes"| A5["Admit the exact task, holder, tools, budget,<br/>acceptance, and recovery"]
+    A5 --> G5["G5 - Task authorized<br/>permits implementation of that task only"]
+
+    G5 --> I["Bounded implementation"]
+    I --> A["Deterministic checks, semantic review,<br/>integration, and revalidation"]
+    A --> G6["G6 - Result acceptable<br/>completion handoff, not automatic release"]
+
+    G6 --> F["Classify post-implementation feedback"]
+    F --> G7["G7 - Feedback resolved"]
+    G7 -->|"Design change or new request"| S
+    G7 -->|"Defect within approved design"| CTRL["Return to control<br/>no automatic retry or new authority"]
+    G7 -->|"No action or resolved"| CLOSE["Closure"]
+```
+
 A **base target record** is an exact revisioned target `as-is.md` record listed in the frozen, then-current-user-approved G3 base-record inventory. The inventory’s records collectively represent the complete revised system at the architectural/component level, including purpose, boundaries, authority relationships, current-to-target relationship, and realization status. Base membership is determined by inventory membership, not directory depth or filename.
 
 A **derived leaf record** is a traceable elaboration of one or more approved base records that does not change user-visible behavior, accepted outcomes, component boundaries, authority, safety/privacy constraints, approved acceptance conditions, or migration promises. If a proposed leaf changes any of those concerns, it must return to user review and, where appropriate, be promoted into a revised base inventory or base record.
 
-G3 membership is resolved by the user before G3 is evaluated. Derived leaf records need not all receive direct human review; Sol or an accountable design owner may review them when they satisfy the preceding definition. Their traceability and delegated review evidence must be preserved.
+G3 membership is resolved by the user before G3 is evaluated. Derived leaf records need not all receive direct human review; the design/prototyping agent or another accountable design owner may review them when they satisfy the preceding definition. Their traceability and delegated review evidence must be preserved.
 
 ## 6.2 Current and planned state representation
 
@@ -383,11 +450,38 @@ The repository authority order remains applicable: fixed safety invariants → e
 
 Escalation travels upward through callers:
 
-```text
-task implementer
-    → component builder
-        → project orchestrator
-            → user or required human domain expert
+```mermaid
+flowchart TB
+    U["User<br/>goal and feature intent, G2 alignment,<br/>G3 approval, G4 kick-off,<br/>and consequential decisions"]
+    P["Project orchestrator - as-is<br/>root lifecycle, user interaction,<br/>status synthesis, and routing"]
+    C["Component builder<br/>bounded decomposition, delegation,<br/>review, integration, and recovery"]
+    T["Task implementer<br/>one G5-authorized task only"]
+
+    U -->|"bounded direction and authorization"| P
+    P -->|"delegated component scope"| C
+    C -->|"delegation only after recorded G5 admission"| T
+
+    T -->|"stop, preserve state and evidence,<br/>and escalate a bounded question"| C
+    C -->|"escalate beyond component authority"| P
+    P -->|"escalate consequential decision"| U
+
+    H["Required human domain expert<br/>qualified judgment where required"]
+    P -->|"escalate specialist concern"| H
+    H -.->|"bounded specialist judgment"| P
+
+    D["Design agent<br/>authors proposals;<br/>cannot approve or authorize"]
+    D -.->|"design proposal only"| P
+
+    V["Validator or specialist reviewer<br/>advisory unless a separate project contract<br/>establishes an explicit gate"]
+    V -.->|"findings and evidence"| C
+
+    M["Task-control module<br/>enforces transitions, budgets, recovery, and handoff;<br/>does not create implementation authority"]
+    M -->|"admit or reject against recorded authority"| T
+
+    N["Skills, tools, and observability<br/>procedures, bounded operations, or supplementary evidence;<br/>no role, task, gate, or completion authority"]
+    N -.-> P
+    N -.-> C
+    N -.-> T
 ```
 
 Each caller should:
@@ -425,16 +519,23 @@ Names are provisional and require naming review before adoption.
 | `component-builder` | **Retain and adapt** | Component-level orchestrator, detail decomposition, delegation, semantic review, child integration, and recovery. | Preserve current child ownership and integration rules; add traceability to approved target design. |
 | `evidence-validator` | **Retain and adapt** | Read-only acceptance-to-evidence review across plans, implementations, and controlled checks. | Keep fixed safety profiles; broaden only through explicit code-owned checks, never arbitrary execution. |
 | `execution-advisor` | **Retain** | Bounded trace/session analysis, process improvement, and budget evidence. | Continue treating telemetry as supplementary. |
-| `expert` | **Retain and compose** | Generic read-only reviewer shell for architecture, alternate-family challenge, and future specialist profiles. | Kimi or Sol review can use this contract if identity, tool admission, and suitability are verified. |
+| `expert` | **Retain and compose** | Generic read-only reviewer shell for architecture, alternate-family challenge, and future specialist profiles. | An admitted alternate-review or design-review profile may use this contract when identity, tool admission, and suitability are verified. |
 | `thinking-companion` | **Deprecate, then replace** | Its general consultation responsibility moves to the human-facing orchestrator plus the consulting skill; design facilitation moves to a new design role. | Remove only after all direct consumers and behavior tests migrate. |
 | `worker` | **Replace** with provisionally named `task-implementer` | One bounded implementation task, tests, checks, and structured evidence report. | Preserve the existing no-delegation/no-integration boundary; provide a compatibility alias during migration. |
-| — | **Introduce** a design/prototyping agent | Produce visual prototypes, target-design revisions, alternatives, and decision briefs. | Separate authorship from approval. Sol may initially fill the role, but the role must not be named after its model. |
+| — | **Introduce** a design/prototyping agent | Produce visual prototypes, target-design revisions, alternatives, and decision briefs. | Separate authorship from approval. A model/profile may initially fill the role, but the role must not be named after its model. |
 
 ### Model assignment
 
-- Sol, Terra, Luna, and Kimi should be treated as selected models or review profiles, not permanent agent roles.
-- Initial assignments may follow the current strategy: Sol for architecture, Terra for detail planning and ordinary review, and Luna for bounded implementation.
-- Kimi is the user-directed alternate reviewer for this design exercise, but exact model identity, family provenance, read-only admission, and suitability remain unverified.
+### Exercise assignment mapping — non-target
+
+The following mappings are labels for this design exercise only, not target agent names or authority grants:
+
+- Sol profile → design/prototyping-agent assignment for high-level design authorship and design review in this exercise.
+- Kimi profile → independently admitted expert alternate-review assignment in this exercise.
+- Terra profile → component-builder assignment for bounded detail planning in this exercise.
+- Luna profile → task-implementer assignment only if a separately authorized implementation exercise occurs.
+
+Exact model identity, family provenance, read-only admission, and suitability remain separately verified concerns. Model routing should consider capability, task risk, ambiguity, observed quality, cost, and latency—not token cost alone.
 - No silent reviewer substitution should occur.
 - Model routing should consider capability, task risk, ambiguity, observed quality, cost, and latency—not token cost alone.
 
@@ -472,7 +573,7 @@ Introduce these only through bounded pilots with identified consumers:
 
 | Proposed master skill | Purpose |
 | --- | --- |
-| `designing-and-aligning` | Compose goal clarification, prototypes, structured design, review, decision presentation, user alignment, and design-change feedback. |
+| `developing-target-designs` | Compose goal clarification, prototypes, structured target-design revisions, bounded review preparation, decision presentation, alignment recording, and design-change feedback. It supports human alignment but does not determine or record approval without human decision evidence. |
 | `making-changes` | Resolve component versus non-component scope, ownership, method, validation, and applicable history. |
 | `planning-realization` | Derive one bounded implementation-ready detail chunk from approved design without changing that design. |
 
@@ -498,8 +599,56 @@ These should not be created merely to reproduce the composable-skills draft. Eac
 
 ## 9.3 Proposed compositions
 
+The following view shows representative agent-to-skill relationships. Dashed arrows mean that a role may use or compose a reusable procedure; they do not grant tools, scope, task admission, approval, integration, or completion authority.
+
+```mermaid
+flowchart LR
+    subgraph Agents["Purpose-based agent roles"]
+        O["Project orchestrator<br/>(as-is, adapted)"]
+        D["Design/prototyping agent"]
+        P["Component-builder<br/>(detail-planning assignment)"]
+        C["Component builder<br/>(current, adapted)"]
+        I["Task implementer<br/>(proposed replacement for worker)"]
+        V["Evidence validator<br/>(current, adapted)"]
+        X["Expert / alternate reviewer<br/>(current shell, composed)"]
+    end
+
+    subgraph Skills["Reusable skills and master procedures"]
+        CB["context-building"]
+        HC["human-centered-consulting"]
+        SC["structuring-content"]
+        MD["designing-mermaid-diagrams"]
+        MA["managing-as-is-document"]
+        DA["developing-target-designs<br/>(proposed master)"]
+        PR["planning-realization<br/>(proposed master)"]
+        BC["building-components"]
+        IT["implementing-component-tasks"]
+        VD["verification-discipline"]
+        SP["spawning-pi-subagents"]
+    end
+
+    O -.->|"uses"| CB
+    O -.->|"uses"| HC
+    O -.->|"uses"| SP
+    D -.->|"uses"| DA
+    D -.->|"uses"| SC
+    D -.->|"uses"| MD
+    D -.->|"uses"| MA
+    X -.->|"uses"| CB
+    X -.->|"uses"| HC
+    P -.->|"uses"| CB
+    P -.->|"uses"| SC
+    P -.->|"may use after alignment"| PR
+    C -.->|"uses"| BC
+    C -.->|"uses"| SP
+    C -.->|"uses"| VD
+    I -.->|"follows"| IT
+    I -.->|"supplies evidence under"| VD
+    V -.->|"uses"| VD
+```
+
 ```text
-designing-and-aligning
+developing-target-designs
   = context building
   → human consultation
   → structuring content
@@ -536,7 +685,7 @@ making-changes
 | Item | Planned treatment |
 | --- | --- |
 | Standalone documentation-integration workflow | Deprecate after setup/design compositions prove parity. |
-| `thinking-companion` role | Replace with orchestrator consultation plus a dedicated design role. |
+| `thinking-companion` role | Replace with orchestrator consultation plus the design/prototyping agent. |
 | `worker` role name and broad identity | Replace with purpose-specific task implementer; preserve compatibility temporarily. |
 | Fixed model names as architecture roles | Drop from the target architecture. Retain only as replaceable assignments. |
 | Skill-granted authority or tool access | Explicitly reject. |
@@ -554,13 +703,13 @@ making-changes
 
 1. Human supplies a goal, feature idea, feedback, or issue.
 2. The project orchestrator identifies the responsible design scope.
-3. Sol creates a frozen high-level design revision with visual and structured views.
-4. Before a review counts, an admitted alternate-family reviewer must have recorded model/provider identity, family-provenance basis, suitability basis, exact packet attachment, and effective read-only admission. Unavailable backend attestation remains explicitly unavailable.
-5. Kimi reviews that exact revision read-only against the fixed acceptance checklist and review scope in that revision’s review manifest. The review cannot silently enlarge that scope.
-6. Sol dispositions every supported finding as accept, reject, or narrow with rationale and creates a successor revision when needed. Sol does not approve its own design.
-7. A counted round is one admitted review of one exact frozen packet followed by complete Sol disposition of every supported finding. Repeat for at most ten counted rounds.
+3. The design/prototyping agent creates a frozen high-level design revision with visual and structured views.
+4. Before a review counts, an admitted alternate-family expert must have recorded model/provider identity, family-provenance basis, suitability basis, exact packet attachment, and effective read-only admission. Unavailable backend attestation remains explicitly unavailable.
+5. The admitted expert reviews that exact revision read-only against the fixed acceptance checklist and review scope in that revision’s review manifest. The review cannot silently enlarge that scope.
+6. The design/prototyping agent dispositions every supported finding as accept, reject, or narrow with rationale and creates a successor revision when needed. The design/prototyping agent does not approve its own design.
+7. A counted round is one admitted review of one exact frozen packet followed by complete design/prototyping-agent disposition of every supported finding. Repeat for at most ten counted rounds.
 8. Stop early only when the latest counted review reports no supported checklist-scoped repair remaining. Preferences and non-blocking unknowns remain visible without blocking early exit.
-9. At the tenth round, no eleventh round is implied. Sol must preserve accepted repairs, rejected and narrowed findings, unresolved disagreements, and material unknowns in a user-decision packet. Reaching the bound does not imply checklist passage or design approval.
+9. At the tenth round, no eleventh round is implied. The design/prototyping agent must preserve accepted repairs, rejected and narrowed findings, unresolved disagreements, and material unknowns in a user-decision packet. Reaching the bound does not imply checklist passage or design approval.
 10. User aligns, requests changes, or defers. Alignment permits detailed design; it does not authorize implementation.
 11. The then-current user approves the exact G3 base-record inventory and the required base target records are completed, linked, current, and approved.
 12. The design phase is then marked complete.
@@ -583,7 +732,7 @@ This compact table is high-level and non-exhaustive; it is not a consumer invent
 
 ## 10.3 Detail-planning workflow
 
-After G2 high-level alignment, Terra may begin planning one bounded detail chunk at a time while G3 base-record completion proceeds; no chunk may reach G4 until G3 is satisfied.
+After G2 high-level alignment, the component-builder may begin planning one bounded detail chunk at a time while G3 base-record completion proceeds. The component-builder supplies an initial implementation-ready plan, meaning a plan sufficiently complete to support review and task admission. “Implementation-ready” describes planning completeness, not authority: the plan is not approved, executable, or itself a task.
 
 Every chunk should contain:
 
@@ -602,21 +751,22 @@ Every chunk should contain:
 - unresolved questions;
 - migration effects.
 
-Sol reviews each chunk for traceability, authority, scope, validation, recovery, and honest exclusions. Terra gets at most one repair successor. A new design question or unresolved disagreement returns to the user rather than generating an indefinite planning loop.
+The design/prototyping agent reviews each detail plan for traceability, authority, scope, validation, recovery, and honest exclusions. The component-builder gets at most one repair successor. The then-current user must review the exact design-agent-reviewed plan and may approve, request changes, defer, or reject it. A substantive successor repeats design-agent and human review. Human acceptance of the detail plan is separate from slice kick-off and task authorization. A new design question or unresolved disagreement returns to the user rather than generating an indefinite planning loop.
 
 ## 10.4 Implementation workflow
 
-1. User authorizes kick-off for the named first slice.
-2. The responsible orchestrator verifies base records, holders, dependencies, capabilities, and protected controls.
-3. One bounded task receives explicit authority.
-4. The component builder delegates to the task implementer if useful.
-5. The implementer makes the smallest design-conformant change and adds tests.
-6. Deterministic checks run.
-7. A receiving builder or validator reviews semantic alignment.
-8. The receiving owner integrates the result.
-9. Relevant checks run again after integration.
-10. Completion evidence and residual risks are recorded.
-11. Post-implementation feedback is classified and either resolved as a defect or returned to design.
+1. The user has approved the exact design-agent-reviewed detail plan for the named slice.
+2. The user authorizes kick-off for the named first slice.
+3. The responsible orchestrator verifies base records, holders, dependencies, capabilities, and protected controls.
+4. One bounded task receives explicit authority.
+5. The component builder delegates to the task implementer if useful.
+6. The implementer makes the smallest design-conformant change and adds tests.
+7. Deterministic checks run.
+8. A receiving builder or validator reviews semantic alignment.
+9. The receiving owner integrates the result.
+10. Relevant checks run again after integration.
+11. Completion evidence and residual risks are recorded.
+12. Post-implementation feedback is classified and either resolved as a defect or returned to design.
 
 ## 10.5 Failure and recovery workflow
 
@@ -856,7 +1006,7 @@ Technical capability of the current substrate alone should not force retention.
 | Over-splitting skills creates unusable ceremony | Require independent consumers and pilot evidence before extracting a capability. |
 | A wholesale rewrite discards working safety boundaries | Preserve deterministic modules and adapters unless benchmark or migration evidence justifies replacement. |
 | Heavy refactoring retains accidental complexity | Maintain broad evidence-based rewrite criteria. |
-| Design review loops become endless | Freeze revisions, use fixed criteria, bound Kimi review to ten rounds, and escalate unresolved disagreement. |
+| Design review loops become endless | Freeze revisions, use fixed criteria, bound alternate-family review to ten rounds, and escalate unresolved disagreement. |
 | Human approval becomes a rubber stamp | Present visual views, disposition tables, explicit choices, residual risks, and exact revision identity. |
 | Leaf designs evade appropriate review | Escalate any leaf change affecting user-visible behavior, authority, safety, boundaries, or acceptance. |
 | Passing tests creates false confidence | Require semantic review, negative cases, integration checks, and design traceability. |
@@ -891,8 +1041,8 @@ Technical capability of the current substrate alone should not force retention.
 | Decision | Recommendation |
 | --- | --- |
 | Approve the exact G3 base-record inventory | Required before G3 can be evaluated; membership is not inferred from directory depth or filenames. |
-| Confirm Sol → Kimi → user → Terra → Sol → user sequencing | Confirm as the design-exercise flow, without making it a universal runtime contract yet. |
-| Confirm ten-round Sol/Kimi bound | Confirm, with early exit and user escalation at the bound. |
+| Confirm design/prototyping agent → alternate-family expert → user → component-builder → design-agent review → user sequencing | Confirm as the design-exercise flow, without making it a universal runtime contract yet. |
+| Confirm ten-round design-author/alternate-reviewer bound | Confirm, with early exit and user escalation at the bound. |
 | Confirm no silent alternate-reviewer substitution | Confirm. |
 | Approve G2 high-level alignment versus G3 complete base-design approval | Keep them separate; only G3 completes the design phase. |
 | Approve current/approved-target sections in component records | Approve in principle, subject to a bounded record-contract design. |
@@ -905,6 +1055,7 @@ Technical capability of the current substrate alone should not force retention.
 | Appoint design, setup, fixture, evaluation, semantic-review, migration, and task-authorization holders | Required. One holder may cover several roles if conflicts are controlled. |
 | Approve benchmark rubric and tolerances | Required before running the proof. |
 | Confirm first-slice setup boundary | Recommend repository-local, credential-free, and without external effects. |
+| Review workflow benchmark protocol summary | Confirm that the protocol is advisory, that no project-specific workflow benchmark has run, and that workflow comparison is distinct from model-selection experiments. |
 | Decide whether kick-off means task preparation only or preparation plus execution | Recommend stating this explicitly for each kick-off. |
 | Decide exact names for new roles and skills | Defer to naming review after responsibilities are accepted. |
 | Decide when an independent installed-package design is needed | Defer until repository-local setup evidence exists. |
@@ -930,7 +1081,7 @@ Technical capability of the current substrate alone should not force retention.
 
 ---
 
-# 19. Provisional contract questions for Sol
+# 19. Provisional contract questions for target roles
 
 These are questions, not adopted contracts.
 
@@ -1008,8 +1159,8 @@ These are questions, not adopted contracts.
 
 # 20. Recommended next design action
 
-Subject to user confirmation of the role order, this proposal should be treated as the candidate high-level design input to the bounded Kimi review process. Kimi should review one exact frozen revision read-only; Sol should disposition its findings without silently changing the manifest’s fixed acceptance checklist. Any remaining design disagreement should be presented to the user.
+Subject to user confirmation of the role order, this proposal should be treated as the candidate high-level design input to the bounded alternate-family review process. An admitted expert should review one exact frozen revision read-only; the design/prototyping agent should disposition its findings without silently changing the manifest’s fixed acceptance checklist. Any remaining design disagreement should be presented to the user.
 
-Only after user alignment should Terra receive the first bounded detail chunk. A suitable first chunk would define the current-versus-approved-target record model and design gates because subsequent agent, skill, migration, and evaluation chunks depend on that distinction.
+Only after user alignment should the component-builder receive the first bounded detail-plan request. The component-builder's initial output is a combined, human-readable implementation-ready detail plan for a named slice, not implementation authority. The design/prototyping agent reviews it, then the user reviews and accepts the exact design-agent-reviewed plan. Only after that acceptance, G3 completion, user kick-off, and separate task authorization may implementation begin. A suitable first chunk would define the current-versus-approved-target record model and design gates because subsequent agent, skill, migration, and evaluation chunks depend on that distinction.
 
 No implementation, artifact retirement, task creation, or contract adoption is authorized by this proposal.

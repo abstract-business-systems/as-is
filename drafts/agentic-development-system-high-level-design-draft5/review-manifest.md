@@ -8,17 +8,17 @@ This manifest identifies the frozen human-facing design packet for the presentat
 | --- | --- |
 | Revision | `draft5` |
 | Predecessor | `draft4` — `4f174a90734ecbbab61b98adbd2cdbc9ba75595ba123697edd5248333afa48f9` |
-| Authoring role | Sol-authored design content preserved; presentation-only successor prepared at the user's request |
-| Review state | Frozen for user presentation; this successor has not received a fresh bounded review |
+| Authoring role | Sol-authored design content; subsequent role and skill normalization prepared from Sol and Terra creator-model advisory specifications at the user's request |
+| Review state | Frozen for user presentation after creator-model role and skill normalization; this revision has not received a fresh bounded review |
 | Digest algorithm | `sha256-path-digest-v1` |
 | Manifest digest scope | All listed non-manifest files |
-| Packet digest | `b5b70c77beef41b72c4ac9bbf7df6471bb49423e4d3eae987b675d67318f07fc` |
+| Packet digest | `da2bce46fd914fbb81011b7bf478554f99c7ab4a18e7d58e99d4b5b14f640122` |
 
 ## Frozen file set
 
 | Relative path | SHA-256 |
 | --- | --- |
-| `target-design.md` | `6ba4564ed486e904409cbe71297d527779f462fce1963e34b4a7a3d9511ce26c` |
+| `target-design.md` | `b9fb0449a5df8259401cdd8d1a3fbcf4239dcb1971528676d215b63050ce6ef7` |
 
 ## Digest construction
 
@@ -26,7 +26,7 @@ For this revision, `sha256-path-digest-v1` is the canonical multi-file construct
 
 ## Review scope
 
-A fresh bounded read-only review, if admitted, may assess this exact successor against the predecessor's fixed checklist and declared review scope. The only intended content change is a human-facing table of contents inserted after the title. The review must not edit this packet, approve it, create tasks, adopt contracts, or authorize implementation.
+A fresh bounded read-only review, if admitted, may assess this exact successor against the predecessor's fixed checklist and declared review scope. This revision incorporates creator-model repair specifications: the proposed master skill is renamed to `developing-target-designs`, normative target sections use purpose-based agent roles rather than Sol/Terra/Kimi/Luna names, and exercise-only model/profile assignments are isolated in a non-target mapping. It retains the human review gate for component-builder detail plans, combined-document guidance, workflow-benchmark context, and Mermaid views. These changes have not received a fresh bounded alternate-family review. The review must not edit this packet, approve it, create tasks, adopt contracts, or authorize implementation.
 
 ## Fixed acceptance checklist
 
