@@ -4,7 +4,7 @@ Purpose: Preserve the active planning sequence, distinguish requested review sco
 
 ## Authority and current checkpoint
 
-This checklist is a navigation and continuity aid. The accepted draft-11 target design and current `as-is.md` records remain authoritative for their subjects. This checklist does not adopt target contracts, create tasks, authorize kick-off or implementation, or adopt target contracts. The user has authorized the scoped documentation checkpoint commit in the current turn; the scoped commit contains no implementation or task authority.
+This checklist is a navigation and continuity aid. The accepted draft-11 target design and current `as-is.md` records remain authoritative for their subjects. This checklist does not adopt target contracts, create tasks, authorize kick-off or implementation, or adopt target contracts. The scoped documentation checkpoint was authorized and committed as `4cbc50b` in the current turn; it contains no implementation or task authority.
 
 | Item | State | Evidence or next action |
 | --- | --- | --- |
@@ -20,7 +20,7 @@ This checklist is a navigation and continuity aid. The accepted draft-11 target 
 | Executable pilot plan | Not started | Derive only after the blocker-resolution successor is dispositioned; it must build the new structures before exercising them. |
 | Pilot implementation | Not authorized | Requires separate user kick-off and exact task-control admission. |
 | Benchmark | Not started | Requires candidate evidence first, then separately approved setup-inclusive benchmark inputs and advancement rules. |
-| Commit | Authorized; scoped checkpoint prepared | Commit the scoped documentation checkpoint after final diff checks, then verify the resulting commit before compaction. |
+| Commit | Complete: `4cbc50b` | `git diff --cached --check` passed before commit; the commit contains only the scoped documentation checkpoint and preserved quarantine provenance. |
 
 ## Two-track review interpretation
 
@@ -49,4 +49,4 @@ The prior continuation lost the distinction between a repository-local fixture u
 
 ## Compacting rule
 
-Before compaction, update this checklist and `handoffs/agentic-development-system.md` with the exact current draft, review records, unresolved findings, next action, commit status, and `startsWork: false`; verify the scoped checkpoint commit. After compaction, read the consolidated handoff first and use this checklist only as navigation; do not infer authority from the checklist or conversation summary.
+Before compaction, verify a clean worktree and that this checklist and `handoffs/agentic-development-system.md` point to the exact current draft, review records, unresolved findings, next action, commit `4cbc50b`, and `startsWork: false`. After compaction, read the consolidated handoff first and use this checklist only as navigation; do not infer authority from the checklist or conversation summary.

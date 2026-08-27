@@ -4,7 +4,7 @@ Purpose: Record the recovered planning-thread issue, the authoritative sequence,
 
 ## Status and authority
 
-Status: planning recovery record; implementation is not authorized. The requested commit/compaction checkpoint has not yet been authorized or created.
+Status: planning recovery record; implementation is not authorized. The requested documentation checkpoint was committed as `4cbc50b`; compaction is now safe after clean-worktree verification.
 
 This record does not alter the accepted draft-11 envelope. It explains a continuity failure and separates the requested parallel-child review from broader blocker-resolution exploration. It is navigation and provenance, not a second target authority.
 
