@@ -1,0 +1,52 @@
+# Agentic Development System — Continuity Checklist
+
+Purpose: Preserve the active planning sequence, distinguish requested review scope from surfaced follow-up issues, and provide a compact-safe checklist for continuing the agentic-development-system rearchitecture.
+
+## Authority and current checkpoint
+
+This checklist is a navigation and continuity aid. The accepted draft-11 target design and current `as-is.md` records remain authoritative for their subjects. This checklist does not adopt target contracts, create tasks, authorize kick-off or implementation, or adopt target contracts. The user has authorized the scoped documentation checkpoint commit in the current turn; the scoped commit contains no implementation or task authority.
+
+| Item | State | Evidence or next action |
+| --- | --- | --- |
+| Draft-11 high-level design | Complete and human-accepted | `drafts/agentic-development-system-high-level-design-draft11/`; acceptance in `reviews/agentic-development-system/target-design-human-review-acceptance-draft11.md`. |
+| Component-builder realization detail plan | Complete for its bounded planning scope | Draft 13 and review in `drafts/agentic-development-system-detail-plan-component-builder-realization-transition-draft13.md` and `reviews/agentic-development-system/expert-component-builder-realization-transition-detail-plan-draft13.md`. |
+| Planning owners and pilot | Complete as planning decisions | `drafts/agentic-development-system-owner-and-pilot-selection-draft1.md`; pilot is `validation-fixtures/dummy-delegation`. |
+| Broader blocker-resolution detour | Quarantined; not the active plan | `drafts/agentic-development-system/quarantine/README.md` and its preserved drafts/reviews. Consult only when deriving the later executable realization plan. |
+| Requested parallel-child review | Draft 1 reviewed; Sol disposition requires one focused successor | Actual Kimi review: `reviews/agentic-development-system/kimi-parallel-child-build-processing-draft1.md`; actual Sol review and disposition: `reviews/agentic-development-system/sol-parallel-child-build-processing-draft1.md`. Both used the exact focused draft 1. |
+| Parallel-child planning invariants | Confirmed at planning level | Independent child component builds may run in parallel when admitted; at most one build may target a component; successful parent completion waits for all owned child builds to complete. No runtime implementation exists. |
+| Important broader review findings | Quarantined from the active focused flow | The broader blocker-resolution review findings remain in the quarantined draft-1–6 artifacts. They are not the current requested item; revisit only when deriving the executable realization plan. |
+| Successor plan | Not yet created | Create one focused successor of `parallel-child-build-processing-draft1.md` containing only Sol's two accepted repairs; preserve draft 1. |
+| Human review of successor | Not yet requested | Sol must disposition Kimi's findings first; then actual Sol/Kimi review the exact successor. Human review/kick-off remains later and separate. |
+| Executable pilot plan | Not started | Derive only after the blocker-resolution successor is dispositioned; it must build the new structures before exercising them. |
+| Pilot implementation | Not authorized | Requires separate user kick-off and exact task-control admission. |
+| Benchmark | Not started | Requires candidate evidence first, then separately approved setup-inclusive benchmark inputs and advancement rules. |
+| Commit | Authorized; scoped checkpoint prepared | Commit the scoped documentation checkpoint after final diff checks, then verify the resulting commit before compaction. |
+
+## Two-track review interpretation
+
+### Track A — Requested parallel-child processing changes
+
+The requested review concerned the focused artifact `drafts/agentic-development-system-parallel-child-build-processing-draft1.md`: component-building parent/child meaning, independent-child parallelism, one active build per component, and parent successful completion after all owned child builds complete. Actual Sol and Kimi reviewed that exact artifact. Kimi passed it with findings; Sol accepted two findings for one bounded successor and rejected or deferred the others.
+
+### Track B — Broader exploratory issues kept out of the focused item
+
+The broader blocker-resolution drafts surfaced lifecycle-gate, admission-ownership, reservation-release, integration-success, stale-base, and queued-freshness issues. They are retained in the explicitly named `drafts/agentic-development-system/quarantine/` directory, including its `reviews/` subdirectory, as recoverable provenance and are not silently folded into the focused parallel-child clarification. They belong in the later executable realization plan unless a future finding changes the accepted envelope.
+
+## Safe continuation sequence
+
+1. Preserve focused draft 1, actual Sol/Kimi reviews, and broader blocker-resolution artifacts as evidence.
+2. Sol dispositions Kimi's five findings; accept only the two focused repairs identified in `sol-parallel-child-build-processing-draft1.md`.
+3. Create one focused successor with those two repairs; preserve draft 1.
+4. Obtain actual Sol and Kimi review of that exact successor; do not substitute expert-shell simulation.
+5. Update this checklist and the consolidated handoff with the final successor and review outcomes.
+6. Derive the executable realization plan only after the focused clarification is closed. Keep broader blocker-resolution issues in that later plan unless they alter the accepted envelope.
+7. Obtain pilot-plan review, separate user kick-off, and exact task-control admission before implementation.
+8. Build the new structures, exercise them with the provider-free fixture, review candidate evidence, and only then prepare the separately approved benchmark protocol.
+
+## Continuity incident
+
+The prior continuation lost the distinction between a repository-local fixture used as a realization testbed and the target structures that the fixture was meant to exercise. It also treated expert-shell simulations as equivalent to actual Sol/Kimi review and allowed broader review suggestions to drift into the focused target without an explicit disposition. Recovery now uses one checklist, one current-plan pointer, actual reviewer identity/model observations, explicit track separation, preserved predecessors, quarantine labeling, and a visible implementation gate.
+
+## Compacting rule
+
+Before compaction, update this checklist and `handoffs/agentic-development-system.md` with the exact current draft, review records, unresolved findings, next action, commit status, and `startsWork: false`; verify the scoped checkpoint commit. After compaction, read the consolidated handoff first and use this checklist only as navigation; do not infer authority from the checklist or conversation summary.
