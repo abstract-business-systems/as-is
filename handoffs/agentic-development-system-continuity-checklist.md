@@ -4,7 +4,7 @@ Purpose: Preserve the active planning sequence, distinguish requested review sco
 
 ## Authority and current checkpoint
 
-This checklist is a navigation and continuity aid. The accepted draft-11 target design, accepted Draft-3 overall realization roadmap, and current `as-is.md` records remain authoritative for their subjects. This checklist does not adopt target contracts, create tasks, authorize kick-off or implementation, or adopt target contracts. The Draft-3 roadmap acceptance checkpoint is authorized for documentation-only commit in the current turn; it contains no implementation or task authority.
+This checklist is a navigation and continuity aid. The accepted draft-11 target design, accepted Draft-12 overall realization roadmap, and current `as-is.md` records remain authoritative for their subjects. This checklist does not adopt target contracts, create tasks, authorize kick-off or implementation, or adopt target contracts. The Draft-12 roadmap acceptance checkpoint is authorized for documentation-only commit in the current turn; it contains no implementation or task authority.
 
 | Item | State | Evidence or next action |
 | --- | --- | --- |
@@ -17,11 +17,11 @@ This checklist is a navigation and continuity aid. The accepted draft-11 target 
 | Important broader review findings | Quarantined from the active focused flow | The broader blocker-resolution review findings remain in the quarantined draft-1–6 artifacts. They are not the current requested item; revisit only when deriving the executable realization plan. |
 | Successor plan | Complete: draft 2 | `drafts/agentic-development-system-parallel-child-build-processing-draft2.md` applies only Sol's two accepted repairs and preserves draft 1. |
 | Human review of successor | Transitional review complete; no implementation authority | Actual Kimi passed and actual Sol marked draft 2 ready. These are advisory records only; executable-plan review, human kick-off, and task-control admission remain later and separate. |
-| Overall realization roadmap | Draft 3 human-accepted as controlling program planning map | `drafts/agentic-development-system-overall-realization-roadmap-draft3/`; packet digest `8582c8307c88bdee5368f799050ebb56885308dbf14671ed088cb866af95c4c1`; freeze `reviews/agentic-development-system/overall-realization-roadmap-draft3-freeze.md`; final exact review `reviews/agentic-development-system/overall-realization-roadmap-draft3-final-exact-review.md`. The roadmap restores the broad program scope and positions draft 6 as one first-slice workstream. |
+| Overall realization roadmap | Draft 12 human-accepted as controlling program planning map | `drafts/agentic-development-system-overall-realization-roadmap-draft12/`; packet digest `797ed521be694c36d08398a50e1fa17ea6c37c19b507d3fb557834413ac98124`; freeze `reviews/agentic-development-system/overall-realization-roadmap-draft12-freeze.md`; exact review `reviews/agentic-development-system/overall-realization-roadmap-draft12-exact-review.md`. It records the corrected construction flows and positions draft 6 as one first-slice workstream. |
 | Executable realization plan | Draft 6 frozen and ready for Human Review | `drafts/agentic-development-system-executable-realization-plan-draft6.md`; external freeze handoff `reviews/agentic-development-system/executable-realization-plan-draft6-freeze.md`; frozen SHA-256 `ef2c7c5bd760e8e1bacd795fec18ad1b4dbf7264d1d6260c9dc383e612348716`; final Sol review `reviews/agentic-development-system/sol-executable-realization-plan-draft6-final.md` says Ready for Human Review. Drafts 1–5 and reviews are preserved predecessors. |
 | Pilot implementation | Not authorized | Requires Human Review of the exact draft-6 first-slice plan, separate user kick-off, process-adapter boundary resolution, and exact task-control admission. |
 | Benchmark | Not started | Requires candidate evidence first, then separately approved setup-inclusive benchmark inputs and advancement rules. |
-| Commit | Authorized in current turn | Stage only the Draft-3 roadmap packet, its review/freeze evidence, historical-context/disposition records, updated handoffs, and the standalone-file classification; run `git diff --cached --check`, commit, and verify before compaction. No implementation or task authority is included. |
+| Commit | Authorized in current turn | Stage only the Draft-12 roadmap packet, its exact review/freeze evidence, preserved predecessor/review records, updated handoffs, and the standalone-file classification; run `git diff --cached --check`, commit, and verify before compaction. No implementation or task authority is included. |
 
 ## Two-track review interpretation
 
@@ -35,11 +35,12 @@ The broader blocker-resolution drafts surfaced lifecycle-gate, admission-ownersh
 
 ## Safe continuation sequence
 
-1. Preserve the accepted Draft-3 roadmap packet, its freeze/review records, Draft-2 predecessor packet, Kimi findings, Sol dispositions, and broader historical provenance.
-2. Present the exact frozen executable realization plan draft 6, identified by its external SHA-256 and freeze handoff, for Human Review as the first-slice plan. Keep broader roadmap workstreams visible but do not require unrelated future work to block the selected slice.
-3. After draft-6 Human Review, obtain a separate kick-off decision; resolve the process-adapter boundary before preparing that task, then complete task-start preparation and exact task-control admission before implementation.
-4. Build the new structures and focused checks before exercising the provider-free candidate fixture, review candidate evidence, and only then prepare the separately approved benchmark protocol.
-5. Keep setup-inclusive benchmark, advancement, target adoption, artifact retirement, and merge as later distinct decisions.
+1. Preserve the accepted Draft-12 roadmap packet, its freeze/exact-review records, Drafts 3–11 predecessor packets and review evidence, and broader historical provenance.
+2. Prepare exactly two top-level flow plans under the accepted construction map: coding/application (Terra→Luna; no Kimi/Sol plan gate, optional recorded Sol consultation) and agents/skills (Sol→Terra; external Kimi review required before Human Review).
+3. Obtain the required exact plan reviews and separate human decisions for the two flow plans.
+4. Resolve plan-specific owners, models, capabilities, budgets, protected inputs, result review, and task-control admission before implementation.
+5. Build the accepted target through the admitted flow(s), preserving deterministic validation, non-independent planner/result review disclosure, recovery, and risk-triggered independent review.
+6. Exercise candidate proof, then obtain separate setup-inclusive benchmark approval, run against pinned `master`, review advancement, and make later adoption, retirement, and merge decisions.
 
 ## Continuity incident
 
@@ -47,4 +48,4 @@ The prior continuation lost the distinction between a repository-local fixture u
 
 ## Compacting rule
 
-Before compaction, verify that the Draft-3 packet digest and freeze/review provenance are durable in the current worktree and that this checklist and `handoffs/agentic-development-system.md` point to the exact current roadmap, first-slice plan, review records, unresolved findings, next action, and `startsWork: false`. After compaction, read the consolidated handoff first and use this checklist only as navigation; do not infer authority from the checklist or conversation summary.
+Before compaction, verify that the Draft-12 packet digest and freeze/exact-review provenance are durable in the current worktree and that this checklist and `handoffs/agentic-development-system.md` point to the exact current roadmap, two next flow plans, review records, unresolved findings, next action, and `startsWork: false`. After compaction, read the consolidated handoff first and use this checklist only as navigation; do not infer authority from the checklist or conversation summary.
