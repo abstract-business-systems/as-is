@@ -18,14 +18,14 @@ The packet contains these four files:
 - `review-manifest.md`
 - `review-instructions.md`
 
-The manifest is directly verified and excluded from the recursive packet digest. The three non-manifest file digests and packet digest below were recomputed from the exact accepted bytes after the final wording updates were applied.
+The manifest is directly verified and excluded from the recursive packet digest. The three non-manifest file digests and packet digest below were computed from the exact Draft-3 bytes after the final packet repairs and before Human Review acceptance. The packet files were not edited after that identity was recorded.
 
 | Relative path | SHA-256 |
 | --- | --- |
-| `roadmap.md` | `eb82cf89a5b59ce1af06c53a21f67c0bf859cefa84634f5235b8593b8f1867f5` |
-| `decision-brief.md` | `53bb2e38605cd430cd2e28487eab74cf8bb9a8f650faca6bd0b8247f1508913e` |
-| `review-instructions.md` | `fed06d2c385e7d2cd69792cbd6127f0190bb490b76848704ed9bd80c4fd23c00` |
-| Packet digest (`sha256-path-digest-v1`, manifest excluded) | `2f8cda0f6a53a843b215f776a1953a42fe53092a829458fcebaa70564a83c410` |
+| `roadmap.md` | `049ab4f36502f165a8cf6b5005c33b61010dd20dd81c0ea784dbb29e27554902` |
+| `decision-brief.md` | `13140af86cc1fbacf457612e7744a6323f27211ffaa558efeb6d86fe7e61c4c5` |
+| `review-instructions.md` | `332bb9614252bd3c89a601166f9a661e06be3f99c7930a37fe52636bfa67dba8` |
+| Packet digest (`sha256-path-digest-v1`, manifest excluded) | `3ac8a1a966cd8b0d254b6b72e0e9a5d5ba8704878af8ada8e2debffaea596e78` |
 
 The packet's four-file membership, manifest exclusion, and digest algorithm are defined by `drafts/agentic-development-system-overall-realization-roadmap-draft3/review-manifest.md`. This record is caller-side identity evidence; it is not part of the packet digest.
 

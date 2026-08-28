@@ -44,9 +44,11 @@ Check:
 
 Do not add broad acceptance criteria that the packet does not claim. Findings must be tied to exact text or a named source. Distinguish direct observations, inferences, and unavailable evidence.
 
-## Required report
+## Review record
 
-Return exactly these sections:
+This final exact review is complete and is recorded in `reviews/agentic-development-system/overall-realization-roadmap-draft3-final-exact-review.md`. Do not rerun Kimi or create another alternate-family review from these instructions.
+
+If this instruction file is consulted for audit, the required review sections are:
 
 - `Trial identity`;
 - `Scope and package identity`;

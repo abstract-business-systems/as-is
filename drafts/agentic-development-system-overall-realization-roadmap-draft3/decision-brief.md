@@ -1,5 +1,5 @@
 # Agentic Development System — Overall Realization Roadmap — Draft 3 — Decision Brief
-Purpose: Give the human the smallest sufficient context to decide whether Draft 3 is the controlling program roadmap.
+Purpose: Record the human decision accepting Draft 3 as the controlling program roadmap.
 
 ## Current situation
 
@@ -42,32 +42,21 @@ This decision does not:
 
 Exact fields, storage, APIs, workers, budgets, benchmark feature, seed, scorer, thresholds, and migration mechanics remain bounded follow-on decisions.
 
-## Decision requested now
+## Human decision
 
-Choose one outcome for Draft 3 as a planning map:
-
-1. **Accept** it as the controlling program continuation map;
-2. **Request one bounded revision**;
-3. **Defer**; or
-4. **Reject**.
-
-### Recommendation
-
-**Accept Draft 3 as the controlling program map for planning, subject to the repaired exact artifact identities and final exact review.** Then update the canonical handoff to identify one next gate: Human Review of the exact frozen draft-6 first-slice plan, unless the user explicitly selects a different first implementation slice.
+The user accepted Draft 3 as the controlling program map for planning in the current review. The acceptance is for planning navigation and does not authorize implementation.
 
 ## Consequences
 
-If accepted:
+- Draft 6 remains a first-slice plan, not the entire rearchitecture.
+- The next implementation path is still separately gated by draft-6 Human Review, kick-off, process-adapter boundary resolution, task preparation, and task-control admission.
+- The broader target areas receive bounded realization plans without silently blocking unrelated first-slice preparation.
+- Benchmark preparation can proceed as planning, but benchmark execution waits for candidate behavior, pinned revisions, equivalent conditions, protected scoring, and explicit approval.
 
-- Draft 6 remains a first-slice plan, not the entire rearchitecture;
-- the next implementation path is still separately gated by draft-6 Human Review, kick-off, process-adapter boundary resolution, task preparation, and task-control admission;
-- the broader target areas receive bounded realization plans without silently blocking unrelated first-slice preparation; and
-- benchmark preparation can proceed as planning, but benchmark execution waits for candidate behavior, pinned revisions, equivalent conditions, protected scoring, and explicit approval.
-
-If revision is requested, only the identified bounded defect should be repaired and Draft 1, Draft 2, and Draft 3 identities should remain preserved.
+The exact Draft-3 packet, its predecessor chain, review evidence, and acceptance are preserved. No successor is required by this decision.
 
 ## Next action and authority limit
 
-After the decision, record the exact outcome and update the canonical handoff so it names one continuation point. Do not create tasks, launch workers, implement, benchmark, adopt, retire, or merge from this brief.
+The canonical handoff now names one continuation point: Human Review of the exact frozen draft-6 first-slice plan. Do not create tasks, launch workers, implement, benchmark, adopt, retire, or merge from this brief.
 
 startsWork: false

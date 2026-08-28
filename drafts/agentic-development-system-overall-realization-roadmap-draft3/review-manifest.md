@@ -3,7 +3,7 @@ Purpose: Identify the exact roadmap packet and bounded evidence required for rev
 
 ## Status and authority
 
-Status: proposed successor planning packet; pending parent digest computation and final exact review.
+Status: human-accepted planning packet; caller identities, final exact review, and acceptance are recorded in `reviews/agentic-development-system/overall-realization-roadmap-draft3-freeze.md`.
 
 Predecessor roadmap: `drafts/agentic-development-system-overall-realization-roadmap-draft2/roadmap.md`.
 
@@ -18,7 +18,7 @@ The packet consists of these files:
 - `review-manifest.md` — this manifest, excluded from its own packet digest; and
 - `review-instructions.md` — final exact review instructions; the earlier Kimi report is preserved separately as transitional provenance.
 
-The parent must materialize the packet under `drafts/agentic-development-system-overall-realization-roadmap-draft3/`. The packet identity covers all four files, with the manifest excluded from the recursive content digest. The parent must compute and record SHA-256 values for `roadmap.md`, `decision-brief.md`, and `review-instructions.md`, then compute the packet digest over the manifest-declared non-manifest file set. No digest is claimed here for bytes not yet materialized.
+The packet is materialized under `drafts/agentic-development-system-overall-realization-roadmap-draft3/`. The packet identity covers all four files, with the manifest excluded from the recursive content digest. SHA-256 values for `roadmap.md`, `decision-brief.md`, and `review-instructions.md`, and the packet digest over the manifest-declared non-manifest file set, are recorded in `reviews/agentic-development-system/overall-realization-roadmap-draft3-freeze.md`.
 
 ## Controlling sources
 
@@ -52,11 +52,11 @@ The reviewer must not silently reconstruct missing history, choose between contr
 
 ## Human decision
 
-After the bounded review and any one bounded repair if needed, present this exact packet to the user for one planning decision: accept as the controlling program roadmap, request a bounded revision, defer, or reject. Acceptance authorizes neither draft-6 implementation nor any other task.
+The user accepted this exact packet on 2026-08-28 as the controlling program roadmap for planning navigation. Acceptance authorizes neither draft-6 implementation nor any other task.
 
 ## Identity and successor rule
 
-After materialization, the parent records each non-manifest digest and a packet digest covering the three non-manifest files in a separate caller-side verification or freeze record. The manifest itself remains directly verified and excluded from the recursive packet digest. If any packet file changes, create a new successor packet and recompute all affected digests. Preserve Draft 2 and its review evidence as predecessor history. The manifest itself remains directly verified and excluded from the recursive packet digest. If any packet file changes, create a new successor packet and recompute all affected digests. Preserve Draft 2 and its review evidence as predecessor history.
+The parent recorded each non-manifest digest and the packet digest in the separate caller-side freeze record. The manifest is directly verified and excluded from the recursive packet digest. If any packet file changes, create a new successor packet and recompute all affected digests. Preserve Draft 2 and its review evidence as predecessor history.
 
 ## Transitional Kimi boundary
 
@@ -64,4 +64,4 @@ The earlier Kimi review is transitional provenance requested by the Sol author, 
 
 ## Next safe action
 
-Materialize the four files, compute identities, run the final exact review of the exact packet, and then obtain the user’s planning decision. Do not create tasks, launch workers, implement, benchmark, adopt, retire, commit, or merge from this manifest.
+Continue at the single next gate named by the canonical handoff: Human Review of the exact frozen draft-6 first-slice plan. Do not create tasks, launch workers, implement, benchmark, adopt, retire, commit, or merge from this manifest.

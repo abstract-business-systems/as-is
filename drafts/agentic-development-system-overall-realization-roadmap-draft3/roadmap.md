@@ -3,7 +3,7 @@ Purpose: Provide one program-wide, non-executable continuation map from the huma
 
 ## Status and authority
 
-Status: proposed successor roadmap for bounded review and human planning decision. This is the successor to Draft 2 after bounded identity/provenance repairs.
+Status: human-accepted program planning map. This is the successor to Draft 2 after bounded identity/provenance repairs; the user accepted this exact packet for planning navigation on 2026-08-28.
 
 Predecessor: `drafts/agentic-development-system-overall-realization-roadmap-draft2/roadmap.md`.
 
@@ -275,6 +275,6 @@ Residual risks include incomplete historical recovery, contradictions between ac
 
 ## Next safe action
 
-Compute and record the exact digests for this four-file Draft-3 packet after materialization, obtain the final exact review described by the supplied review instructions, and then present the unchanged identified roadmap to the user for one planning decision. If accepted, update the canonical handoff to name the selected first implementation slice and the single next gate. Do not create tasks, launch workers, implement, benchmark, adopt, retire, merge, or claim full-program realization from this roadmap.
+The exact four-file Draft-3 packet has caller-recorded identities, a final exact review, and user acceptance for planning navigation. Update the canonical handoff to name the selected first implementation slice and the single next gate. Do not create tasks, launch workers, implement, benchmark, adopt, retire, merge, or claim full-program realization from this roadmap.
 
 startsWork: false
