@@ -20,7 +20,7 @@ This checklist is a navigation and continuity aid. The accepted draft-11 target 
 | Executable realization plan | Draft 6 frozen and ready for Human Review | `drafts/agentic-development-system-executable-realization-plan-draft6.md`; external freeze handoff `reviews/agentic-development-system/executable-realization-plan-draft6-freeze.md`; frozen SHA-256 `ef2c7c5bd760e8e1bacd795fec18ad1b4dbf7264d1d6260c9dc383e612348716`; final Sol review `reviews/agentic-development-system/sol-executable-realization-plan-draft6-final.md` says Ready for Human Review. Drafts 1–5 and reviews are preserved predecessors. |
 | Pilot implementation | Not authorized | Requires separate user kick-off and exact task-control admission. |
 | Benchmark | Not started | Requires candidate evidence first, then separately approved setup-inclusive benchmark inputs and advancement rules. |
-| Commit | Prior checkpoint complete: `4cbc50b`; current documentation checkpoint authorized | Stage only the frozen plan, freeze handoff, focused-review records, updated handoffs, and preserved predecessors/reviews; run `git diff --cached --check`, commit, and verify before compaction. No implementation or task authority is included. |
+| Commit | Complete: `459ecae` (prior checkpoint: `4cbc50b`) | Documentation-only executable-plan checkpoint committed after `git diff --cached --check`; verified clean and contains no task or implementation authority. |
 
 ## Two-track review interpretation
 
