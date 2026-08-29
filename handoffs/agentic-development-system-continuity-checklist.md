@@ -19,9 +19,10 @@ This checklist is a navigation and continuity aid. The accepted draft-11 target 
 | Human review of successor | Transitional review complete; no implementation authority | Actual Kimi passed and actual Sol marked draft 2 ready. These are advisory records only; executable-plan review, human kick-off, and task-control admission remain later and separate. |
 | Overall realization roadmap | Draft 12 human-accepted as controlling program planning map | `drafts/agentic-development-system-overall-realization-roadmap-draft12/`; packet digest `797ed521be694c36d08398a50e1fa17ea6c37c19b507d3fb557834413ac98124`; freeze `reviews/agentic-development-system/overall-realization-roadmap-draft12-freeze.md`; exact review `reviews/agentic-development-system/overall-realization-roadmap-draft12-exact-review.md`. It records the corrected construction flows and positions draft 6 as one first-slice workstream. |
 | Executable realization plan | Draft 6 frozen and ready for Human Review | `drafts/agentic-development-system-executable-realization-plan-draft6.md`; external freeze handoff `reviews/agentic-development-system/executable-realization-plan-draft6-freeze.md`; frozen SHA-256 `ef2c7c5bd760e8e1bacd795fec18ad1b4dbf7264d1d6260c9dc383e612348716`; final Sol review `reviews/agentic-development-system/sol-executable-realization-plan-draft6-final.md` says Ready for Human Review. Drafts 1–5 and reviews are preserved predecessors. |
-| Pilot implementation | Not authorized | Requires Human Review of the exact draft-6 first-slice plan, separate user kick-off, process-adapter boundary resolution, and exact task-control admission. |
+| Coding/application flow plan | Draft 2 human-accepted on 2026-08-29 | Acceptance: `reviews/agentic-development-system/coding-application-flow-plan-draft2-human-review-acceptance.md`; Sol advises deferring the broader process-adapter question and excluding that branch from an initial task-control slice; implementation still requires separate kick-off, task preparation, and exact admission. |
+| Agents/skills flow plan | Draft 2 frozen, external-Kimi reviewed `ready`, and human-accepted on 2026-08-29 | Acceptance: `reviews/agentic-development-system/agents-skills-flow-plan-draft2-human-review-acceptance.md`; packet digest `aa7ad0d39a41fb386bf921b52d755fac4cd78916935d3b2858dd50a4b122cf9b`; no implementation authority. |
 | Benchmark | Not started | Requires candidate evidence first, then separately approved setup-inclusive benchmark inputs and advancement rules. |
-| Commit | Complete: `01a2180` | Documentation-only coding-plan review-path audit and exact-plan packet checkpoint committed after `git diff --cached --check`; no implementation or task authority. |
+| Commit | Pending explicit authorization | Coding/application acceptance and agents/skills packet/review documentation are currently uncommitted; no implementation or task authority. |
 
 ## Two-track review interpretation
 
@@ -37,11 +38,12 @@ The broader blocker-resolution drafts surfaced lifecycle-gate, admission-ownersh
 
 1. Preserve the accepted Draft-12 roadmap packet, its freeze/exact-review records, Drafts 3–11 predecessor packets and review evidence, and broader historical provenance.
 2. Preserve Terra's review-path audit, which confirms that no Sol coding-plan gate was omitted and proposes a canonical assertion for future packets.
-3. Present the exact reviewed coding/application Draft-2 decision brief for Human Review; do not implement from it.
-4. If accepted, prepare the agents/skills plan (Sol→Terra), obtain external Kimi review of its exact frozen revision, and obtain both applicable Human Review decisions before kick-off or task-control admission.
-4. Resolve plan-specific owners, models, capabilities, budgets, protected inputs, result review, and task-control admission before implementation.
-5. Build the accepted target through the admitted flow(s), preserving deterministic validation, non-independent planner/result review disclosure, recovery, and risk-triggered independent review.
-6. Exercise candidate proof, then obtain separate setup-inclusive benchmark approval, run against pinned `master`, review advancement, and make later adoption, retirement, and merge decisions.
+3. Coding/application Draft 2 is human-accepted; preserve its acceptance record and do not implement from it.
+4. Agents/skills Draft 2 is frozen, externally Kimi-reviewed `ready`, and human-accepted; preserve its acceptance record and do not implement from it.
+5. Preserve Sol's bounded advice to defer the broader process-adapter ownership question and exclude that branch from an initial task-control slice.
+6. Obtain separate kick-off, task preparation, and exact task-control admission for an explicitly selected unaffected slice before implementation.
+7. Build the accepted target through the admitted flow(s), preserving deterministic validation, non-independent planner/result review disclosure, recovery, and risk-triggered independent review.
+8. Exercise candidate proof, then obtain separate setup-inclusive benchmark approval, run against pinned `master`, review advancement, and make later adoption, retirement, and merge decisions.
 
 ## Continuity incident
 
@@ -49,4 +51,4 @@ The prior continuation lost the distinction between a repository-local fixture u
 
 ## Compacting rule
 
-Before compaction, verify that the Draft-12 packet digest and freeze/exact-review provenance are durable and that the coding/application Draft-2 packet, freeze, exact review, Terra review-path audit, predecessor evidence, and this checklist and `handoffs/agentic-development-system.md` point to the exact current roadmap, next agents/skills plan, review records, unresolved findings, next action, and `startsWork: false`. After compaction, read the consolidated handoff first and use this checklist only as navigation; do not infer authority from the checklist or conversation summary.
+Before compaction, verify that the Draft-12 packet digest and freeze/exact-review provenance are durable and that the coding/application Draft-2 packet, freeze, exact review, Human Review acceptance, Terra review-path audit, agents/skills Draft-2 predecessor and packet, freeze, exact Kimi review, Human Review acceptance, process-adapter decision brief, Sol boundary consultation, and this checklist and `handoffs/agentic-development-system.md` point to the exact current roadmap, review records, unresolved findings, next action, and `startsWork: false`. After compaction, read the consolidated handoff first and use this checklist only as navigation; do not infer authority from the checklist or conversation summary.
