@@ -23,7 +23,7 @@ This checklist is a navigation and continuity aid. The accepted draft-11 target 
 | Agents/skills flow plan | Draft 2 frozen, external-Kimi reviewed `ready`, and human-accepted on 2026-08-29 | Acceptance: `reviews/agentic-development-system/agents-skills-flow-plan-draft2-human-review-acceptance.md`; packet digest `aa7ad0d39a41fb386bf921b52d755fac4cd78916935d3b2858dd50a4b122cf9b`; no implementation authority. |
 | Benchmark | Not started | Requires candidate evidence first, then separately approved setup-inclusive benchmark inputs and advancement rules. |
 | Program status | Canonical summary is in the consolidated handoff | `handoffs/agentic-development-system.md` now carries final goal, current phase, achieved milestones, immediate decision, first-slice scope, later milestones, deferred branches, authority state, and verification checkpoint. This checklist remains navigation and verification support only. |
-| Commit | Complete at `b21d083`; follow-up status checkpoint pending | Documentation-only executable-plan acceptance, program-status summary, kick-off decision brief, and refreshed continuation pointers are staged for a later documentation checkpoint. No implementation or task authority. |
+| Commit | Complete at `84e533d` | Documentation-only executable-plan acceptance, program-status summary, kick-off decision brief, Sol consultation, and refreshed continuation pointers; no implementation or task authority. |
 
 ## Two-track review interpretation
 
