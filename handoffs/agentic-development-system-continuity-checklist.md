@@ -21,7 +21,7 @@ This checklist is a navigation and continuity aid. The accepted draft-11 target 
 | Executable realization plan | Draft 6 frozen and ready for Human Review | `drafts/agentic-development-system-executable-realization-plan-draft6.md`; external freeze handoff `reviews/agentic-development-system/executable-realization-plan-draft6-freeze.md`; frozen SHA-256 `ef2c7c5bd760e8e1bacd795fec18ad1b4dbf7264d1d6260c9dc383e612348716`; final Sol review `reviews/agentic-development-system/sol-executable-realization-plan-draft6-final.md` says Ready for Human Review. Drafts 1–5 and reviews are preserved predecessors. |
 | Pilot implementation | Not authorized | Requires Human Review of the exact draft-6 first-slice plan, separate user kick-off, process-adapter boundary resolution, and exact task-control admission. |
 | Benchmark | Not started | Requires candidate evidence first, then separately approved setup-inclusive benchmark inputs and advancement rules. |
-| Commit | Complete: `2f969ec` | Documentation-only construction-roadmap acceptance checkpoint committed after `git diff --cached --check`; verified clean and contains no implementation or task authority. |
+| Commit | Complete: `2f969ec` | Documentation-only construction-roadmap acceptance checkpoint committed after `git diff --cached --check`; later coding/application planning artifacts are intentionally uncommitted and contain no implementation or task authority. |
 
 ## Two-track review interpretation
 
@@ -36,8 +36,9 @@ The broader blocker-resolution drafts surfaced lifecycle-gate, admission-ownersh
 ## Safe continuation sequence
 
 1. Preserve the accepted Draft-12 roadmap packet, its freeze/exact-review records, Drafts 3–11 predecessor packets and review evidence, and broader historical provenance.
-2. Prepare exactly two top-level flow plans under the accepted construction map: coding/application (Terra→Luna; no Kimi/Sol plan gate, optional recorded Sol consultation) and agents/skills (Sol→Terra; external Kimi review required before Human Review).
-3. Obtain the required exact plan reviews and separate human decisions for the two flow plans.
+2. Preserve Terra's review-path audit, which confirms that no Sol coding-plan gate was omitted and proposes a canonical assertion for future packets.
+3. Present the exact reviewed coding/application Draft-2 decision brief for Human Review; do not implement from it.
+4. If accepted, prepare the agents/skills plan (Sol→Terra), obtain external Kimi review of its exact frozen revision, and obtain both applicable Human Review decisions before kick-off or task-control admission.
 4. Resolve plan-specific owners, models, capabilities, budgets, protected inputs, result review, and task-control admission before implementation.
 5. Build the accepted target through the admitted flow(s), preserving deterministic validation, non-independent planner/result review disclosure, recovery, and risk-triggered independent review.
 6. Exercise candidate proof, then obtain separate setup-inclusive benchmark approval, run against pinned `master`, review advancement, and make later adoption, retirement, and merge decisions.
@@ -48,4 +49,4 @@ The prior continuation lost the distinction between a repository-local fixture u
 
 ## Compacting rule
 
-Before compaction, verify that the Draft-12 packet digest and freeze/exact-review provenance are durable in the current worktree and that this checklist and `handoffs/agentic-development-system.md` point to the exact current roadmap, two next flow plans, review records, unresolved findings, next action, commit `2f969ec`, and `startsWork: false`. After compaction, read the consolidated handoff first and use this checklist only as navigation; do not infer authority from the checklist or conversation summary.
+Before compaction, verify that the Draft-12 packet digest and freeze/exact-review provenance are durable and that the coding/application Draft-2 packet, freeze, exact review, Terra review-path audit, predecessor evidence, and this checklist and `handoffs/agentic-development-system.md` point to the exact current roadmap, next agents/skills plan, review records, unresolved findings, next action, and `startsWork: false`. After compaction, read the consolidated handoff first and use this checklist only as navigation; do not infer authority from the checklist or conversation summary.

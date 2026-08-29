@@ -23,11 +23,11 @@ The manifest is directly verified and excluded from the recursive packet digest.
 
 | Relative path | SHA-256 |
 | --- | --- |
-| `roadmap.md` | `76db50843a7fcf380a5301a6d01465e64f61ad67793f873fbf49b1db934cdfdd` |
-| `decision-brief.md` | `1f30b6eea28400b3b2b2040946fb36e1151c22acfb170d694611b8d76ee7b1b5` |
-| `model-and-review-assignment.md` | `e43e0a6e7421c5855e17df944b87d493f7ab1614efcc5cfb9c0be235ff5556e9` |
-| `review-instructions.md` | `edfde2bf0d79a13252beaa4c869e6bdebd28f86b6076a58f5c796f60b97a841e` |
-| Packet digest (`sha256-path-digest-v1`, manifest excluded) | `da36301589f3c923b6d4e19d2a8858383129eb8a380aa20af72f3e9de680b312` |
+| `roadmap.md` | `c6c29e9e5e199a371a63659ec072b3229aa5cd21919d7684388191ce14392fce` |
+| `decision-brief.md` | `2e9c2ca5c798ad6f3a2f2bb1e5fc56f35355df8b2b9fc6b8f1ea9a1416ad77aa` |
+| `model-and-review-assignment.md` | `2bc1cacaf8ad2fd9dea141be099284250885caf5e022e4ef074914fb942f2d12` |
+| `review-instructions.md` | `e45696ad6b0c3118578343e883cb894a308d8f2d6964c62fe874a00cc2638b00` |
+| Packet digest (`sha256-path-digest-v1`, manifest excluded) | `797ed521be694c36d08398a50e1fa17ea6c37c19b507d3fb557834413ac98124` |
 
 ## Predecessors and controlling sources
 
