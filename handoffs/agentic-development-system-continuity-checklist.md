@@ -24,7 +24,7 @@ This checklist is a navigation and continuity aid. The accepted draft-11 target 
 | Benchmark | Not started | Requires candidate evidence first, then separately approved setup-inclusive benchmark inputs and advancement rules. |
 | Program status | Canonical summary is in the consolidated handoff | `handoffs/agentic-development-system.md` carries final goal, current phase, achieved milestones, immediate gate, first-slice scope, later milestones, deferred branches, authority state, and verification checkpoint. This checklist remains navigation and verification support only. |
 | Task preparation | Preparation cancelled after construction-flow clarification | Four task pairs and the selected backlog row remain as cancelled historical evidence from `0283acd`; they must not be reactivated unchanged. Correction: `reviews/agentic-development-system/construction-flow-alignment-correction-decision-brief.md`. |
-| Commit | `0283acd` is the preserved task-start checkpoint; correction checkpoint pending | The task-start records remain immutable evidence. Cancellation, correction brief, and refreshed pointers are pending a new scoped documentation checkpoint. No implementation or provider authority. |
+| Commit | `925241d` is the latest clean construction-flow correction checkpoint | The task-start records remain immutable evidence. Cancellation, correction brief, Sol reconciliation, and refreshed pointers are committed. No implementation or provider authority. |
 
 ## Two-track review interpretation
 
