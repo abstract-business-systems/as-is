@@ -19,11 +19,11 @@ The configured root role is `as-is` with current default model setting `small` r
 
 ## Validation
 
-Not yet run. Before task-control admission, run:
-
-- `bun core/modules/task-control/task-record-validator.ts .`
-- `git diff --check`
-- a read-only inspection of every prepared task pair, direct-child budget allocation, delegation depth/child limits, protected inputs, exact accepted-plan digest, worker/capability facts, acceptance, recovery, and stop conditions.
+- `bun core/modules/task-control/task-record-validator.ts .`: `VALID`.
+- `git diff --check`: passed before the task-start checkpoint.
+- Read-only current control-plane launch-budget preflight passed for root, `core`, `core/modules`, and `core/modules/task-control`, with effective wall-clock limits of 780, 660, 540, and 180 seconds respectively; no status or budget mutation occurred.
+- `bun core/modules/task-control/control-plane.ts status .`: no active task; all four prepared records remain `ready`.
+- Full exact admission remains blocked because the current launch-budget operation does not establish candidate plan, reservation, dependency, protected-input, capability, holder, or model facts. Evidence is recorded in `reviews/agentic-development-system/first-task-control-slice-admission-preflight.md`.
 
 Admission must use current task-control authority and must not be inferred from file creation, process exit, telemetry, or this parent record. No provider-backed execution is authorized.
 
@@ -33,7 +33,7 @@ Not yet available.
 
 ## Blockers And Escalations
 
-Implementation remains unauthorized. Exact human holders, exact Luna model identity/provider route, and final capability evidence are not selected. Any unavailable or contradictory gate-time fact must remain a durable blocker; no substitute, provider execution, implementation, benchmark, migration, adoption, retirement, commit, or merge is authorized by this task preparation.
+Full exact task-control admission is blocked. Exact human holders, exact Luna model identity/provider route, and final capability evidence are not selected, and the current launch-budget operation is not the candidate plan/reservation admission surface. Any unavailable or contradictory gate-time fact must remain a durable blocker; no substitute, provider execution, activation, implementation, benchmark, migration, adoption, retirement, or merge is authorized by this task preparation.
 
 ## Recovery
 
@@ -43,6 +43,7 @@ Preserve all four task pairs and the selected backlog row. If preparation or adm
 
 - control-plane: {"event":"kick-off-authorized","decision":"prepare-and-admit-only","scope":"root/core/core-modules/core-modules-task-control","status":"ready","startsWork":false,"plan-digest":"ef2c7c5bd760e8e1bacd795fec18ad1b4dbf7264d1d6260c9dc383e612348716"}
 - control-plane: {"event":"task-hierarchy-prepared","children":["core","core/modules"],"leaf":"core/modules/task-control","status":"ready","startsWork":false}
+- control-plane: {"event":"admission-preflight","result":"blocked","reason":"exact-holder-model-capability-and-candidate-admission-facts-unavailable","status":"ready","startsWork":false}
 
 ## Next Action
 
