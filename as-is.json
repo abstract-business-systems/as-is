@@ -61,5 +61,39 @@
     "security": {
       "emitted-paths": "masked-runtime-references"
     }
+  },
+  "task": {
+    "status": "ready",
+    "worker": "as-is",
+    "updated": "2026-08-29T15:04:15Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 1,
+        "spent": 0,
+        "reserve": 0.1,
+        "source": "unavailable",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 3,
+        "maximum-children": 2
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 900,
+          "spent-seconds": 0,
+          "reserve-seconds": 120,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "require-current-turn-user-approval"
+    },
+    "acceptance": [
+      "Preserve the accepted Draft-6 envelope and prepare only the exact root → core → core/modules → core/modules/task-control task hierarchy.",
+      "Record each child allocation, dependency, protected-input, worker, acceptance, recovery, and stop condition without authorizing implementation.",
+      "Obtain current task-control admission evidence for every prepared task before any worker launch.",
+      "Keep process-adapter integration, fixture candidate-flow exercise, benchmarking, migration, adoption, retirement, commit, and merge outside this task."
+    ]
   }
 }

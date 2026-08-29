@@ -23,7 +23,7 @@ This checklist is a navigation and continuity aid. The accepted draft-11 target 
 | Agents/skills flow plan | Draft 2 frozen, external-Kimi reviewed `ready`, and human-accepted on 2026-08-29 | Acceptance: `reviews/agentic-development-system/agents-skills-flow-plan-draft2-human-review-acceptance.md`; packet digest `aa7ad0d39a41fb386bf921b52d755fac4cd78916935d3b2858dd50a4b122cf9b`; no implementation authority. |
 | Benchmark | Not started | Requires candidate evidence first, then separately approved setup-inclusive benchmark inputs and advancement rules. |
 | Program status | Canonical summary is in the consolidated handoff | `handoffs/agentic-development-system.md` now carries final goal, current phase, achieved milestones, immediate decision, first-slice scope, later milestones, deferred branches, authority state, and verification checkpoint. This checklist remains navigation and verification support only. |
-| Commit | Complete at `84e533d` | Documentation-only executable-plan acceptance, program-status summary, kick-off decision brief, Sol consultation, and refreshed continuation pointers; no implementation or task authority. |
+| Commit | `84e533d` is the latest clean documentation checkpoint; task-start checkpoint pending | Documentation-only status records plus the prepared selected backlog row and four task pairs are pending the task-start handoff. No implementation or provider authority. |
 
 ## Two-track review interpretation
 
@@ -43,8 +43,8 @@ The broader blocker-resolution drafts surfaced lifecycle-gate, admission-ownersh
 4. Agents/skills Draft 2 is frozen, externally Kimi-reviewed `ready`, and human-accepted; preserve its acceptance record and do not implement from it.
 5. Preserve Sol's bounded advice to defer the broader process-adapter ownership question and exclude that branch from an initial task-control slice.
 6. Draft 6 is human-accepted; preserve `reviews/agentic-development-system/executable-realization-plan-draft6-human-review-acceptance.md` and do not implement from it.
-7. Human Review `reviews/agentic-development-system/first-task-control-slice-kick-off-decision-brief.md`; if authorized, prepare the exact task records and start handoff for the unaffected task-control slice.
-8. Obtain exact task-control admission before any implementation.
+7. Kick-off is authorized for preparation only; the exact root → core → core/modules → core/modules/task-control task pairs and start handoff must be prepared without implementation.
+8. Obtain exact task-control admission for every prepared task before activation or implementation.
 9. Build the accepted target through the admitted flow(s), preserving deterministic validation, non-independent planner/result review disclosure, recovery, and risk-triggered independent review.
 10. Exercise candidate proof, then obtain separate setup-inclusive benchmark approval, run against pinned `master`, review advancement, and make later adoption, retirement, and merge decisions.
 
