@@ -63,9 +63,9 @@
     }
   },
   "task": {
-    "status": "ready",
+    "status": "cancelled",
     "worker": "as-is",
-    "updated": "2026-08-29T15:04:15Z",
+    "updated": "2026-08-29T15:19:09Z",
     "constraints": {
       "cost": {
         "currency": "USD",

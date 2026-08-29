@@ -23,8 +23,8 @@ This checklist is a navigation and continuity aid. The accepted draft-11 target 
 | Agents/skills flow plan | Draft 2 frozen, external-Kimi reviewed `ready`, and human-accepted on 2026-08-29 | Acceptance: `reviews/agentic-development-system/agents-skills-flow-plan-draft2-human-review-acceptance.md`; packet digest `aa7ad0d39a41fb386bf921b52d755fac4cd78916935d3b2858dd50a4b122cf9b`; no implementation authority. |
 | Benchmark | Not started | Requires candidate evidence first, then separately approved setup-inclusive benchmark inputs and advancement rules. |
 | Program status | Canonical summary is in the consolidated handoff | `handoffs/agentic-development-system.md` carries final goal, current phase, achieved milestones, immediate gate, first-slice scope, later milestones, deferred branches, authority state, and verification checkpoint. This checklist remains navigation and verification support only. |
-| Task preparation | Kick-off authorized; task-start handoff `0283acd` committed; full admission blocked | Four ready task pairs and selected backlog row are committed. Read-only launch-budget preflight passed; full exact admission blockers and evidence are recorded in `reviews/agentic-development-system/first-task-control-slice-admission-preflight.md`. No activation or implementation. |
-| Commit | `0283acd` is the latest task-start checkpoint | Documentation-only status records, selected backlog row, four task pairs, and refreshed pointers are committed. No implementation or provider authority. |
+| Task preparation | Preparation cancelled after construction-flow clarification | Four task pairs and the selected backlog row remain as cancelled historical evidence from `0283acd`; they must not be reactivated unchanged. Correction: `reviews/agentic-development-system/construction-flow-alignment-correction-decision-brief.md`. |
+| Commit | `0283acd` is the preserved task-start checkpoint; correction checkpoint pending | The task-start records remain immutable evidence. Cancellation, correction brief, and refreshed pointers are pending a new scoped documentation checkpoint. No implementation or provider authority. |
 
 ## Two-track review interpretation
 
@@ -44,8 +44,8 @@ The broader blocker-resolution drafts surfaced lifecycle-gate, admission-ownersh
 4. Agents/skills Draft 2 is frozen, externally Kimi-reviewed `ready`, and human-accepted; preserve its acceptance record and do not implement from it.
 5. Preserve Sol's bounded advice to defer the broader process-adapter ownership question and exclude that branch from an initial task-control slice.
 6. Draft 6 is human-accepted; preserve `reviews/agentic-development-system/executable-realization-plan-draft6-human-review-acceptance.md` and do not implement from it.
-7. Kick-off is authorized for preparation only; the exact root → core → core/modules → core/modules/task-control task pairs and start handoff are prepared in `0283acd` without implementation.
-8. Resolve the recorded admission blockers and obtain exact task-control admission for every prepared task before activation or implementation.
+7. The prepared root → core → core/modules → core/modules/task-control task pairs were cancelled after the custom model-bound construction-flow clarification; retain `0283acd` as historical evidence and do not reactivate it.
+8. Prepare, review, and accept a successor construction-flow packet before reselection or task preparation.
 9. Build the accepted target through the admitted flow(s), preserving deterministic validation, non-independent planner/result review disclosure, recovery, and risk-triggered independent review.
 10. Exercise candidate proof, then obtain separate setup-inclusive benchmark approval, run against pinned `master`, review advancement, and make later adoption, retirement, and merge decisions.
 

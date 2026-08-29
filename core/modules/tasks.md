@@ -10,7 +10,7 @@ Verify the accepted Draft-6 identity and kick-off scope, preserve the modules bo
 
 ## Progress
 
-Task preparation authorized by the user on 2026-08-29. The record is ready and queued. The configured worker role is `component-builder`; its role file declares model setting `medium`, which resolves through current repository configuration to `@preset/abs-medium` via the configured `openrouter` provider. This is a configuration observation and not a claim about Luna's exact model identity.
+Task preparation was authorized by the user on 2026-08-29 and then cancelled after clarifying that candidate implementation must use the custom model-bound construction flow. The prepared `component-builder` role and current preset are retained as historical evidence only; they are not a Luna assignment.
 
 ## Validation
 
@@ -18,11 +18,11 @@ Not yet run. Before any implementation launch, validate the complete task tree, 
 
 ## Result
 
-Not yet available.
+Preparation cancelled; no worker or child was launched. Do not reactivate this task unchanged.
 
 ## Blockers And Escalations
 
-Exact task-control admission remains pending. The construction-time coding assignment names Luna as implementer and Terra as planner/adviser/reviewer, but no exact Luna model identity or human holder has been selected. Do not invent a substitute; record any resulting admission blocker before launch.
+This prepared task used the current component-builder role as a prospective worker and is cancelled. A successor must select the custom construction agent, exact model route, capabilities, and holder before admission. Do not invent a substitute or launch this record.
 
 ## Recovery
 
@@ -30,8 +30,9 @@ Preserve this task pair and the child task pair. If preparation is interrupted, 
 
 ## Control Plane
 
-- control-plane: {"event":"task-prepared","parent":"core","scope":"task-control","status":"ready","startsWork":false,"plan-digest":"ef2c7c5bd760e8e1bacd795fec18ad1b4dbf7264d1d6260c9dc383e612348716"}
 
+- control-plane: {"event":"task-prepared","parent":"core","scope":"task-control","status":"ready","startsWork":false,"plan-digest":"ef2c7c5bd760e8e1bacd795fec18ad1b4dbf7264d1d6260c9dc383e612348716"}
+- control-plane: {"checkpoint":"2026-08-29T15:19:09Z","event":"cancellation","reason":"Prepared task superseded: current component-builder/control-plane workflow is governance or benchmark evidence only; construction implementation must use the explicitly selected custom model-bound agent flow.","status-before":"ready"}
 ## Next Action
 
-Validate and admit this task and its exact child only after the root start handoff is durable; then await a separately authorized implementation transition.
+Await the reviewed successor construction-flow packet; preserve this cancelled task as audit evidence and do not activate or launch it.
