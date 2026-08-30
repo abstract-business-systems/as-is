@@ -1,0 +1,17 @@
+PASS  check2 front-matter name == consulting-humans
+PASS  check2 directory name == consulting-humans
+PASS  check3 description present
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1701 chars <= 2000
+PASS  check1 Purpose clause verbatim (draft line 907)
+PASS  check1 Approach clause verbatim (draft line 909)
+PASS  check1 How clause verbatim (draft line 911)
+PASS  check4 sections exactly Purpose/Approach/How it should be done/Design view/Composition context
+PASS  check4 no path reference to other candidate artifacts
+PASS  check12 Design-view Mermaid block byte-equal
+PASS  check13 composition entry: tool-access acknowledgment
+----
+isolation fixture listing at test time (check 9):
+candidate/evidence/fixtures/masters/consulting-humans/candidate/skills/master/consulting-humans/SKILL.md
+----
+RESULT consulting-humans: pass=12 fail=0 chars=1701
