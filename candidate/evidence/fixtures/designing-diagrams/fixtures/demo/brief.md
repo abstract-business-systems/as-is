@@ -1,0 +1,1 @@
+Demo readers ask: "how do retry attempts flow from a failed fetch to a final FetchError?" Supported context: the fetch entrypoint, the retry_delay backoff helper, the exhaustion raise. Ownership: diagrams live next to the code they explain. Navigation convention: diagram sources link back to the module they explain.
