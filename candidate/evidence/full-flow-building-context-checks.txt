@@ -1,0 +1,17 @@
+PASS  check2 front-matter name == building-context
+PASS  check2 directory name == building-context
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Establishes fit for assembling the smallest authoritative context for a bounded decision or handoff; grants no tools, permissions, or authority.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1027 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 184)
+PASS  check1 Approach clause verbatim (draft line 186)
+PASS  check1 How clause verbatim (draft line 188)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 182)
+----
+isolation fixture listing at test time (check 9):
+/tmp/ff-fixture/building-context/candidate/skills/reusable/building-context/SKILL.md
+----
+RESULT building-context: pass=12 fail=0 chars=1027
