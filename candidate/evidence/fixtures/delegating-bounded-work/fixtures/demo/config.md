@@ -1,0 +1,1 @@
+Configured worker for demo: demo-worker (read/grep/find/ls/edit/write). Parent component: demo (owns demo/ files only). Sibling component: other-demo (owned by a different agent; its files are off-limits to this delegation).
