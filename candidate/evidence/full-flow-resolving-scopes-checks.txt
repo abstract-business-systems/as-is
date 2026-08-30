@@ -1,0 +1,17 @@
+PASS  check2 front-matter name == resolving-scopes
+PASS  check2 directory name == resolving-scopes
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Resolves component, artifact, project, or root scopes for a requested change without assuming a component task; establishes fit only and grants no tools or authority.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1043 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 206)
+PASS  check1 Approach clause verbatim (draft line 208)
+PASS  check1 How clause verbatim (draft line 210)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 204)
+----
+isolation fixture listing at test time (check 9):
+/tmp/ff-fixture/resolving-scopes/candidate/skills/reusable/resolving-scopes/SKILL.md
+----
+RESULT resolving-scopes: pass=12 fail=0 chars=1043
