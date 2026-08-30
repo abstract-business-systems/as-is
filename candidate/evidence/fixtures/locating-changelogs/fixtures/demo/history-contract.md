@@ -1,0 +1,1 @@
+Demo history contract: durable history for demo component work is required and recorded in changelog.md at the repository root (configured filename: changelog.md). Demo exploratory experiments require no durable history.
