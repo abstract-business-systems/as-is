@@ -1,0 +1,18 @@
+PASS  check2 front-matter name == implementing-tasks
+PASS  check2 directory name == implementing-tasks
+PASS  check3 description present
+PASS  check3 description grants no tools or authority (fit wording)
+NOTE  check8 size 2304 chars > 2000 (masters may exceed the voluntary target: compositions, gates, recovery, stopping rules; draft line 132)
+PASS  check1 Purpose clause verbatim (draft line 738)
+PASS  check1 Approach clause verbatim (draft line 740)
+PASS  check1 How clause verbatim (draft line 742)
+PASS  check4 sections exactly Purpose/Approach/How it should be done/Design view/Composition context
+PASS  check4 no path reference to other candidate artifacts
+PASS  check12 Design-view Mermaid block byte-equal
+PASS  check13 composition entry: component-based order position
+PASS  check13 composition entry: implementing-tasks entry
+----
+isolation fixture listing at test time (check 9):
+candidate/evidence/fixtures/masters/implementing-tasks/candidate/skills/master/implementing-tasks/SKILL.md
+----
+RESULT implementing-tasks: pass=12 fail=0 chars=2304
