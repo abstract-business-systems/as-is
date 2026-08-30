@@ -1,0 +1,21 @@
+PASS  check2 front-matter name == applying-bounded-edits
+PASS  check2 directory name == applying-bounded-edits
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Makes surgical changes to existing artifacts; establishes fit, not permission.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1114 chars <= 2000 (voluntary pilot target)
+PASS  check1 clause verbatim: "Make surgical changes to existing artifacts."
+PASS  check1 clause verbatim: "Inspect consumers and surrounding conventions, make the smallest reversible replacement, and preserve unrelated content and authority."
+PASS  check1 clause verbatim: "Confirm the exact target and literal transformation"
+PASS  check1 clause verbatim: "inspect consumers and nearby context"
+PASS  check1 clause verbatim: "use a precise replacement"
+PASS  check1 clause verbatim: "review the diff for collateral changes"
+PASS  check1 clause verbatim: "run focused checks"
+PASS  check1 clause verbatim: "stop if the target, owner, or transformation is ambiguous"
+PASS  check4 no path reference to choosing-change-methods
+PASS  check12 Design-view Mermaid block exact (draft lines 362-371)
+----
+isolation fixture listing at test time (check 9):
+candidate/evidence/fixtures/applying-bounded-edits/candidate/skills/reusable/applying-bounded-edits/SKILL.md
+----
+RESULT applying-bounded-edits: pass=16 fail=0 chars=1114
