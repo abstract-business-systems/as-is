@@ -1,0 +1,17 @@
+PASS  check2 front-matter name == preparing-scoped-commits
+PASS  check2 directory name == preparing-scoped-commits
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Prepare authorized validated changes without staging unrelated work; fits tasks with a declared handoff, and grants no tools or authority.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1097 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 627)
+PASS  check1 Approach clause verbatim (draft line 629)
+PASS  check1 How clause verbatim (draft line 631)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 625)
+----
+isolation fixture listing at test time (check 9):
+/tmp/ff-fixture/preparing-scoped-commits/candidate/skills/reusable/preparing-scoped-commits/SKILL.md
+----
+RESULT preparing-scoped-commits: pass=12 fail=0 chars=1097
