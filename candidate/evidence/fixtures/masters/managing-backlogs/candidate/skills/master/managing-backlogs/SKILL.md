@@ -1,0 +1,33 @@
+---
+name: managing-backlogs
+description: Maintain planning indexes and perform evidence-gated reconciliation.
+---
+
+## Purpose
+
+**Purpose**: Maintain planning indexes and perform evidence-gated reconciliation.
+
+## Approach
+
+**Approach**: Add or revise bounded items, calculate priority and dependencies, reconcile only authorized transitions, and remove completed rows only with changelog evidence.
+
+## How it should be done
+
+**How it should be done**: Use the owning backlog schema; record one bounded item with exact identity, preferences, dependencies, acceptance, and notes; query ordering; apply only authorized transitions; clean a completed row only after exact changelog evidence.
+
+## Design view
+
+```mermaid
+---
+config:
+  layout: elk
+---
+flowchart TB
+    Proposal["Bounded work proposal"] --> Record["Owned backlog row"]
+    Record --> Prioritize["Dependency-aware view"]
+    Prioritize --> Cleanup["Evidence-gated cleanup"]
+```
+
+## Composition context
+
+No composition table, workflow example, or tool-access row is cited for this master by the realization plan (plan section 7 composition-context column: "—"). Carry the general tool-access acknowledgment as composition-admission documentation (drafts/composable-skills.md lines 112-113): A skill does not grant tools. Before an agent is admitted to a master skill or composition, the composition's required tool set must be compared with the agent's declared tools, permissions, and authority. The agent must have every tool needed for its selected path, or the workflow must stop with a bounded missing-capability blocker; it must not silently substitute a weaker tool, broaden permissions, or ask a read-only agent to perform mutation.
