@@ -13,11 +13,10 @@ creating a second source of truth.
 1. State the bounded question, decision, or handoff and its acceptance need.
 2. Identify authoritative records, applicable constraints, direct dependencies,
    and unresolved assumptions; prefer links and targeted excerpts.
-3. Check freshness, authority, scope, and contradictions. Separate facts,
-   inferences, and unknowns.
-4. Compress only after preserving decision-relevant provenance and next action.
-5. Stop when the acceptance need is supported; escalate missing authority or
-   material ambiguity instead of guessing.
+3. Check freshness, authority, scope, and contradictions. Separate facts, inferences, and unknowns.
+4. Classify the requested change as behavioral/authority-changing, material planning, or selection/reference-only. Update an existing authoritative record first; add an artifact only when it has a distinct durable purpose. For a frozen predecessor, preserve it and create only the narrowest successor needed for the changed bytes and applicable review.
+5. Compress only after preserving decision-relevant provenance and next action. Link established rules instead of copying them. Session compaction preserves active context; it does not justify duplicate repository artifacts.
+6. Stop when the acceptance need is supported; escalate missing authority or material ambiguity instead of guessing.
 
 ## Contract
 
