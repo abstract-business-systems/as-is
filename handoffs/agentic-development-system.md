@@ -195,8 +195,10 @@ The candidate implementation previously reported as complete in `candidate/` was
 
 ## New-session next action
 
-1. Read this handoff first. The authoritative design context is exclusively `drafts/composable-skills.md` (skills catalog, per-skill contracts, composition and change-method rules) and the other applicable documents under `drafts/` — not the implementation plan, reviews, or any summary derived from them.
-2. **Do not implement.** Align on the implementation path with the user first: confirm what is built, in what artifact form, verified against which draft sections, and by which authority flow.
-3. `handoffs/agentic-development-system-continuity-checklist.md` has been reset; it no longer records the removed candidate realization as complete.
+1. Read this handoff first, then `handoffs/agentic-development-system-continuity-checklist.md` (authoritative itemized thread, including section 7 verification record).
+2. Design context is exclusively `drafts/` (primarily `drafts/composable-skills.md`). Implementation is driven by the transient implementation-flow agent roster under `candidate/agents/` (implementer, worker, planning-adviser, external-adviser; o dt pattern) — the implementer is the sole invoking agent and orchestrates verification chains itself; the human never relays between agents. Model bindings in `candidate/agents/config.json` (GLM 5.3 flash for implementer and worker).
+3. Current state (branch tip `cbc0779` at last handoff update): the skill-fidelity pilot plan (`designs/agentic-development-system-skill-fidelity-pilot-plan.md`) was implementer-authored, independently verified (internal review + external challenge both PASS after corrections), and user-accepted for the first slice. Two-skill pilot implementation may begin: one worker attempt per skill, independently fidelity-tested per the plan's protocol, candidate-local evidence.
+4. Next deliverables: (a) per-skill pilot implementation per the accepted plan; (b) a full-flow realization plan covering the entire flow through benchmarking, authored and verified through the same agent chain, user-accepted before that broader implementation starts.
+5. Commit checkpoints occur at compaction boundaries per the user's standing flow; the committing-completed-work skill governs repo commits.
 
 The canonical program-status section above holds current state and links; do not recreate historical planning detail in a new-session prompt or handoff.
