@@ -1,0 +1,17 @@
+PASS  check2 front-matter name == writing-code
+PASS  check2 directory name == writing-code
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Use when creating new code or substantially implementing code from a bounded requirement; this skill establishes fit, grants no tools or authority, and does not cover surgical changes to existing code.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1233 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 333)
+PASS  check1 Approach clause verbatim (draft line 335)
+PASS  check1 How clause verbatim (draft line 337)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 331)
+----
+isolation fixture listing at test time (check 9):
+/tmp/ff-fixture/writing-code/candidate/skills/reusable/writing-code/SKILL.md
+----
+RESULT writing-code: pass=12 fail=0 chars=1233

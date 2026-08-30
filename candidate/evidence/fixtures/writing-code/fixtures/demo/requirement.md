@@ -1,0 +1,1 @@
+Requirement (accepted): add a configurable max_retries parameter to fetch() in fixtures/demo/retry.py, default 3, preserving existing error behavior (FetchError raised after retries are exhausted). Acceptance: fetch called with max_retries=0 raises FetchError immediately; default behavior unchanged.
