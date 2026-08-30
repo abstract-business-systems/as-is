@@ -77,6 +77,14 @@ export class ComponentReservationManager {
   }
 
   /**
+   * Checks whether a component key is actively locked under a valid lease.
+   */
+  public isLocked(componentKey: string): boolean {
+    const res = this.store.get(componentKey);
+    return !!(res && res.disposition === "active" && res.leaseExpiresAt > this.clock.now());
+  }
+
+  /**
    * Lists all active reservations.
    */
   public listActiveReservations(): ComponentReservation[] {

@@ -51,24 +51,24 @@ export function createValidChildEntry(
 }
 
 export function createValidPlanEnvelope(overrides?: Partial<PlanEnvelope>): PlanEnvelope {
-  const child1 = createValidChildEntry("child-task-control", "core/modules/task-control");
-  const child2 = createValidChildEntry("child-process-adapter", "core/adapters/process");
+  const children = overrides?.children ?? [
+    createValidChildEntry("child-task-control", "core/modules/task-control"),
+    createValidChildEntry("child-process-adapter", "core/adapters/process"),
+  ];
 
-  const defaultDepGraph: DependencyGraph = {
-    nodes: ["child-task-control", "child-process-adapter"],
+  const defaultDepGraph: DependencyGraph = overrides?.dependencyGraph ?? {
+    nodes: children.map((c) => c.id),
     edges: [],
-    independenceClassification: {
-      "child-task-control": "independent",
-      "child-process-adapter": "independent",
-    },
+    independenceClassification: Object.fromEntries(
+      children.map((c) => [c.id, "independent"])
+    ),
   };
 
-  const defaultFreshness: PlanFreshness = {
+  const defaultFreshness: PlanFreshness = overrides?.freshness ?? {
     parentRecordRevision: "parent-rev-1",
-    childRecordRevisions: {
-      "core/modules/task-control": "rev-10",
-      "core/adapters/process": "rev-20",
-    },
+    childRecordRevisions: Object.fromEntries(
+      children.map((c) => [c.componentKey, "rev-10"])
+    ),
     expectedParentBase: "git-commit-base-001",
   };
 
@@ -92,7 +92,7 @@ export function createValidPlanEnvelope(overrides?: Partial<PlanEnvelope>): Plan
       taskRevision: "parent-task-rev-1",
       boundedOutcome: "Realize core candidate execution control slice",
     },
-    children: [child1, child2],
+    children,
     dependencyGraph: defaultDepGraph,
     freshness: defaultFreshness,
     nonGoals: defaultNonGoals,
@@ -106,7 +106,7 @@ export function createValidContext(overrides?: Partial<RepositoryContext>): Repo
     currentParentBase: "git-commit-base-001",
     currentRecordRevisions: {
       "core/modules/task-control": "rev-10",
-      "core/adapters/process": "rev-20",
+      "core/adapters/process": "rev-10",
     },
     verifiedWorkerRoles: ["implementer", "worker", "planning-adviser", "external-adviser"],
     parentAvailableUnits: 50,

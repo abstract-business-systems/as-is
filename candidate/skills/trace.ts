@@ -20,7 +20,7 @@ export class ScopeViolationError extends Error {
 }
 
 function normalizePath(p: string): string {
-  return p.replace(/^\.\//, "").replace(/\/+$/, "");
+  return p.replace(/^\.\//, "").replace(/\/\*\*$/, "").replace(/\/\*$/, "").replace(/\/+$/, "");
 }
 
 function pathMatchesOrContains(prefix: string, target: string): boolean {

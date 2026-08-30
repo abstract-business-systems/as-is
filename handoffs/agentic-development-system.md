@@ -33,9 +33,10 @@ This section is the single durable program-status summary. Component `tasks.md` 
 - **Final goal:** Realize and evidence a human-centered agentic development system on `implementing-composable-skills` with deterministic admission, atomic reservations, parent-closure evaluation, composable skills, and benchmark evidence.
 - **Current phase:** Direct 3-milestone implementation under `candidate/`.
 - **Milestone 1:** **COMPLETED**. Candidate Execution-Control Kernel (`candidate/execution-control/`, 24/24 passing tests) evidenced at `candidate/evidence/milestone-1-execution-control.md`.
-- **Milestone 2:** **COMPLETED**. Composable Skills Engine and Agent Roster (`candidate/skills/`, `candidate/agents/`, 18/18 passing tests) evidenced at `candidate/evidence/milestone-2-composable-skills-and-agents.md`. Total candidate tests passing: 42/42.
-- **Milestone 3:** **READY TO START**. End-to-End Testbed & Baseline Benchmark (`candidate/tests/` + pinned `master` benchmark).
-- **Authority state:** Candidate implementation progressing cleanly in `candidate/` namespaces; existing repository `core/` contracts and `as-is.md` records preserved.
+- **Milestone 2:** **COMPLETED**. Composable Skills Engine and Agent Roster (`candidate/skills/`, `candidate/agents/`, 18/18 passing tests) evidenced at `candidate/evidence/milestone-2-composable-skills-and-agents.md`.
+- **Milestone 3:** **COMPLETED**. End-to-End Testbed, Baseline Benchmark, and Adoption Ledger (`candidate/tests/e2e/`, `candidate/benchmark/`, 46/46 passing tests total) evidenced at `candidate/evidence/milestone-3-e2e-benchmark-and-adoption.md`.
+- **Overall status:** All 3 milestones implemented, tested (46/46 tests pass), and evidenced.
+- **Authority state:** Candidate implementation complete in `candidate/` namespaces; existing repository `core/` contracts and `as-is.md` records preserved.
 - **Verified against:** Frozen executable-plan SHA-256 `ef2c7c5bd760e8e1bacd795fec18ad1b4dbf7264d1d6260c9dc383e612348716`; accepted-plan record `reviews/agentic-development-system/executable-realization-plan-draft6-human-review-acceptance.md`; task-start checkpoint `0283acd`; admission preflight `reviews/agentic-development-system/first-task-control-slice-admission-preflight.md`; construction-flow correction checkpoint `925241d`; model-binding selection brief `reviews/agentic-development-system/construction-agent-model-binding-selection-decision-brief.md`; frozen Draft-1 packet digest `dac951b29f2577cd3468d76934d1b416f22f47481ed2756d47a3ab704f5e2b5f`; freeze record `reviews/agentic-development-system/construction-agent-model-binding-draft1-freeze.md`; Kimi review `reviews/agentic-development-system/kimi-construction-agent-model-binding-draft1.md`; caller identity verification `reviews/agentic-development-system/construction-agent-model-binding-draft1-caller-identity-verification.md`; Human Review acceptance `reviews/agentic-development-system/construction-agent-model-binding-draft1-human-review-acceptance.md`; model-selection revision `reviews/agentic-development-system/construction-agent-model-selection-revision-decision-brief.md`; frozen concise profile-binding Draft 3 `drafts/agentic-development-system-construction-agent-profile-binding-draft3.md` at SHA-256 `e57110763d5fc6183f000302e7aee262168bf216c4112bf00335f4e7e52e64ac`, with freeze record `reviews/agentic-development-system/construction-agent-profile-binding-draft3-freeze.md`; custom-agent candidate-boundary correction and current-branch decision `reviews/agentic-development-system/custom-agent-candidate-boundary-correction-decision-brief.md`; independent-candidate-boundary checkpoint `ec084be`; current cancelled task records contain no implementation files.
 
 ## User direction consolidated
@@ -182,14 +183,15 @@ This revisioning was necessary to keep each review tied to exact bytes and to pr
 
 ## New-session next action
 
-Read this handoff first, then reference the locked implementation plan:
+Read this handoff first, then reference the locked implementation plan and evidence records:
 
 1. `designs/agentic-development-system-implementation-plan.md`
 2. `candidate/evidence/milestone-1-execution-control.md`
 3. `candidate/evidence/milestone-2-composable-skills-and-agents.md`
+4. `candidate/evidence/milestone-3-e2e-benchmark-and-adoption.md`
 
-**Current state:** Milestone 1 and Milestone 2 completed and verified (42/42 tests pass).
+**Current state:** All three implementation milestones (Milestone 1, 2, and 3) are completely realized and verified with 46/46 passing tests.
 
-**Next action:** Execute **Milestone 3**: End-to-End Testbed and Baseline Benchmark (`candidate/tests/` integration testbed + pinned `master` benchmark comparison).
+**Next action:** Review completed candidate evidence and present completion summary to user.
 
 The canonical program-status section above holds current state and links; do not recreate historical planning detail in a new-session prompt or handoff.
