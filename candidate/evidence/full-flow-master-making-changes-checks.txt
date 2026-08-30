@@ -1,0 +1,29 @@
+PASS  check2 front-matter name == making-changes
+PASS  check2 directory name == making-changes
+PASS  check3 description present
+PASS  check3 description grants no tools or authority (fit wording)
+NOTE  check8 size 3616 chars > 2000 (masters may exceed the voluntary target: compositions, gates, recovery, stopping rules; draft line 132)
+PASS  check1 Purpose clause verbatim (draft line 694)
+PASS  check1 Approach clause verbatim (draft line 696)
+PASS  check1 How clause verbatim (draft line 698)
+PASS  check4 sections exactly Purpose/Approach/How it should be done/Design view/Composition context
+PASS  check4 no path reference to other candidate artifacts
+PASS  check12 Design-view Mermaid block byte-equal
+PASS  check13 composition entry: Component-based change
+PASS  check13 composition entry: Non-component change
+PASS  check13 composition entry: resolving-scopes
+PASS  check13 composition entry: identifying-owners
+PASS  check13 composition entry: building-context
+PASS  check13 composition entry: choosing-change-methods
+PASS  check13 composition entry: implementing-tasks
+PASS  check13 composition entry: applying-bounded-edits
+PASS  check13 composition entry: writing-tests
+PASS  check13 composition entry: validating-changes
+PASS  check13 composition entry: locating-changelogs
+PASS  check13 composition entry: managing-changelogs
+PASS  check13 composition entry: making-changes = resolving-scopes
+----
+isolation fixture listing at test time (check 9):
+candidate/evidence/fixtures/masters/making-changes/candidate/skills/master/making-changes/SKILL.md
+----
+RESULT making-changes: pass=23 fail=0 chars=3616
