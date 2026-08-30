@@ -1,0 +1,17 @@
+PASS  check2 front-matter name == maintaining-components
+PASS  check2 directory name == maintaining-components
+PASS  check3 description present
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1743 chars <= 2000
+PASS  check1 Purpose clause verbatim (draft line 760)
+PASS  check1 Approach clause verbatim (draft line 762)
+PASS  check1 How clause verbatim (draft line 764)
+PASS  check4 sections exactly Purpose/Approach/How it should be done/Design view/Composition context
+PASS  check4 no path reference to other candidate artifacts
+PASS  check12 Design-view Mermaid block byte-equal
+PASS  check13 composition entry: tool-access acknowledgment
+----
+isolation fixture listing at test time (check 9):
+candidate/evidence/fixtures/masters/maintaining-components/candidate/skills/master/maintaining-components/SKILL.md
+----
+RESULT maintaining-components: pass=12 fail=0 chars=1743
