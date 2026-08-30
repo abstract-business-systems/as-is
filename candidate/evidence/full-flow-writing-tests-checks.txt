@@ -1,0 +1,17 @@
+PASS  check2 front-matter name == writing-tests
+PASS  check2 directory name == writing-tests
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Use when adding or updating focused test coverage for a stated behavior; establishes fit only and grants no tools or authority.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 855 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 375)
+PASS  check1 Approach clause verbatim (draft line 377)
+PASS  check1 How clause verbatim (draft line 379)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 373)
+----
+isolation fixture listing at test time (check 9):
+/tmp/ff-fixture/writing-tests/candidate/skills/reusable/writing-tests/SKILL.md
+----
+RESULT writing-tests: pass=12 fail=0 chars=855
