@@ -1,0 +1,1 @@
+Changed artifact: fixtures/demo/validator.py (timeout validation changed). Focused checks: run-tests command "check validator" (simulated). Full-suite command exists but covers many unrelated components.
