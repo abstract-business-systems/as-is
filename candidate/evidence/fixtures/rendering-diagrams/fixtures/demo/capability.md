@@ -1,0 +1,1 @@
+Approved local rendering capability: the demo fixture has a mermaid renderer at fixtures/demo/render.sh that accepts a source file path and writes an SVG. Expected hrefs: the diagram source must link to fixtures/demo/retry.md. If the renderer is absent, walkers report source-only evidence.
