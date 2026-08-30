@@ -28,6 +28,7 @@ artifacts in this directory are ordinary documents rather than child
 `as-is.md` components, so no container diagram is included.
 
 ## Links
+- [agentic-development-system-implementation-plan.md](agentic-development-system-implementation-plan.md) — locked direct implementation plan for candidate realization across execution control, composable skills, and benchmarking.
 - [execution-accounting-design.md](execution-accounting-design.md) — execution accounting design.
 - [orchestration-design.md](orchestration-design.md) — orchestration design.
 - [independent-delegation.md](independent-delegation.md) — independent delegation design.
