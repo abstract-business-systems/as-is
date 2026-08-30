@@ -30,8 +30,12 @@ Items that trace to the drafts trace to the two documents below. Items in sectio
 | `writing-code` vs `applying-bounded-edits` separation | Skills draft lines 146-148 |
 | Changelog resolution rules | Skills draft lines 150-160 |
 | Master workflow examples (composition context) | Skills draft lines 162-176 |
-| Reusable-skill contracts (24 defined skills) | Skills draft lines 182-664, per-skill ranges in section 5 |
+| Reusable-skill contracts (24 defined skills) | Skills draft lines 182-686, per-skill ranges in section 5 |
 | Master-skill contracts (12 masters) | Skills draft lines 692-945, per-master ranges in section 7 |
+| Child stop conditions (contradiction, missing dependency, prohibited access, failed validation, out-of-packet) | Target-design lines 537-559, especially 541, 557 |
+| Child integration conflict and out-of-scope stops | Target-design lines 561-567 |
+| Unresolved-question blocking stops and closure prevention | Target-design lines 595-605 |
+| No inferred completion, no automatic retry, no scope widening | Target-design lines 607-613 |
 | Design constraints (composition does not transfer authority; smallest scope; explicit validation path) | Skills draft lines 947-955 |
 | Reserved for later (metadata, registries, dependency schemas, wholesale replacement) | Skills draft lines 957-970 |
 | Target lifecycle (three phases, one human decision) | Target-design section 6, lines 260-303 |
@@ -48,7 +52,7 @@ Items that trace to the drafts trace to the two documents below. Items in sectio
 
 Items deliberately **not** sourced from the drafts (flagged per gate §4 of `handoffs/agentic-development-system-continuity-checklist.md`): the `candidate/` artifact paths and directory layout (section 4); the fidelity-test protocol mechanics (section 9, inherited from the pilot plan section 6 and validated by the pilot execution record); the agent-verification method (section 6, a plan decision); the staging order and stage gates (section 3, a plan decision implementing checklist section 5 direction); the benchmark's concrete mechanics inside `candidate/` (section 8, a plan decision within target-design's protocol requirements); and the review/acceptance gates (section 10, inherited from the pilot). The drafts do not define a benchmark protocol beyond section 13's requirements; all benchmark mechanics below the pre-registered fields are plan decisions.
 
-**Flagged design discrepancy**: skills draft line 134 says "The 25 proposed reusable skills", but the draft defines exactly 24 per-skill contract sections (the 36 backtick headings at draft lines 182-664 and 692-945 comprise 24 reusable skills and 12 masters). This plan realizes the 24 defined contracts; the "25" count is treated as a draft arithmetic slip, not a hidden 25th skill. Adjudication is a user decision (section 13).
+**Flagged design discrepancy**: skills draft line 134 says "The 25 proposed reusable skills", but the draft defines exactly 24 per-skill contract sections (the 36 backtick headings at skills-draft lines 182-686 and 692-945 comprise 24 reusable skills and 12 masters). This plan realizes the 24 defined contracts; the "25" count is treated as a draft arithmetic slip, not a hidden 25th skill. Adjudication is a user decision (section 13).
 
 ## 3. Scope and staging
 
@@ -56,12 +60,41 @@ The flow covers the four artifact families the user directed, staged so that eac
 
 - **Stage 1 — Reusable skills.** The 22 skills not yet realized (section 5). Each is implemented and fidelity-tested independently, one bounded unit at a time, following the pilot's protocol and process learnings.
 - **Stage 2 — Target agent roster.** The candidate target-roster agent definitions (section 6), each defined and verified independently against target-design section 7.1 and section 8.
-- **Stage 3 — Master skills and compositions.** The 12 master skills (section 7), realized only after every reusable skill they reference has independently passed verification (checklist section 5). Master fidelity includes the composition tables and workflow examples they cite.
+- **Stage 3 — Master skills and compositions.** The 12 master skills (section 7), realized only after every reusable skill they reference has independently passed verification (checklist section 5). Master fidelity includes the composition tables and workflow examples they cite. The two target-design-only introductions join stage 3 only under user decision (section 13, item 3).
 - **Stage 4 — Benchmark.** Pre-registration of the benchmark protocol (section 8), recorded user acceptance of the protocol, then execution and candidate-local results recording. The benchmark is re-established only after re-aligned implementation exists, per checklist section 3; stages 1-3 supply that implementation.
 
-Two skills are already realized and PASS under the pilot protocol (`applying-bounded-edits`, draft lines 352-371; `choosing-change-methods`, draft lines 667-686; evidence in `candidate/evidence/skill-fidelity-pilot-execution-record.md`). They are not re-realized; their candidate artifacts and evidence carry forward unchanged into stage 3's composition dependencies.
+Two skills are already realized and PASS under the pilot protocol; they appear in the roster table below marked realized (evidence in `candidate/evidence/skill-fidelity-pilot-execution-record.md`) and are not re-realized; their candidate artifacts and evidence carry forward unchanged into stage 3's composition dependencies.
 
 Staging order within stages 1-3 is a plan decision (no draft prescribes it), chosen so composition prerequisites pass first: skills referenced by master compositions (skills draft lines 100-101, 165) are sequenced before the masters that cite them. A stage gate is violated if a master is realized while any skill its composition table names has a failing or missing fidelity record.
+
+### 3.1 Full reusable-skill roster (24 contracts)
+
+| # | Skill | Draft contract lines | Status |
+| --- | --- | --- | --- |
+| 1 | `building-context` | Skills draft 182-202 | Stage 1 |
+| 2 | `resolving-scopes` | Skills draft 204-224 | Stage 1 |
+| 3 | `identifying-owners` | Skills draft 226-245 | Stage 1 |
+| 4 | `locating-changelogs` | Skills draft 247-266 | Stage 1 |
+| 5 | `choosing-names` | Skills draft 268-287 | Stage 1 |
+| 6 | `structuring-content` | Skills draft 289-308 | Stage 1 |
+| 7 | `drafting-content` | Skills draft 310-329 | Stage 1 |
+| 8 | `writing-code` | Skills draft 331-350 | Stage 1 |
+| 9 | `applying-bounded-edits` | Skills draft 352-371 | Realized (pilot PASS) |
+| 10 | `writing-tests` | Skills draft 373-392 | Stage 1 |
+| 11 | `running-tests` | Skills draft 394-413 | Stage 1 |
+| 12 | `validating-changes` | Skills draft 415-434 | Stage 1 |
+| 13 | `recording-evidence` | Skills draft 436-455 | Stage 1 |
+| 14 | `designing-diagrams` | Skills draft 457-476 | Stage 1 |
+| 15 | `rendering-diagrams` | Skills draft 478-497 | Stage 1 |
+| 16 | `inspecting-execution-evidence` | Skills draft 499-518 | Stage 1 |
+| 17 | `assessing-determinism` | Skills draft 520-539 | Stage 1 |
+| 18 | `recording-backlog-items` | Skills draft 541-560 | Stage 1 |
+| 19 | `drafting-changelog-entries` | Skills draft 562-581 | Stage 1 |
+| 20 | `delegating-bounded-work` | Skills draft 583-602 | Stage 1 |
+| 21 | `observing-delegated-work` | Skills draft 604-623 | Stage 1 |
+| 22 | `preparing-scoped-commits` | Skills draft 625-644 | Stage 1 |
+| 23 | `presenting-decisions` | Skills draft 646-664 | Stage 1 |
+| 24 | `choosing-change-methods` | Skills draft 667-686 | Realized (pilot PASS) |
 
 ## 4. Artifact form (plan decisions, following the validated pilot pattern)
 
@@ -74,32 +107,7 @@ All artifact forms follow the pilot-validated pattern (`candidate/skills/reusabl
 
 ## 5. Stage 1 — Reusable-skill catalog realization
 
-The 22 skills below are realized in stage 1, each in its own bounded pass. Contracts are authoritative as written in the draft; the plan does not restate them. The fidelity test for each skill diffs the realization against the cited draft lines.
-
-| Skill | Draft contract lines (section span) | Notes |
-| --- | --- | --- |
-| `building-context` | 182-202 | |
-| `resolving-scopes` | 204-224 | Terminal stop on ambiguous ownership/applicability (line 210). |
-| `identifying-owners` | 226-245 | |
-| `locating-changelogs` | 247-266 | "Never select by proximity alone"; explicit no-history-required outcome (lines 251, 253). |
-| `choosing-names` | 268-287 | |
-| `structuring-content` | 289-308 | |
-| `drafting-content` | 310-329 | Draft label; no adoption claims (lines 314, 316). |
-| `writing-code` | 331-350 | Returns diff for testing/validation; does not claim completion (line 337). |
-| `writing-tests` | 373-392 | |
-| `running-tests` | 394-413 | "Do not reinterpret process exit as completion" (line 400). |
-| `validating-changes` | 415-434 | Acceptance-to-evidence matrix; pass vs unsupported claims (lines 419, 421). |
-| `recording-evidence` | 436-455 | Evidence linked without granting authority (line 442). |
-| `designing-diagrams` | 457-476 | |
-| `rendering-diagrams` | 478-497 | Renderer-unavailable distinguished from source-invalid (line 484). |
-| `inspecting-execution-evidence` | 499-518 | Never authorizes work or completion (line 505). |
-| `assessing-determinism` | 520-539 | |
-| `recording-backlog-items` | 541-560 | Status selection left to backlog authority (line 547). |
-| `drafting-changelog-entries` | 562-581 | Waits for validated completion evidence (line 568). |
-| `delegating-bounded-work` | 583-602 | No implicit authority transfer (lines 585-589). |
-| `observing-delegated-work` | 604-623 | Does not infer completion (line 610). |
-| `preparing-scoped-commits` | 625-644 | Stop when scope or completion authority is missing (line 629). |
-| `presenting-decisions` | 646-664 | Advice is not approval (line 652). |
+The 22 unrealized skills in the section 3.1 roster are realized in stage 1, each in its own bounded pass. Contracts are authoritative as written in the draft at the exact per-skill line ranges listed there; the plan does not restate them. The fidelity test for each skill diffs the realization against its cited draft lines. Fidelity-sensitive per-skill notes (terminal-stop locations, ordering rules, and outcome semantics) are carried in the per-skill side-by-side documents (section 9 checks 4, 5, 11) against the cited lines, not pre-summarized here.
 
 Cross-cutting interpretation rules (fidelity-sensitive points, applying the pilot's validated interpretations):
 
@@ -114,18 +122,18 @@ Skill-specific interpretations discovered during realization are recorded per-sk
 
 ## 6. Stage 2 — Target agent roster realization
 
-The roster is realized from target-design section 8 (lines 362-377) with authority and limits from section 7.1 (lines 307-324). Each agent is defined independently and verified against its source-draft role definition before any composition or master references it (checklist section 5).
+The roster is realized from target-design section 8 (lines 362-377) with authority and limits from the section 7.1 table rows cited per row below (target-design lines 311-322). Each agent is defined independently and verified against its source-draft role definition before any composition or master references it (checklist section 5). Each realized `agent.md` must trace every authority claim and limit it states to the cited rows; the side-by-side evidence (section 9) records the row-to-definition mapping, and the definition must not restate or widen the table row.
 
-| Candidate target agent | Draft disposition source | Realization in `candidate/agents/target/` |
+| Candidate target agent | Disposition pointer | Authority/limits pointer |
 | --- | --- | --- |
-| Project orchestrator (working name `as-is-orchestrator`) | Target-design line 368 (`as-is`, **Modify**); authority/limits line 312 | Root human front face and orchestrator: intent interpretation, status, lifecycle coordination, escalation, routing; non-implementing; does not infer human acceptance. Working name is a plan decision; the draft name `as-is` is retained conceptually, and the name requires naming review before any adoption (target-design line 362). |
-| `component-builder` | Line 369 (**Retain and adapt**); lines 313-314 (authority/limits) | Parent planner for its own component and fresh child-scoped builder per child: plan injection, child-local implementation and verification, bounded integration into the parent worktree, recovery, status handoff; no implementation verification of children. |
-| `evidence-validator` | Line 370 (**Retain and adapt**); line 317 | Read-only acceptance-to-evidence review; no mutation, task admission, integration, or acceptance authority. |
-| `execution-advisor` | Line 371 (**Retain**); line 322 | Bounded trace/session analysis; telemetry stays supplementary. |
-| `expert` | Line 372 (**Retain and compose**); line 318 | Generic read-only advisory shell; not an alternate-model gate; no authority from reviewing. |
-| `design-prototyper` (working name) | Line 375 (**Introduce** a design/prototyping agent); line 314 (authority/limits) | Prototypes, target-design revisions, component hierarchies, implementation packets, alternatives, decision briefs; cannot accept its own envelope or authorize implementation. Working name is a plan decision pending naming review (line 362). |
-| `thinking-companion` | Line 373 (**Deprecate, then replace**) | Not created in the candidate target roster; consultation responsibility is carried by the orchestrator and design-prototyper dispositions. |
-| `worker` | Line 374 (**Defer replacement decision**) | No target-roster worker agent is created; child work uses fresh child-scoped `component-builder` instances (lines 374, 369). The transient construction `worker` (checklist section 6) is unaffected and remains the construction mechanism. |
+| Project orchestrator (working name `as-is-orchestrator`) | target-design:368 (`as-is`, **Modify**) | target-design:312 (non-implementing; does not infer human acceptance) |
+| `component-builder` | target-design:369 (**Retain and adapt**) | target-design:314 (parent planner) and target-design:316 (fresh child-scoped builder; cannot change parent plan, sibling scope, accepted envelope, parent task state, or protected parent artifacts outside the admitted integration operation) |
+| `evidence-validator` | target-design:370 (**Retain and adapt**) | target-design:317 (no mutation, task admission, parent integration, or human acceptance authority) |
+| `execution-advisor` | target-design:371 (**Retain**) | target-design:371 (telemetry stays supplementary) with the observability limits row target-design:322 (never defines task status, budget, recovery, or completion) |
+| `expert` | target-design:372 (**Retain and compose**) | target-design:318 (not an alternate-model gate; no authority from reviewing) |
+| `design-prototyper` (working name) | target-design:375 (**Introduce** a design/prototyping agent) | target-design:313 (cannot accept its own envelope or authorize implementation) |
+| `thinking-companion` | target-design:373 (**Deprecate, then replace**) | Not created in the candidate target roster; per target-design:373, general consultation moves to the human-facing orchestrator plus the consulting master skill (`consulting-humans`, skills draft 905-924), and design facilitation moves to the design/prototyping role |
+| `worker` | target-design:374 (**Defer replacement decision**) | Not created; child work uses fresh child-scoped `component-builder` instances (target-design:374, 369). The transient construction `worker` (checklist section 6) is unaffected and remains the construction mechanism |
 
 Roster rules:
 
@@ -162,7 +170,7 @@ Cross-cutting master interpretation rules:
 | Skills draft lines 111-129 | Each master carries its composition's tool-access acknowledgment (the applicable row(s) of the lines 119-124 table as composition-admission documentation); no runtime admission change and no agent front-matter change (out of scope per section 12). |
 | Skills draft lines 947-955 | Design constraints apply as written: composition does not transfer authority; smallest applicable scope; explicit validation path; changelog omission only when the work contract permits no durable history. |
 | Target-design lines 405-415, 417-489 | `making-changes` here realizes the skills-draft master (lines 692-712); the target-design 9.2 introduction table (line 412) and 9.3 compositions (lines 417-489) are the accepted-envelope composition context for `developing-target-designs` and the adapted `building-components` text composition at lines 481-489, which stage 3 records alongside the skills-draft `building-components` composition as two named compositions of the same master (flagged for human adjudication in the side-by-side evidence, since the two drafts give overlapping-but-distinct compositions for `building-components`). |
-| Target-design lines 405-415 | `developing-target-designs` and `planning-realization` appear in target-design 9.2 as proposed introductions with purpose lines but no per-skill contract sections in either draft. They are realized in stage 3 as master skills whose bodies carry only their target-design 9.2 purpose lines (lines 411, 413) and the 9.3 text composition (lines 470-477 for `developing-target-designs`) — plus, for `planning-realization`, the implementation-packet content requirements of target-design lines 537-559 as its procedure context. Their thinner contracts (single purpose line, no Mermaid design view) are a flagged design asymmetry for human adjudication, not silently filled with invented contract sections. |
+| Target-design lines 405-415 | `developing-target-designs` (line 411) and `planning-realization` (line 413) appear in target-design 9.2 as proposed introductions with purpose lines but no per-skill contract sections in either draft. **Master cardinality is a user decision (section 13, item 5)**: this plan's default stage 3 realizes exactly the 12 skills-draft masters (skills draft lines 692-945); the two target-design-only introductions are realized as additional thin masters only if the user accepts that 14-master scope. If accepted, their bodies carry only their target-design 9.2 purpose lines (411, 413) and the 9.3 text composition (470-477 for `developing-target-designs`) — plus, for `planning-realization`, the implementation-packet content requirements of target-design lines 537-559 as its procedure context. Their thinner contracts (single purpose line, no Mermaid design view) are a flagged design asymmetry for human adjudication, not silently filled with invented contract sections. |
 
 Stage gate: a master is realized only after every reusable skill its composition names has a passing stage-1 fidelity record (checklist section 5). The composition note discipline from the pilot applies: a master may name and order skills, but must not depend on another master.
 
@@ -171,7 +179,7 @@ Stage gate: a master is realized only after every reusable skill its composition
 The benchmark follows target-design section 13 (lines 659-666) and the advisory-not-authority constraints of section 5.2 (lines 246-250). Status: no project-specific workflow benchmark has run (target-design lines 248, 665).
 
 1. **Pre-registration (before any run)**: a benchmark pre-registration record at `candidate/benchmark/pre-registration.md` records the exact seed, pinned baseline revision, candidate revision, feature, settings, budget, retry policy, deterministic checks, protected inputs, rubric, scorer, safety-critical failures, thresholds, and advancement rule (target-design line 665). These field values are plan/user decisions made at pre-registration time; the drafts define the required fields, not the values.
-2. **Setup**: one separately owned mock project seed and one simple feature requiring setup, component or scope resolution, a small human-facing design, one bounded code change, focused tests, deterministic validation, implementation review, integration, and status reporting (target-design line 661). The seed project is authored under `candidate/benchmark/seed/` (plan decision). Baseline consumer runs the pinned current workflow from a pinned repository revision; candidate consumer runs the candidate flow from the active candidate revision; separate directories and worktrees; identical feature request, model settings, budget, retry policy, checks, protected fixture, rubric, validators, and scorer outside worker write scope (target-design line 663).
+2. **Setup**: one separately owned mock project seed and one simple feature requiring setup, component or scope resolution, a small human-facing design, one bounded code change, focused tests, deterministic validation, implementation review, integration, and status reporting (target-design line 661). The seed project is authored under `candidate/benchmark/seed/` (plan decision). Per target-design line 663, the baseline consumer uses a pinned `master` revision and the candidate consumer the active candidate revision, created from the same seed, in separate directories and worktrees, with identical feature request, model settings, budget, retry policy, deterministic checks, protected fixture, rubric, validators, and scorer outside worker write scope.
 3. **Measurements**: setup, correctness, scope discipline, human effort, agent operation, integration, evidence, design alignment, and recovery (target-design line 665). The rubric and scorer are plan decisions recorded in the pre-registration.
 4. **Distinct experiments**: workflow comparison is labelled separately from any model-selection or reviewer-selection experiment (target-design lines 250, 665).
 5. **Human approval**: the benchmark protocol and any advancement decision require recorded human approval (target-design line 250). Gate: pre-registration is presented to the user with the stage 1-3 consolidated results; benchmark execution begins only after acceptance is recorded.
@@ -196,7 +204,14 @@ Each stage-1 skill passes the 12-check protocol validated by the pilot (`designs
 
 Masters (stage 3) pass an adapted protocol: checks 1-5, 8-11 applied to the master's contract lines (section 7), a composition-fidelity check (check 13, plan decision) verifying every named composition entry against the cited composition table lines, and one end-to-end behavioral walk-through per composition variant (e.g., the component-based and non-component variants of `making-changes`, draft lines 100-101).
 
-Agents (stage 2) pass a verification adapted to their artifact form (plan decision; no draft defines an agent test protocol): a static authority/limits mapping check against the target-design 7.1 row and section 8 disposition (every claimed authority traces to the table row; every table-row limit appears in the definition), plus one behavioral walk-through per agent exercising its boundary (e.g., the design-prototyper refuses to accept its own envelope; the evidence-validator declines mutation; the orchestrator does not infer human acceptance).
+Agents (stage 2) pass a verification adapted to their artifact form (plan decision; no draft defines an agent test protocol):
+
+- **Static authority/limits mapping**: every claimed authority traces to the cited target-design 7.1 row and section 8 disposition; every table-row limit appears in the definition; nothing beyond the rows.
+- **Human-reviewable side-by-side evidence per agent** (pilot check 11 pattern): a document mapping each cited target-design authority/limits row (and section 8 disposition line) to the corresponding `agent.md` section with exact line references on both sides, with additions flagged for adjudication.
+- **Isolation evidence** (pilot check 9 pattern): each agent's verification fixture listing is recorded, showing the agent under test alone.
+- **Behavioral walk-throughs**, including the agent's own boundary plus the target-design stop conditions it owns: the design-prototyper refuses to accept its own envelope; the evidence-validator declines mutation; the orchestrator does not infer human acceptance; the child-scoped component-builder stops on contradiction, missing dependency, prohibited access, failed validation, or an out-of-packet condition (target-design lines 541, 557), stops on integration conflict or out-of-scope requirements (line 567), stops affected work on blocking unresolved questions and does not close with one hidden (lines 599-605), and neither infers completion from process exit or telemetry, retries automatically, nor widens scope (lines 611-613).
+
+Every walk-through result, fixture listing, and side-by-side mapping is recorded candidate-local (section 11).
 
 Completion claims from this flow are limited to candidate fidelity (checklist section 7 direction; pilot execution record claim limitation). A passing fidelity record never implies repository promotion, consumer validation, or adoption.
 
@@ -242,6 +257,7 @@ The following are explicitly excluded from this flow:
 
 1. **Acceptance of this verified plan** (gates 3-4) — authorizes stages 1-3.
 2. **Adjudication of the "25 vs 24" catalog count** (section 2 discrepancy flag) — this plan proceeds on 24 defined contracts unless the user directs otherwise.
-3. **Naming review** for the two provisional working names (`as-is-orchestrator`, `design-prototyper`) per target-design line 362, before any adoption; candidate working names are used meanwhile.
-4. **Benchmark pre-registration acceptance** (section 8, gate 5) — authorizes benchmark execution and fixes the protocol values.
-5. **Any subsequent adoption decision** (owner, independent consumer, validation evidence per skills draft line 88; migration per target-design section 14) — out of this flow's scope regardless of benchmark outcome.
+3. **Master cardinality** (section 7): the default stage 3 realizes exactly the 12 skills-draft masters; accepting the two target-design-only introductions (`developing-target-designs`, target-design:411; `planning-realization`, target-design:413) as thin masters makes the scope 14 and requires this explicit user decision.
+4. **Naming review** for the two provisional working names (`as-is-orchestrator`, `design-prototyper`) per target-design line 362, before any adoption; candidate working names are used meanwhile.
+5. **Benchmark pre-registration acceptance** (section 8, gate 5) — authorizes benchmark execution and fixes the protocol values.
+6. **Any subsequent adoption decision** (owner, independent consumer, validation evidence per skills draft line 88; migration per target-design section 14) — out of this flow's scope regardless of benchmark outcome.
