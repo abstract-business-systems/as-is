@@ -1,0 +1,17 @@
+PASS  check2 front-matter name == drafting-changelog-entries
+PASS  check2 directory name == drafting-changelog-entries
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Prepares concise history entries for the owning changelog procedure; applies when a validated component task result needs to be summarized into durable history without replacing the owning changelog or completion protocol.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 971 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 564)
+PASS  check1 Approach clause verbatim (draft line 566)
+PASS  check1 How clause verbatim (draft line 568)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 562)
+----
+isolation fixture listing at test time (check 9):
+/tmp/ff-fixture/drafting-changelog-entries/candidate/skills/reusable/drafting-changelog-entries/SKILL.md
+----
+RESULT drafting-changelog-entries: pass=12 fail=0 chars=971

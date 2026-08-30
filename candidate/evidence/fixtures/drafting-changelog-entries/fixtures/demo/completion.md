@@ -1,0 +1,1 @@
+Demo changelog procedure: the owning changelog is changelog.md at repo root; the owning procedure decides entry placement and cleanup. Validated completion evidence for demo task t-42 exists: checks passed (3/3), residual risk: none known, source commits 1111111 and 2222222.
