@@ -26,7 +26,9 @@ This checklist is a navigation and continuity aid. The accepted draft-11 target 
 | Task preparation | Preparation cancelled after construction-flow clarification | Four task pairs and the selected backlog row remain as cancelled historical evidence from `0283acd`; they must not be reactivated unchanged. Correction: `reviews/agentic-development-system/construction-flow-alignment-correction-decision-brief.md`. |
 | Implementation plan | Complete: locked at `designs/agentic-development-system-implementation-plan.md` | Defines the 3-milestone execution path: Milestone 1 (execution-control kernel), Milestone 2 (composable skills & agents), Milestone 3 (end-to-end testbed & benchmark). |
 | Model roster | Complete: locked in implementation plan | `implementer` (Gemini 3.7 Flash), `worker` (GLM-5.3 Flash), `planning-adviser` (Sol), `external-adviser` (Kimi); OpenRouter provider; `thinking: high`. |
-| Next action | Direct implementation of Milestone 1 post-compaction | Create `candidate/execution-control/` and `candidate/tests/execution-control/`. |
+| Milestone 1 | Completed & verified (24/24 tests pass) | Candidate kernel built at `candidate/execution-control/`; evidence recorded at `candidate/evidence/milestone-1-execution-control.md`. |
+| Milestone 2 | Ready to start | Composable Skills Engine and Agent Roster (`candidate/skills/` + `candidate/agents/` + `candidate/tests/skills/`). |
+| Next action | Execute Milestone 2 implementation | Create `candidate/skills/` procedures/runner, `candidate/agents/` contracts, and automated tests in `candidate/tests/skills/`. |
 | Commit | `bc09e78` records the concise construction-agent profile binding | The task-start records remain immutable evidence. The concise frozen Draft 3 and refreshed pointers are committed planning documentation. No implementation or provider authority. |
 
 ## Two-track review interpretation

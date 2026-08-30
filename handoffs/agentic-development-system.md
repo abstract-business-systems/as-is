@@ -31,13 +31,11 @@ This document is the consolidated continuation checkpoint for the agentic-develo
 This section is the single durable program-status summary. Component `tasks.md` files remain transient, component-scoped task narratives paired with local JSON task authority; they are not a program dashboard. The continuity checklist is navigation and verification support, not a second status authority.
 
 - **Final goal:** Realize and evidence a human-centered agentic development system on `implementing-composable-skills` with deterministic admission, atomic reservations, parent-closure evaluation, composable skills, and benchmark evidence.
-- **Current phase:** Implementation plan is locked at `designs/agentic-development-system-implementation-plan.md`. Multi-agent roster and thinking levels are locked (`implementer` on Gemini 3.7 Flash, `worker` on GLM-5.3 Flash, `planning-adviser` on Sol, `external-adviser` on Kimi, all `thinking: high` via OpenRouter).
-- **Immediate pending gate:** Proceed with Milestone 1 implementation immediately post-compaction.
-- **Milestones:**
-  1. Milestone 1: Candidate Execution-Control Kernel (`candidate/execution-control/` + `candidate/tests/execution-control/`).
-  2. Milestone 2: Composable Skills Engine & Agent Roster (`candidate/skills/` + `candidate/agents/` + tests).
-  3. Milestone 3: End-to-End Testbed & Baseline Benchmark (`candidate/tests/` + pinned `master` benchmark).
-- **Authority state:** Candidate implementation authorized on `implementing-composable-skills` under `candidate/` namespaces; existing repository `core/` and live contracts remain unmodified bootstrap baseline.
+- **Current phase:** Direct 3-milestone implementation under `candidate/`.
+- **Milestone 1:** **COMPLETED**. Candidate Execution-Control Kernel (`candidate/execution-control/types.ts`, `reservation.ts`, `admission.ts`, `closure.ts`, `index.ts`) and full deterministic test suite (`candidate/tests/execution-control/`, 24/24 passing tests) implemented and evidenced at `candidate/evidence/milestone-1-execution-control.md`.
+- **Milestone 2:** **READY TO START**. Composable Skills Engine and Agent Roster (`candidate/skills/` + `candidate/agents/` + `candidate/tests/skills/`).
+- **Milestone 3:** End-to-End Testbed & Baseline Benchmark (`candidate/tests/` + pinned `master` benchmark).
+- **Authority state:** Candidate implementation progressing cleanly in `candidate/` namespaces; existing repository `core/` contracts and `as-is.md` records preserved.
 - **Verified against:** Frozen executable-plan SHA-256 `ef2c7c5bd760e8e1bacd795fec18ad1b4dbf7264d1d6260c9dc383e612348716`; accepted-plan record `reviews/agentic-development-system/executable-realization-plan-draft6-human-review-acceptance.md`; task-start checkpoint `0283acd`; admission preflight `reviews/agentic-development-system/first-task-control-slice-admission-preflight.md`; construction-flow correction checkpoint `925241d`; model-binding selection brief `reviews/agentic-development-system/construction-agent-model-binding-selection-decision-brief.md`; frozen Draft-1 packet digest `dac951b29f2577cd3468d76934d1b416f22f47481ed2756d47a3ab704f5e2b5f`; freeze record `reviews/agentic-development-system/construction-agent-model-binding-draft1-freeze.md`; Kimi review `reviews/agentic-development-system/kimi-construction-agent-model-binding-draft1.md`; caller identity verification `reviews/agentic-development-system/construction-agent-model-binding-draft1-caller-identity-verification.md`; Human Review acceptance `reviews/agentic-development-system/construction-agent-model-binding-draft1-human-review-acceptance.md`; model-selection revision `reviews/agentic-development-system/construction-agent-model-selection-revision-decision-brief.md`; frozen concise profile-binding Draft 3 `drafts/agentic-development-system-construction-agent-profile-binding-draft3.md` at SHA-256 `e57110763d5fc6183f000302e7aee262168bf216c4112bf00335f4e7e52e64ac`, with freeze record `reviews/agentic-development-system/construction-agent-profile-binding-draft3-freeze.md`; custom-agent candidate-boundary correction and current-branch decision `reviews/agentic-development-system/custom-agent-candidate-boundary-correction-decision-brief.md`; independent-candidate-boundary checkpoint `ec084be`; current cancelled task records contain no implementation files.
 
 ## User direction consolidated
@@ -187,9 +185,10 @@ This revisioning was necessary to keep each review tied to exact bytes and to pr
 Read this handoff first, then reference the locked implementation plan:
 
 1. `designs/agentic-development-system-implementation-plan.md`
+2. `candidate/evidence/milestone-1-execution-control.md`
 
-**Current state:** Implementation plan locked. Model roster and thinking levels set. Ready for direct code implementation.
+**Current state:** Milestone 1 completed and verified (24/24 tests pass). Candidate kernel established in `candidate/execution-control/`.
 
-**Post-compaction next action:** Implement **Milestone 1** directly in `candidate/execution-control/` (plan admission validator, atomic multi-reservation, stale-lock recovery, fail-closed parent closure evaluator) and write comprehensive unit/integration tests in `candidate/tests/execution-control/`.
+**Next action:** Execute **Milestone 2**: Composable Skills Engine and Agent Roster (`candidate/skills/`, `candidate/agents/`, and automated tests in `candidate/tests/skills/`).
 
 The canonical program-status section above holds current state and links; do not recreate historical planning detail in a new-session prompt or handoff.
