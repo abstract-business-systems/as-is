@@ -1,0 +1,17 @@
+PASS  check2 front-matter name == spawning-subagents
+PASS  check2 directory name == spawning-subagents
+PASS  check3 description present
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1929 chars <= 2000
+PASS  check1 Purpose clause verbatim (draft line 865)
+PASS  check1 Approach clause verbatim (draft line 867)
+PASS  check1 How clause verbatim (draft line 869)
+PASS  check4 sections exactly Purpose/Approach/How it should be done/Design view/Composition context
+PASS  check4 no path reference to other candidate artifacts
+PASS  check12 Design-view Mermaid block byte-equal
+PASS  check13 composition entry: tool-access row 123
+----
+isolation fixture listing at test time (check 9):
+candidate/evidence/fixtures/masters/spawning-subagents/candidate/skills/master/spawning-subagents/SKILL.md
+----
+RESULT spawning-subagents: pass=12 fail=0 chars=1929
