@@ -1,0 +1,19 @@
+PASS  check2 front-matter name == choosing-change-methods
+PASS  check2 directory name == choosing-change-methods
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Establishes fit for selecting appropriate change capabilities for bounded scopes and risks; grants no tools or authority.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1726 chars <= 2000 (voluntary pilot target)
+PASS  check1 clause verbatim: "Select appropriate change capabilities for bounded scopes and risks."
+PASS  check1 clause verbatim: "Choose code generation, bounded editing, content work, delegation, or another capability from the requirement, scope, and risk rather than habit."
+PASS  check1 clause verbatim: "Classify the requested transformation as new implementation, surgical edit, content drafting, test work, delegation, or maintenance"
+PASS  check1 clause verbatim: "verify required tools and permissions"
+PASS  check1 clause verbatim: "choose the least powerful fitting method"
+PASS  check1 clause verbatim: "stop when no method is authorized"
+PASS  check4 no path reference to applying-bounded-edits
+PASS  check12 Design-view Mermaid block exact (draft lines 677-686)
+----
+isolation fixture listing at test time (check 9):
+candidate/evidence/fixtures/choosing-change-methods/candidate/skills/reusable/choosing-change-methods/SKILL.md
+----
+RESULT choosing-change-methods: pass=14 fail=0 chars=1726
