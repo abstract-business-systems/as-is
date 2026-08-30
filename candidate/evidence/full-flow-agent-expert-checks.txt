@@ -1,0 +1,14 @@
+PASS  front-matter name == expert
+PASS  directory name == expert
+PASS  description present: Generic read-only advisory or specialist shell engaged when a project separately justifies the expertise; grants no tools or authority.
+PASS  description grants no tools or authority (fit wording)
+PASS  tools declared: read,grep,find,ls
+PASS  advisory role read-only tools
+PASS  limits row phrase present: 7.1:318 authority
+PASS  limits row phrase present: 7.1:318 limits
+PASS  limits row phrase present: 8:372
+----
+isolation fixture listing at test time (check 9 pattern):
+candidate/evidence/fixtures/agents/expert/candidate/agents/target/expert/agent.md
+----
+RESULT expert: pass=9 fail=0
