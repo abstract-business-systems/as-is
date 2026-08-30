@@ -27,8 +27,9 @@ This checklist is a navigation and continuity aid. The accepted draft-11 target 
 | Implementation plan | Complete: locked at `designs/agentic-development-system-implementation-plan.md` | Defines the 3-milestone execution path: Milestone 1 (execution-control kernel), Milestone 2 (composable skills & agents), Milestone 3 (end-to-end testbed & benchmark). |
 | Model roster | Complete: locked in implementation plan | `implementer` (Gemini 3.7 Flash), `worker` (GLM-5.3 Flash), `planning-adviser` (Sol), `external-adviser` (Kimi); OpenRouter provider; `thinking: high`. |
 | Milestone 1 | Completed & verified (24/24 tests pass) | Candidate kernel built at `candidate/execution-control/`; evidence recorded at `candidate/evidence/milestone-1-execution-control.md`. |
-| Milestone 2 | Ready to start | Composable Skills Engine and Agent Roster (`candidate/skills/` + `candidate/agents/` + `candidate/tests/skills/`). |
-| Next action | Execute Milestone 2 implementation | Create `candidate/skills/` procedures/runner, `candidate/agents/` contracts, and automated tests in `candidate/tests/skills/`. |
+| Milestone 2 | Completed & verified (18/18 tests pass) | Composable Skills Engine and Agent Roster built at `candidate/skills/` and `candidate/agents/`; evidence recorded at `candidate/evidence/milestone-2-composable-skills-and-agents.md`. (42/42 total candidate tests passing). |
+| Milestone 3 | Ready to start | End-to-End Testbed & Baseline Benchmark (`candidate/tests/` + pinned `master` benchmark). |
+| Next action | Execute Milestone 3 implementation | Realize end-to-end integration testbed and benchmark comparison against master baseline. |
 | Commit | `bc09e78` records the concise construction-agent profile binding | The task-start records remain immutable evidence. The concise frozen Draft 3 and refreshed pointers are committed planning documentation. No implementation or provider authority. |
 
 ## Two-track review interpretation
