@@ -1,0 +1,1 @@
+Backlog authority for demo: the demo component backlog owner selects items and marks completion; preparers never set status. Dependency convention: dependencies must be fully qualified paths or named records.
