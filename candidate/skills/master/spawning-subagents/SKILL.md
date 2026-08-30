@@ -1,6 +1,6 @@
 ---
 name: spawning-subagents
-description: Realizes the spawning-subagents contract for launching, observing, recovering, and handing off bounded delegated work under existing authority; establishes fit, not permission.
+description: Use when bounded delegated work must be launched, observed, recovered, and handed off under existing authority; establishes fit, not permission, and grants no tools or authority.
 ---
 
 ## Purpose

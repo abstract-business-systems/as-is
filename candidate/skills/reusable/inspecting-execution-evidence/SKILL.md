@@ -1,6 +1,6 @@
 ---
 name: inspecting-execution-evidence
-description: Investigate bounded traces, sessions, or execution results; establishes fit for evidence inspection work and grants no tools or authority.
+description: Use when bounded traces, sessions, or execution results must be investigated; establishes fit for evidence inspection work and grants no tools or authority.
 ---
 
 ## Purpose

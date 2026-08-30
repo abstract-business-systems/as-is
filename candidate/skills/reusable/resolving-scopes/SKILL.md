@@ -1,6 +1,6 @@
 ---
 name: resolving-scopes
-description: Resolves component, artifact, project, or root scopes for a requested change without assuming a component task; establishes fit only and grants no tools or authority.
+description: Use when component, artifact, project, or root scopes must be resolved for a requested change without assuming a component task; establishes fit only and grants no tools or authority.
 ---
 
 ## Purpose

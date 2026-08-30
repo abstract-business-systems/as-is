@@ -1,6 +1,6 @@
 ---
 name: validating-changes
-description: Maps observable evidence to acceptance conditions and residual risk; use this skill when collected evidence must be compared with acceptance conditions and remaining risk recorded.
+description: Use when collected evidence must be compared with acceptance conditions and remaining risk recorded; maps observable evidence to acceptance conditions and residual risk.
 ---
 
 ## Purpose

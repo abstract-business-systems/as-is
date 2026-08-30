@@ -1,23 +1,23 @@
 ---
 name: applying-bounded-edits
-description: Makes surgical changes to existing artifacts; establishes fit, not permission.
+description: Use when existing artifacts need surgical changes; establishes fit, not permission, and grants no tools or authority.
 ---
 
-### Purpose
+## Purpose
 
 Make surgical changes to existing artifacts.
 
-### Approach
+## Approach
 
 Inspect consumers and surrounding conventions, make the smallest reversible replacement, and preserve unrelated content and authority.
 
-### How it should be done
+## How it should be done
 
-Confirm the exact target and literal transformation; inspect consumers and nearby context; use a precise replacement; review the diff for collateral changes; run focused checks; stop if the target, owner, or transformation is ambiguous. The stop is terminal: if the target, owner, or transformation is ambiguous, stop for direction before any edit.
+Confirm the exact target and literal transformation; inspect consumers and nearby context; use a precise replacement; review the diff for collateral changes; run focused checks; stop if the target, owner, or transformation is ambiguous.
 
 This skill makes surgical changes to existing artifacts and does not cover new or substantially generated implementation; `writing-code` is a separate capability.
 
-#### Design view
+## Design view
 
 ```mermaid
 ---

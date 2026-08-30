@@ -1,6 +1,6 @@
 ---
 name: making-changes
-description: Make and validate general changes with the smallest applicable scopes and history treatments; establishes fit, not permission, and grants no tools or authority.
+description: Use when general changes must be made and validated with the smallest applicable scopes and history treatments; establishes fit, not permission, and grants no tools or authority.
 ---
 
 ## Purpose

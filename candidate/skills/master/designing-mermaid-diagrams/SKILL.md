@@ -1,6 +1,6 @@
 ---
 name: designing-mermaid-diagrams
-description: Produces bounded Mermaid views and validates their syntax and rendering when needed; establishes fit, not permission (grants no tools or authority).
+description: Use when bounded Mermaid views must be produced with syntax and rendering validated when needed; establishes fit, not permission (grants no tools or authority).
 ---
 
 ## Purpose

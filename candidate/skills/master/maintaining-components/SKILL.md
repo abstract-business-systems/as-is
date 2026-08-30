@@ -1,6 +1,6 @@
 ---
 name: maintaining-components
-description: Inspect and apply the smallest evidence-supported component improvements.
+description: Use when the smallest evidence-supported component improvements must be inspected and applied; establishes fit, not permission (grants no tools or authority).
 ---
 
 ## Purpose

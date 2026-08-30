@@ -1,6 +1,6 @@
 ---
 name: building-context
-description: Establishes fit for assembling the smallest authoritative context for a bounded decision or handoff; grants no tools, permissions, or authority.
+description: Use when a bounded decision or handoff needs its smallest authoritative context assembled; establishes fit only and grants no tools, permissions, or authority.
 ---
 
 ## Purpose

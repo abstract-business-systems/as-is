@@ -1,6 +1,6 @@
 ---
 name: committing-completed-work
-description: Verify completion gates and prepare scoped durable handoffs. Establishes fit for this skill; it grants no tools or authority.
+description: Use when completion gates must be verified and scoped durable handoffs prepared; establishes fit for this skill and grants no tools or authority.
 ---
 
 ## Purpose

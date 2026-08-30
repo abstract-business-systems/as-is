@@ -1,6 +1,6 @@
 ---
 name: choosing-names
-description: Applies when a semantically accurate name must be selected for a software concept using local conventions.
+description: Use when a semantically accurate name must be selected for a software concept using local conventions.
 ---
 
 ## Purpose

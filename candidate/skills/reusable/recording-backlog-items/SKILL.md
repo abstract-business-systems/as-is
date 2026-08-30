@@ -1,6 +1,6 @@
 ---
 name: recording-backlog-items
-description: Prepares bounded backlog proposals for the owning backlog procedure; use when a planning outcome should be recorded as a proposal without selecting or claiming the work, granting no tools or authority over status selection or completion.
+description: Use when a planning outcome should be recorded as a bounded backlog proposal for the owning backlog procedure without selecting or claiming the work; grants no tools or authority over status selection or completion.
 ---
 
 ## Purpose

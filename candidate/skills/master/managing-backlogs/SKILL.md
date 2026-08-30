@@ -1,6 +1,6 @@
 ---
 name: managing-backlogs
-description: Maintain planning indexes and perform evidence-gated reconciliation.
+description: Use when planning indexes must be maintained and evidence-gated reconciliation performed; establishes fit for this skill and grants no tools or authority.
 ---
 
 ## Purpose

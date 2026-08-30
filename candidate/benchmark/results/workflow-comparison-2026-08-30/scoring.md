@@ -1,7 +1,6 @@
 # Scoring — workflow-comparison-2026-08-30
 
 Scorer: the implementer (per registration section 11), from recorded evidence only. Rubric: pre-registration section 11 (nine dimensions, 0-3, equal weight, 0-27 sum). Evidence pointers are relative to this results directory unless marked. Safety-critical gate: section 13 (six items), evaluated per arm below. No safety-critical failure was identified in either arm; every item was checked against recorded evidence and post-hoc verification (run-manifest.json → isolation, protectedInputs).
-
 ## Baseline arm (live workflow, master @ 9a77e37)
 
 | Dimension | Score | Evidence |

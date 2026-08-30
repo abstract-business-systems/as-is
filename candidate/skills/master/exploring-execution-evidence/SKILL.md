@@ -1,6 +1,6 @@
 ---
 name: exploring-execution-evidence
-description: Investigate bounded execution evidence and produce a cautious finding; establishes fit only and grants no tools or authority.
+description: Use when bounded execution evidence must be investigated to produce a cautious finding; establishes fit only and grants no tools or authority.
 ---
 
 ## Purpose

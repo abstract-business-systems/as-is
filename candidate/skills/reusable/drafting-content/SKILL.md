@@ -1,6 +1,6 @@
 ---
 name: drafting-content
-description: Produces a bounded proposal without claiming adoption or completion; establishes fit for drafting proposals only and grants no tools or authority.
+description: Use when a bounded proposal must be produced without claiming adoption or completion; establishes fit for drafting proposals only and grants no tools or authority.
 ---
 
 ## Purpose

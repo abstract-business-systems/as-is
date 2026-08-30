@@ -1,6 +1,6 @@
 ---
 name: delegating-bounded-work
-description: Prepares a bounded child handoff without transferring authority implicitly; establishes fit only and grants no tools or authority.
+description: Use when a bounded child handoff must be prepared without transferring authority implicitly; establishes fit only and grants no tools or authority.
 ---
 
 ## Purpose

@@ -1,6 +1,6 @@
 ---
 name: implementing-tasks
-description: Run the existing task lifecycle for authorized bounded requirements, establishing fit, not permission (grants no tools or authority).
+description: Use when the existing task lifecycle must be run for authorized bounded requirements; establishes fit, not permission (grants no tools or authority).
 ---
 
 ## Purpose

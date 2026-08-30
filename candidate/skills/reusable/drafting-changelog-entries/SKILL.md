@@ -1,6 +1,6 @@
 ---
 name: drafting-changelog-entries
-description: Prepares concise history entries for the owning changelog procedure; applies when a validated component task result needs to be summarized into durable history without replacing the owning changelog or completion protocol.
+description: Use when a validated component task result needs to be summarized into durable history without replacing the owning changelog or completion protocol; establishes fit only and grants no tools or authority.
 ---
 
 ## Purpose

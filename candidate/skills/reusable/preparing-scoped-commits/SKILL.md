@@ -1,6 +1,6 @@
 ---
 name: preparing-scoped-commits
-description: Prepare authorized validated changes without staging unrelated work; fits tasks with a declared handoff, and grants no tools or authority.
+description: Use when authorized validated changes must be prepared for commit without staging unrelated work; fits tasks with a declared handoff and grants no tools or authority.
 ---
 
 ## Purpose

@@ -1,6 +1,6 @@
 ---
 name: consulting-humans
-description: Guides bounded decisions while preserving human agency; establishes fit, not permission, and grants no tools or authority.
+description: Use when bounded decisions must be guided while preserving human agency; establishes fit, not permission, and grants no tools or authority.
 ---
 
 ## Purpose

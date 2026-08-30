@@ -1,0 +1,489 @@
+# Post-adjudication fidelity re-run — 2026-08-30T20:04Z
+# Against CURRENT candidate catalog via /tmp/fid-adjud symlinks; fixture arg = /tmp/fid-adjud
+## Reusable skills (23; rendering-diagrams folded, not re-run)
+PASS  check2 front-matter name == applying-bounded-edits
+PASS  check2 directory name == applying-bounded-edits
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Use when existing artifacts need surgical changes; establishes fit, not permission, and grants no tools or authority.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1036 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 354)
+PASS  check1 Approach clause verbatim (draft line 356)
+PASS  check1 How clause verbatim (draft line 358)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 352)
+RESULT applying-bounded-edits: pass=12 fail=0 chars=1036
+PASS  check2 front-matter name == assessing-determinism
+PASS  check2 directory name == assessing-determinism
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Use when repeated behavior and inputs must be compared to identify evidence-supported deterministic improvements; establishes fit for the task and grants no tools or authority.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 981 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 522)
+PASS  check1 Approach clause verbatim (draft line 524)
+PASS  check1 How clause verbatim (draft line 526)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 520)
+RESULT assessing-determinism: pass=12 fail=0 chars=981
+PASS  check2 front-matter name == building-context
+PASS  check2 directory name == building-context
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Use when a bounded decision or handoff needs its smallest authoritative context assembled; establishes fit only and grants no tools, permissions, or authority.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1042 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 184)
+PASS  check1 Approach clause verbatim (draft line 186)
+PASS  check1 How clause verbatim (draft line 188)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 182)
+RESULT building-context: pass=12 fail=0 chars=1042
+PASS  check2 front-matter name == choosing-change-methods
+PASS  check2 directory name == choosing-change-methods
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Use when appropriate change capabilities must be selected for bounded scopes and risks; establishes fit only and grants no tools or authority.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1636 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 669)
+PASS  check1 Approach clause verbatim (draft line 671)
+PASS  check1 How clause verbatim (draft line 673)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 667)
+RESULT choosing-change-methods: pass=12 fail=0 chars=1636
+PASS  check2 front-matter name == choosing-names
+PASS  check2 directory name == choosing-names
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Use when a semantically accurate name must be selected for a software concept using local conventions.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 891 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 270)
+PASS  check1 Approach clause verbatim (draft line 272)
+PASS  check1 How clause verbatim (draft line 274)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 268)
+RESULT choosing-names: pass=12 fail=0 chars=891
+PASS  check2 front-matter name == delegating-bounded-work
+PASS  check2 directory name == delegating-bounded-work
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Use when a bounded child handoff must be prepared without transferring authority implicitly; establishes fit only and grants no tools or authority.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 947 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 585)
+PASS  check1 Approach clause verbatim (draft line 587)
+PASS  check1 How clause verbatim (draft line 589)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 583)
+RESULT delegating-bounded-work: pass=12 fail=0 chars=947
+PASS  check2 front-matter name == designing-diagrams
+PASS  check2 directory name == designing-diagrams
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Use when a bounded reader-oriented visual explanation is needed; establishes fit for designing and render-validating diagrams only and grants no tools or authority.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1888 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 459)
+PASS  check1 Approach clause verbatim (draft line 461)
+PASS  check1 How clause verbatim (draft line 463)
+FAIL  section set differs: Purpose|Approach|How it should be done|Design view|Rendering validation|
+PASS  check4 no path reference to other candidate skill files
+FAIL  check12 Mermaid block differs from draft (see /tmp/ff-draft-mermaid.txt vs /tmp/ff-real-mermaid.txt)
+RESULT designing-diagrams: pass=10 fail=2 chars=1888
+PASS  check2 front-matter name == drafting-changelog-entries
+PASS  check2 directory name == drafting-changelog-entries
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Use when a validated component task result needs to be summarized into durable history without replacing the owning changelog or completion protocol; establishes fit only and grants no tools or authority.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 953 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 564)
+PASS  check1 Approach clause verbatim (draft line 566)
+PASS  check1 How clause verbatim (draft line 568)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 562)
+RESULT drafting-changelog-entries: pass=12 fail=0 chars=953
+PASS  check2 front-matter name == drafting-content
+PASS  check2 directory name == drafting-content
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Use when a bounded proposal must be produced without claiming adoption or completion; establishes fit for drafting proposals only and grants no tools or authority.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 945 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 312)
+PASS  check1 Approach clause verbatim (draft line 314)
+PASS  check1 How clause verbatim (draft line 316)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 310)
+RESULT drafting-content: pass=12 fail=0 chars=945
+PASS  check2 front-matter name == identifying-owners
+PASS  check2 directory name == identifying-owners
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Use when authorities and owners for resolved scopes must be identified; establishes fit only and grants no tools or authority.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 862 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 228)
+PASS  check1 Approach clause verbatim (draft line 230)
+PASS  check1 How clause verbatim (draft line 232)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 226)
+RESULT identifying-owners: pass=12 fail=0 chars=862
+PASS  check2 front-matter name == inspecting-execution-evidence
+PASS  check2 directory name == inspecting-execution-evidence
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Use when bounded traces, sessions, or execution results must be investigated; establishes fit for evidence inspection work and grants no tools or authority.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 970 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 501)
+PASS  check1 Approach clause verbatim (draft line 503)
+PASS  check1 How clause verbatim (draft line 505)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 499)
+RESULT inspecting-execution-evidence: pass=12 fail=0 chars=970
+PASS  check2 front-matter name == locating-changelogs
+PASS  check2 directory name == locating-changelogs
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Use when bounded work must resolve the changelogs owned by its target scopes; establishes fit only and grants no tools or authority.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 923 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 249)
+PASS  check1 Approach clause verbatim (draft line 251)
+PASS  check1 How clause verbatim (draft line 253)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 247)
+RESULT locating-changelogs: pass=12 fail=0 chars=923
+PASS  check2 front-matter name == observing-delegated-work
+PASS  check2 directory name == observing-delegated-work
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Use when delegated progress, results, budgets, or terminal status must be observed; this skill establishes fit only and grants no tools or authority.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 965 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 606)
+PASS  check1 Approach clause verbatim (draft line 608)
+PASS  check1 How clause verbatim (draft line 610)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 604)
+RESULT observing-delegated-work: pass=12 fail=0 chars=965
+PASS  check2 front-matter name == preparing-scoped-commits
+PASS  check2 directory name == preparing-scoped-commits
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Use when authorized validated changes must be prepared for commit without staging unrelated work; fits tasks with a declared handoff and grants no tools or authority.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1125 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 627)
+PASS  check1 Approach clause verbatim (draft line 629)
+PASS  check1 How clause verbatim (draft line 631)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 625)
+RESULT preparing-scoped-commits: pass=12 fail=0 chars=1125
+PASS  check2 front-matter name == presenting-decisions
+PASS  check2 directory name == presenting-decisions
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Use when a bounded decision, its alternatives, uncertainty, and a recommendation must be presented to an authority-bearing decider; establishes fit, not permission, and grants no tools or authority.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 973 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 648)
+PASS  check1 Approach clause verbatim (draft line 650)
+PASS  check1 How clause verbatim (draft line 652)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 646)
+RESULT presenting-decisions: pass=12 fail=0 chars=973
+PASS  check2 front-matter name == recording-backlog-items
+PASS  check2 directory name == recording-backlog-items
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Use when a planning outcome should be recorded as a bounded backlog proposal for the owning backlog procedure without selecting or claiming the work; grants no tools or authority over status selection or completion.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 982 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 543)
+PASS  check1 Approach clause verbatim (draft line 545)
+PASS  check1 How clause verbatim (draft line 547)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 541)
+RESULT recording-backlog-items: pass=12 fail=0 chars=982
+PASS  check2 front-matter name == recording-evidence
+PASS  check2 directory name == recording-evidence
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Use when bounded work must preserve observations, provenance, assumptions, and validation results; establishes fit for capturing reproducible evidence and grants no tools, permissions, or authority.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 968 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 438)
+PASS  check1 Approach clause verbatim (draft line 440)
+PASS  check1 How clause verbatim (draft line 442)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 436)
+RESULT recording-evidence: pass=12 fail=0 chars=968
+PASS  check2 front-matter name == resolving-scopes
+PASS  check2 directory name == resolving-scopes
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Use when component, artifact, project, or root scopes must be resolved for a requested change without assuming a component task; establishes fit only and grants no tools or authority.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1060 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 206)
+PASS  check1 Approach clause verbatim (draft line 208)
+PASS  check1 How clause verbatim (draft line 210)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 204)
+RESULT resolving-scopes: pass=12 fail=0 chars=1060
+PASS  check2 front-matter name == running-tests
+PASS  check2 directory name == running-tests
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Use when a changed behavior needs its smallest relevant test or check run and observations returned; establishes fit only and grants no tools or authority.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 959 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 396)
+PASS  check1 Approach clause verbatim (draft line 398)
+PASS  check1 How clause verbatim (draft line 400)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 394)
+RESULT running-tests: pass=12 fail=0 chars=959
+PASS  check2 front-matter name == structuring-content
+PASS  check2 directory name == structuring-content
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Use when repository content must be shaped into durable, discoverable artifacts by choosing location, hierarchy, and representation for readers.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 925 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 291)
+PASS  check1 Approach clause verbatim (draft line 293)
+PASS  check1 How clause verbatim (draft line 295)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 289)
+RESULT structuring-content: pass=12 fail=0 chars=925
+PASS  check2 front-matter name == validating-changes
+PASS  check2 directory name == validating-changes
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Use when collected evidence must be compared with acceptance conditions and remaining risk recorded; maps observable evidence to acceptance conditions and residual risk.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 947 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 417)
+PASS  check1 Approach clause verbatim (draft line 419)
+PASS  check1 How clause verbatim (draft line 421)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 415)
+RESULT validating-changes: pass=12 fail=0 chars=947
+PASS  check2 front-matter name == writing-code
+PASS  check2 directory name == writing-code
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Use when creating new code or substantially implementing code from a bounded requirement; this skill establishes fit, grants no tools or authority, and does not cover surgical changes to existing code.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1233 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 333)
+PASS  check1 Approach clause verbatim (draft line 335)
+PASS  check1 How clause verbatim (draft line 337)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 331)
+RESULT writing-code: pass=12 fail=0 chars=1233
+PASS  check2 front-matter name == writing-tests
+PASS  check2 directory name == writing-tests
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Use when adding or updating focused test coverage for a stated behavior; establishes fit only and grants no tools or authority.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 855 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 375)
+PASS  check1 Approach clause verbatim (draft line 377)
+PASS  check1 How clause verbatim (draft line 379)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 373)
+RESULT writing-tests: pass=12 fail=0 chars=855
+## Masters (12)
+PASS  check2 front-matter name == building-components
+PASS  check2 directory name == building-components
+PASS  check3 description present
+PASS  check3 description grants no tools or authority (fit wording)
+NOTE  check8 size 2785 chars > 2000 (masters may exceed the voluntary target: compositions, gates, recovery, stopping rules; draft line 132)
+PASS  check1 Purpose clause verbatim (draft line 716)
+PASS  check1 Approach clause verbatim (draft line 718)
+PASS  check1 How clause verbatim (draft line 720)
+PASS  check4 sections exactly Purpose/Approach/How it should be done/Design view/Composition context
+PASS  check4 no path reference to other candidate artifacts
+PASS  check12 Design-view Mermaid block byte-equal
+PASS  check13 composition entry: parent plan injection or child plan intake
+PASS  check13 composition entry: child-local implementation
+PASS  check13 composition entry: child-level verification
+PASS  check13 composition entry: child integration with parent worktree
+PASS  check13 composition entry: status handoff
+PASS  check13 composition entry: parent planning accounting
+PASS  check13 composition entry: preparing-scoped-commits
+PASS  check13 composition entry: managing-changelogs
+PASS  check13 composition entry: implementing-tasks
+PASS  check13 composition entry: building-components = resolving-scopes
+RESULT building-components: pass=20 fail=0 chars=2785
+PASS  check2 front-matter name == committing-completed-work
+PASS  check2 directory name == committing-completed-work
+PASS  check3 description present
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1836 chars <= 2000
+PASS  check1 Purpose clause verbatim (draft line 928)
+PASS  check1 Approach clause verbatim (draft line 930)
+PASS  check1 How clause verbatim (draft line 932)
+PASS  check4 sections exactly Purpose/Approach/How it should be done/Design view/Composition context
+PASS  check4 no path reference to other candidate artifacts
+PASS  check12 Design-view Mermaid block byte-equal
+PASS  check13 composition entry: tool-access row 124
+RESULT committing-completed-work: pass=12 fail=0 chars=1836
+PASS  check2 front-matter name == consulting-humans
+PASS  check2 directory name == consulting-humans
+PASS  check3 description present
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1718 chars <= 2000
+PASS  check1 Purpose clause verbatim (draft line 907)
+PASS  check1 Approach clause verbatim (draft line 909)
+PASS  check1 How clause verbatim (draft line 911)
+PASS  check4 sections exactly Purpose/Approach/How it should be done/Design view/Composition context
+PASS  check4 no path reference to other candidate artifacts
+PASS  check12 Design-view Mermaid block byte-equal
+PASS  check13 composition entry: tool-access acknowledgment
+RESULT consulting-humans: pass=12 fail=0 chars=1718
+PASS  check2 front-matter name == designing-mermaid-diagrams
+PASS  check2 directory name == designing-mermaid-diagrams
+PASS  check3 description present
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1790 chars <= 2000
+PASS  check1 Purpose clause verbatim (draft line 802)
+PASS  check1 Approach clause verbatim (draft line 804)
+PASS  check1 How clause verbatim (draft line 806)
+PASS  check4 sections exactly Purpose/Approach/How it should be done/Design view/Composition context
+PASS  check4 no path reference to other candidate artifacts
+PASS  check12 Design-view Mermaid block byte-equal
+PASS  check13 composition entry: tool-access acknowledgment
+RESULT designing-mermaid-diagrams: pass=12 fail=0 chars=1790
+PASS  check2 front-matter name == exploring-execution-evidence
+PASS  check2 directory name == exploring-execution-evidence
+PASS  check3 description present
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1792 chars <= 2000
+PASS  check1 Purpose clause verbatim (draft line 886)
+PASS  check1 Approach clause verbatim (draft line 888)
+PASS  check1 How clause verbatim (draft line 890)
+PASS  check4 sections exactly Purpose/Approach/How it should be done/Design view/Composition context
+PASS  check4 no path reference to other candidate artifacts
+PASS  check12 Design-view Mermaid block byte-equal
+PASS  check13 composition entry: building-context entry
+PASS  check13 composition entry: inspecting-execution-evidence entry
+PASS  check13 composition entry: recording-evidence entry
+RESULT exploring-execution-evidence: pass=14 fail=0 chars=1792
+PASS  check2 front-matter name == implementing-tasks
+PASS  check2 directory name == implementing-tasks
+PASS  check3 description present
+PASS  check3 description grants no tools or authority (fit wording)
+NOTE  check8 size 2320 chars > 2000 (masters may exceed the voluntary target: compositions, gates, recovery, stopping rules; draft line 132)
+PASS  check1 Purpose clause verbatim (draft line 738)
+PASS  check1 Approach clause verbatim (draft line 740)
+PASS  check1 How clause verbatim (draft line 742)
+PASS  check4 sections exactly Purpose/Approach/How it should be done/Design view/Composition context
+PASS  check4 no path reference to other candidate artifacts
+PASS  check12 Design-view Mermaid block byte-equal
+PASS  check13 composition entry: component-based order position
+PASS  check13 composition entry: implementing-tasks entry
+RESULT implementing-tasks: pass=12 fail=0 chars=2320
+PASS  check2 front-matter name == maintaining-components
+PASS  check2 directory name == maintaining-components
+PASS  check3 description present
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1828 chars <= 2000
+PASS  check1 Purpose clause verbatim (draft line 760)
+PASS  check1 Approach clause verbatim (draft line 762)
+PASS  check1 How clause verbatim (draft line 764)
+PASS  check4 sections exactly Purpose/Approach/How it should be done/Design view/Composition context
+PASS  check4 no path reference to other candidate artifacts
+PASS  check12 Design-view Mermaid block byte-equal
+PASS  check13 composition entry: tool-access acknowledgment
+RESULT maintaining-components: pass=12 fail=0 chars=1828
+PASS  check2 front-matter name == making-changes
+PASS  check2 directory name == making-changes
+PASS  check3 description present
+PASS  check3 description grants no tools or authority (fit wording)
+NOTE  check8 size 3634 chars > 2000 (masters may exceed the voluntary target: compositions, gates, recovery, stopping rules; draft line 132)
+PASS  check1 Purpose clause verbatim (draft line 694)
+PASS  check1 Approach clause verbatim (draft line 696)
+PASS  check1 How clause verbatim (draft line 698)
+PASS  check4 sections exactly Purpose/Approach/How it should be done/Design view/Composition context
+PASS  check4 no path reference to other candidate artifacts
+PASS  check12 Design-view Mermaid block byte-equal
+PASS  check13 composition entry: Component-based change
+PASS  check13 composition entry: Non-component change
+PASS  check13 composition entry: resolving-scopes
+PASS  check13 composition entry: identifying-owners
+PASS  check13 composition entry: building-context
+PASS  check13 composition entry: choosing-change-methods
+PASS  check13 composition entry: implementing-tasks
+PASS  check13 composition entry: applying-bounded-edits
+PASS  check13 composition entry: writing-tests
+PASS  check13 composition entry: validating-changes
+PASS  check13 composition entry: locating-changelogs
+PASS  check13 composition entry: managing-changelogs
+PASS  check13 composition entry: making-changes = resolving-scopes
+RESULT making-changes: pass=23 fail=0 chars=3634
+PASS  check2 front-matter name == managing-as-is-records
+PASS  check2 directory name == managing-as-is-records
+PASS  check3 description present
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1771 chars <= 2000
+PASS  check1 Purpose clause verbatim (draft line 781)
+PASS  check1 Approach clause verbatim (draft line 783)
+PASS  check1 How clause verbatim (draft line 785)
+PASS  check4 sections exactly Purpose/Approach/How it should be done/Design view/Composition context
+PASS  check4 no path reference to other candidate artifacts
+PASS  check12 Design-view Mermaid block byte-equal
+PASS  check13 composition entry: tool-access acknowledgment
+RESULT managing-as-is-records: pass=12 fail=0 chars=1771
+PASS  check2 front-matter name == managing-backlogs
+PASS  check2 directory name == managing-backlogs
+PASS  check3 description present
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1784 chars <= 2000
+PASS  check1 Purpose clause verbatim (draft line 823)
+PASS  check1 Approach clause verbatim (draft line 825)
+PASS  check1 How clause verbatim (draft line 827)
+PASS  check4 sections exactly Purpose/Approach/How it should be done/Design view/Composition context
+PASS  check4 no path reference to other candidate artifacts
+PASS  check12 Design-view Mermaid block byte-equal
+PASS  check13 composition entry: tool-access acknowledgment
+RESULT managing-backlogs: pass=12 fail=0 chars=1784
+PASS  check2 front-matter name == managing-changelogs
+PASS  check2 directory name == managing-changelogs
+PASS  check3 description present
+PASS  check3 description grants no tools or authority (fit wording)
+NOTE  check8 size 2846 chars > 2000 (masters may exceed the voluntary target: compositions, gates, recovery, stopping rules; draft line 132)
+PASS  check1 Purpose clause verbatim (draft line 844)
+PASS  check1 Approach clause verbatim (draft line 846)
+PASS  check1 How clause verbatim (draft line 848)
+PASS  check4 sections exactly Purpose/Approach/How it should be done/Design view/Composition context
+PASS  check4 no path reference to other candidate artifacts
+PASS  check12 Design-view Mermaid block byte-equal
+PASS  check13 composition entry: changelog resolution rule
+PASS  check13 composition entry: no-history-required rule
+PASS  check13 composition entry: managing-changelogs entry
+RESULT managing-changelogs: pass=13 fail=0 chars=2846
+PASS  check2 front-matter name == spawning-subagents
+PASS  check2 directory name == spawning-subagents
+PASS  check3 description present
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1931 chars <= 2000
+PASS  check1 Purpose clause verbatim (draft line 865)
+PASS  check1 Approach clause verbatim (draft line 867)
+PASS  check1 How clause verbatim (draft line 869)
+PASS  check4 sections exactly Purpose/Approach/How it should be done/Design view/Composition context
+PASS  check4 no path reference to other candidate artifacts
+PASS  check12 Design-view Mermaid block byte-equal
+PASS  check13 composition entry: tool-access row 123
+RESULT spawning-subagents: pass=12 fail=0 chars=1931
+## Summary
+reusable FAIL lines: 0
+## Corrections during re-run
+- The folded "Rendering validation" subsection initially carried a second Mermaid block, which broke check 12's first-block extraction (both blocks were concatenated). The subsection's diagram was removed (contract text retained; block recoverable from git history 950-char original). Re-run for designing-diagrams: pass=11 fail=1 — the single FAIL is the section-set check, which is the authorized 6.4 fold itself (extra "Rendering validation" section). All other checks PASS across 23 reusable + 12 masters.

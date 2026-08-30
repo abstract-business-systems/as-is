@@ -1,6 +1,6 @@
 ---
 name: managing-as-is-records
-description: Establishes fit for creating, aligning, and navigating durable component records; grants no tools or authority.
+description: Use when durable component records must be created, aligned, and navigated; establishes fit for this skill and grants no tools or authority.
 ---
 
 ## Purpose

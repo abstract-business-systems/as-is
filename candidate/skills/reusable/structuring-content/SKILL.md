@@ -1,6 +1,6 @@
 ---
 name: structuring-content
-description: Shapes repository content into durable, discoverable artifacts by choosing location, hierarchy, and representation for readers.
+description: Use when repository content must be shaped into durable, discoverable artifacts by choosing location, hierarchy, and representation for readers.
 ---
 
 ## Purpose

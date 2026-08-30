@@ -1,6 +1,6 @@
 ---
 name: identifying-owners
-description: Identifies the authorities and owners for the resolved scopes; establishes fit only and grants no tools or authority.
+description: Use when authorities and owners for resolved scopes must be identified; establishes fit only and grants no tools or authority.
 ---
 
 ## Purpose

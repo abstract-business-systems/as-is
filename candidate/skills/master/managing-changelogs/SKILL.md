@@ -1,6 +1,6 @@
 ---
 name: managing-changelogs
-description: Resolve and maintain durable histories independently of component-task use; establishes fit, not permission (grants no tools or authority).
+description: Use when durable histories must be resolved and maintained independently of component-task use; establishes fit, not permission (grants no tools or authority).
 ---
 
 ## Purpose
