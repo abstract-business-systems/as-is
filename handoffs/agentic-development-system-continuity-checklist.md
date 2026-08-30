@@ -1,81 +1,43 @@
 # Agentic Development System — Continuity Checklist
 
-Purpose: Itemized verification checklist tracking candidate realization, skills catalog coverage, benchmark execution, and multi-model review alignment.
+Purpose: Itemized verification checklist for the agentic-development-system realization. Reset on user direction after the previously reported candidate realization was removed as unfaithful to its source design.
 
-## 1. Multi-Agent Collaboration & Review Gate
-- [x] Human Review Acceptance: High-level design envelope accepted (Draft 11).
-- [x] Implementer Plan Formulation: Comprehensive realization plan authored in `designs/agentic-development-system-implementation-plan.md`.
-- [x] Planning Adviser Review: Dispatched plan to Planning Adviser (`candidate/agents/planning-adviser/agent.md` running `openai/gpt-5.6-sol`, `thinking: high`) via Pi subagent launcher.
-- [x] External Adviser Blind-Spot Audit: Consulted External Adviser (`candidate/agents/external-adviser/agent.md` running `moonshotai/kimi-k3`, `thinking: high`) for independent blind-spot challenge.
-- [x] Review Findings Disposition: Incorporated all adviser findings (fencing tokens, JCS canonicalization, protected scorer isolation, worker tool boundary, parent closure state machine) into `designs/agentic-development-system-implementation-plan.md`.
-- [x] Alignment Confirmation: Multi-model consensus reached and locked.
-- [x] Worker Delegation: Scoped implementation packets authored and executed by `worker` (`candidate/agents/worker/agent.md` running `z-ai/glm-5.3-flash`).
+## Design-context authority rule
 
-## 2. Candidate Kernel Hardening (`candidate/execution-control/`)
-- [x] Schema & Types (`types.ts`): Envelopes, DAGs, admissions, component reservations, validation/integration evidence, closure outcomes, lease generations, fencing tokens.
-- [x] Plan Admission Engine (`admission.ts`):
-  - [x] Strict target design SHA256 validation (`abc4d367d6e7f314454c6510e4574f49d9b1e8a5f03ffb90ff2d3b0ca65e1836`).
-  - [x] RFC 8785 JSON Canonicalization Scheme (JCS) digest matching with constant-time equality.
-  - [x] Parent and child record revision freshness validation.
-  - [x] Kahn's DAG acyclicity and dependency graph edge validation.
-  - [x] Budget reserve enforcement and allowable scope prefix checks.
-  - [x] Dequeue revalidation function (`revalidateAdmission`).
-- [x] Component Reservation Manager (`reservation.ts`):
-  - [x] Sorted-key atomic acquisition and collision rollback.
-  - [x] Monotonic lease generations and cryptographic fencing tokens.
-  - [x] Surgical re-entrant reservation rollback (preserves pre-existing leases owned by same attempt).
-  - [x] Lease TTL enforcement, stale-lock reclamation (verified dead owner required), and orphan sweeps.
-- [x] Parent Closure Evaluator (`closure.ts`):
-  - [x] 100% terminal accounting for all admitted children (no premature closure).
-  - [x] Integration proof validation (clean scope and protected inputs unmodified).
-  - [x] Sibling compensation rollback tracking on failed/cancelled child.
-  - [x] Traceability to target design and residual risk recording.
-- [x] Test Suite: 24 unit & integration tests in `candidate/tests/execution-control/` (100% passing).
+- Design specs come exclusively from documents inside `drafts/`. Documents outside `drafts/` (implementation plans, review reports, derived summaries) are process provenance and must not be consulted as design context.
+- Per-skill guidance (procedures, contracts, checks, escalation, refactoring and change-method rules) is authoritative only as written in the per-skill sections of `drafts/composable-skills.md` — never as re-summarized in plans, task files, or checklists.
+- Verification of each realized skill must diff its behavior against the source draft's per-skill contract (Input / Output / Checks / Escalate) before any completion claim is recorded. A checked box without that diff evidence is invalid.
 
-## 3. Composable Skills Catalog (`candidate/skills/`)
-### Reusable Skills (24 total — 100% faithful to `drafts/composable-skills.md`)
-- [x] `building-context`: Smallest authoritative context from anchors and literal links.
-- [x] `resolving-scopes`: Component, artifact, project, or root scope resolution.
-- [x] `identifying-owners`: Concern-to-owner mapping across authority, consultation, and implementation.
-- [x] `locating-changelogs`: Owning changelog resolution from explicit contracts.
-- [x] `choosing-names`: Semantic accuracy, parent/sibling vocabulary inspection, alternative evaluation, and atomic rename reference updates.
-- [x] `structuring-content`: Durable knowledge-work artifact structuring.
-- [x] `drafting-content`: Bounded proposal creation without claiming adoption.
-- [x] `writing-code`: Substantial new implementation generation with tool capability gating.
-- [x] `applying-bounded-edits`: Surgical, non-destructive file replacements within allowlists.
-- [x] `writing-tests`: Focused unit, integration, boundary, and negative test generation.
-- [x] `running-tests`: Test command execution and structured observation reporting.
-- [x] `validating-changes`: Acceptance-to-evidence matrix, diff inspection, pass/fail/blocked/untested condition mapping, commit readiness, and residual risk.
-- [x] `recording-evidence`: Reproducible observations, provenance, and limitation recording.
-- [x] `designing-diagrams`: Elk-compatible Mermaid diagram model formulation.
-- [x] `rendering-diagrams`: Local Mermaid rendering and navigation href preservation verification.
-- [x] `inspecting-execution-evidence`: Reading trace/session slices without granting task authority.
-- [x] `assessing-determinism`: Evaluating variance across repeated execution samples.
-- [x] `recording-backlog-items`: Bounded backlog item proposal formulation.
-- [x] `drafting-changelog-entries`: Concise summary entries with evidence links and residual risk.
-- [x] `delegating-bounded-work`: Child task envelopes with strict allowlists and budgets.
-- [x] `observing-delegated-work`: Progress and terminal status observation.
-- [x] `preparing-scoped-commits`: Completion-gated staging and commit message formatting.
-- [x] `presenting-decisions`: Decision briefs with evidence, options, trade-offs, and authority holders.
-- [x] `choosing-change-methods`: Selecting least powerful fitting change method.
+## 1. Review-gate history (events occurred; provenance only)
 
-### Master Skills (12 total)
-- [x] `making-changes`: Multi-variant master composition supporting both **component-based change** and **non-component change** workflows with real gate execution.
-- [x] `building-components`: Component realization, child delegation, and closure.
-- [x] `implementing-tasks`: Worker task implementation lifecycle.
-- [x] `maintaining-components`: Evidence-based component housekeeping and maintenance.
-- [x] `managing-as-is-records`: Canonical `as-is.md` record lifecycle.
-- [x] `designing-mermaid-diagrams`: Diagram design, syntax validation, and rendering.
-- [x] `managing-backlogs`: Backlog indexing and changelog-evidence-gated reconciliation.
-- [x] `managing-changelogs`: Durable history resolution and maintenance.
-- [x] `spawning-subagents`: Isolated Pi subagent process lifecycle.
-- [x] `exploring-execution-evidence`: Execution trace exploration and budget analysis.
-- [x] `consulting-humans`: Bounded decision framing and human authority gating.
-- [x] `committing-completed-work`: Verified, closure-gated Git staging and commits.
+- [x] High-level design envelope (Draft 11) human-accepted; packet digest `8601188128ed2fff4aa64f75f339f7962e88358806f470643aa8455f565665e2`.
+- [x] Planning Adviser and External Adviser review of the implementation plan occurred; dispositions recorded in commit `69aed16`.
+- [x] Candidate implementation (execution-control kernel, 24 reusable skill stubs, 12 master composition stubs, Section 13 benchmark, 77/77 tests) was created and committed as `c647a35`.
 
-## 4. Section 13 Benchmark Protocol (`candidate/benchmark/`)
-- [x] Pre-registered controlled comparative benchmark on `validation-fixtures/dummy-delegation`.
-- [x] Controlled comparison: Pinned `master` baseline (`9a77e37bebbce0d802d4debb6b54e6df2d223208`) vs `implementing-composable-skills` candidate.
-- [x] Protected scorer and rubric isolation (`candidate/benchmark/protected/scorer.ts`).
-- [x] Evaluation metrics: Setup latency, DAG throughput, atomic contention rollback, runtime security interception, fail-closed closure accuracy, spend efficiency, and trace completeness.
-- [x] Comparative benchmark report generated at `candidate/evidence/section-13-benchmark-report.md` (100% pass rate across all 8 dimensions).
+## 2. Candidate realization reversal
+
+- [x] Diagnosed: skills were synthetic TypeScript stubs not faithful to `drafts/composable-skills.md` per-skill contracts; the handoff recorded completion claims rather than design fidelity; tests validated the plan's schema, not the draft's contracts.
+- [x] `candidate/` implementation removed via `git rm -r candidate/` (staged; recoverable at commit `c647a35`).
+- [x] Design-context authority rule recorded: only documents inside `drafts/` may be consulted as design context.
+- [ ] **Alignment with user on the implementation path — BLOCKING. Nothing proceeds before this.**
+
+## 3. Pending re-implementation (not started)
+
+- [ ] Confirm with the user the target artifact set and implementation path before any realization work.
+- [ ] Verify each realized skill against its source-draft contract before recording completion.
+- [ ] Re-establish benchmark protocol only after re-aligned implementation exists.
+
+## 4. Required process gates for the next plan
+
+- [ ] Plan authored from `drafts/` context only; every plan item links its exact source section in `drafts/` (items without a source link are flagged, not implemented).
+- [ ] Plan references draft sections rather than restating them; summaries are pointers, never substitutes for a contract.
+- [ ] Plan explicitly specifies that each skill's completion = behavior diffed against the draft's Input/Output/Checks/Escalate contract.
+- [ ] Plan verified by the plan-reviewer (read-only, against `drafts/` only) before human acceptance.
+- [ ] User acceptance of the verified plan recorded before any implementation starts.
+
+## 5. Realization discipline (user direction)
+
+- [ ] Every agent is implemented and tested independently: one agent per bounded unit, its own contract and tests, verified against its source-draft role definition before any composition consumes it.
+- [ ] Every skill is implemented and tested independently: one skill per bounded unit, tested against its own source-draft contract (Input/Output/Checks/Escalate) in isolation before any master composition references it.
+- [ ] Master compositions are realized only after their referenced reusable skills and agents have independently passed verification.
+- [ ] Agent roles are followed as defined in the applicable agent definitions: role authority, tool boundaries, and task ownership are respected in both planning and implementation; a role's completion claims are evidence-backed per the design-context authority rule above.
