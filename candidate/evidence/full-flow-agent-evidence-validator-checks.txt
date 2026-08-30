@@ -1,0 +1,14 @@
+PASS  front-matter name == evidence-validator
+PASS  directory name == evidence-validator
+PASS  description present: Read-only reviewer that evaluates supplied evidence against stated acceptance conditions; grants no tools or authority.
+PASS  description grants no tools or authority (fit wording)
+PASS  tools declared: read,grep,find,ls
+PASS  advisory role read-only tools
+PASS  limits row phrase present: 7.1:317 authority
+PASS  limits row phrase present: 7.1:317 limits
+PASS  limits row phrase present: 8:370
+----
+isolation fixture listing at test time (check 9 pattern):
+candidate/evidence/fixtures/agents/evidence-validator/candidate/agents/target/evidence-validator/agent.md
+----
+RESULT evidence-validator: pass=9 fail=0
