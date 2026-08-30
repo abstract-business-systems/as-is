@@ -1,0 +1,17 @@
+PASS  check2 front-matter name == identifying-owners
+PASS  check2 directory name == identifying-owners
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Identifies the authorities and owners for the resolved scopes; establishes fit only and grants no tools or authority.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 853 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 228)
+PASS  check1 Approach clause verbatim (draft line 230)
+PASS  check1 How clause verbatim (draft line 232)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 226)
+----
+isolation fixture listing at test time (check 9):
+/tmp/ff-fixture/identifying-owners/candidate/skills/reusable/identifying-owners/SKILL.md
+----
+RESULT identifying-owners: pass=12 fail=0 chars=853
