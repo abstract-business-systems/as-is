@@ -41,9 +41,33 @@ describe("Candidate ComponentReservationManager", () => {
     expect(res1?.disposition).toBe("active");
     expect(res1?.acquiredAt).toBe(1000);
     expect(res1?.leaseExpiresAt).toBe(61000);
+    expect(res1?.leaseGeneration).toBe(1);
+    expect(res1?.fencingToken).toBeDefined();
 
     const res2 = mgr.getReservation("core/modules/task-control");
     expect(res2?.disposition).toBe("active");
+    expect(res2?.leaseGeneration).toBe(2);
+  });
+
+  it("verifies fencing tokens accurately and fails on stale tokens", () => {
+    const clock = new MockClock(1000);
+    const mgr = new ComponentReservationManager(clock);
+
+    const result = mgr.acquire({
+      componentKeys: ["comp-fenced"],
+      ownerTaskId: "task-owner-1",
+      planRevision: "plan-1",
+      attempt: 1,
+      leaseDurationMs: 60000,
+    });
+
+    const token = result.acquiredReservations[0].fencingToken;
+    expect(mgr.verifyFencingToken("comp-fenced", token)).toBe(true);
+    expect(mgr.verifyFencingToken("comp-fenced", "stale-fake-token")).toBe(false);
+
+    // After expiration, verification fails
+    clock.advance(60001);
+    expect(mgr.verifyFencingToken("comp-fenced", token)).toBe(false);
   });
 
   it("performs atomic rollback when any key in a batch is locked by another task", () => {
@@ -79,6 +103,56 @@ describe("Candidate ComponentReservationManager", () => {
     expect(mgr.getReservation("comp-a")).toBeUndefined();
     expect(mgr.getReservation("comp-b")?.ownerTaskId).toBe("task-other");
     expect(mgr.getReservation("comp-c")).toBeUndefined();
+  });
+
+  it("performs surgical rollback on contention, preserving pre-existing leases owned by same caller", () => {
+    const clock = new MockClock(1000);
+    const mgr = new ComponentReservationManager(clock);
+
+    // Step 1: Caller task-1 successfully acquires comp-pre
+    const r1 = mgr.acquire({
+      componentKeys: ["comp-pre"],
+      ownerTaskId: "task-1",
+      planRevision: "plan-1",
+      attempt: 1,
+      leaseDurationMs: 60000,
+    });
+    expect(r1.success).toBe(true);
+    const preLeaseToken = r1.acquiredReservations[0].fencingToken;
+
+    // Another task acquires comp-other
+    mgr.acquire({
+      componentKeys: ["comp-other"],
+      ownerTaskId: "task-2",
+      planRevision: "plan-2",
+      attempt: 1,
+      leaseDurationMs: 60000,
+    });
+
+    // Step 2: Caller task-1 attempts to expand batch with comp-pre, comp-new, comp-other
+    // Note: sorted order is comp-new, comp-other, comp-pre
+    const r2 = mgr.acquire({
+      componentKeys: ["comp-pre", "comp-new", "comp-other"],
+      ownerTaskId: "task-1",
+      planRevision: "plan-1",
+      attempt: 1,
+      leaseDurationMs: 60000,
+    });
+
+    expect(r2.success).toBe(false);
+    expect(r2.failedKey).toBe("comp-other");
+    expect(r2.rolledBackKeys).toContain("comp-new");
+    expect(r2.rolledBackKeys).not.toContain("comp-pre");
+
+    // Verify comp-new was rolled back
+    expect(mgr.getReservation("comp-new")).toBeUndefined();
+
+    // Verify pre-existing lease on comp-pre is STILL intact and active!
+    const preRes = mgr.getReservation("comp-pre");
+    expect(preRes?.disposition).toBe("active");
+    expect(preRes?.ownerTaskId).toBe("task-1");
+    expect(preRes?.fencingToken).toBe(preLeaseToken);
+    expect(mgr.verifyFencingToken("comp-pre", preLeaseToken)).toBe(true);
   });
 
   it("supports re-entrant acquisition by the same task, planRevision, and attempt", () => {

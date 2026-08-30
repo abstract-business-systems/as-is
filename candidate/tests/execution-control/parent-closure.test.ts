@@ -6,7 +6,7 @@ import { createValidPlanEnvelope } from "../../fixtures/plan-builder";
 describe("Candidate ParentClosureEvaluator", () => {
   const evaluator = new ParentClosureEvaluator();
 
-  it("evaluates parent task as eligible for closure when all children succeed and integrate cleanly", () => {
+  it("evaluates parent task as completed for closure when all children succeed and integrate cleanly", () => {
     const plan = createValidPlanEnvelope();
 
     const childResults: ChildTerminalResult[] = [
@@ -58,13 +58,14 @@ describe("Candidate ParentClosureEvaluator", () => {
       },
     ];
 
-    const outcome = evaluator.evaluate(plan, childResults);
+    const outcome = evaluator.evaluate(plan, childResults, ["Minor deprecation notice in dependency"]);
 
-    expect(outcome.status).toBe("eligible");
+    expect(outcome.status).toBe("completed");
     expect(outcome.isTerminal).toBe(true);
     expect(outcome.canCommit).toBe(true);
     expect(outcome.missingEvidence.length).toBe(0);
     expect(outcome.unaccountedChildren.length).toBe(0);
+    expect(outcome.residualRisk).toContain("Minor deprecation notice in dependency");
     expect(outcome.totalSpend.unitsUsed).toBe(14);
     expect(outcome.totalSpend.wallClockSeconds).toBe(210);
     expect(outcome.childDispositions["child-task-control"].eligible).toBe(true);
@@ -104,7 +105,7 @@ describe("Candidate ParentClosureEvaluator", () => {
     expect(outcome.unaccountedChildren).toContain("child-process-adapter");
   });
 
-  it("fails the parent immediately if any child task failed", () => {
+  it("fails the parent immediately if any child task failed and identifies sibling compensation", () => {
     const plan = createValidPlanEnvelope();
 
     const childResults: ChildTerminalResult[] = [
@@ -136,10 +137,11 @@ describe("Candidate ParentClosureEvaluator", () => {
     expect(outcome.status).toBe("failed");
     expect(outcome.isTerminal).toBe(true);
     expect(outcome.canCommit).toBe(false);
-    expect(outcome.summary).toContain("child-process-adapter");
+    expect(outcome.rolledBackSiblings).toContain("child-task-control");
+    expect(outcome.summary).toContain("child tasks failed");
   });
 
-  it("marks parent as cancelled if a child task was cancelled", () => {
+  it("marks parent as cancelled if a child task was cancelled and releases sibling leases", () => {
     const plan = createValidPlanEnvelope();
 
     const childResults: ChildTerminalResult[] = [
@@ -171,6 +173,7 @@ describe("Candidate ParentClosureEvaluator", () => {
     expect(outcome.status).toBe("cancelled");
     expect(outcome.isTerminal).toBe(true);
     expect(outcome.canCommit).toBe(false);
+    expect(outcome.rolledBackSiblings).toContain("child-task-control");
   });
 
   it("withholds closure when a child is still active or awaiting approval", () => {
@@ -237,15 +240,16 @@ describe("Candidate ParentClosureEvaluator", () => {
           verified: false,
           details: ["Protected input core/contracts modified"],
         },
-        recordedSpend: { unitsUsed: 5, wallClockSeconds: 50 },
+        recordedSpend: { unitsUsed: 5, wallClockSeconds: 60 },
       },
     ];
 
     const outcome = evaluator.evaluate(plan, childResults);
 
     expect(outcome.status).toBe("ineligible");
+    expect(outcome.isTerminal).toBe(false);
     expect(outcome.canCommit).toBe(false);
-    expect(outcome.missingEvidence.some((e) => e.includes("dirty scope"))).toBe(true);
-    expect(outcome.missingEvidence.some((e) => e.includes("altered protected inputs"))).toBe(true);
+    expect(outcome.missingEvidence.some((m) => m.includes("dirty scope violations"))).toBe(true);
+    expect(outcome.missingEvidence.some((m) => m.includes("altered protected inputs"))).toBe(true);
   });
 });

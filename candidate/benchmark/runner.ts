@@ -178,9 +178,9 @@ export class CandidateBenchmarkRunner {
       ];
 
       const outcome = this.closureEvaluator.evaluate(plan, childResults);
-      if (isClean && outcome.status === "eligible") {
+      if (isClean && (outcome.status === "eligible" || outcome.status === "completed")) {
         correctClosureDecisions++;
-      } else if (!isClean && (outcome.status === "failed" || outcome.status === "withheld")) {
+      } else if (!isClean && (outcome.status === "failed" || outcome.status === "ineligible" || outcome.status === "cancelled")) {
         correctClosureDecisions++;
       }
     }

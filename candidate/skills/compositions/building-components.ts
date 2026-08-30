@@ -50,8 +50,8 @@ const defaultComponentBuildVariant: CompositionVariant = {
         if (admissionResult.status !== "admitted") {
           return {
             status: "blocked",
-            error: `Plan admission rejected: ${admissionResult.rejectionReasons.join("; ")}`,
-            evidence: admissionResult.rejectionReasons,
+            error: `Plan admission rejected: ${admissionResult.violations.join("; ")}`,
+            evidence: admissionResult.violations,
           };
         }
 
@@ -140,7 +140,7 @@ const defaultComponentBuildVariant: CompositionVariant = {
         const componentKeys = buildInput.planEnvelope.children.map((c) => c.componentKey);
         resMgr.release(componentKeys, buildInput.planEnvelope.parent.taskRevision);
 
-        if (outcome.status !== "eligible") {
+        if (outcome.status !== "eligible" && outcome.status !== "completed") {
           return {
             status: "failed",
             error: `Parent closure failed: ${outcome.summary}`,
@@ -151,7 +151,10 @@ const defaultComponentBuildVariant: CompositionVariant = {
         const output: ComponentBuildOutput = {
           planRevision: buildInput.planEnvelope.planRevision,
           admitted: true,
-          totalSpend: outcome.totalSpend,
+          totalSpend: {
+            units: outcome.totalSpend.unitsUsed,
+            wallClockSeconds: outcome.totalSpend.wallClockSeconds,
+          },
           closureStatus: outcome.status,
           evidence: [
             `Parent closure verified: status=${outcome.status}`,

@@ -50,13 +50,28 @@ export interface ReclaimResult {
 export class ComponentReservationManager {
   private readonly store = new Map<string, ComponentReservation>();
   private readonly clock: Clock;
+  private currentGeneration: number = 0;
 
   constructor(clock: Clock = new SystemClock()) {
     this.clock = clock;
   }
 
   /**
-   * Generates a deterministic or unique reservation ID.
+   * Generates a monotonic lease generation counter.
+   */
+  private nextGeneration(): number {
+    return ++this.currentGeneration;
+  }
+
+  /**
+   * Generates a unique fencing token for write-time verification.
+   */
+  private generateFencingToken(componentKey: string, generation: number): string {
+    return `fence_${componentKey}_gen${generation}_${this.clock.now()}`;
+  }
+
+  /**
+   * Generates a deterministic reservation ID.
    */
   private generateId(componentKey: string, ownerTaskId: string, attempt: number): string {
     return `res_${componentKey}_${ownerTaskId}_att${attempt}_${this.clock.now()}`;
@@ -85,6 +100,17 @@ export class ComponentReservationManager {
   }
 
   /**
+   * Verifies that the provided fencing token matches the active, valid lease for a component key.
+   */
+  public verifyFencingToken(componentKey: string, fencingToken: string): boolean {
+    const res = this.store.get(componentKey);
+    if (!res) return false;
+    if (res.disposition !== "active") return false;
+    if (res.leaseExpiresAt <= this.clock.now()) return false;
+    return res.fencingToken === fencingToken;
+  }
+
+  /**
    * Lists all active reservations.
    */
   public listActiveReservations(): ComponentReservation[] {
@@ -100,15 +126,17 @@ export class ComponentReservationManager {
 
   /**
    * Atomically acquires reservations for multiple component keys.
-   * If any component key cannot be acquired, all previously acquired keys
-   * in this batch are rolled back immediately, ensuring all-or-nothing atomicity.
+   * If any component key cannot be acquired:
+   * - Only the keys newly acquired during THIS batch invocation are rolled back.
+   * - Any pre-existing leases previously owned by the caller remain intact.
    */
   public acquire(request: ReservationRequest): ReservationAcquisitionResult {
     const sortedKeys = this.sortKeys(request.componentKeys);
     const now = this.clock.now();
     const leaseExpiresAt = now + request.leaseDurationMs;
-    const newlyAcquired: ComponentReservation[] = [];
-    const rolledBackKeys: string[] = [];
+
+    const allResultReservations: ComponentReservation[] = [];
+    const keysNewlyAcquiredInBatch: string[] = [];
 
     for (const key of sortedKeys) {
       const existing = this.store.get(key);
@@ -122,24 +150,19 @@ export class ComponentReservationManager {
             existing.planRevision === request.planRevision &&
             existing.attempt === request.attempt
           ) {
-            // Already owned by the same attempt, continue
-            newlyAcquired.push(existing);
+            // Already owned by the same attempt; reuse without adding to rollback batch
+            allResultReservations.push(existing);
             continue;
           }
 
-          // Contention detected! Roll back all keys acquired in this request batch
-          for (const acquired of newlyAcquired) {
-            if (
-              !(
-                acquired.ownerTaskId === request.ownerTaskId &&
-                acquired.planRevision === request.planRevision &&
-                acquired.attempt === request.attempt &&
-                acquired !== this.store.get(acquired.componentKey)
-              )
-            ) {
-              this.store.delete(acquired.componentKey);
-              rolledBackKeys.push(acquired.componentKey);
+          // Contention detected! Roll back ONLY keys newly acquired in this invocation
+          for (const acquiredKey of keysNewlyAcquiredInBatch) {
+            const newlyAcquiredRes = this.store.get(acquiredKey);
+            if (newlyAcquiredRes) {
+              newlyAcquiredRes.disposition = "rolled_back";
+              newlyAcquiredRes.reclaimReason = `contention on key '${key}' during multi-key atomic acquisition`;
             }
+            this.store.delete(acquiredKey);
           }
 
           return {
@@ -147,16 +170,20 @@ export class ComponentReservationManager {
             acquiredReservations: [],
             failedKey: key,
             contentionReason: `Component '${key}' is actively locked by task '${existing.ownerTaskId}' until timestamp ${existing.leaseExpiresAt}`,
-            rolledBackKeys,
+            rolledBackKeys: keysNewlyAcquiredInBatch,
           };
         } else {
           // Expired lease found; mark as orphan/expired so it can be reclaimed
           existing.disposition = "orphan";
           existing.reclaimReason = "lease expired during acquisition check";
+          this.store.delete(key);
         }
       }
 
-      // Create new reservation
+      // Allocate new reservation with monotonic generation and fencing token
+      const generation = this.nextGeneration();
+      const fencingToken = this.generateFencingToken(key, generation);
+
       const res: ComponentReservation = {
         reservationId: this.generateId(key, request.ownerTaskId, request.attempt),
         componentKey: key,
@@ -165,16 +192,19 @@ export class ComponentReservationManager {
         attempt: request.attempt,
         acquiredAt: now,
         leaseExpiresAt,
+        leaseGeneration: generation,
+        fencingToken,
         disposition: "active",
       };
 
       this.store.set(key, res);
-      newlyAcquired.push(res);
+      keysNewlyAcquiredInBatch.push(key);
+      allResultReservations.push(res);
     }
 
     return {
       success: true,
-      acquiredReservations: newlyAcquired,
+      acquiredReservations: allResultReservations,
       rolledBackKeys: [],
     };
   }
@@ -182,7 +212,10 @@ export class ComponentReservationManager {
   /**
    * Releases reservations for the specified component keys owned by the task.
    */
-  public release(componentKeys: readonly string[], ownerTaskId: string): { releasedKeys: string[]; ignoredKeys: string[] } {
+  public release(
+    componentKeys: readonly string[],
+    ownerTaskId: string
+  ): { releasedKeys: string[]; ignoredKeys: string[] } {
     const now = this.clock.now();
     const releasedKeys: string[] = [];
     const ignoredKeys: string[] = [];

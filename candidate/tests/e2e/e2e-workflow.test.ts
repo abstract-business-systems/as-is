@@ -172,7 +172,7 @@ describe("Candidate End-to-End Pilot Testbed", () => {
 
     // 4. Parent Closure Evaluation and Reservation Release
     const closure = closureEvaluator.evaluate(plan, childResults);
-    expect(closure.status).toBe("eligible");
+    expect(["eligible", "completed"]).toContain(closure.status);
     expect(closure.totalSpend.unitsUsed).toBe(16); // 8 units per child * 2
     expect(closure.missingEvidence.length).toBe(0);
 
@@ -339,7 +339,7 @@ describe("Candidate End-to-End Pilot Testbed", () => {
     };
 
     const finalClosure = closureEvaluator.evaluate(recoveryPlan, [repairedChildTerminal]);
-    expect(finalClosure.status).toBe("eligible");
+    expect(["eligible", "completed"]).toContain(finalClosure.status);
     reservationManager.release(["core/modules/task-control"], recoveryPlan.parent.taskRevision);
     expect(reservationManager.listActiveReservations().length).toBe(0);
   });

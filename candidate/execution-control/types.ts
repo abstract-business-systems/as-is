@@ -87,7 +87,12 @@ export interface PlanEnvelope {
 
 export type AdmissionResultStatus = "admitted" | "rejected" | "unavailable";
 
-export type ReservationDisposition = "active" | "released" | "reclaimed" | "orphan";
+export type ReservationDisposition =
+  | "active"
+  | "released"
+  | "reclaimed"
+  | "orphan"
+  | "rolled_back";
 
 export interface ComponentReservation {
   readonly reservationId: string;
@@ -97,6 +102,8 @@ export interface ComponentReservation {
   readonly attempt: number;
   readonly acquiredAt: number;
   readonly leaseExpiresAt: number;
+  readonly leaseGeneration: number;
+  readonly fencingToken: string;
   disposition: ReservationDisposition;
   reclaimReason?: string;
   releasedAt?: number;
@@ -182,7 +189,12 @@ export interface ChildTerminalResult {
   readonly recordedSpend: ChildSpendRecord;
 }
 
-export type ParentClosureStatus = "eligible" | "ineligible" | "failed" | "cancelled";
+export type ParentClosureStatus =
+  | "eligible"
+  | "ineligible"
+  | "completed"
+  | "failed"
+  | "cancelled";
 
 export interface ChildClosureDisposition {
   readonly status: TaskStatus;
@@ -198,5 +210,8 @@ export interface ParentClosureOutcome {
   readonly childDispositions: Record<string, ChildClosureDisposition>;
   readonly missingEvidence: readonly string[];
   readonly unaccountedChildren: readonly string[];
+  readonly rolledBackSiblings?: readonly string[];
+  readonly residualRisk?: readonly string[];
   readonly totalSpend: ChildSpendRecord;
+  readonly admittedPlanRevision?: string;
 }

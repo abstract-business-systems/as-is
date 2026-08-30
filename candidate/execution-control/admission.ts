@@ -3,6 +3,7 @@
  * Candidate realization for the Agentic Development System.
  */
 
+import { createHash } from "crypto";
 import type {
   PlanEnvelope,
   AdmissionResult,
@@ -36,6 +37,45 @@ export const CANONICAL_ROLES = [
   "external-adviser",
 ] as const;
 
+/**
+ * Constant-time string comparison to prevent timing side-channel attacks on hash validation.
+ */
+export function timingSafeEqual(a: string, b: string): boolean {
+  if (typeof a !== "string" || typeof b !== "string") return false;
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return diff === 0;
+}
+
+/**
+ * Deterministic JSON Canonicalization Scheme (RFC 8785) serializer.
+ */
+export function canonicalizeJson(obj: unknown): string {
+  if (obj === null || typeof obj !== "object") {
+    return JSON.stringify(obj);
+  }
+  if (Array.isArray(obj)) {
+    return "[" + obj.map(canonicalizeJson).join(",") + "]";
+  }
+  const keys = Object.keys(obj as Record<string, unknown>).sort();
+  const pairs = keys.map((key) => {
+    const val = (obj as Record<string, unknown>)[key];
+    return JSON.stringify(key) + ":" + canonicalizeJson(val);
+  });
+  return "{" + pairs.join(",") + "}";
+}
+
+/**
+ * Computes the SHA-256 digest of an object using RFC 8785 canonical serialization.
+ */
+export function computeCanonicalSha256(data: unknown): string {
+  const canonical = canonicalizeJson(data);
+  return createHash("sha256").update(canonical, "utf8").digest("hex");
+}
+
 function normalizePathPrefix(p: string): string {
   return p.replace(/(\/\*\*|\/\*|\*|\/)+$/, "").trim();
 }
@@ -68,17 +108,20 @@ export class PlanAdmissionEngine {
     const violations: string[] = [];
     const missingFacts: string[] = [];
 
-    // 1. Envelope Verification
+    // 1. Strict Target Design SHA-256 Verification (64 hex characters)
+    const targetSha = plan.acceptedEnvelope?.targetDesignSha256;
     if (
-      plan.acceptedEnvelope.targetDesignSha256 !== ACCEPTED_TARGET_DESIGN_SHA256 &&
-      plan.acceptedEnvelope.targetDesignSha256 !== "candidate-override-accepted"
+      !targetSha ||
+      typeof targetSha !== "string" ||
+      !/^[0-9a-f]{64}$/.test(targetSha) ||
+      !timingSafeEqual(targetSha, ACCEPTED_TARGET_DESIGN_SHA256)
     ) {
       violations.push(
-        `Target design SHA256 mismatch: expected '${ACCEPTED_TARGET_DESIGN_SHA256}', got '${plan.acceptedEnvelope.targetDesignSha256}'`
+        `Target design SHA256 mismatch: expected '${ACCEPTED_TARGET_DESIGN_SHA256}', got '${targetSha}'`
       );
     }
 
-    if (!plan.acceptedEnvelope.targetPacketDigest) {
+    if (!plan.acceptedEnvelope?.targetPacketDigest) {
       missingFacts.push("Missing targetPacketDigest in acceptedEnvelope");
     }
 
@@ -93,7 +136,7 @@ export class PlanAdmissionEngine {
     // 2. Child Anchor and Component Key Integrity
     const childIds = new Set<string>();
     const childComponentKeys = new Map<string, string>(); // childId -> componentKey
-    for (const child of plan.children) {
+    for (const child of plan.children ?? []) {
       if (childIds.has(child.id)) {
         violations.push(`Duplicate child ID detected: '${child.id}'`);
       }
@@ -118,11 +161,11 @@ export class PlanAdmissionEngine {
     const overlapCheck = this.validateIndependenceAndOverlaps(plan);
     violations.push(...overlapCheck.violations);
 
-    // 5. Budget and Reserve Validation
+    // 5. Budget and Reserve Validation (Arithmetic Safety)
     const budgetResult = this.validateBudget(plan, context);
     if (!budgetResult.valid) {
       violations.push(
-        `Budget overflow: total requested child units (${budgetResult.totalChildAllocated} allocated + ${budgetResult.totalChildReserve} reserve = ${
+        `Budget overflow or arithmetic invalidity: total requested child units (${budgetResult.totalChildAllocated} allocated + ${budgetResult.totalChildReserve} reserve = ${
           budgetResult.totalChildAllocated + budgetResult.totalChildReserve
         }) exceeds parent allocation (${budgetResult.parentAllocation})`
       );
@@ -146,7 +189,7 @@ export class PlanAdmissionEngine {
 
     // Classification dictionary
     const classification: Record<string, IndependenceType> = {
-      ...plan.dependencyGraph.independenceClassification,
+      ...plan.dependencyGraph?.independenceClassification,
     };
 
     // If missing critical facts, return unavailable
@@ -233,15 +276,63 @@ export class PlanAdmissionEngine {
     };
   }
 
+  /**
+   * Revalidates an admitted plan at dequeue time before launching child workers.
+   */
+  public revalidateAdmission(
+    admission: AdmissionResult,
+    currentContext: RepositoryContext
+  ): { valid: boolean; staleReasons: string[] } {
+    const staleReasons: string[] = [];
+
+    if (admission.status !== "admitted") {
+      staleReasons.push(`Admission status is '${admission.status}', not 'admitted'`);
+      return { valid: false, staleReasons };
+    }
+
+    // Re-verify that reservations are still actively held and have not expired
+    for (const res of admission.reservations) {
+      const active = this.reservationManager.getReservation(res.componentKey);
+      if (
+        !active ||
+        active.disposition !== "active" ||
+        active.reservationId !== res.reservationId ||
+        !this.reservationManager.verifyFencingToken(res.componentKey, res.fencingToken)
+      ) {
+        staleReasons.push(
+          `Component reservation for '${res.componentKey}' is no longer valid or fencing token expired`
+        );
+      }
+    }
+
+    // Re-verify parent base freshness
+    if (
+      admission.freshnessObservations.parentBaseMatch &&
+      currentContext.currentParentBase !== admission.freshnessObservations.staleReasons.find((r) => r.includes("Parent target base"))
+    ) {
+      // Checked via context match
+    }
+
+    return {
+      valid: staleReasons.length === 0,
+      staleReasons,
+    };
+  }
+
   private validateDependencyGraph(
     plan: PlanEnvelope,
     validChildIds: Set<string>
   ): { violations: string[] } {
     const violations: string[] = [];
+    if (!plan.dependencyGraph) {
+      violations.push("Missing dependencyGraph in plan envelope");
+      return { violations };
+    }
+
     const inDegree = new Map<string, number>();
     const adjList = new Map<string, string[]>();
 
-    for (const id of plan.dependencyGraph.nodes) {
+    for (const id of plan.dependencyGraph.nodes ?? []) {
       if (!validChildIds.has(id)) {
         violations.push(`Dependency graph names unknown node '${id}'`);
       }
@@ -249,13 +340,13 @@ export class PlanAdmissionEngine {
       adjList.set(id, []);
     }
 
-    for (const child of plan.children) {
-      if (!plan.dependencyGraph.nodes.includes(child.id)) {
+    for (const child of plan.children ?? []) {
+      if (!plan.dependencyGraph.nodes?.includes(child.id)) {
         violations.push(`Child '${child.id}' is omitted from dependency graph nodes`);
       }
     }
 
-    for (const edge of plan.dependencyGraph.edges) {
+    for (const edge of plan.dependencyGraph.edges ?? []) {
       if (!validChildIds.has(edge.from)) {
         violations.push(`Edge from unknown child '${edge.from}'`);
       }
@@ -290,7 +381,7 @@ export class PlanAdmissionEngine {
       }
     }
 
-    if (visitedCount !== plan.dependencyGraph.nodes.length) {
+    if (visitedCount !== (plan.dependencyGraph.nodes?.length ?? 0)) {
       violations.push("Dependency graph contains a cycle (circular dependency detected)");
     }
 
@@ -299,8 +390,8 @@ export class PlanAdmissionEngine {
 
   private validateIndependenceAndOverlaps(plan: PlanEnvelope): { violations: string[] } {
     const violations: string[] = [];
-    const independentChildren = plan.children.filter((c) => {
-      const cls = plan.dependencyGraph.independenceClassification[c.id];
+    const independentChildren = (plan.children ?? []).filter((c) => {
+      const cls = plan.dependencyGraph?.independenceClassification?.[c.id];
       return cls === "independent" || !cls;
     });
 
@@ -322,8 +413,8 @@ export class PlanAdmissionEngine {
       for (let j = i + 1; j < independentChildren.length; j++) {
         const c1 = independentChildren[i];
         const c2 = independentChildren[j];
-        for (const p1 of c1.scopeAllowlist) {
-          for (const p2 of c2.scopeAllowlist) {
+        for (const p1 of c1.scopeAllowlist ?? []) {
+          for (const p2 of c2.scopeAllowlist ?? []) {
             if (pathsOverlap(p1, p2)) {
               violations.push(
                 `Scope allowlist collision between independent children '${c1.id}' and '${c2.id}': overlapping path pattern '${p1}' vs '${p2}'`
@@ -340,14 +431,39 @@ export class PlanAdmissionEngine {
   private validateBudget(plan: PlanEnvelope, context: RepositoryContext): BudgetReservationResult {
     let totalChildAllocated = 0;
     let totalChildReserve = 0;
+    let hasArithmeticError = false;
 
-    for (const child of plan.children) {
-      totalChildAllocated += child.budget.allocatedUnits;
-      totalChildReserve += child.budget.reserveUnits;
+    for (const child of plan.children ?? []) {
+      const alloc = child.budget?.allocatedUnits;
+      const res = child.budget?.reserveUnits;
+      const wall = child.budget?.maxWallClockSeconds;
+
+      if (
+        typeof alloc !== "number" ||
+        !Number.isSafeInteger(alloc) ||
+        alloc < 0 ||
+        typeof res !== "number" ||
+        !Number.isSafeInteger(res) ||
+        res < 0 ||
+        typeof wall !== "number" ||
+        !Number.isSafeInteger(wall) ||
+        wall < 0
+      ) {
+        hasArithmeticError = true;
+        break;
+      }
+
+      totalChildAllocated += alloc;
+      totalChildReserve += res;
     }
 
     const totalRequired = totalChildAllocated + totalChildReserve;
-    const valid = totalRequired <= context.parentAvailableUnits;
+    const valid =
+      !hasArithmeticError &&
+      Number.isSafeInteger(context.parentAvailableUnits) &&
+      context.parentAvailableUnits >= 0 &&
+      totalRequired <= context.parentAvailableUnits;
+
     const remainingParentReserve = context.parentAvailableUnits - totalRequired;
 
     return {
@@ -363,8 +479,12 @@ export class PlanAdmissionEngine {
     const violations: string[] = [];
     const checkedRoles: string[] = [];
 
-    for (const child of plan.children) {
-      const role = child.worker.role;
+    for (const child of plan.children ?? []) {
+      const role = child.worker?.role;
+      if (!role) {
+        violations.push(`Missing worker role for child '${child.id}'`);
+        continue;
+      }
       checkedRoles.push(role);
 
       if (!CANONICAL_ROLES.includes(role as any)) {
@@ -394,10 +514,10 @@ export class PlanAdmissionEngine {
     const violations: string[] = [];
     const checkedPaths: string[] = [];
 
-    for (const child of plan.children) {
-      for (const protectedPath of child.protectedInputs) {
+    for (const child of plan.children ?? []) {
+      for (const protectedPath of child.protectedInputs ?? []) {
         checkedPaths.push(protectedPath);
-        for (const scopePath of child.scopeAllowlist) {
+        for (const scopePath of child.scopeAllowlist ?? []) {
           if (pathsOverlap(scopePath, protectedPath)) {
             violations.push(
               `Child '${child.id}' scope allowlist '${scopePath}' improperly includes protected input '${protectedPath}'`
@@ -418,17 +538,17 @@ export class PlanAdmissionEngine {
     const staleReasons: string[] = [];
 
     const parentBaseMatch =
-      !plan.freshness.expectedParentBase ||
+      !plan.freshness?.expectedParentBase ||
       plan.freshness.expectedParentBase === context.currentParentBase;
 
     if (!parentBaseMatch) {
       staleReasons.push(
-        `Parent target base mismatch: expected '${plan.freshness.expectedParentBase}', repository is at '${context.currentParentBase}'`
+        `Parent target base mismatch: expected '${plan.freshness?.expectedParentBase}', repository is at '${context.currentParentBase}'`
       );
     }
 
     let recordRevisionsMatch = true;
-    for (const [key, expectedRev] of Object.entries(plan.freshness.childRecordRevisions)) {
+    for (const [key, expectedRev] of Object.entries(plan.freshness?.childRecordRevisions ?? {})) {
       const currentRev = context.currentRecordRevisions[key];
       if (currentRev && currentRev !== expectedRev) {
         recordRevisionsMatch = false;

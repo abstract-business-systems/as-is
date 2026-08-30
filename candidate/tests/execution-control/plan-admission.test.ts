@@ -2,6 +2,9 @@ import { describe, it, expect } from "bun:test";
 import {
   PlanAdmissionEngine,
   ACCEPTED_TARGET_DESIGN_SHA256,
+  timingSafeEqual,
+  canonicalizeJson,
+  computeCanonicalSha256,
 } from "../../execution-control/admission";
 import { ComponentReservationManager } from "../../execution-control/reservation";
 import {
@@ -11,7 +14,7 @@ import {
 } from "../../fixtures/plan-builder";
 
 describe("Candidate PlanAdmissionEngine", () => {
-  it("admits a valid plan envelope and acquires atomic reservations", () => {
+  it("admits a valid plan envelope and acquires atomic reservations with fencing tokens", () => {
     const resMgr = new ComponentReservationManager();
     const engine = new PlanAdmissionEngine(resMgr);
 
@@ -24,10 +27,45 @@ describe("Candidate PlanAdmissionEngine", () => {
     expect(result.violations.length).toBe(0);
     expect(result.missingFacts.length).toBe(0);
     expect(result.reservations.length).toBe(2);
+    expect(result.reservations[0].fencingToken).toBeDefined();
+    expect(result.reservations[0].leaseGeneration).toBeGreaterThan(0);
     expect(result.checkedComponentKeys).toContain("core/modules/task-control");
     expect(result.checkedComponentKeys).toContain("core/adapters/process");
     expect(result.budgetReservation.valid).toBe(true);
     expect(result.budgetReservation.remainingParentReserve).toBe(26); // 50 - (10+2 + 10+2)
+  });
+
+  it("revalidates an admitted plan at dequeue time and detects expired or stolen leases", () => {
+    const resMgr = new ComponentReservationManager();
+    const engine = new PlanAdmissionEngine(resMgr);
+
+    const plan = createValidPlanEnvelope();
+    const context = createValidContext();
+
+    const admission = engine.evaluate(plan, context);
+    expect(admission.status).toBe("admitted");
+
+    // Fresh dequeue revalidation passes
+    const reval = engine.revalidateAdmission(admission, context);
+    expect(reval.valid).toBe(true);
+
+    // If a lease was released / stolen, revalidation fails
+    resMgr.release(["core/modules/task-control"], plan.parent.taskRevision);
+    const staleReval = engine.revalidateAdmission(admission, context);
+    expect(staleReval.valid).toBe(false);
+    expect(staleReval.staleReasons.some((r) => r.includes("no longer valid"))).toBe(true);
+  });
+
+  it("verifies RFC 8785 JSON canonicalization and constant-time string equality", () => {
+    expect(timingSafeEqual("abc4d367d6e7", "abc4d367d6e7")).toBe(true);
+    expect(timingSafeEqual("abc4d367d6e7", "abc4d367d6e8")).toBe(false);
+    expect(timingSafeEqual("short", "longer-string")).toBe(false);
+
+    const objA = { b: 2, a: 1 };
+    const objB = { a: 1, b: 2 };
+    expect(canonicalizeJson(objA)).toBe('{"a":1,"b":2}');
+    expect(canonicalizeJson(objB)).toBe('{"a":1,"b":2}');
+    expect(computeCanonicalSha256(objA)).toBe(computeCanonicalSha256(objB));
   });
 
   it("rejects a plan with mismatched target design SHA256", () => {
@@ -44,6 +82,32 @@ describe("Candidate PlanAdmissionEngine", () => {
 
     expect(result.status).toBe("rejected");
     expect(result.violations.some((v) => v.includes("Target design SHA256 mismatch"))).toBe(true);
+  });
+
+  it("rejects a plan with invalid budget arithmetic (fractional, negative, or NaN units)", () => {
+    const engine = new PlanAdmissionEngine();
+    const child1 = createValidChildEntry("child-1", "comp-1", {
+      budget: {
+        allocatedUnits: -5 as any,
+        maxWallClockSeconds: 30,
+        reserveUnits: 0,
+      },
+    });
+
+    const plan = createValidPlanEnvelope({
+      children: [child1],
+      dependencyGraph: {
+        nodes: ["child-1"],
+        edges: [],
+        independenceClassification: { "child-1": "independent" },
+      },
+    });
+
+    const context = createValidContext();
+    const result = engine.evaluate(plan, context);
+
+    expect(result.status).toBe("rejected");
+    expect(result.violations.some((v) => v.includes("Budget overflow or arithmetic invalidity"))).toBe(true);
   });
 
   it("rejects a plan with circular dependency cycles", () => {

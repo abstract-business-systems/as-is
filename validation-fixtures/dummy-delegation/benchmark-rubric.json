@@ -1,0 +1,25 @@
+{
+  "benchmarkTarget": "validation-fixtures/dummy-delegation",
+  "pinnedBaselineCommit": "9a77e37bebbce0d802d4debb6b54e6df2d223208",
+  "iterations": 3,
+  "thresholds": {
+    "maxSetupOverheadSeconds": 2.0,
+    "minCorrectnessPassRate": 1.0,
+    "minScopeInterceptionRate": 1.0,
+    "minContentionRollbackRate": 1.0,
+    "minClosureAccuracyRate": 1.0,
+    "maxHumanInterventions": 0,
+    "minTraceCoveragePercent": 100.0
+  },
+  "metrics": [
+    "setupOverhead",
+    "correctnessPassRate",
+    "scopeDiscipline",
+    "contentionSafety",
+    "failClosedClosure",
+    "faultRecovery",
+    "spendEfficiency",
+    "humanInterventions",
+    "evidenceCompleteness"
+  ]
+}

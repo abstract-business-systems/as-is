@@ -193,15 +193,16 @@ Read this handoff first, then reference the locked alignment plan and checklist:
 **Current state & multi-agent workflow:**
 - Design is human-reviewed and accepted.
 - **Multi-Model Planning & Review Complete:**
-  - Planning Adviser (`candidate/agents/planning-adviser/agent.md` / `openai/gpt-5.6-sol`, `thinking: high`) reviewed the realization plan via isolated Pi subagent.
-  - External Adviser (`candidate/agents/external-adviser/agent.md` / `moonshotai/kimi-k3`, `thinking: high`) audited the plan for blind spots and edge cases.
-  - All recommendations (lease fencing tokens, RFC 8785 JCS canonicalization, protected scorer isolation, worker tool boundaries, and parent closure state machine) have been explicitly incorporated into `designs/agentic-development-system-implementation-plan.md`.
-- Implementer owns the candidate realization, orchestrating and delegating scoped implementation units to `worker` (`candidate/agents/worker/agent.md` / `z-ai/glm-5.3-flash`).
+  - Planning Adviser (`candidate/agents/planning-adviser/agent.md` / `openai/gpt-5.6-sol`, `thinking: high`) and External Adviser (`candidate/agents/external-adviser/agent.md` / `moonshotai/kimi-k3`, `thinking: high`) audited and aligned the plan.
+  - All recommendations were incorporated into `designs/agentic-development-system-implementation-plan.md`.
+- **Implementation Task Packets 1 to 4 Complete:**
+  1. *Packet 1 (Kernel Hardening):* Complete with monotonic lease fencing tokens, RFC 8785 JCS canonical digests, surgical re-entrant rollback, and 100% child terminal accounting.
+  2. *Packet 2 (24 Reusable Skills):* Complete in `candidate/skills/reusable/` authored by `worker` (`z-ai/glm-5.3-flash`).
+  3. *Packet 3 (12 Master Compositions & Tool Registry):* Complete in `candidate/skills/compositions/` and `candidate/skills/registry.ts`.
+  4. *Packet 4 (Section 13 Comparative Benchmark):* Executed 3-run empirical comparison against pinned `master` baseline (`9a77e37bebbce0d802d4debb6b54e6df2d223208`) with 100% criteria passed; evidence recorded at `candidate/evidence/section-13-benchmark-report.md`.
+- **Deterministic Verification:** 77/77 tests passing in `candidate/tests/`.
 
 **Next immediate action:**
-1. Execute Task Packet 1: Kernel Hardening in `candidate/execution-control/`.
-2. Execute Task Packet 2: 24 Reusable Skills in `candidate/skills/reusable/`.
-3. Execute Task Packet 3: 12 Master Compositions in `candidate/skills/compositions/`.
-4. Execute Task Packet 4: Section 13 Comparative Benchmark in `candidate/benchmark/`.
+- Ready for final review, compaction, and human handoff.
 
 The canonical program-status section above holds current state and links; do not recreate historical planning detail in a new-session prompt or handoff.

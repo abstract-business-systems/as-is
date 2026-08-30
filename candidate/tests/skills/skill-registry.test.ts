@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from "bun:test";
 import { resolve } from "node:path";
 import {
   SkillRegistry,
+  createDefaultSkillRegistry,
   contextBuildingSkill,
   verificationDisciplineSkill,
   namingSoftwareConceptsSkill,
@@ -34,6 +35,26 @@ describe("Candidate Skill Registry", () => {
     expect(registry.getReusable("context-building")).toBe(contextBuildingSkill);
     expect(registry.getMaster("building-components")).toBe(buildingComponentsMasterSkill);
     expect(registry.getReusable("non-existent")).toBeUndefined();
+  });
+
+  it("populates the full catalog of 24 reusable skills and 12 master compositions via createDefaultSkillRegistry", () => {
+    const defaultRegistry = createDefaultSkillRegistry();
+    expect(defaultRegistry.listReusableSkills().length).toBe(24);
+    expect(defaultRegistry.listMasterSkills().length).toBe(12);
+
+    // Verify critical master skills
+    expect(defaultRegistry.getMaster("making-changes")).toBeDefined();
+    expect(defaultRegistry.getMaster("building-components")).toBeDefined();
+    expect(defaultRegistry.getMaster("implementing-tasks")).toBeDefined();
+    expect(defaultRegistry.getMaster("maintaining-components")).toBeDefined();
+    expect(defaultRegistry.getMaster("managing-as-is-records")).toBeDefined();
+    expect(defaultRegistry.getMaster("designing-mermaid-diagrams")).toBeDefined();
+    expect(defaultRegistry.getMaster("managing-backlogs")).toBeDefined();
+    expect(defaultRegistry.getMaster("managing-changelogs")).toBeDefined();
+    expect(defaultRegistry.getMaster("spawning-subagents")).toBeDefined();
+    expect(defaultRegistry.getMaster("exploring-execution-evidence")).toBeDefined();
+    expect(defaultRegistry.getMaster("consulting-humans")).toBeDefined();
+    expect(defaultRegistry.getMaster("committing-completed-work")).toBeDefined();
   });
 
   it("prevents duplicate registrations", () => {

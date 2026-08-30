@@ -19,7 +19,8 @@ export class ParentClosureEvaluator {
    */
   public evaluate(
     plan: PlanEnvelope,
-    childResults: readonly ChildTerminalResult[]
+    childResults: readonly ChildTerminalResult[],
+    residualRisk: readonly string[] = []
   ): ParentClosureOutcome {
     const childMap = new Map<string, ChildTerminalResult>();
     for (const res of childResults) {
@@ -28,6 +29,7 @@ export class ParentClosureEvaluator {
 
     const unaccountedChildren: string[] = [];
     const missingEvidence: string[] = [];
+    const completedSiblings: string[] = [];
     const childDispositions: Record<string, ChildClosureDisposition> = {};
 
     let hasFailedChild = false;
@@ -38,7 +40,7 @@ export class ParentClosureEvaluator {
     let totalUnitsUsed = 0;
     let totalWallClockSeconds = 0;
 
-    for (const expectedChild of plan.children) {
+    for (const expectedChild of plan.children ?? []) {
       const result = childMap.get(expectedChild.id);
 
       if (!result) {
@@ -53,8 +55,8 @@ export class ParentClosureEvaluator {
         continue;
       }
 
-      totalUnitsUsed += result.recordedSpend.unitsUsed;
-      totalWallClockSeconds += result.recordedSpend.wallClockSeconds;
+      totalUnitsUsed += result.recordedSpend?.unitsUsed ?? 0;
+      totalWallClockSeconds += result.recordedSpend?.wallClockSeconds ?? 0;
 
       const reasons: string[] = [];
       let isEligible = false;
@@ -117,8 +119,14 @@ export class ParentClosureEvaluator {
 
           if (reasons.length === 0) {
             isEligible = true;
+            completedSiblings.push(expectedChild.id);
           }
           break;
+
+        default:
+          hasNonTerminalChild = true;
+          allCompletedAndValidated = false;
+          reasons.push(`Unknown child task status: ${result.taskStatus}`);
       }
 
       childDispositions[expectedChild.id] = {
@@ -133,58 +141,68 @@ export class ParentClosureEvaluator {
       wallClockSeconds: totalWallClockSeconds,
     };
 
-    // Determine parent outcome status
-    let status: ParentClosureStatus;
-    let isTerminal = false;
-    let canCommit = false;
-    let summary: string;
-
+    // Fail-closed resolution logic
     if (hasFailedChild) {
-      status = "failed";
-      isTerminal = true;
-      canCommit = false;
-      summary = `Parent task failed: one or more child tasks failed [${Object.entries(childDispositions)
-        .filter(([_, d]) => d.status === "failed")
-        .map(([id]) => id)
-        .join(", ")}]`;
-    } else if (hasCancelledChild) {
-      status = "cancelled";
-      isTerminal = true;
-      canCommit = false;
-      summary = `Parent task cancelled: one or more child tasks were cancelled [${Object.entries(childDispositions)
-        .filter(([_, d]) => d.status === "cancelled")
-        .map(([id]) => id)
-        .join(", ")}]`;
-    } else if (unaccountedChildren.length > 0 || hasNonTerminalChild || missingEvidence.length > 0) {
-      status = "ineligible";
-      isTerminal = false;
-      canCommit = false;
-      summary = `Parent task is not eligible for closure: pending child tasks or missing verification evidence (${
-        unaccountedChildren.length > 0
-          ? `unaccounted: ${unaccountedChildren.join(", ")}`
-          : missingEvidence.join("; ")
-      })`;
-    } else if (allCompletedAndValidated) {
-      status = "eligible";
-      isTerminal = true;
-      canCommit = true;
-      summary = `Parent task is eligible for closure: all ${plan.children.length} child tasks completed, verified, and integrated successfully.`;
-    } else {
-      status = "ineligible";
-      isTerminal = false;
-      canCommit = false;
-      summary = "Parent task closure conditions not satisfied.";
+      return {
+        status: "failed",
+        isTerminal: true,
+        canCommit: false,
+        summary: `Parent closure failed: one or more child tasks failed. Compensating rollback required for ${completedSiblings.length} completed sibling(s).`,
+        childDispositions,
+        missingEvidence,
+        unaccountedChildren,
+        rolledBackSiblings: completedSiblings,
+        residualRisk,
+        totalSpend,
+        admittedPlanRevision: plan.planRevision,
+      };
     }
 
+    if (hasCancelledChild) {
+      return {
+        status: "cancelled",
+        isTerminal: true,
+        canCommit: false,
+        summary: `Parent closure cancelled: one or more child tasks were cancelled. Releasing active reservations.`,
+        childDispositions,
+        missingEvidence,
+        unaccountedChildren,
+        rolledBackSiblings: completedSiblings,
+        residualRisk,
+        totalSpend,
+        admittedPlanRevision: plan.planRevision,
+      };
+    }
+
+    if (unaccountedChildren.length > 0 || hasNonTerminalChild || !allCompletedAndValidated) {
+      return {
+        status: "ineligible",
+        isTerminal: false,
+        canCommit: false,
+        summary: `Parent closure ineligible: ${unaccountedChildren.length} unaccounted children, ${
+          missingEvidence.length
+        } validation/integration defects.`,
+        childDispositions,
+        missingEvidence,
+        unaccountedChildren,
+        residualRisk,
+        totalSpend,
+        admittedPlanRevision: plan.planRevision,
+      };
+    }
+
+    // All children succeeded, validated, and integrated cleanly!
     return {
-      status,
-      isTerminal,
-      canCommit,
-      summary,
+      status: "completed",
+      isTerminal: true,
+      canCommit: true,
+      summary: `Parent closure completed: all ${plan.children.length} child tasks completed, verified, and cleanly integrated.`,
       childDispositions,
-      missingEvidence,
-      unaccountedChildren,
+      missingEvidence: [],
+      unaccountedChildren: [],
+      residualRisk,
       totalSpend,
+      admittedPlanRevision: plan.planRevision,
     };
   }
 }
