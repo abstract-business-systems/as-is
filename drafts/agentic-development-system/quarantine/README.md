@@ -1,26 +1,24 @@
-# Agentic Development System — Quarantined Planning Artifacts
+# Agentic Development System — Quarantined Historical Planning Artifacts
 
-Purpose: Preserve the abandoned broader blocker-resolution detour without allowing it to compete with the active focused parallel-child planning flow.
+Purpose: Preserve the historical planning iterations, superseded draft packages, manifests, freeze records, and review artifacts from the design-convergence phase without allowing them to pollute the active implementation context.
 
-These artifacts are retained as untracked planning provenance because Git history cannot recover uncommitted content. They are not current architecture, accepted target contracts, implementation plans, task authority, or execution instructions.
-
-## Why they are quarantined
-
-The blocker-resolution drafts began as a response to questions about pilot exclusions and `core/contracts`, then expanded into a broad proposed integration/admission model. That detour mixed useful future realization concerns with the narrower user request to review parallel child-building behavior. It also risked introducing ownership and lifecycle decisions outside the accepted focused scope.
-
-The active flow is instead anchored at:
-
-- `drafts/agentic-development-system-parallel-child-build-processing-draft1.md`;
-- `reviews/agentic-development-system/kimi-parallel-child-build-processing-draft1.md`; and
-- `reviews/agentic-development-system/sol-parallel-child-build-processing-draft1.md`.
-
-The quarantined material may be consulted when deriving the later executable realization plan, but any adopted point must be explicitly reintroduced, scoped, and reviewed rather than copied implicitly.
+These artifacts are retained as historical planning provenance. They are not current architecture, accepted target contracts, active implementation plans, task authority, or execution instructions.
 
 ## Contents
 
-- `agentic-development-system-blocker-resolution-plan-draft1.md` through `draft6.md` — broader exploratory blocker-resolution drafts.
-- `reviews/` — reviews and simulations associated with those exploratory drafts.
+- Historical target design draft packages (`draft1` through `draft10`).
+- Historical overall realization roadmaps (`draft1` through `draft12`).
+- Historical flow plans and model-binding drafts.
+- Historical blocker-resolution drafts (`draft1` through `draft6`).
+- `reviews/` — all historical review records, freezes, caller-identity verifications, and Sol/Kimi review reports.
 
-## Retention and removal
+## Active implementation authority
 
-These files are currently untracked and were moved rather than deleted to preserve recovery value. Their later removal, consolidation, or promotion requires a separate scoped decision after checking consumers, provenance value, and whether the necessary facts have been transferred to an authoritative record.
+The active, locked implementation plan is at:
+- `designs/agentic-development-system-implementation-plan.md`
+
+Supported by the foundational design records:
+- `drafts/agentic-development-system-high-level-design-draft11/target-design.md` (System Architecture)
+- `drafts/composable-skills.md` (Skills Architecture)
+- `drafts/multi-model-development-orchestration.md` (Model Strategy)
+- `drafts/agentic-development-system-executable-realization-plan-draft6.md` (Execution-Control Specification)

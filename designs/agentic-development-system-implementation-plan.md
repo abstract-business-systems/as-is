@@ -2,7 +2,16 @@
 
 ## Purpose
 
-This document locks the direct implementation plan for realizing the agentic development system on branch `implementing-composable-skills`. It bridges the accepted architectural foundation (Target Design Draft 11, `drafts/composable-skills.md`, and Realization Plan Draft 6) directly into executable TypeScript code, automated test suites, and composable skill procedures without further draft-review loops.
+This document locks the direct implementation plan for realizing the agentic development system on branch `implementing-composable-skills`. It bridges the accepted architectural foundation directly into executable TypeScript code, automated test suites, and composable skill procedures without further draft-review loops.
+
+## Authoritative design references
+
+Implementation conforms to the four authoritative design documents established on this branch:
+
+1. **System Architecture (5-Plane Design):** `drafts/agentic-development-system-high-level-design-draft11/target-design.md` (Human Intent, Orchestration & Control, Realization, Assurance, Host/Consumption planes).
+2. **Composable Skills Architecture:** `drafts/composable-skills.md` (Reusable procedure skills, master outcome-oriented compositions, and composition runner).
+3. **Multi-Model Strategy:** `drafts/multi-model-development-orchestration.md` (Role separation, OpenRouter model bindings, and `thinking: high` defaults).
+4. **Execution-Control Specification:** `drafts/agentic-development-system-executable-realization-plan-draft6.md` (Plan admission, atomic multi-reservation, stale-lock recovery, and fail-closed parent closure).
 
 ## Model roster and execution assignments
 
