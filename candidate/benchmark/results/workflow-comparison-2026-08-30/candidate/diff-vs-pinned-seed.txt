@@ -1,0 +1,12 @@
+Only in candidate: AGENTS.md
+Only in candidate: as-is.md
+Files ../../seed/CHANGELOG.md and candidate/CHANGELOG.md differ
+Files ../../seed/docs/design-notes.md and candidate/docs/design-notes.md differ
+Only in candidate/src/wordstats: as-is.json
+Only in candidate/src/wordstats: as-is.md
+Files ../../seed/src/wordstats/cli.py and candidate/src/wordstats/cli.py differ
+Files ../../seed/src/wordstats/counter.py and candidate/src/wordstats/counter.py differ
+Only in candidate/src/wordstats: __pycache__
+Only in candidate/src/wordstats: tasks.md
+Only in candidate/tests: __pycache__
+Files ../../seed/tests/test_counter.py and candidate/tests/test_counter.py differ

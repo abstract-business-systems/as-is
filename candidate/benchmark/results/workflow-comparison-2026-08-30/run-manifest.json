@@ -1,0 +1,71 @@
+{
+  "experiment": "workflow-comparison-2026-08-30",
+  "registration": "candidate/benchmark/pre-registration.md @ 78e9879 (user acceptance recorded at 338647a)",
+  "status": "advisory-only; no advancement or adoption claim",
+  "pinnedRevisions": {
+    "baselineWorkflow": "master @ 9a77e37 (live skill catalog and live agents, materialized read-only via git archive to /tmp/bench-workflow-baseline)",
+    "candidateWorkflow": "candidate artifacts @ 49db213 (verified: git diff 49db213 HEAD -- candidate/skills/ candidate/agents/ empty at execution start)",
+    "seed": "candidate/benchmark/seed/ @ ec7b5d0 (verified unchanged)",
+    "featureRequest": "candidate/benchmark/feature-request.md @ ec7b5d0 (verified unchanged)",
+    "preRegistration": "verified unmodified since 78e9879"
+  },
+  "settings": {
+    "model": "z-ai/glm-5.3-flash",
+    "provider": "openrouter",
+    "sampling": "provider defaults; no temperature/top-p overrides",
+    "thinking": "high (agent front matter, identical both arms)",
+    "harness": "pi 0.84.0 via governed launcher skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts, durable sessions, --approve, identical both arms",
+    "checks": "bash checks/validate.sh (a) on pristine consumer copy at setup (both passed, exit 0), (b) post-integration (both passed, exit 0)"
+  },
+  "arms": {
+    "baseline": {
+      "driverAgent": "agents/component-builder/agent.md @ 9a77e37 (live workflow implementation-owning role)",
+      "skillCatalog": "live catalog @ 9a77e37 (materialized skills/ tree, passed via --skill)",
+      "consumerDirectory": "candidate/benchmark/run/2026-08-30/baseline",
+      "outcome": "completed",
+      "budget": { "declared": { "costUsd": 2.0, "wallClockSeconds": 3600 }, "actual": { "costUsd": 0.019725, "wallClockSeconds": 407.413, "costSource": "durable pi session store usage (session 5b13b4c9)", "wallClockSource": "launcher result.json" } },
+      "checks": { "setupPristineSeed": "pass exit 0", "postIntegration": "pass exit 0 (15 unit tests)" },
+      "commit": "cbc2c66 in the consumer-local git repository (consumer was git-init'd by execution setup before launch, no initial commit)",
+      "delegations": "none (launcher registry shows only the top-level launch)",
+      "blockersRecordedByArm": ["attributable expert plan review and expert diff validation unavailable (in-process expert call failed: no agents registry in the consumer); recorded, not retried; mitigated with deterministic validation plus direct CLI evidence"]
+    },
+    "candidate": {
+      "driverAgent": "candidate/agents/implementer/agent.md @ 49db213 (candidate workflow implementation-owning role)",
+      "skillCatalog": "candidate/skills/reusable + candidate/skills/master @ 49db213 (passed via --skill)",
+      "consumerDirectory": "candidate/benchmark/run/2026-08-30/candidate",
+      "outcome": "completed",
+      "budget": { "declared": { "costUsd": 2.0, "wallClockSeconds": 3600 }, "actual": { "costUsd": 0.020338, "wallClockSeconds": 375.934, "costSource": "durable pi session store usage (session cbd50cec)", "wallClockSource": "launcher result.json" } },
+      "checks": { "setupPristineSeed": "pass exit 0", "postIntegration": "pass exit 0 (12 unit tests)" },
+      "commit": "none; work integrated as files in the consumer, durable evidence in CHANGELOG.md, src/wordstats/tasks.md (terminal completed) and component record",
+      "delegations": "none (arm driver recorded its delegation decision: small bounded scope, self-execution to stay within arm caps)"
+    }
+  },
+  "retryLog": [
+    { "arm": "baseline", "jobId": "j-mtfoftlo-ke09xq", "phase": "pre-run harness plumbing", "event": "self-terminated by implementer at 1.041 s after detecting that launcher worktree isolation engaged (consumer directory resides inside the host repository git tree, so createWorktree succeeded against the host repo). Child cwd would not have been the consumer. No model invocation, no workflow-visible output.", "classification": "execution-setup correction (launch configuration), not an arm run" },
+    { "arm": "baseline", "jobId": "j-mtfokag3-yv470k", "phase": "pre-run harness plumbing", "event": "pi exited at extension load: consumer .pi copy could not resolve repository-relative imports; fixed by per-consumer extension shim with absolute imports plus installing the skill package's declared dependencies (bun install in skills/spawning-pi-subagents). Zero model invocation, zero workflow-visible output.", "classification": "execution-setup plumbing fix, not an arm run" },
+    { "arm": "baseline", "jobId": "j-mtfonl0j-dl939b", "phase": "arm run", "event": "completed, exit 0, 407.413 s, $0.019725. First launch that reached model inference; consumed no registered infrastructure re-run.", "classification": "the baseline arm run" },
+    { "arm": "candidate", "jobId": "j-mtfokkju-wl08ze", "phase": "pre-run harness plumbing", "event": "pi exited at extension load (same defect as baseline attempt 2, fixed once before both launches). Zero model invocation, zero workflow-visible output.", "classification": "execution-setup plumbing fix, not an arm run" },
+    { "arm": "candidate", "jobId": "j-mtfontfv-wipwu0", "phase": "arm run attempt", "event": "provider returned an empty response at the first model call (content [], 0 tokens, cost $0, stopReason stop); child exited 0 at 17.97 s with no workflow-visible output and an unchanged consumer. Counted as the candidate arm's single registered infrastructure/harness re-run trigger (section 8).", "classification": "registered infrastructure re-run consumed for the candidate arm" },
+    { "arm": "candidate", "jobId": "j-mtfopgym-z6ou0n", "phase": "arm run", "event": "completed, exit 0, 375.934 s, $0.020338.", "classification": "the candidate arm run (post infrastructure re-run)" }
+  ],
+  "retryAccountingNote": "The pre-registration (section 18) assigns the run harness and per-arm launch procedure to post-acceptance execution-setup work, distinct from the run itself. No failed launch reached model inference (verified: 0 tokens in the session store, pi exited or returned empty before any workflow-visible output, consumers unchanged), so no measured workflow behavior was re-rolled. All six launch attempts are itemized above with registry evidence under each arm's launch-attempts/ and launcher-registry.jsonl. The registered one-infrastructure-re-run-per-arm allowance was consumed only by the candidate arm (empty provider response); the baseline arm run completed on its first attempt.",
+  "isolation": {
+    "separateDirectories": "baseline and candidate consumers are distinct seed copies under candidate/benchmark/run/2026-08-30/",
+    "crossArmAccess": "no references to the other arm's path found in either consumer (post-hoc grep scan); no launcher launches targeted the other arm's directory (registries)",
+    "writeScope": "main worktree git status shows no tracked-file modifications; the only additions under candidate/benchmark/ are the two consumer directories and this results tree (written by the implementer, not by arm workers); the read-only materialized baseline workflow (/tmp/bench-workflow-baseline) has no files newer than its materialization",
+    "protectedInputs": "pre-registration.md, feature-request.md, seed/, rubric/scorer definitions, and pinned trees verified unchanged against 78e9879 / ec7b5d0 / 9a77e37 / 49db213"
+  },
+  "executionAdaptations": [
+    "Baseline workflow materialization: live skill catalog and agents @ 9a77e37 materialized read-only via `git archive 9a77e37 | tar -x` into /tmp/bench-workflow-baseline (outside candidate/benchmark/); the baseline arm read its workflow there and wrote only inside its consumer directory.",
+    "Per-arm launch procedure: pi child launched with --cwd set to the arm's consumer directory and --no-worktree; the arm's skill catalog supplied via absolute --skill paths; model pinned via --model z-ai/glm-5.3-flash with provider resolved from the host repository's as-is.json (openrouter); --budget-wall-clock-seconds 3600 --budget-cost-usd 2.00 forwarded; identical task prompt per arm (copies at <arm>/arm-task-prompt.md) containing the verbatim feature request, the isolation and budget constraints of sections 5-9, and the launcher path (host plumbing, since relative launcher paths do not resolve from a consumer directory).",
+    "Harness plumbing placed identically in both consumers before launch (recorded, not scored as workflow setup): a .pi/settings.json declaring only the worker-tools extension, an extension shim with absolute imports to the host repository's identical .pi tree (verified byte-identical between 9a77e37 and HEAD), a git init without commits in each consumer, and the skill package's declared dependencies installed in the host repository. The seed's no-workflow-configuration expectation is preserved: none of this is seed content or workflow configuration.",
+    "Arms executed in parallel under separate detached bounded job runners with separate job registries; isolation is directory-based per section 5.",
+    "The candidate arm's workflow used its own changelog convention; the baseline arm created its own changelog.md rather than appending to the seed's CHANGELOG.md (scored under the rubric; see scoring.md)."
+  ],
+  "residualRisks": [
+    "N = 1 per arm with unseeded LLM sampling; the pre-registered claim is limited to this single paired run (registration section 15).",
+    "Arm drivers never delegated; the measured trajectory is one driver per arm plus its own tool use, so the benchmark measures the single-agent driving pattern of each workflow on a small bounded feature, not multi-level delegation behavior.",
+    "The live workflow's in-process expert review capability is unavailable in this environment (no agents registry relative to a consumer directory); the baseline arm recorded the resulting evidence gap rather than obtaining expert review, so its evidence dimension reflects that mitigation.",
+    "Cost actuals rely on pi session-store usage accounting (self-reported); wall-clock comes from the launcher's result.json."
+  ]
+}

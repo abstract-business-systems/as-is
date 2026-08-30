@@ -1,0 +1,20 @@
+{
+  "task": {
+    "status": "completed",
+    "worker": "implementer",
+    "updated": "2026-08-30T16:55:00Z",
+    "constraints": {
+      "cost": { "currency": "USD", "allocated": 2.0, "spent": 0, "reserve": 0.2, "source": "host-reported" },
+      "delegation": { "maximum-depth": 1, "maximum-children": 2 },
+      "execution": { "wall-clock": { "allocated-seconds": 3600, "spent-seconds": 0, "reserve-seconds": 300, "source": "host-reported" } },
+      "external-effects": "require-current-turn-user-approval"
+    },
+    "acceptance": [
+      "Design note recorded in docs/design-notes.md before implementation.",
+      "`wordstats count --top N` prints only the N most frequent words as a JSON object with alphabetically sorted keys; default output unchanged.",
+      "Zero or negative N rejected with nonzero exit and a clear message.",
+      "Focused tests cover the new option, tie-breaking, and the rejection case.",
+      "bash checks/validate.sh passes with the new tests included."
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+Only in baseline: AGENTS.md
+Only in baseline: as-is.md
+Only in baseline: changelog.md
+Files ../../seed/docs/design-notes.md and baseline/docs/design-notes.md differ
+Only in baseline/src/wordstats: as-is.md
+Files ../../seed/src/wordstats/cli.py and baseline/src/wordstats/cli.py differ
+Files ../../seed/src/wordstats/counter.py and baseline/src/wordstats/counter.py differ
+Only in baseline/src/wordstats: __pycache__
+Only in baseline/tests: __pycache__
+Only in baseline/tests: test_cli.py
+Files ../../seed/tests/test_counter.py and baseline/tests/test_counter.py differ

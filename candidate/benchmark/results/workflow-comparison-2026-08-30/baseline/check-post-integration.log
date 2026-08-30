@@ -1,0 +1,24 @@
+compile: OK
+test_default_output_unchanged (test_cli.CountTopOptionTests.test_default_output_unchanged) ... ok
+test_top_negative_rejected_with_nonzero_exit (test_cli.CountTopOptionTests.test_top_negative_rejected_with_nonzero_exit) ... ok
+test_top_non_integer_rejected_with_nonzero_exit (test_cli.CountTopOptionTests.test_top_non_integer_rejected_with_nonzero_exit) ... ok
+test_top_prints_only_n_most_frequent_as_sorted_json (test_cli.CountTopOptionTests.test_top_prints_only_n_most_frequent_as_sorted_json) ... ok
+test_top_ties_broken_alphabetically_at_cutoff (test_cli.CountTopOptionTests.test_top_ties_broken_alphabetically_at_cutoff) ... ok
+test_top_zero_rejected_with_nonzero_exit (test_cli.CountTopOptionTests.test_top_zero_rejected_with_nonzero_exit) ... ok
+test_counts_basic_words (test_counter.CountWordsTests.test_counts_basic_words) ... ok
+test_empty_input (test_counter.CountWordsTests.test_empty_input) ... ok
+test_ignores_punctuation_only_tokens (test_counter.CountWordsTests.test_ignores_punctuation_only_tokens) ... ok
+test_strips_punctuation_and_lowercases (test_counter.CountWordsTests.test_strips_punctuation_and_lowercases) ... ok
+test_all_tied_counts_fill_alphabetically (test_counter.MostFrequentTests.test_all_tied_counts_fill_alphabetically) ... ok
+test_limit_larger_than_vocabulary_returns_all (test_counter.MostFrequentTests.test_limit_larger_than_vocabulary_returns_all) ... ok
+test_limit_one_returns_single_highest (test_counter.MostFrequentTests.test_limit_one_returns_single_highest) ... ok
+test_returns_top_n_by_count (test_counter.MostFrequentTests.test_returns_top_n_by_count) ... ok
+test_ties_broken_alphabetically_at_cutoff (test_counter.MostFrequentTests.test_ties_broken_alphabetically_at_cutoff) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.133s
+
+OK
+unit tests: OK
+cli smoke check: OK
+All checks passed.

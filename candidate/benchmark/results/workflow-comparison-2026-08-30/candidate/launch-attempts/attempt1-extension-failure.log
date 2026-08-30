@@ -1,0 +1,3 @@
+Warning: No project session found with id 'eb82ed48-b462-43bf-8d94-46325f4ba995'; creating a new session with that id.
+Error: Failed to load extension "/tmp/as-is-child-OpmyGK/worktree/candidate/benchmark/run/2026-08-30/candidate/.pi/extensions/worker-tools.ts": Failed to load extension: ResolveMessage: Cannot find module '../../skills/spawning-pi-subagents/extensions/worker-tools.ts' from '/tmp/as-is-child-OpmyGK/worktree/candidate/benchmark/run/2026-08-30/candidate/.pi/extensions/worker-tools.ts'
+Hint: Start without extensions using "pi -ne".
