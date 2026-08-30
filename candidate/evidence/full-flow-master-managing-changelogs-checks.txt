@@ -1,0 +1,19 @@
+PASS  check2 front-matter name == managing-changelogs
+PASS  check2 directory name == managing-changelogs
+PASS  check3 description present
+PASS  check3 description grants no tools or authority (fit wording)
+NOTE  check8 size 2826 chars > 2000 (masters may exceed the voluntary target: compositions, gates, recovery, stopping rules; draft line 132)
+PASS  check1 Purpose clause verbatim (draft line 844)
+PASS  check1 Approach clause verbatim (draft line 846)
+PASS  check1 How clause verbatim (draft line 848)
+PASS  check4 sections exactly Purpose/Approach/How it should be done/Design view/Composition context
+PASS  check4 no path reference to other candidate artifacts
+PASS  check12 Design-view Mermaid block byte-equal
+PASS  check13 composition entry: changelog resolution rule
+PASS  check13 composition entry: no-history-required rule
+PASS  check13 composition entry: managing-changelogs entry
+----
+isolation fixture listing at test time (check 9):
+candidate/evidence/fixtures/masters/managing-changelogs/candidate/skills/master/managing-changelogs/SKILL.md
+----
+RESULT managing-changelogs: pass=13 fail=0 chars=2826
