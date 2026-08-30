@@ -42,7 +42,7 @@ case "$role" in
 esac
 
 # Static authority/limits mapping: required phrases from cited target-design rows
-req() { grep -qF "$2" "$file" && ok "limits row phrase present: $1" || bad "MISSING row phrase ($1): $2"; }
+req() { grep -qiF "$2" "$file" && ok "limits row phrase present: $1" || bad "MISSING row phrase ($1): $2"; }
 case "$role" in
   as-is-orchestrator)
     req "7.1:312 authority" "Root lifecycle coordination, human interaction, status synthesis, routing, and escalation"

@@ -1,0 +1,15 @@
+PASS  front-matter name == as-is-orchestrator
+PASS  directory name == as-is-orchestrator
+PASS  description present: One-line fit statement only; grants no tools and no authority.
+PASS  description grants no tools or authority (fit wording)
+PASS  tools declared: read,grep,find,ls
+PASS  advisory role read-only tools
+PASS  limits row phrase present: 7.1:312 authority
+PASS  limits row phrase present: 7.1:312 limit
+PASS  limits row phrase present: 7.1:312 limit
+PASS  limits row phrase present: 8:368 disposition
+----
+isolation fixture listing at test time (check 9 pattern):
+candidate/evidence/fixtures/agents/as-is-orchestrator/candidate/agents/target/as-is-orchestrator/agent.md
+----
+RESULT as-is-orchestrator: pass=10 fail=0
