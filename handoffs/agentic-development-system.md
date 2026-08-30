@@ -183,15 +183,15 @@ This revisioning was necessary to keep each review tied to exact bytes and to pr
 
 ## New-session next action
 
-Read this handoff first, then reference the locked implementation plan and evidence records:
+Read this handoff first, then reference the locked alignment plan and checklist:
 
-1. `designs/agentic-development-system-implementation-plan.md`
-2. `candidate/evidence/milestone-1-execution-control.md`
-3. `candidate/evidence/milestone-2-composable-skills-and-agents.md`
-4. `candidate/evidence/milestone-3-e2e-benchmark-and-adoption.md`
+1. `designs/agentic-development-system-implementation-plan.md` (Itemized 24+12 Skills & Section 13 Benchmark Plan)
+2. `handoffs/agentic-development-system-continuity-checklist.md` (Itemized Verification Checklist)
+3. `candidate/evidence/milestone-1-execution-control.md`
+4. `candidate/evidence/milestone-2-composable-skills-and-agents.md`
 
-**Current state:** All three implementation milestones (Milestone 1, 2, and 3) are completely realized and verified with 46/46 passing tests.
+**Current state:** Candidate kernel and initial composition engine built (46/46 tests pass). Next phase is expanding to the full 24 reusable skills + 12 master compositions from `drafts/composable-skills.md`, running the Section 13 benchmark against pinned `master`, and dispatching Sol/Kimi review audits.
 
-**Next action:** Review completed candidate evidence and present completion summary to user.
+**Next action:** Implement the remaining reusable skill procedures under `candidate/skills/reusable/` and master compositions under `candidate/skills/compositions/`.
 
 The canonical program-status section above holds current state and links; do not recreate historical planning detail in a new-session prompt or handoff.

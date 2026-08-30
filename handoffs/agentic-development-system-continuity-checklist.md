@@ -1,67 +1,78 @@
 # Agentic Development System — Continuity Checklist
 
-Purpose: Preserve the active planning sequence, distinguish requested review scope from surfaced follow-up issues, and provide a compact-safe checklist for continuing the agentic-development-system rearchitecture.
+Purpose: Single itemized verification checklist tracking candidate realization, skills catalog coverage, benchmark execution, and model review audits.
 
-## Authority and current checkpoint
+## 1. Candidate Kernel (`candidate/execution-control/`)
+- [x] `types.ts`: Plan envelopes, DAGs, admissions, component reservations, validation/integration evidence, closure outcomes.
+- [x] `admission.ts`: PlanAdmissionEngine with Kahn's DAG acyclicity check, component collision detection, scope allowlist overlap checks, budget checks, and protected input enforcement.
+- [x] `reservation.ts`: ComponentReservationManager with sorted-key acquisition, collision rollback, lease TTLs, re-entrancy, stale-lock reclamation, and orphan sweeps.
+- [x] `closure.ts`: ParentClosureEvaluator with fail-closed evaluation requiring 100% child accounting, validation proofs, and clean scope.
+- [x] `candidate/tests/execution-control/`: 24/24 unit & integration tests passing.
+- [x] Evidence: `candidate/evidence/milestone-1-execution-control.md`.
 
-This checklist is a navigation and continuity aid. The accepted draft-11 target design, accepted Draft-12 overall realization roadmap, and current `as-is.md` records remain authoritative for their subjects. This checklist does not adopt target contracts, create tasks, authorize kick-off or implementation, or adopt target contracts. The Draft-12 roadmap acceptance checkpoint was committed as `2f969ec`; it contains no implementation or task authority.
+## 2. Agent Roster (`candidate/agents/`)
+- [x] `config.json` & `config.ts`: Runtime config and OpenRouter model resolution.
+- [x] `types.ts` & `role-contract.ts`: Contract definitions and tool boundary validation.
+- [x] `implementer/agent.md`: `google/gemini-3.7-flash` | `thinking: high` | 7 tools.
+- [x] `worker/agent.md`: `z-ai/glm-5.3-flash` | `thinking: high` | 6 tools (no bash).
+- [x] `planning-adviser/agent.md`: `openai/gpt-5.6-sol` | `thinking: high` | 0 tools.
+- [x] `external-adviser/agent.md`: `moonshotai/kimi-k3` | `thinking: high` | 0 tools.
+- [x] `candidate/tests/skills/agent-config.test.ts`: 5/5 tests passing.
 
-| Item | State | Evidence or next action |
-| --- | --- | --- |
-| Draft-11 high-level design | Complete and human-accepted | `drafts/agentic-development-system-high-level-design-draft11/`; acceptance in `reviews/agentic-development-system/target-design-human-review-acceptance-draft11.md`. |
-| Component-builder realization detail plan | Complete for its bounded planning scope | Draft 13 and review in `drafts/agentic-development-system-detail-plan-component-builder-realization-transition-draft13.md` and `reviews/agentic-development-system/expert-component-builder-realization-transition-detail-plan-draft13.md`. |
-| Planning owners and pilot | Complete as planning decisions | `drafts/agentic-development-system-owner-and-pilot-selection-draft1.md`; pilot is `validation-fixtures/dummy-delegation`. |
-| Broader blocker-resolution detour | Quarantined; not the active plan | `drafts/agentic-development-system/quarantine/README.md` and its preserved drafts/reviews. Consult only when deriving the later executable realization plan. |
-| Requested parallel-child review | Draft 2 reviewed; focused clarification closed | Actual Kimi review: `reviews/agentic-development-system/kimi-parallel-child-build-processing-draft2.md`; actual Sol review and disposition: `reviews/agentic-development-system/sol-parallel-child-build-processing-draft2.md`. Both used the exact focused draft 2. Draft 1 remains preserved as predecessor evidence. |
-| Parallel-child planning invariants | Confirmed at planning level | Independent child component builds may run in parallel when admitted; at most one build may target a component; successful parent completion waits for all owned child builds to complete. No runtime implementation exists. |
-| Important broader review findings | Quarantined from the active focused flow | The broader blocker-resolution review findings remain in the quarantined draft-1–6 artifacts. They are not the current requested item; revisit only when deriving the executable realization plan. |
-| Successor plan | Complete: draft 2 | `drafts/agentic-development-system-parallel-child-build-processing-draft2.md` applies only Sol's two accepted repairs and preserves draft 1. |
-| Human review of successor | Transitional review complete; no implementation authority | Actual Kimi passed and actual Sol marked draft 2 ready. These are advisory records only; executable-plan review, human kick-off, and task-control admission remain later and separate. |
-| Overall realization roadmap | Draft 12 human-accepted as controlling program planning map | `drafts/agentic-development-system-overall-realization-roadmap-draft12/`; packet digest `797ed521be694c36d08398a50e1fa17ea6c37c19b507d3fb557834413ac98124`; freeze `reviews/agentic-development-system/overall-realization-roadmap-draft12-freeze.md`; exact review `reviews/agentic-development-system/overall-realization-roadmap-draft12-exact-review.md`. It records the corrected construction flows and positions draft 6 as one first-slice workstream. |
-| Executable realization plan | Draft 6 frozen and human-accepted on 2026-08-29; its proposed current-task-control locations are historical planning provenance only | `drafts/agentic-development-system-executable-realization-plan-draft6.md`; acceptance `reviews/agentic-development-system/executable-realization-plan-draft6-human-review-acceptance.md`; external freeze handoff `reviews/agentic-development-system/executable-realization-plan-draft6-freeze.md`; frozen SHA-256 `ef2c7c5bd760e8e1bacd795fec18ad1b4dbf7264d1d6260c9dc383e612348716`. The candidate boundary must be independently defined before a successor implementation packet. |
-| Coding/application flow plan | Draft 2 human-accepted on 2026-08-29 | Acceptance: `reviews/agentic-development-system/coding-application-flow-plan-draft2-human-review-acceptance.md`; Sol advises deferring the broader process-adapter question and excluding that branch from an initial task-control slice; implementation still requires separate kick-off, task preparation, and exact admission. |
-| Agents/skills flow plan | Draft 2 frozen, external-Kimi reviewed `ready`, and human-accepted on 2026-08-29 | Acceptance: `reviews/agentic-development-system/agents-skills-flow-plan-draft2-human-review-acceptance.md`; packet digest `aa7ad0d39a41fb386bf921b52d755fac4cd78916935d3b2858dd50a4b122cf9b`; no implementation authority. |
-| Benchmark | Not started | Requires candidate evidence first, then separately approved setup-inclusive benchmark inputs and advancement rules. |
-| Program status | Canonical summary is in the consolidated handoff | `handoffs/agentic-development-system.md` carries final goal, current phase, achieved milestones, immediate gate, first-slice scope, later milestones, deferred branches, authority state, and verification checkpoint. This checklist remains navigation and verification support only. |
-| Task preparation | Preparation cancelled after construction-flow clarification | Four task pairs and the selected backlog row remain as cancelled historical evidence from `0283acd`; they must not be reactivated unchanged. Correction: `reviews/agentic-development-system/construction-flow-alignment-correction-decision-brief.md`. |
-| Implementation plan | Complete: locked at `designs/agentic-development-system-implementation-plan.md` | Defines the 3-milestone execution path: Milestone 1 (execution-control kernel), Milestone 2 (composable skills & agents), Milestone 3 (end-to-end testbed & benchmark). |
-| Model roster | Complete: locked in implementation plan | `implementer` (Gemini 3.7 Flash), `worker` (GLM-5.3 Flash), `planning-adviser` (Sol), `external-adviser` (Kimi); OpenRouter provider; `thinking: high`. |
-| Milestone 1 | Completed & verified (24/24 tests pass) | Candidate kernel built at `candidate/execution-control/`; evidence recorded at `candidate/evidence/milestone-1-execution-control.md`. |
-| Milestone 2 | Completed & verified (18/18 tests pass) | Composable Skills Engine and Agent Roster built at `candidate/skills/` and `candidate/agents/`; evidence recorded at `candidate/evidence/milestone-2-composable-skills-and-agents.md`. |
-| Milestone 3 | Completed & verified (4/4 tests pass) | End-to-End Pilot Testbed, Baseline Benchmark, and Adoption Ledger built at `candidate/tests/e2e/`, `candidate/benchmark/`, `candidate/tests/benchmark/`; evidence recorded at `candidate/evidence/milestone-3-e2e-benchmark-and-adoption.md`. (46/46 total candidate tests passing). |
-| Next action | All 3 implementation milestones complete | Candidate architecture fully verified with 46/46 passing deterministic tests and benchmark evidence. |
-| Commit | `bc09e78` records the concise construction-agent profile binding | The task-start records remain immutable evidence. The concise frozen Draft 3 and refreshed pointers are committed planning documentation. No implementation or provider authority. |
+## 3. Composable Skills Catalog (`candidate/skills/`)
+### Reusable Skills (24 total)
+- [x] `context-building` (`building-context`)
+- [ ] `resolving-scopes`
+- [ ] `identifying-owners`
+- [ ] `locating-changelogs`
+- [x] `naming-software-concepts` (`choosing-names`)
+- [ ] `structuring-content`
+- [ ] `drafting-content`
+- [ ] `writing-code`
+- [ ] `applying-bounded-edits`
+- [ ] `writing-tests`
+- [ ] `running-tests`
+- [x] `verification-discipline` (`validating-changes`)
+- [ ] `recording-evidence`
+- [ ] `designing-diagrams`
+- [ ] `rendering-diagrams`
+- [ ] `inspecting-execution-evidence`
+- [ ] `assessing-determinism`
+- [ ] `recording-backlog-items`
+- [ ] `drafting-changelog-entries`
+- [ ] `delegating-bounded-work`
+- [ ] `observing-delegated-work`
+- [ ] `preparing-scoped-commits`
+- [ ] `presenting-decisions`
+- [ ] `choosing-change-methods`
 
-## Two-track review interpretation
+### Master Skills (12 total)
+- [ ] `making-changes`
+- [x] `building-components`
+- [x] `implementing-tasks`
+- [ ] `maintaining-components`
+- [ ] `managing-as-is-records`
+- [ ] `designing-mermaid-diagrams`
+- [ ] `managing-backlogs`
+- [ ] `managing-changelogs`
+- [ ] `spawning-subagents`
+- [ ] `exploring-execution-evidence`
+- [ ] `consulting-humans`
+- [ ] `committing-completed-work`
 
-### Track A — Requested parallel-child processing changes
+### Engine & Tests
+- [x] `trace.ts` (`ExecutionTracer` with `SecurityViolationError` & `ScopeViolationError`).
+- [x] `registry.ts` (`SkillRegistry` with capability validation).
+- [x] `runner.ts` (`CompositionRunner` with condition gates and spend tracking).
+- [x] Unit test suites: `candidate/tests/skills/` (18/18 passing).
 
-The requested review concerned the focused artifacts `drafts/agentic-development-system-parallel-child-build-processing-draft1.md` and its sole successor `drafts/agentic-development-system-parallel-child-build-processing-draft2.md`: component-building parent/child meaning, independent-child parallelism, one active build per component, parent successful completion after all owned child builds complete, and the two accepted repairs. Actual Sol and Kimi reviewed the exact draft 2 successor; Kimi passed it and Sol marked it ready. Draft 1 and its reviews remain preserved predecessor evidence.
+## 4. Section 13 Benchmark Comparison Protocol
+- [ ] Setup isolated mock consuming testbed (`validation-fixtures/dummy-delegation`).
+- [ ] Run Baseline Workflow (pinned `master` revision).
+- [ ] Run Candidate Workflow (`implementing-composable-skills`).
+- [ ] Collect comparative metrics: setup latency, contention handling, security violation catch rate, closure accounting, and recovery.
+- [ ] Author comparative benchmark report in `candidate/evidence/section-13-benchmark-report.md`.
 
-### Track B — Broader exploratory issues kept out of the focused item
-
-The broader blocker-resolution drafts surfaced lifecycle-gate, admission-ownership, reservation-release, integration-success, stale-base, and queued-freshness issues. They are retained in the explicitly named `drafts/agentic-development-system/quarantine/` directory, including its `reviews/` subdirectory, as recoverable provenance and are not silently folded into the focused parallel-child clarification. They belong in the later executable realization plan unless a future finding changes the accepted envelope.
-
-## Safe continuation sequence
-
-1. Preserve the accepted Draft-12 roadmap packet, its freeze/exact-review records, Drafts 3–11 predecessor packets and review evidence, and broader historical provenance.
-2. Preserve Terra's review-path audit, which confirms that no Sol coding-plan gate was omitted and proposes a canonical assertion for future packets.
-3. Coding/application Draft 2 is human-accepted; preserve its acceptance record and do not implement from it.
-4. Agents/skills Draft 2 is frozen, externally Kimi-reviewed `ready`, and human-accepted; preserve its acceptance record and do not implement from it.
-5. Preserve Sol's bounded advice to defer the broader process-adapter ownership question and exclude that branch from an initial task-control slice.
-6. Draft 6 is human-accepted; preserve `reviews/agentic-development-system/executable-realization-plan-draft6-human-review-acceptance.md` and do not implement from it.
-7. The prepared root → core → core/modules → core/modules/task-control task pairs were cancelled after the custom model-bound construction-flow clarification; retain `0283acd` as historical evidence and do not reactivate it.
-8. The direct implementation plan is locked at `designs/agentic-development-system-implementation-plan.md` with the updated OpenRouter model roster and `thinking: high`.
-9. Post-compaction, execute Milestone 1: construct candidate execution-control kernel in `candidate/execution-control/` and automated tests in `candidate/tests/execution-control/`.
-10. Execute Milestone 2: construct composable skills engine and agent definitions in `candidate/skills/` and `candidate/agents/`.
-11. Execute Milestone 3: end-to-end integration testbed and benchmark against pinned `master` baseline in a separate worktree.
-11. Build and prove the independently defined candidate through the admitted flow, preserving deterministic validation, disclosed review relationships, recovery, and any risk-triggered independent review.
-12. Obtain separate setup-inclusive benchmark approval, compare the proven candidate with pinned-current behavior, review advancement, and make later adoption, retirement, and merge decisions.
-
-## Continuity incident
-
-The prior continuation lost the distinction between a repository-local fixture used as a realization testbed and the target structures that the fixture was meant to exercise. It also treated expert-shell simulations as equivalent to actual Sol/Kimi review and allowed broader review suggestions to drift into the focused target without an explicit disposition. Recovery now uses one checklist, one current-plan pointer, actual reviewer identity/model observations, explicit track separation, preserved predecessors, quarantine labeling, and a visible implementation gate.
-
-## Compacting rule
-
-Before compaction, verify that the Draft-12 packet digest and freeze/exact-review provenance are durable and that the coding/application Draft-2 packet, freeze, exact review, Human Review acceptance, Terra review-path audit, agents/skills Draft-2 predecessor and packet, freeze, exact Kimi review, Human Review acceptance, process-adapter decision brief, Sol boundary consultation, executable-plan Draft-6 freeze, exact plan, Human Review decision brief and acceptance, first-task kick-off decision brief, and this checklist and `handoffs/agentic-development-system.md` point to the exact current roadmap, review records, unresolved findings, next action, and `startsWork: false`. After compaction, read the consolidated handoff first and use this checklist only as navigation; do not infer authority from the checklist or conversation summary.
+## 5. Model Consultation & Verification Audits
+- [ ] Dispatch audit subagent to **Sol** (`planning-adviser` / `openai/gpt-5.6-sol`): Validate complete skills catalog coverage against `drafts/composable-skills.md`.
+- [ ] Dispatch audit subagent to **Kimi** (`external-adviser` / `moonshotai/kimi-k3`): Audit Section 13 benchmark results and residual risks.
