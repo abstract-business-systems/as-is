@@ -1,0 +1,17 @@
+PASS  check2 front-matter name == managing-as-is-records
+PASS  check2 directory name == managing-as-is-records
+PASS  check3 description present
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1742 chars <= 2000
+PASS  check1 Purpose clause verbatim (draft line 781)
+PASS  check1 Approach clause verbatim (draft line 783)
+PASS  check1 How clause verbatim (draft line 785)
+PASS  check4 sections exactly Purpose/Approach/How it should be done/Design view/Composition context
+PASS  check4 no path reference to other candidate artifacts
+PASS  check12 Design-view Mermaid block byte-equal
+PASS  check13 composition entry: tool-access acknowledgment
+----
+isolation fixture listing at test time (check 9):
+candidate/evidence/fixtures/masters/managing-as-is-records/candidate/skills/master/managing-as-is-records/SKILL.md
+----
+RESULT managing-as-is-records: pass=12 fail=0 chars=1742
