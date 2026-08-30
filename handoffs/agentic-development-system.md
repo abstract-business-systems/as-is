@@ -190,8 +190,18 @@ Read this handoff first, then reference the locked alignment plan and checklist:
 3. `candidate/evidence/milestone-1-execution-control.md`
 4. `candidate/evidence/milestone-2-composable-skills-and-agents.md`
 
-**Current state:** Candidate kernel and initial composition engine built (46/46 tests pass). Next phase is expanding to the full 24 reusable skills + 12 master compositions from `drafts/composable-skills.md`, running the Section 13 benchmark against pinned `master`, and dispatching Sol/Kimi review audits.
+**Current state & multi-agent workflow:**
+- Design is human-reviewed and accepted.
+- **Multi-Model Planning & Review Complete:**
+  - Planning Adviser (`candidate/agents/planning-adviser/agent.md` / `openai/gpt-5.6-sol`, `thinking: high`) reviewed the realization plan via isolated Pi subagent.
+  - External Adviser (`candidate/agents/external-adviser/agent.md` / `moonshotai/kimi-k3`, `thinking: high`) audited the plan for blind spots and edge cases.
+  - All recommendations (lease fencing tokens, RFC 8785 JCS canonicalization, protected scorer isolation, worker tool boundaries, and parent closure state machine) have been explicitly incorporated into `designs/agentic-development-system-implementation-plan.md`.
+- Implementer owns the candidate realization, orchestrating and delegating scoped implementation units to `worker` (`candidate/agents/worker/agent.md` / `z-ai/glm-5.3-flash`).
 
-**Next action:** Implement the remaining reusable skill procedures under `candidate/skills/reusable/` and master compositions under `candidate/skills/compositions/`.
+**Next immediate action:**
+1. Execute Task Packet 1: Kernel Hardening in `candidate/execution-control/`.
+2. Execute Task Packet 2: 24 Reusable Skills in `candidate/skills/reusable/`.
+3. Execute Task Packet 3: 12 Master Compositions in `candidate/skills/compositions/`.
+4. Execute Task Packet 4: Section 13 Comparative Benchmark in `candidate/benchmark/`.
 
 The canonical program-status section above holds current state and links; do not recreate historical planning detail in a new-session prompt or handoff.
