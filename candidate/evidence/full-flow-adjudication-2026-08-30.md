@@ -36,3 +36,7 @@ Branch `implementing-composable-skills`. This record closes the pending-decision
 ## Authorized departures from draft fidelity
 
 The post-adjudication candidate catalog intentionally departs from `drafts/composable-skills.md` in these recorded ways: descriptions normalized (flag 2), heading levels aligned (flag 3), pilot clarifiers stripped (flag 1 — this *restores* verbatim), `rendering-diagrams` folded into `designing-diagrams` as a subsection (6.4), `building-components` precedence note added (5). Mermaid design-view blocks remain byte-equal to the draft everywhere (check 12); Purpose/Approach/How clauses remain verbatim (check 1). Fidelity re-run: `adjudication-fidelity-rerun-2026-08-30.log` alongside this record.
+
+## Correction during round-2 execution setup (flag 3)
+
+`choosing-change-methods` carried a residual `#### Design view` heading the original flag-3 pass missed (the side-by-side had flagged only `applying-bounded-edits`). Aligned to `##` on 2026-08-30 during round-2 execution setup; fidelity check re-run: pass=12 fail=0 (`adjudication-fidelity-rerun-2026-08-30.log` appended). This affects the no-diagrams variant derivation, so the setup script strips Design-view sections at any heading level (`#{2,4}`).

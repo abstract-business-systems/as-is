@@ -487,3 +487,4 @@ RESULT spawning-subagents: pass=12 fail=0 chars=1931
 reusable FAIL lines: 0
 ## Corrections during re-run
 - The folded "Rendering validation" subsection initially carried a second Mermaid block, which broke check 12's first-block extraction (both blocks were concatenated). The subsection's diagram was removed (contract text retained; block recoverable from git history 950-char original). Re-run for designing-diagrams: pass=11 fail=1 — the single FAIL is the section-set check, which is the authorized 6.4 fold itself (extra "Rendering validation" section). All other checks PASS across 23 reusable + 12 masters.
+- 2026-08-30 follow-up: `choosing-change-methods` `#### Design view` aligned to `##` (flag-3 class residual, found while deriving the round-2 no-diagrams variant); re-run pass=12 fail=0.
