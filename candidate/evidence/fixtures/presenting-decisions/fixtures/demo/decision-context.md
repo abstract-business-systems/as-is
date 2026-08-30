@@ -1,0 +1,1 @@
+Demo authority record: the retry-timeout decision (45 vs 60 seconds) belongs to the demo component owner, who alone can accept a recommendation. Evidence available: failure log shows timeouts at 30s; no data on upper bound.
