@@ -1,0 +1,15 @@
+PASS  front-matter name == design-prototyper
+PASS  directory name == design-prototyper
+PASS  description present: Drafts prototypes, target designs, and decision briefs for human acceptance within design scope; grants no tools or authority.
+PASS  description grants no tools or authority (fit wording)
+PASS  tools declared: read,grep,find,ls
+PASS  advisory role read-only tools
+PASS  limits row phrase present: 7.1:313 authority
+PASS  limits row phrase present: 7.1:313 limits
+PASS  limits row phrase present: 7.1:313 limits
+PASS  limits row phrase present: 8:375
+----
+isolation fixture listing at test time (check 9 pattern):
+candidate/evidence/fixtures/agents/design-prototyper/candidate/agents/target/design-prototyper/agent.md
+----
+RESULT design-prototyper: pass=10 fail=0
