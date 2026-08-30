@@ -1,0 +1,1 @@
+Demo authority record: proposals about demo retry policy are approved by the demo component owner (see owner-record.md). Draft proposals are kept as attachments in proposals/ and carry no authority until accepted.

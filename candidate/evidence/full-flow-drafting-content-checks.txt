@@ -1,0 +1,17 @@
+PASS  check2 front-matter name == drafting-content
+PASS  check2 directory name == drafting-content
+PASS  front matter has exactly 2 fields
+PASS  check3 description is one line: Produces a bounded proposal without claiming adoption or completion; establishes fit for drafting proposals only and grants no tools or authority.
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 928 chars <= 2000 (voluntary target)
+PASS  check1 Purpose clause verbatim (draft line 312)
+PASS  check1 Approach clause verbatim (draft line 314)
+PASS  check1 How clause verbatim (draft line 316)
+PASS  sections exactly Purpose/Approach/How it should be done/Design view
+PASS  check4 no path reference to other candidate skill files
+PASS  check12 Design-view Mermaid block byte-equal (draft block under heading line 310)
+----
+isolation fixture listing at test time (check 9):
+/tmp/ff-fixture/drafting-content/candidate/skills/reusable/drafting-content/SKILL.md
+----
+RESULT drafting-content: pass=12 fail=0 chars=928
