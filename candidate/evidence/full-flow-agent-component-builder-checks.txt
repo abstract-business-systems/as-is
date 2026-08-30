@@ -1,0 +1,23 @@
+PASS  front-matter name == component-builder
+PASS  directory name == component-builder
+PASS  description present: Bounded component task worker: parent planner or fresh child-scoped builder; establishes fit, not permission; grants no tools or authority.
+PASS  description grants no tools or authority (fit wording)
+PASS  tools declared: read,grep,find,ls,edit,write
+PASS  component-builder declares mutation capability
+PASS  no shell tool declared
+PASS  limits row phrase present: 7.1:314 parent authority
+PASS  limits row phrase present: 7.1:314 parent limit
+PASS  limits row phrase present: 7.1:316 child authority
+PASS  limits row phrase present: 7.1:316 child limit
+PASS  limits row phrase present: 7.1:316 child limit
+PASS  limits row phrase present: 7.1:316 child limit
+PASS  limits row phrase present: 7.1:316 child limit
+PASS  limits row phrase present: 7.1:316 child limit
+PASS  limits row phrase present: 10.6:611
+PASS  limits row phrase present: 10.6:612
+PASS  limits row phrase present: 10.6:613
+----
+isolation fixture listing at test time (check 9 pattern):
+candidate/evidence/fixtures/agents/component-builder/candidate/agents/target/component-builder/agent.md
+----
+RESULT component-builder: pass=18 fail=0
