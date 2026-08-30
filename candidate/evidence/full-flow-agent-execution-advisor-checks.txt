@@ -1,0 +1,14 @@
+PASS  front-matter name == execution-advisor
+PASS  directory name == execution-advisor
+PASS  description present: Bounded trace/session analysis for process improvement and budget evidence; grants no tools or authority.
+PASS  description grants no tools or authority (fit wording)
+PASS  tools declared: read,grep,find,ls
+PASS  advisory role read-only tools
+PASS  limits row phrase present: 7.1:322 limits
+PASS  limits row phrase present: 8:371 authority
+PASS  limits row phrase present: 8:371 note
+----
+isolation fixture listing at test time (check 9 pattern):
+candidate/evidence/fixtures/agents/execution-advisor/candidate/agents/target/execution-advisor/agent.md
+----
+RESULT execution-advisor: pass=9 fail=0
