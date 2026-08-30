@@ -1,0 +1,1 @@
+Demo completion state: acceptance confirmed and descendant closure recorded (see completion.md). Declared handoff: changelog entry changelog.md, task cleanup of tasks/t-42.md, and the handoff note handoff.md. An unrelated file scratch.txt is modified in the working tree but is NOT part of the declared handoff.
