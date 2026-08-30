@@ -1,0 +1,1 @@
+A collaborator wants a new deployment-runbook page. Requested content: a runbook for demo deployments, aimed at operators, retrieved by asking "how do I deploy demo". Existing containing structure and ownership described in structure.md. An older draft runbook exists at docs/guides/old-runbook.md and someone proposes moving it to docs/reference/.

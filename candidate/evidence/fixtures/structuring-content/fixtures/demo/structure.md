@@ -1,0 +1,1 @@
+Demo docs structure: docs/guides/ holds reader guides owned by the docs maintainer; docs/reference/ holds API reference owned by the component record; each doc starts from the reader question it answers. Durable lifecycle: guides are maintained, one-off notes are not kept.
