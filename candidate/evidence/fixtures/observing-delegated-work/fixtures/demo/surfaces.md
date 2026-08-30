@@ -1,0 +1,1 @@
+Approved observation surfaces for delegation j-9: the handle record fixtures/demo/j-9-record.md and the log fixtures/demo/j-9.log. The delegation acceptance condition: config value validated and reported. Budget: one attempt.
