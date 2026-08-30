@@ -1,0 +1,1 @@
+RENDER RESULT (simulated) for fixtures/demo/retry-flow.mmd: render succeeded. SVG written to fixtures/demo/retry.svg. Geometry: 3 nodes, no overlaps; labels render fully; link to expected href fixtures/demo/retry.md present and resolves.

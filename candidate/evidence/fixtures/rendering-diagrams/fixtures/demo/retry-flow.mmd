@@ -1,0 +1,4 @@
+% source under test (valid syntax)
+flowchart TB
+    Fetch["fetch entrypoint"] --> Retry["retry attempt"]
+    Retry -->|"attempts exhausted"| Raise["raise FetchError"]
