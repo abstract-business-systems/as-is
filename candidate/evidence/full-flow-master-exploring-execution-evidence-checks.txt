@@ -1,0 +1,19 @@
+PASS  check2 front-matter name == exploring-execution-evidence
+PASS  check2 directory name == exploring-execution-evidence
+PASS  check3 description present
+PASS  check3 description grants no tools or authority (fit wording)
+PASS  check8 size 1775 chars <= 2000
+PASS  check1 Purpose clause verbatim (draft line 886)
+PASS  check1 Approach clause verbatim (draft line 888)
+PASS  check1 How clause verbatim (draft line 890)
+PASS  check4 sections exactly Purpose/Approach/How it should be done/Design view/Composition context
+PASS  check4 no path reference to other candidate artifacts
+PASS  check12 Design-view Mermaid block byte-equal
+PASS  check13 composition entry: building-context entry
+PASS  check13 composition entry: inspecting-execution-evidence entry
+PASS  check13 composition entry: recording-evidence entry
+----
+isolation fixture listing at test time (check 9):
+candidate/evidence/fixtures/masters/exploring-execution-evidence/candidate/skills/master/exploring-execution-evidence/SKILL.md
+----
+RESULT exploring-execution-evidence: pass=14 fail=0 chars=1775
