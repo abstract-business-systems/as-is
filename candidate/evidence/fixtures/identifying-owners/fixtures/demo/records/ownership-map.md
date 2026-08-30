@@ -1,0 +1,1 @@
+Demo component record. Owners: implementation and task state - demo component-builder; durable records and history - demo component as-is.md owner; validation - demo evidence-validator (advisory only, may not authorize); delegation and commits - demo component as-is agent. Commit authority requires completion gates.

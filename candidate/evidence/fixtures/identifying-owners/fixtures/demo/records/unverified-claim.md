@@ -1,0 +1,1 @@
+A collaborator claims the external reviewer owns validation sign-off for demo changes. No record or contract names the reviewer as validation owner; records name the evidence-validator as advisory only.
