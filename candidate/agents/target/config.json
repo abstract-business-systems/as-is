@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "defaultProvider": "openrouter",
+  "note": "Candidate target-roster model aliases (plan decision; target-design line 377: model assignments are replaceable implementation choices). These are construction artifacts for the candidate flow, not the live roster. Advisory roles use read-only tool access; component-builder adds narrowly authorized mutation capability for child-local implementation and admitted integration.",
+  "aliases": {
+    "as-is-orchestrator": "z-ai/glm-5.3-flash",
+    "component-builder": "z-ai/glm-5.3-flash",
+    "evidence-validator": "z-ai/glm-5.3-flash",
+    "execution-advisor": "z-ai/glm-5.3-flash",
+    "expert": "z-ai/glm-5.3-flash",
+    "design-prototyper": "z-ai/glm-5.3-flash"
+  }
+}
