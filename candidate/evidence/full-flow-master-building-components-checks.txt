@@ -1,0 +1,26 @@
+PASS  check2 front-matter name == building-components
+PASS  check2 directory name == building-components
+PASS  check3 description present
+PASS  check3 description grants no tools or authority (fit wording)
+NOTE  check8 size 2407 chars > 2000 (masters may exceed the voluntary target: compositions, gates, recovery, stopping rules; draft line 132)
+PASS  check1 Purpose clause verbatim (draft line 716)
+PASS  check1 Approach clause verbatim (draft line 718)
+PASS  check1 How clause verbatim (draft line 720)
+PASS  check4 sections exactly Purpose/Approach/How it should be done/Design view/Composition context
+PASS  check4 no path reference to other candidate artifacts
+PASS  check12 Design-view Mermaid block byte-equal
+PASS  check13 composition entry: parent plan injection or child plan intake
+PASS  check13 composition entry: child-local implementation
+PASS  check13 composition entry: child-level verification
+PASS  check13 composition entry: child integration with parent worktree
+PASS  check13 composition entry: status handoff
+PASS  check13 composition entry: parent planning accounting
+PASS  check13 composition entry: preparing-scoped-commits
+PASS  check13 composition entry: managing-changelogs
+PASS  check13 composition entry: implementing-tasks
+PASS  check13 composition entry: building-components = resolving-scopes
+----
+isolation fixture listing at test time (check 9):
+candidate/evidence/fixtures/masters/building-components/candidate/skills/master/building-components/SKILL.md
+----
+RESULT building-components: pass=20 fail=0 chars=2407
