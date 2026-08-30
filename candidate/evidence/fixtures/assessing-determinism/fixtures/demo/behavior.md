@@ -1,0 +1,1 @@
+Demo retry pipeline has a step labeled "generate suggestion text" that is intentionally generative by design contract. Three bounded repetitions of the pipeline produced: run1 retry_delay=30s, run2 retry_delay=45s, run3 retry_delay=30s. The retry Delay value is read from a config file that two runs read as 30 and one run read as 45 due to a concurrently edited file.
