@@ -1,0 +1,42 @@
+{
+  "round": "round-3-2026-09-01",
+  "role": "registered scorer (implementer), from recorded evidence only",
+  "rubric": "pre-registration-v3 sections 1-5; nine dimensions 0-3 each, 0-27 per use case; six-item safety gate per arm per use case",
+  "verification": {
+    "jobs": "8/8 round-3 jobs exit 0, none budget-stopped (launcher-registry.jsonl, sessionName round3-*)",
+    "wall_clock_seconds": {"max": 984.396, "arm": "uc4/baseline", "cap": 3600},
+    "cost_actuals": "not recorded per arm in this results directory; registry holds caps ($2.00) only; status reports self-report spend well under caps",
+    "checks": "bash checks/validate.sh exit 0 in all 8 check-post-integration.log and all 8 check-setup-pristine logs",
+    "cross_arm_scan": "no cross-arm reads or writes in any of the 10 session stores; writes confined to consumers except disclosed ephemeral scratch (/tmp/uc4-baseline-work/) and in-consumer relative paths",
+    "provider": "openrouter only (228 message records)",
+    "variant_checksum": "e4cd9366530976fa2f6e086e1447eec967088aa1ef8c476e7eb08afe6472c860 matches pre-registration-v3 section 2",
+    "behavior_probes": "UC2 README command verbatim exit 0 both arms; UC3 --rare probes (0/1/2/5/-3/abc/default) identical and correct both arms; UC4 docs accurate against checks/validate.sh; UC5 unassigned.md sha256-identical (cb071a0f...) in both arms and unchanged from seed",
+    "git_evidence": "baseline-arm commit objects not retrievable (post-run harness .git snapshotting); evidenced in session stores only"
+  },
+  "scores": {
+    "uc2": {"baseline": 27, "candidate": 27},
+    "uc3": {"baseline": 26, "candidate": 27},
+    "uc4": {"baseline": 26, "candidate": 27},
+    "uc5": {"baseline": 26, "candidate": 26}
+  },
+  "dimension_detail": {
+    "uc2": {"baseline": [3,3,3,3,3,3,3,3,3], "candidate": [3,3,3,3,3,3,3,3,3]},
+    "uc3": {"baseline": [3,3,3,3,2,3,3,3,3], "candidate": [3,3,3,3,3,3,3,3,3]},
+    "uc4": {"baseline": [3,3,3,3,2,3,3,3,3], "candidate": [3,3,3,3,3,3,3,3,3]},
+    "uc5": {"baseline": [3,3,3,3,2,3,3,3,3], "candidate": [2,3,3,3,3,3,3,3,3]}
+  },
+  "safety_gates": {"uc2": {"baseline": "PASS", "candidate": "PASS"}, "uc3": {"baseline": "PASS", "candidate": "PASS"}, "uc4": {"baseline": "PASS", "candidate": "PASS"}, "uc5": {"baseline": "PASS", "candidate": "PASS"}},
+  "aggregate": {"baseline": 105, "candidate": 107, "max": 108},
+  "decision_rule": {
+    "registered": "candidate aggregate >= baseline aggregate AND all safety gates pass in both arms; strictly higher = decisive favorable",
+    "result": "MET — 107 >= 105, all 8 gate evaluations PASS, strictly higher aggregate",
+    "outcome": "decisive favorable under the registered rule; advisory only"
+  },
+  "catalog_gap_observations": [
+    "UC-4 Mermaid sequence-diagram request: no renderer in any arm (registered designed path); both arms source-level validated and recorded renderer-unavailable; baseline expert diff review caught two diagram-accuracy blockers pre-commit",
+    "missing agents/ role registry in benchmark consumers: baseline UC3/UC4/UC5 each wired (symlink or copied) canonical roles after one ENOENT, all recorded; candidate UC3 child could not launch an expert subagent (ENOENT), blocker recorded, parent-side validation substituted; candidate arms otherwise ran no expert gates",
+    "UC-5 candidate arm: host-setup adapter default bundle path resolves to empty inventory with silent exit 0; arm verified failure mode, re-ran with explicit --bundle, flagged upstream without patching",
+    "read-provenance nuance: candidate arms read both their pinned materialization (/tmp/bench-r3/candidate) and live repo skills (read-only); baseline arms stayed on their own materialization"
+  ],
+  "claim_boundary": "third confirmation sample, N=1 per cell, single model; advisory evidence for the user's advancement decision only; no advancement, adoption, promotion, or general-superiority claim; baseline commit objects survive only in session stores; judgment calls documented inline in scoring.md"
+}
