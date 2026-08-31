@@ -41,8 +41,9 @@ BENCHMARK ARM — bounded workflow task. The mechanics below are the fixed regis
 Fixed harness mechanics (identical for all round-5 arms):
 1. Your working directory is $CON. Perform all project work there. Do not read or write any other benchmark arm's or use case's directory, and do not write anywhere under candidate/benchmark/ outside this working directory.
 2. The working directory is a git-init'd plain copy of the pinned seed project with no initial commit. If you delegate through the governed launcher, pass --cwd $CON and --no-worktree, and use absolute paths for the launcher script ($LAUNCHER) and for any --agent or --skill path you pass.
-3. Arm budget: total agent spend <= \$2.00 (including every agent you delegate to) and wall clock <= 3600 s from now to your status report. Forward budgets to any launcher calls you make so the arm totals stay within these caps. Do not retry failed workflow steps; a failed step is a recorded result, not a re-roll.
-4. Model for every role in this arm: $MODEL via openrouter (pass --model $MODEL on launcher calls).
+3. Child-agent policy (pinned): when you delegate implementation work to child workers, launch them either WITHOUT --agent (launcher default capability set applies, proven in rounds 2-4) or with an agent whose front matter declares a non-empty `tools:` set. Do NOT pass an agent file with a missing `tools:` declaration - the governed launcher grants such agents an explicit empty capability set and the child cannot work.
+4. Arm budget: total agent spend <= \$2.00 (including every agent you delegate to) and wall clock <= 3600 s from now to your status report. Forward budgets to any launcher calls you make so the arm totals stay within these caps. Do not retry failed workflow steps; a failed step is a recorded result, not a re-roll.
+5. Model for every role in this arm: $MODEL via openrouter (pass --model $MODEL on launcher calls).
 5. Deterministic validation: run \`bash checks/validate.sh\` in the working directory before reporting status.
 
 Task: First perform the setup your workflow prescribes for adopting it in an existing project (the seed ships no agent-workflow configuration by design), then handle exactly the following request, then report status.
