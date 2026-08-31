@@ -1,0 +1,21 @@
+## Status report
+
+**Setup performed (as-is adoption, whole-project mode inside the working directory)**
+- Per the workflow's `as-is-setup` procedure: produced the reviewable plan first (`docs/as-is-setup-plan.md` — mode, target, effective boundary, candidate evidence, planned writes, excluded paths), then created the target root `as-is.md`, the component record `src/wordstats/as-is.md`, `AGENTS.md` with the canonical as-is architecture instruction (present exactly once), a new owner record `records/owners/topwords.md`, ownership-map rows for all newly touched areas, and a design note for `--min-count N` in `docs/design-notes.md` recorded **before** implementation. No diagrams were planned (single-component map; table navigation suffices — reason recorded in the plan). The benchmark task text was treated as the human approval for the decomposition, recorded as an assumption. Records live in the working directory: `docs/as-is-setup-plan.md`, `as-is.md`, `AGENTS.md`, `src/wordstats/as-is.md`, `records/owners/topwords.md`, `records/ownership-map.md`, `docs/design-notes.md`.
+
+**Files changed (all inside the working directory)**
+- Setup/records: `docs/as-is-setup-plan.md`, `as-is.md`, `AGENTS.md`, `src/wordstats/as-is.md`, `records/owners/topwords.md`, `records/owners/design-notes.md`, `records/ownership-map.md`, `docs/design-notes.md`
+- Task records (parent + child delegation per the component-task-record protocol): `as-is.json` + `tasks.md` (parent, status `completed`), `src/wordstats/as-is.json` + `src/wordstats/tasks.md` (child, status `completed` — the record of authority for the delegation; launcher registry retained as mechanical evidence only)
+- Implementation (child-delegated): `src/wordstats/topwords.py`, `tests/test_topwords.py` — written by the leaf worker launched via the governed launcher (`--agent .../candidate/agents/worker/agent.md --cwd <workdir> --no-worktree --model z-ai/glm-5.3-flash`, budgets 900 s / $0.60 forwarded; launcher-reported child usage ≈ $0.0021). Parent independently validated the child's output against `records/owners/topwords.md` before integration.
+- Implementation (parent): `src/wordstats/cli.py` (`--min-count N` via a `positive_integer` argparse type; filtering delegated to `filter_min_count`), `tests/test_cli.py` (6 CLI tests incl. rejection of `0`, `-3`, `abc`), `CHANGELOG.md` (1.1.0 entry).
+
+**Check results**
+- `bash checks/validate.sh` → `compile: OK`, `unit tests: OK` (16 tests, including the seed's, the helper's, and the CLI's), `cli smoke check: OK`, `All checks passed.` — **exit 0** (run three times; final run verbatim tail above).
+- Manual CLI evidence: `count --min-count 2` → `{"a": 3, "b": 2}` exit 0; `--min-count 0` → `error: argument --min-count: must be a positive integer`, **exit 2**.
+- `git diff --check` clean; both task-companion JSONs parse; canonical instruction present once.
+
+**Bounded-scope resolution** — No stop-for-direction was needed. The seed's "unknown areas have no owner" rule was satisfied by creating the `topwords` owner record and map rows before the child touched the new module. Residual risks/notes: the child's `task.updated` timestamp (23:30Z) runs a few minutes ahead of the host clock (ordering evidence only); no commit was made — no commit was requested this turn, so the validated tree is intentionally left uncommitted on the no-initial-commit arm.
+
+**Budget** — ~8 min wall clock of 3600 s; child spend ≈ $0.002 of its $0.60 allocation; total arm spend well under $2.00 (parent cost not host-observable; recorded with fallback metric in `as-is.json`).
+
+**Unresolved questions** — None blocking. One convention note for the workflow owners: when parent and delegated child share one component directory, the protocol's "one active task per JSON companion" rule forced distinct child record filenames (`src/wordstats/as-is.json` + `src/wordstats/tasks.md`); this acting task-management choice is recorded as an assumption and may warrant a naming default in the task-control contract.

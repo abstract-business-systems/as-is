@@ -32,8 +32,9 @@ esac
 uc_text=$(python3 - "$HOST/candidate/benchmark/round2/use-cases.md" "$uc" <<'PYEOF'
 import sys, re
 text, uc = open(sys.argv[1]).read(), sys.argv[2]
-m = re.search(r'## UC-2[^\n]*\n\n(.*?)\n## ', text, re.S) if uc == 'uc2' else None
-m = m or re.search(rf'## {uc}[^\n]*\n\n(.*?)(?=\n## |\Z)', text, re.S)
+uc_header = uc.replace('uc', 'UC-')
+m = re.search(rf'## {uc_header}[^\n]*\n\n(.*?)(?=\n## |\Z)', text, re.S)
+if not m: sys.exit('use-case text not found for ' + uc)
 print(m.group(1).strip())
 PYEOF
 )

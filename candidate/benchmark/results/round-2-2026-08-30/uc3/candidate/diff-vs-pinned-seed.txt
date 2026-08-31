@@ -1,0 +1,20 @@
+diff -r '--exclude=.git' '--exclude=.pi' '--exclude=.as-is' '--exclude=as-is.json' '--exclude=as-is.md' '--exclude=AGENTS.md' '--exclude=CHANGELOG.md' '--exclude=docs' '--exclude=src' '--exclude=tests' '--exclude=checks' '--exclude=sample-data' candidate/benchmark/seed/records/owners/design-notes.md candidate/benchmark/run/round-2/uc3/candidate/records/owners/design-notes.md
+3c3
+< Owns `docs/design-notes.md` and `README.md`. Design notes are recorded here before bounded changes that alter user-visible behavior; each note states the decision, the options considered, and the request it serves.
+\ No newline at end of file
+---
+> Owns `docs/design-notes.md` and `README.md`, and the artifact-scope records the ownership map assigns to this owner (`CHANGELOG.md`, `docs/as-is-setup-plan.md`, and the as-is adoption and task records: `as-is.md`, `AGENTS.md`, `tasks.md`, `as-is.json`, `src/wordstats/as-is.md`, `src/wordstats/as-is.json`, `src/wordstats/tasks.md`). Design notes are recorded here before bounded changes that alter user-visible behavior; each note states the decision, the options considered, and the request it serves.
+\ No newline at end of file
+Only in candidate/benchmark/run/round-2/uc3/candidate/records/owners: topwords.md
+diff -r '--exclude=.git' '--exclude=.pi' '--exclude=.as-is' '--exclude=as-is.json' '--exclude=as-is.md' '--exclude=AGENTS.md' '--exclude=CHANGELOG.md' '--exclude=docs' '--exclude=src' '--exclude=tests' '--exclude=checks' '--exclude=sample-data' candidate/benchmark/seed/records/ownership-map.md candidate/benchmark/run/round-2/uc3/candidate/records/ownership-map.md
+7c7,11
+< | `docs/design-notes.md` | `records/owners/design-notes.md` | artifact |
+---
+> | `tests/test_topwords.py` | `records/owners/topwords.md` | component |
+> | `src/wordstats/topwords.py` | `records/owners/topwords.md` | component |
+> | `tests/` | `records/owners/core-utility.md` | component |
+> | `CHANGELOG.md` | `records/owners/design-notes.md` | artifact |
+> | `docs/design-notes.md`, `docs/as-is-setup-plan.md` | `records/owners/design-notes.md` | artifact |
+8a13
+> | `as-is.md`, `AGENTS.md`, `tasks.md`, `as-is.json`, `src/wordstats/as-is.md`, `src/wordstats/as-is.json`, `src/wordstats/tasks.md` | `records/owners/design-notes.md` | artifact |
+Only in candidate/benchmark/run/round-2/uc3/candidate: tasks.md

@@ -1,0 +1,29 @@
+exit=0
+compile: OK
+unit tests: OK
+cli smoke check: OK
+All checks passed.
+
+test_default_output_unchanged (test_cli.CountCommandTests.test_default_output_unchanged) ... ok
+test_min_count_above_max_omits_all (test_cli.CountCommandTests.test_min_count_above_max_omits_all) ... ok
+test_min_count_filters_output (test_cli.CountCommandTests.test_min_count_filters_output) ... ok
+test_min_count_one_keeps_all (test_cli.CountCommandTests.test_min_count_one_keeps_all) ... ok
+test_rejection_message_is_clear (test_cli.CountCommandTests.test_rejection_message_is_clear) ... ok
+test_rejects_negative (test_cli.CountCommandTests.test_rejects_negative) ... ok
+test_rejects_non_integer (test_cli.CountCommandTests.test_rejects_non_integer) ... ok
+test_rejects_zero (test_cli.CountCommandTests.test_rejects_zero) ... ok
+test_counts_basic_words (test_counter.CountWordsTests.test_counts_basic_words) ... ok
+test_empty_input (test_counter.CountWordsTests.test_empty_input) ... ok
+test_ignores_punctuation_only_tokens (test_counter.CountWordsTests.test_ignores_punctuation_only_tokens) ... ok
+test_strips_punctuation_and_lowercases (test_counter.CountWordsTests.test_strips_punctuation_and_lowercases) ... ok
+test_drops_entries_below_threshold (test_topwords.FilterMinCountTests.test_drops_entries_below_threshold) ... ok
+test_empty_mapping (test_topwords.FilterMinCountTests.test_empty_mapping) ... ok
+test_invalid_min_count_raises_value_error (test_topwords.FilterMinCountTests.test_invalid_min_count_raises_value_error) ... ok
+test_keeps_entries_at_boundary (test_topwords.FilterMinCountTests.test_keeps_entries_at_boundary) ... ok
+test_min_count_one_keeps_all (test_topwords.FilterMinCountTests.test_min_count_one_keeps_all) ... ok
+test_preserves_input_order (test_topwords.FilterMinCountTests.test_preserves_input_order) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.007s
+
+OK

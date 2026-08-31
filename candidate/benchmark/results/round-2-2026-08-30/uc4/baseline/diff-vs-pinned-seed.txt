@@ -1,0 +1,5 @@
+Only in candidate/benchmark/run/round-2/uc4/baseline: agents
+diff -r '--exclude=.git' '--exclude=.pi' '--exclude=.as-is' '--exclude=as-is.json' '--exclude=as-is.md' '--exclude=AGENTS.md' '--exclude=CHANGELOG.md' '--exclude=docs' '--exclude=src' '--exclude=tests' '--exclude=checks' '--exclude=sample-data' candidate/benchmark/seed/README.md candidate/benchmark/run/round-2/uc4/baseline/README.md
+12a13
+> - `docs/pipeline.md` — reader-facing explanation of the `wordstats count` pipeline.
+Only in candidate/benchmark/run/round-2/uc4/baseline/records: as-is-setup-plan.md

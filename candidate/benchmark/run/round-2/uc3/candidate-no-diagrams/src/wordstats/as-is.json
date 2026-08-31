@@ -1,0 +1,35 @@
+{
+  "task": {
+    "status": "completed",
+    "worker": "worker",
+    "updated": "2026-08-30T23:19:47Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.5,
+        "spent": 0.0057,
+        "reserve": 0.1,
+        "source": "host-reported"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 900,
+          "spent-seconds": 8,
+          "reserve-seconds": 120,
+          "source": "host-reported"
+        }
+      },
+      "external-effects": "require-current-turn-user-approval"
+    },
+    "acceptance": [
+      "New module `src/wordstats/topwords.py` provides `filter_min_counts(counts, min_count)` returning only the entries whose count is at least `min_count`.",
+      "`filter_min_counts` rejects a `min_count` that is not a positive integer (zero, negative, or non-int) by raising `ValueError` with a clear message.",
+      "The child attempt creates or modifies no artifact other than `src/wordstats/topwords.py`.",
+      "The module compiles under `python3 -m compileall src`."
+    ]
+  }
+}

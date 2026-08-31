@@ -1,0 +1,31 @@
+exit=0
+compile: OK
+unit tests: OK
+cli smoke check: OK
+All checks passed.
+
+test_min_count_keeps_exact_threshold (test_cli.CountMinCountTests.test_min_count_keeps_exact_threshold) ... ok
+test_min_count_omits_less_frequent_words (test_cli.CountMinCountTests.test_min_count_omits_less_frequent_words) ... ok
+test_rejects_negative (test_cli.CountMinCountTests.test_rejects_negative) ... ok
+test_rejects_non_integer (test_cli.CountMinCountTests.test_rejects_non_integer) ... ok
+test_rejects_zero (test_cli.CountMinCountTests.test_rejects_zero) ... ok
+test_without_option_output_is_unchanged (test_cli.CountMinCountTests.test_without_option_output_is_unchanged) ... ok
+test_counts_basic_words (test_counter.CountWordsTests.test_counts_basic_words) ... ok
+test_empty_input (test_counter.CountWordsTests.test_empty_input) ... ok
+test_ignores_punctuation_only_tokens (test_counter.CountWordsTests.test_ignores_punctuation_only_tokens) ... ok
+test_strips_punctuation_and_lowercases (test_counter.CountWordsTests.test_strips_punctuation_and_lowercases) ... ok
+test_empty_input (test_topwords.FilterMinCountsTests.test_empty_input) ... ok
+test_input_is_not_mutated (test_topwords.FilterMinCountsTests.test_input_is_not_mutated) ... ok
+test_keeps_words_at_exact_threshold (test_topwords.FilterMinCountsTests.test_keeps_words_at_exact_threshold) ... ok
+test_omits_words_below_min_count (test_topwords.FilterMinCountsTests.test_omits_words_below_min_count) ... ok
+test_rejection_message_is_clear (test_topwords.FilterMinCountsTests.test_rejection_message_is_clear) ... ok
+test_rejects_bool (test_topwords.FilterMinCountsTests.test_rejects_bool) ... ok
+test_rejects_negative (test_topwords.FilterMinCountsTests.test_rejects_negative) ... ok
+test_rejects_non_int (test_topwords.FilterMinCountsTests.test_rejects_non_int) ... ok
+test_rejects_zero (test_topwords.FilterMinCountsTests.test_rejects_zero) ... ok
+test_returns_empty_when_no_word_qualifies (test_topwords.FilterMinCountsTests.test_returns_empty_when_no_word_qualifies) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.006s
+
+OK

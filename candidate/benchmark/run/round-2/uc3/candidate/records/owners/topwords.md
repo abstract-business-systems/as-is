@@ -1,0 +1,3 @@
+# Owner record: topwords helper
+
+Owns the occurrence-threshold filtering helper for the count CLI (`src/wordstats/topwords.py`) and its focused unit tests (`tests/test_topwords.py`). The public contract is: `filter_min_count(counts, min_count)` returns a new mapping containing only entries whose count is greater than or equal to `min_count`; it does not mutate its input and preserves key order of the input mapping.

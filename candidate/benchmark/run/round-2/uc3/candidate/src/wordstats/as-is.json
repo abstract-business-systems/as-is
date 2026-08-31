@@ -1,0 +1,36 @@
+{
+  "task": {
+    "status": "completed",
+    "worker": "worker",
+    "updated": "2026-08-30T23:30:00Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.6,
+        "spent": 0,
+        "reserve": 0.1,
+        "source": "unavailable",
+        "fallback-metric": "launcher-reported usage summary"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 900,
+          "spent-seconds": 0,
+          "reserve-seconds": 120,
+          "source": "host-reported"
+        }
+      },
+      "external-effects": "require-current-turn-user-approval"
+    },
+    "acceptance": [
+      "`src/wordstats/topwords.py` implements `filter_min_count(counts, min_count)` returning a new mapping with only entries whose count >= min_count, without mutating the input and preserving input key order, per `records/owners/topwords.md`.",
+      "`tests/test_topwords.py` adds focused unit tests: filtering above and at the threshold, empty result, empty input, and input-mutation/key-order guarantees.",
+      "Only `src/wordstats/topwords.py` and `tests/test_topwords.py` are created; no other artifact is edited.",
+      "This task record is advanced (active -> completed) with progress and validation evidence; the launcher registry line is mechanical evidence only."
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+diff -r '--exclude=.git' '--exclude=.pi' '--exclude=.as-is' '--exclude=as-is.json' '--exclude=as-is.md' '--exclude=AGENTS.md' '--exclude=CHANGELOG.md' '--exclude=docs' '--exclude=src' '--exclude=tests' '--exclude=checks' '--exclude=sample-data' candidate/benchmark/seed/README.md candidate/benchmark/run/round-2/uc2/candidate/README.md
+22a23,28
+> 
+> ## Usage
+> 
+> ```sh
+> PYTHONPATH=src python3 -m wordstats.cli count sample-data/words.txt
+> ```

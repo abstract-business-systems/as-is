@@ -1,0 +1,16 @@
+BENCHMARK ARM — bounded workflow task. The mechanics below are the fixed registered launch procedure (identical for all round-2 benchmark arms), not workflow guidance; your workflow's own skills and compositions govern how you work.
+
+Fixed harness mechanics (identical for all round-2 arms):
+1. Your working directory is /home/vc/dev/as-is/candidate/benchmark/run/round-2/uc3/baseline. Perform all project work there. Do not read or write any other benchmark arm's or use case's directory, and do not write anywhere under candidate/benchmark/ outside this working directory.
+2. The working directory is a git-init'd plain copy of the pinned seed project with no initial commit. If you delegate through the governed launcher, pass --cwd /home/vc/dev/as-is/candidate/benchmark/run/round-2/uc3/baseline and --no-worktree, and use absolute paths for the launcher script (/home/vc/dev/as-is/skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts) and for any --agent or --skill path you pass.
+3. Arm budget: total agent spend <= $2.00 (including every agent you delegate to) and wall clock <= 3600 s from now to your status report. Forward budgets to any launcher calls you make so the arm totals stay within these caps. Do not retry failed workflow steps; a failed step is a recorded result, not a re-roll.
+4. Model for every role in this arm: z-ai/glm-5.3-flash via openrouter (pass --model z-ai/glm-5.3-flash on launcher calls).
+5. Deterministic validation: run `bash checks/validate.sh` in the working directory before reporting status.
+
+Task: First perform the setup your workflow prescribes for adopting it in an existing project (the seed ships no agent-workflow configuration by design), then handle exactly the following request, then report status.
+
+--- REQUEST (verbatim) ---
+Add a `--min-count N` option to `wordstats count` that omits words with fewer than N occurrences (N must be a positive integer; otherwise exit 2 with a clear message). Implement the option in `src/wordstats/cli.py` and put the filtering logic in a new helper module `src/wordstats/topwords.py`. Add unit tests for the option and its rejection behavior. This change is sized beyond one session's budget: implement the helper module through a delegated child worker and record the delegation per the delegation contract (the child's component task record is the record of authority; the launcher registry is mechanical evidence only). Follow the design-note convention, keep the ownership-map discipline, run the checks, and report status.
+--- END REQUEST ---
+
+Your final status report must include: what setup was performed and where its records live, files changed, check results (verbatim output and exit codes), how the bounded scope was resolved (including any stop-for-direction), and any unresolved questions. Do not claim completion you cannot evidence.

@@ -1,0 +1,15 @@
+exit=0
+compile: OK
+unit tests: OK
+cli smoke check: OK
+All checks passed.
+
+test_counts_basic_words (test_counter.CountWordsTests.test_counts_basic_words) ... ok
+test_empty_input (test_counter.CountWordsTests.test_empty_input) ... ok
+test_ignores_punctuation_only_tokens (test_counter.CountWordsTests.test_ignores_punctuation_only_tokens) ... ok
+test_strips_punctuation_and_lowercases (test_counter.CountWordsTests.test_strips_punctuation_and_lowercases) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.000s
+
+OK

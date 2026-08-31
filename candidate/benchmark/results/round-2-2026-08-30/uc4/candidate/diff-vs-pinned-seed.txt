@@ -1,0 +1,13 @@
+diff -r '--exclude=.git' '--exclude=.pi' '--exclude=.as-is' '--exclude=as-is.json' '--exclude=as-is.md' '--exclude=AGENTS.md' '--exclude=CHANGELOG.md' '--exclude=docs' '--exclude=src' '--exclude=tests' '--exclude=checks' '--exclude=sample-data' candidate/benchmark/seed/README.md candidate/benchmark/run/round-2/uc4/candidate/README.md
+12a13
+> - `docs/pipeline.md` — how the count pipeline turns a text file into sorted JSON.
+22c23
+< This project intentionally contains no agent-workflow configuration (no `.agents/`, no skill or agent links, no prompt files). Benchmark consumers must perform their own setup inside their consumer directory before implementing any feature; setup effort is a measured dimension (target-design line 665).
+---
+> This project shipped no agent-workflow configuration (no `.agents/`, no skill or agent links, no prompt files); the as-is workflow was adopted in place during the bounded documentation task. Its setup records are `as-is.md` (durable component record), `as-is.json` (machine configuration and local task metadata), and `tasks.md` (task narrative); setup effort is a measured dimension (target-design line 665).
+diff -r '--exclude=.git' '--exclude=.pi' '--exclude=.as-is' '--exclude=as-is.json' '--exclude=as-is.md' '--exclude=AGENTS.md' '--exclude=CHANGELOG.md' '--exclude=docs' '--exclude=src' '--exclude=tests' '--exclude=checks' '--exclude=sample-data' candidate/benchmark/seed/records/ownership-map.md candidate/benchmark/run/round-2/uc4/candidate/records/ownership-map.md
+7a8
+> | `docs/pipeline.md` | `records/owners/design-notes.md` | artifact |
+8a10
+> | `as-is.md`, `as-is.json`, `tasks.md` | workflow adoption records created by the as-is workflow; navigational context lives in `as-is.md` | project |
+Only in candidate/benchmark/run/round-2/uc4/candidate: tasks.md

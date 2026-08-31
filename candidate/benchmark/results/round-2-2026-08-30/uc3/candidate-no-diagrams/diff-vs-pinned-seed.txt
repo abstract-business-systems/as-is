@@ -1,0 +1,5 @@
+diff -r '--exclude=.git' '--exclude=.pi' '--exclude=.as-is' '--exclude=as-is.json' '--exclude=as-is.md' '--exclude=AGENTS.md' '--exclude=CHANGELOG.md' '--exclude=docs' '--exclude=src' '--exclude=tests' '--exclude=checks' '--exclude=sample-data' candidate/benchmark/seed/records/ownership-map.md candidate/benchmark/run/round-2/uc3/candidate-no-diagrams/records/ownership-map.md
+6a7,8
+> | `src/wordstats/topwords.py` | `records/owners/core-utility.md` | component |
+> | `tests/` | `records/owners/core-utility.md` | component |
+Only in candidate/benchmark/run/round-2/uc3/candidate-no-diagrams: tasks.md
