@@ -1,0 +1,17 @@
+uc2/baseline                             $0.0088   -top=0.0088
+uc2/candidate                            $0.0175   -top=0.0175
+uc2/candidate-no-diagrams                $0.0097   -top=0.0097
+uc3/baseline                             $0.0967   -nested-23-23-=0.0011 -nested-23-29-=0.0079 -nested-23-30-=0.0006 -nested-23-30-10-560=0.0005 -nested-23-33-=0.0025 -top=0.0841
+uc3/candidate                            $0.0463   -nested-worker=0.0021 -top=0.0442
+uc3/candidate-no-diagrams                $0.0329   -nested-23-18-35-257=0.0019 -top=0.0310
+uc4/baseline                             $0.0244   -top=0.0244
+uc4/candidate                            $0.0151   -top=0.0151
+uc4/candidate-no-diagrams                $0.0117   -top=0.0117
+uc5/baseline                             $0.0174   -top=0.0174
+uc5/candidate                            $0.0158   -top=0.0158
+uc5/candidate-no-diagrams                $0.0149   -top=0.0149
+TOTAL 12 arms (dedup sessions)           $0.3112
+
+# Method: costs = sum of usage.cost.total across deduplicated session stores per arm (top + nested workers, host-level + consumer-local stores).
+# Registered caps were $2.00 / 3600s per arm; worst arm used $0.0967 (4.8% of cap, 21.8% of the 3600s wall clock).
+# Scorer child: $0.0000 recorded in its own session store (7aea426c) — see session store for token usage; cost field totalled 0 due to store format; scored within its own $1.50/3600s registration.

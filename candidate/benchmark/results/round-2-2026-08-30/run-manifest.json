@@ -15,21 +15,99 @@
     "budgets": "per arm per use case: <= $2.00 / 3600 s"
   },
   "runs": [
-    {"uc": "uc2", "arm": "baseline", "jobId": "j-mtgevlnj-jc5d4y", "exit": 0, "wall": 219.971},
-    {"uc": "uc2", "arm": "candidate", "jobId": "j-mtgevm6l-5y3jsb", "exit": 0, "wall": 489.715},
-    {"uc": "uc2", "arm": "candidate-no-diagrams", "jobId": "j-mtgevmwc-xan3fc", "exit": 0, "wall": 266.922},
-    {"uc": "uc3", "arm": "baseline", "jobId": "j-mtgfezrg-7csfi4", "exit": 0, "wall": 1306.202, "nested": ["j-mtgfyvrs-tcnwei (component-builder child, 117.9s) + consumer-local expert children"]},
-    {"uc": "uc3", "arm": "candidate", "jobId": "j-mtgff0an-thcd4z", "wall": 457.439, "nested": "j-mtgflao1 (worker, $0.5/900s child budget)"},
-    {"uc": "uc3", "arm": "candidate-no-diagrams", "jobId": "j-mtgff105-k12q19", "wall": 379.517, "nested": "j-mtgfknm5 (worker, $0.5/900s child budget)"},
-    {"uc": "uc4", "arm": "baseline", "jobId": "j-mtggie03-6n2wn0", "wall": 539.904, "nested": "2 host-level + consumer-local children"},
-    {"uc": "uc4", "arm": "candidate", "jobId": "j-mtgg42av-dnqag9", "wall": 156.138},
-    {"uc": "uc4", "arm": "candidate-no-diagrams", "jobId": "j-mtgg4306-yxshnk", "wall": 326.194},
-    {"uc": "uc5", "arm": "baseline", "jobId": "j-mtggie03-6n2wn0", "wall": 539.904, "nested": "j-mtgg41r1-ialap6 (expert child)"},
-    {"uc": "uc5", "arm": "candidate", "jobId": "j-mtggieis-a6wkke", "wall": 288.7},
-    {"uc": "uc5", "arm": "candidate-no-diagrams", "jobId": "j-mtggif98-cb7yta", "wall": 429.525}
+    {
+      "uc": "uc2",
+      "arm": "baseline",
+      "jobId": "j-mtgevlnj-jc5d4y",
+      "exit": 0,
+      "wall": 219.971
+    },
+    {
+      "uc": "uc2",
+      "arm": "candidate",
+      "jobId": "j-mtgevm6l-5y3jsb",
+      "exit": 0,
+      "wall": 489.715
+    },
+    {
+      "uc": "uc2",
+      "arm": "candidate-no-diagrams",
+      "jobId": "j-mtgevmwc-xan3fc",
+      "exit": 0,
+      "wall": 266.922
+    },
+    {
+      "uc": "uc3",
+      "arm": "baseline",
+      "jobId": "j-mtgfezrg-7csfi4",
+      "exit": 0,
+      "wall": 1306.202,
+      "nested": [
+        "j-mtgfyvrs-tcnwei (component-builder child, 117.9s) + consumer-local expert children"
+      ]
+    },
+    {
+      "uc": "uc3",
+      "arm": "candidate",
+      "jobId": "j-mtgff0an-thcd4z",
+      "wall": 457.439,
+      "nested": "j-mtgflao1 (worker, $0.5/900s child budget)"
+    },
+    {
+      "uc": "uc3",
+      "arm": "candidate-no-diagrams",
+      "jobId": "j-mtgff105-k12q19",
+      "wall": 379.517,
+      "nested": "j-mtgfknm5 (worker, $0.5/900s child budget)"
+    },
+    {
+      "uc": "uc4",
+      "arm": "baseline",
+      "jobId": "j-mtgg41r1-ialap6",
+      "wall": 493.982,
+      "nested": "2 host-level + consumer-local children"
+    },
+    {
+      "uc": "uc4",
+      "arm": "candidate",
+      "jobId": "j-mtgg42av-dnqag9",
+      "wall": 156.138
+    },
+    {
+      "uc": "uc4",
+      "arm": "candidate-no-diagrams",
+      "jobId": "j-mtgg4306-yxshnk",
+      "wall": 326.194
+    },
+    {
+      "uc": "uc5",
+      "arm": "baseline",
+      "jobId": "j-mtggie03-6n2wn0",
+      "wall": 539.904,
+      "nested": "j-mtgg41r1-ialap6 (expert child)"
+    },
+    {
+      "uc": "uc5",
+      "arm": "candidate",
+      "jobId": "j-mtggieis-a6wkke",
+      "wall": 288.7
+    },
+    {
+      "uc": "uc5",
+      "arm": "candidate-no-diagrams",
+      "jobId": "j-mtggif98-cb7yta",
+      "wall": 429.525
+    }
   ],
   "postHocChecks": "bash checks/validate.sh re-run by the implementer in all 12 consumers after run completion: exit 0 in all (check-post-integration.log per consumer in results)",
-  "mermaidAB": {"aggregate": {"candidate": 106, "candidateNoDiagrams": 107}, "resolution": "no-diagram arm equalled or beat diagrams arm in 3 of 4 use cases, strictly higher aggregate (107 vs 106); per the user's standing ruling ('drop them if not helping') the registered rule resolves to: drop Mermaid design views at the next draft revision (user-owned draft change)"},
+  "mermaidAB": {
+    "aggregate": {
+      "candidate": 106,
+      "candidateNoDiagrams": 107
+    },
+    "resolution": "no-diagram arm equalled or beat diagrams arm in 3 of 4 use cases, strictly higher aggregate (107 vs 106); per the user's standing ruling ('drop them if not helping') the registered rule resolves to: drop Mermaid design views at the next draft revision (user-owned draft change)"
+  },
   "evidenceIntegrityNote": "During post-run evidence collection, consumer .git directories were removed to enable host tracking (round-1 precedent). A bundle step with a naming collision preserved full git history only for the four candidate-no-diagrams consumers (consumer-git-bundles/). Arm-reported commit SHAs survive in status reports and session stores (f5ae186 uc3-baseline, d87165a uc4-baseline, bbe3b30 uc5-baseline, d03cf45-family no-diagram arms). Work content of all 12 consumers is committed in full to the host repo; only per-arm local commit history for baseline/candidate consumers is unrecoverable. Post-run harness defect, not workflow behavior.",
-  "status": "scoring complete; advisory only; no advancement or adoption claim"
+  "status": "scoring complete; advisory only; no advancement or adoption claim",
+  "mappingNote": "jobId<->arm mapping corrected post-scoring from registry launch records' sessionName field (definitive); the original rows for uc4/uc5 mixed up launch-order assumptions"
 }
