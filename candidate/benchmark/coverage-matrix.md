@@ -16,8 +16,8 @@ Maintained under the standing methodology (`pre-registration-v4.md` sections 4�
 | managing-as-is-document/records | uc5, uc6, uc8 | covered (round-4) |
 | managing-backlog → managing-backlogs, recording-backlog-items, identifying-owners, resolving-scopes | uc5 | covered (round-4) |
 | spawning-pi-subagents → spawning-subagents, delegating-bounded-work, observing-delegated-work — SINGLE child | uc3 | covered (round-4) |
-| spawning-pi-subagents → (same) — MULTIPLE children run CONCURRENTLY | — | **gap → round-5 (uc9)** |
-| delegation BUDGET enforcement and STOP RECOVERY (child exceeds budget; parent records stop, no re-roll) | — | **gap → round-5 (uc10)** |
+| spawning-pi-subagents → (same) — MULTIPLE children run CONCURRENTLY | uc9 | covered (round-5: registry-verified same-second launches, live overlap ~36s baseline / ~62s candidate; both arms dual-integrated with passing checks) |
+| delegation BUDGET enforcement and STOP RECOVERY | uc10 | partially covered (round-5: budget pinning + forwarding OBSERVED INVOKED both arms; stop never fired — children completed at 31s/56s of the 180s cap; recovery path remains unexercised) |
 | designing-mermaid-diagrams → designing-diagrams (pending-drop path) | uc4 | covered (round-4) |
 | human-centered-consulting → consulting-humans, presenting-decisions | uc5, uc8 | covered* (round-4) |
 | exploring-execution-evidence → inspecting-execution-evidence | uc7 | covered* (round-4) |
@@ -25,7 +25,8 @@ Maintained under the standing methodology (`pre-registration-v4.md` sections 4�
 
 ## Open gap register
 
-- **Multi-child concurrent delegation** (added 2026-09-01, from round-4 review): no use case forces two bounded children; single-child proven only. → round-5 uc9.
-- **Budget-stop recovery path** (added 2026-09-01, from round-4 review): zero budget stops in four rounds means enforcement-under-pressure is unexercised; only the happy path is proven. → round-5 uc10.
+- ~~Multi-child concurrent delegation~~ → closed round-5 (uc9, registry-verified concurrency both arms).
+- **Budget-stop recovery path** (OPEN): five rounds, zero budget stops — children complete well under plausible caps, so the recovery half of the delegation contract is still unexercised on both sides. Next probe design needs a pressure mechanism other than a small pinned budget (e.g., a child task that CANNOT complete within any reasonable budget, forcing a mid-task stop).
+- **Round-5 run-1 lesson**: the governed launcher grants an explicit empty capability set to agents without a `tools:` declaration; arm prompts must pin the child-agent policy (added to round5/launch-arm.sh; applies to future rounds).
 
 New gaps identified in review are added here with date and source, then batched into the next pre-registration.
