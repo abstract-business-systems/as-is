@@ -1,0 +1,39 @@
+{
+  "task": {
+    "status": "completed",
+    "worker": "implementer",
+    "updated": "2026-08-31T20:50:00Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 2.0,
+        "spent": 0,
+        "reserve": 0.3,
+        "source": "unavailable",
+        "fallback-metric": "parent-session elapsed observation; cost not host-observable in this arm"
+      },
+      "delegation": {
+        "maximum-depth": 1,
+        "maximum-children": 1
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 3600,
+          "spent-seconds": 120,
+          "reserve-seconds": 300,
+          "source": "parent-session-clock"
+        }
+      },
+      "external-effects": "require-current-turn-user-approval"
+    },
+    "acceptance": [
+      "`wordstats count <path> --stats` appends a summary object (min, max, median, unique) after the counts object; default output without the option is unchanged.",
+      "The summary logic lives in new module `src/wordstats/stats.py`; the option is integrated in `src/wordstats/cli.py`.",
+      "The `stats.py` module and its focused unit tests are implemented by a delegated child worker whose child task record (`src/wordstats/as-is.json` + `src/wordstats/tasks.md`) budgets at most $0.02 and 180 seconds; the child record is the record of authority for the delegation and the launcher registry is mechanical evidence only.",
+      "If the child stops on budget, the stop is recorded as a result per the recovery contract, the remaining work is completed from the parent, and the child is not re-rolled.",
+      "Focused unit tests cover the summary values (min, max, median, unique) and the `--stats` option.",
+      "Design note recorded before implementation; ownership map covers all changed areas.",
+      "`bash checks/validate.sh` passes."
+    ]
+  }
+}

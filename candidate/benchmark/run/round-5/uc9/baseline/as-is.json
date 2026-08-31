@@ -1,0 +1,27 @@
+{
+  "configuration": {
+    "agents": {
+      "provider": "openrouter",
+      "defaultModel": "z-ai/glm-5.3-flash"
+    }
+  },
+  "task": {
+    "status": "completed",
+    "worker": "component-builder",
+    "updated": "2026-09-01T02:55:00Z",
+    "constraints": {
+      "cost": { "currency": "USD", "allocated": 2.0, "spent": 0, "reserve": 0.4, "source": "host-reported" },
+      "delegation": { "maximum-depth": 1, "maximum-children": 2 },
+      "execution": { "wall-clock": { "allocated-seconds": 3600, "spent-seconds": 0, "reserve-seconds": 300, "source": "host-reported" } },
+      "external-effects": "none-authorized"
+    },
+    "acceptance": [
+      "As-is setup performed: root as-is.md, component records, AGENTS.md canonical instruction, and reviewable setup plan recorded.",
+      "Two delegated child workers ran concurrently (both launched and live at the same time), each with its own bounded child task record: rarewords and topwords.",
+      "src/wordstats/rarewords.py and src/wordstats/topwords.py exist and are integrated into the count CLI with --rare N and --top N.",
+      "Both options validate N as a positive integer and exit 2 with a clear message otherwise.",
+      "Unit tests cover both filter options and their rejection behavior; bash checks/validate.sh passes with exit 0.",
+      "Design notes and ownership-map records follow the seed conventions; every descendant is terminal and accounted for."
+    ]
+  }
+}

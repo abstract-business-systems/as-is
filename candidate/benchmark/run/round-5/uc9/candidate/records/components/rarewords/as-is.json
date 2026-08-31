@@ -1,0 +1,37 @@
+{
+  "task": {
+    "status": "completed",
+    "worker": "component-builder",
+    "updated": "2026-08-31T20:45:20Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.6,
+        "spent": 0,
+        "reserve": 0.1,
+        "source": "unavailable",
+        "fallback-metric": "launcher cost self-limit"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 1500,
+          "spent-seconds": 0,
+          "reserve-seconds": 120,
+          "source": "host-reported"
+        }
+      },
+      "external-effects": "require-current-turn-user-approval"
+    },
+    "acceptance": [
+      "src/wordstats/rarewords.py exists and exposes a pure selection function keeping only words with N or fewer occurrences from a counts mapping.",
+      "N is validated as a positive integer; an invalid N raises a clear ValueError and never silently filters.",
+      "Module-level unit tests live in tests/test_rarewords.py and pass under PYTHONPATH=src.",
+      "No file outside src/wordstats/rarewords.py and tests/test_rarewords.py (plus this component's record directory) is modified.",
+      "The task record reaches status completed with validation evidence recorded in the narrative."
+    ]
+  }
+}

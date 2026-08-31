@@ -1,0 +1,18 @@
+compile: OK
+test_counts_basic_words (test_counter.CountWordsTests.test_counts_basic_words) ... ok
+test_empty_input (test_counter.CountWordsTests.test_empty_input) ... ok
+test_ignores_punctuation_only_tokens (test_counter.CountWordsTests.test_ignores_punctuation_only_tokens) ... ok
+test_strips_punctuation_and_lowercases (test_counter.CountWordsTests.test_strips_punctuation_and_lowercases) ... ok
+test_default_output_unchanged (test_stats.TestCliStats.test_default_output_unchanged) ... ok
+test_stats_flag (test_stats.TestCliStats.test_stats_flag) ... ok
+test_basic (test_stats.TestSummarizeCounts.test_basic) ... ok
+test_empty (test_stats.TestSummarizeCounts.test_empty) ... ok
+test_even_median_fractional (test_stats.TestSummarizeCounts.test_even_median_fractional) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.051s
+
+OK
+unit tests: OK
+cli smoke check: OK
+All checks passed.

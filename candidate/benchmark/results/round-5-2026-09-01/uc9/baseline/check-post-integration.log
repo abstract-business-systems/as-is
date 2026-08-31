@@ -1,0 +1,33 @@
+compile: OK
+test_rare_keeps_words_at_or_under_n (test_cli.RareOptionTests.test_rare_keeps_words_at_or_under_n) ... ok
+test_rare_one_keeps_only_singletons (test_cli.RareOptionTests.test_rare_one_keeps_only_singletons) ... ok
+test_rare_rejects_negative (test_cli.RejectionTests.test_rare_rejects_negative) ... ok
+test_rare_rejects_non_integer (test_cli.RejectionTests.test_rare_rejects_non_integer) ... ok
+test_rare_rejects_zero (test_cli.RejectionTests.test_rare_rejects_zero) ... ok
+test_top_rejects_negative (test_cli.RejectionTests.test_top_rejects_negative) ... ok
+test_top_rejects_non_integer (test_cli.RejectionTests.test_top_rejects_non_integer) ... ok
+test_top_rejects_zero (test_cli.RejectionTests.test_top_rejects_zero) ... ok
+test_top_keeps_n_most_frequent (test_cli.TopOptionTests.test_top_keeps_n_most_frequent) ... ok
+test_top_ties_broken_alphabetically (test_cli.TopOptionTests.test_top_ties_broken_alphabetically) ... ok
+test_counts_basic_words (test_counter.CountWordsTests.test_counts_basic_words) ... ok
+test_empty_input (test_counter.CountWordsTests.test_empty_input) ... ok
+test_ignores_punctuation_only_tokens (test_counter.CountWordsTests.test_ignores_punctuation_only_tokens) ... ok
+test_strips_punctuation_and_lowercases (test_counter.CountWordsTests.test_strips_punctuation_and_lowercases) ... ok
+test_empty_counts_input (test_rarewords.TestFilterRareWords.test_empty_counts_input) ... ok
+test_empty_result_when_no_word_qualifies (test_rarewords.TestFilterRareWords.test_empty_result_when_no_word_qualifies) ... ok
+test_excludes_counts_greater_than_n (test_rarewords.TestFilterRareWords.test_excludes_counts_greater_than_n) ... ok
+test_inclusive_boundary_keeps_count_equal_to_n (test_rarewords.TestFilterRareWords.test_inclusive_boundary_keeps_count_equal_to_n) ... ok
+test_input_mapping_is_not_modified (test_rarewords.TestFilterRareWords.test_input_mapping_is_not_modified) ... ok
+test_alphabetical_tie_at_cutoff (test_topwords.TestFilterTopWords.test_alphabetical_tie_at_cutoff) ... ok
+test_empty_counts (test_topwords.TestFilterTopWords.test_empty_counts) ... ok
+test_input_not_mutated (test_topwords.TestFilterTopWords.test_input_not_mutated) ... ok
+test_keeps_n_most_frequent (test_topwords.TestFilterTopWords.test_keeps_n_most_frequent) ... ok
+test_n_larger_than_vocabulary_returns_everything (test_topwords.TestFilterTopWords.test_n_larger_than_vocabulary_returns_everything) ... ok
+
+----------------------------------------------------------------------
+Ran 24 tests in 0.010s
+
+OK
+unit tests: OK
+cli smoke check: OK
+All checks passed.

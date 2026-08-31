@@ -1,0 +1,21 @@
+compile: OK
+test_default_output_unchanged_without_option (test_cli.StatsOptionTests.test_default_output_unchanged_without_option) ... ok
+test_stats_appends_summary_object (test_cli.StatsOptionTests.test_stats_appends_summary_object) ... ok
+test_stats_on_empty_input (test_cli.StatsOptionTests.test_stats_on_empty_input) ... ok
+test_counts_basic_words (test_counter.CountWordsTests.test_counts_basic_words) ... ok
+test_empty_input (test_counter.CountWordsTests.test_empty_input) ... ok
+test_ignores_punctuation_only_tokens (test_counter.CountWordsTests.test_ignores_punctuation_only_tokens) ... ok
+test_strips_punctuation_and_lowercases (test_counter.CountWordsTests.test_strips_punctuation_and_lowercases) ... ok
+test_empty_input (test_stats.SummarizeCountsTests.test_empty_input) ... ok
+test_even_count_median_averages_middle_values (test_stats.SummarizeCountsTests.test_even_count_median_averages_middle_values) ... ok
+test_input_not_mutated (test_stats.SummarizeCountsTests.test_input_not_mutated) ... ok
+test_single_entry_input (test_stats.SummarizeCountsTests.test_single_entry_input) ... ok
+test_typical_summary_values (test_stats.SummarizeCountsTests.test_typical_summary_values) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.003s
+
+OK
+unit tests: OK
+cli smoke check: OK
+All checks passed.

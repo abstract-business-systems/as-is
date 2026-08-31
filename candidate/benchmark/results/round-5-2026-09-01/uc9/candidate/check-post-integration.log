@@ -1,0 +1,44 @@
+compile: OK
+test_rare_boundary_keeps_exactly_n (test_cli.CountCliFilterTests.test_rare_boundary_keeps_exactly_n) ... ok
+test_rare_keeps_words_with_n_or_fewer_occurrences (test_cli.CountCliFilterTests.test_rare_keeps_words_with_n_or_fewer_occurrences) ... ok
+test_rare_non_integer_exits_2 (test_cli.CountCliFilterTests.test_rare_non_integer_exits_2) ... usage: wordstats count [-h] [--rare N] [--top N] path
+wordstats count: error: argument --rare: invalid int value: 'lots'
+ok
+test_rare_then_top_compose (test_cli.CountCliFilterTests.test_rare_then_top_compose) ... ok
+test_rare_zero_exits_2_with_message (test_cli.CountCliFilterTests.test_rare_zero_exits_2_with_message) ... ok
+test_top_keeps_n_most_frequent (test_cli.CountCliFilterTests.test_top_keeps_n_most_frequent) ... ok
+test_top_negative_exits_2_with_message (test_cli.CountCliFilterTests.test_top_negative_exits_2_with_message) ... ok
+test_top_non_integer_exits_2 (test_cli.CountCliFilterTests.test_top_non_integer_exits_2) ... usage: wordstats count [-h] [--rare N] [--top N] path
+wordstats count: error: argument --top: invalid int value: '1.5'
+ok
+test_top_ties_broken_alphabetically (test_cli.CountCliFilterTests.test_top_ties_broken_alphabetically) ... ok
+test_top_zero_exits_2_with_message (test_cli.CountCliFilterTests.test_top_zero_exits_2_with_message) ... ok
+test_counts_basic_words (test_counter.CountWordsTests.test_counts_basic_words) ... ok
+test_empty_input (test_counter.CountWordsTests.test_empty_input) ... ok
+test_ignores_punctuation_only_tokens (test_counter.CountWordsTests.test_ignores_punctuation_only_tokens) ... ok
+test_strips_punctuation_and_lowercases (test_counter.CountWordsTests.test_strips_punctuation_and_lowercases) ... ok
+test_boundary_count_equals_n_is_kept (test_rarewords.SelectRareTests.test_boundary_count_equals_n_is_kept) ... ok
+test_does_not_mutate_input (test_rarewords.SelectRareTests.test_does_not_mutate_input) ... ok
+test_empty_input (test_rarewords.SelectRareTests.test_empty_input) ... ok
+test_keeps_only_words_at_or_below_n (test_rarewords.SelectRareTests.test_keeps_only_words_at_or_below_n) ... ok
+test_n_larger_than_vocabulary_keeps_all (test_rarewords.SelectRareTests.test_n_larger_than_vocabulary_keeps_all) ... ok
+test_rejects_bool (test_rarewords.SelectRareTests.test_rejects_bool) ... ok
+test_rejects_float (test_rarewords.SelectRareTests.test_rejects_float) ... ok
+test_rejects_negative (test_rarewords.SelectRareTests.test_rejects_negative) ... ok
+test_rejects_none (test_rarewords.SelectRareTests.test_rejects_none) ... ok
+test_rejects_string (test_rarewords.SelectRareTests.test_rejects_string) ... ok
+test_rejects_zero (test_rarewords.SelectRareTests.test_rejects_zero) ... ok
+test_does_not_modify_input (test_topwords.SelectTopTests.test_does_not_modify_input) ... ok
+test_empty_input_returns_empty_mapping (test_topwords.SelectTopTests.test_empty_input_returns_empty_mapping) ... ok
+test_keeps_most_frequent_words (test_topwords.SelectTopTests.test_keeps_most_frequent_words) ... ok
+test_n_larger_than_vocabulary_returns_everything (test_topwords.SelectTopTests.test_n_larger_than_vocabulary_returns_everything) ... ok
+test_rejects_invalid_n (test_topwords.SelectTopTests.test_rejects_invalid_n) ... ok
+test_tie_broken_alphabetically_at_cut_boundary (test_topwords.SelectTopTests.test_tie_broken_alphabetically_at_cut_boundary) ... ok
+
+----------------------------------------------------------------------
+Ran 31 tests in 0.011s
+
+OK
+unit tests: OK
+cli smoke check: OK
+All checks passed.

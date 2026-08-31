@@ -1,0 +1,20 @@
+{
+  "task": {
+    "status": "completed",
+    "worker": "component-builder",
+    "updated": "2026-08-31T20:41:00Z",
+    "constraints": {
+      "cost": { "currency": "USD", "allocated": 0.5, "spent": 0, "reserve": 0.05, "source": "host-reported" },
+      "delegation": { "maximum-depth": 0, "maximum-children": 0 },
+      "execution": { "wall-clock": { "allocated-seconds": 1500, "spent-seconds": 0, "reserve-seconds": 120, "source": "host-reported" } },
+      "external-effects": "none-authorized"
+    },
+    "acceptance": [
+      "src/wordstats/topwords.py exists and exposes filter_top_words(counts, n) returning a new mapping of the n most frequent words with ties broken alphabetically.",
+      "tests/test_topwords.py covers frequency ranking, an alphabetical tie at the cutoff, n larger than the vocabulary, and empty input.",
+      "No file outside src/wordstats/topwords.py, tests/test_topwords.py, and records/components/topwords/ is modified.",
+      "PYTHONPATH=src python3 -m unittest tests.test_topwords passes.",
+      "Task record updated with status, evidence, and result; no git commits."
+    ]
+  }
+}

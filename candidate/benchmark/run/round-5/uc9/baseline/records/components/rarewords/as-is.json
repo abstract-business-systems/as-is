@@ -1,0 +1,27 @@
+{
+  "task": {
+    "status": "completed",
+    "worker": "component-builder",
+    "updated": "2026-09-01T02:55:00Z",
+    "constraints": {
+      "cost": { "currency": "USD", "allocated": 0.5, "spent": 0.05, "reserve": 0.05, "source": "host-reported" },
+      "delegation": { "maximum-depth": 0, "maximum-children": 0 },
+      "execution": { "wall-clock": { "allocated-seconds": 1500, "spent-seconds": 180, "reserve-seconds": 120, "source": "host-reported" } },
+      "external-effects": "none-authorized"
+    },
+    "acceptance": [
+      "src/wordstats/rarewords.py exists and exposes filter_rare_words(counts, n) returning a new mapping of words with count <= n.",
+      "tests/test_rarewords.py covers inclusive boundary (count == n kept), exclusion (count > n dropped), empty result, and no-op passthrough of input ordering.",
+      "No file outside src/wordstats/rarewords.py, tests/test_rarewords.py, and records/components/rarewords/ is modified.",
+      "PYTHONPATH=src python3 -m unittest tests.test_rarewords passes.",
+      "Task record updated with status, evidence, and result; no git commits."
+    ],
+    "evidence": {
+      "implementation": "src/wordstats/rarewords.py (pure filter_rare_words(counts, n), returns a new mapping, no I/O)",
+      "tests": "tests/test_rarewords.py (5 tests: inclusive boundary, exclusion, empty result, empty input, input non-mutation)",
+      "unit-test-run": "PYTHONPATH=src python3 -m unittest tests.test_rarewords -v -> Ran 5 tests, OK",
+      "validate-run": "bash checks/validate.sh -> compile OK, 14 unit tests OK, CLI smoke check OK, exit 0",
+      "integration": "pending-parent-integration: no git commands run per constraint; parent owns commit/integration"
+    }
+  }
+}
