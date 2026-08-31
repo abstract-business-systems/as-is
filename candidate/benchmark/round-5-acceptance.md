@@ -16,3 +16,8 @@ Registered parameters:
 ## Execution authorization
 
 On this recorded acceptance, the implementer is authorized to: run the round-5 execution setup, launch the 4 arms, collect evidence, spawn the scorer, and commit results — under the registered procedure and the standing subagent condition.
+
+## Post-round housekeeping (2026-09-01)
+
+- Per-skill Mermaid design views dropped from draft and catalog (user-authorized; commit 1935f05). The round-4 registered variant checksum `e4cd9366…` described the stripped variant and is superseded: the live catalog now IS the post-drop state. New pinned catalog digest for future rounds: see `candidate/benchmark/post-drop-checksum.txt`.
+- Standing arm mechanics amended: thinking level pinned to `high` for every role (uc10/baseline child ran `low` from its own agent config in round-5 run-2).
