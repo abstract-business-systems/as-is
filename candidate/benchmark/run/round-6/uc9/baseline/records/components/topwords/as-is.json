@@ -1,0 +1,37 @@
+{
+  "task": {
+    "status": "completed",
+    "worker": "component-builder",
+    "updated": "2026-08-31T22:19:55Z",
+    "task-revision": "round-6-uc9-topwords",
+    "attempt": 1,
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.75,
+        "spent": 0,
+        "reserve": 0.15,
+        "source": "host-reported",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 240,
+          "spent-seconds": 0,
+          "reserve-seconds": 60,
+          "source": "host-reported"
+        }
+      },
+      "external-effects": "require-current-turn-user-approval"
+    },
+    "acceptance": [
+      "Implement src/wordstats/topwords.py with a pure helper that selects the N highest-frequency entries and breaks ties alphabetically.",
+      "Add or update only the topwords component record/task evidence and helper module; do not edit shared CLI, tests, or design notes.",
+      "Validate the helper behavior and leave a parent-reviewable handoff without committing in the shared parent worktree."
+    ]
+  }
+}

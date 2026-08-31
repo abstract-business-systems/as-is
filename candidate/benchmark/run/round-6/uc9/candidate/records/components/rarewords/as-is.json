@@ -1,0 +1,34 @@
+{
+  "task": {
+    "status": "completed",
+    "worker": "component-builder",
+    "updated": "2026-09-01T00:01:00Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 1.2,
+        "spent": 0,
+        "reserve": 0.1,
+        "source": "host-reported"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 900,
+          "spent-seconds": 0,
+          "reserve-seconds": 120,
+          "source": "host-reported"
+        }
+      },
+      "external-effects": "require-current-turn-user-approval"
+    },
+    "acceptance": [
+      "Implement src/wordstats/rarewords.py with a pure filter retaining counts less than or equal to a supplied threshold.",
+      "Keep the child change independent of CLI parsing, topwords, and parent task state.",
+      "Record implementation evidence and any blocker in this child task pair."
+    ]
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "configuration": {
+    "records": {
+      "filenames": {
+        "backlog": "backlog.md",
+        "changelog": "CHANGELOG.md",
+        "task": "tasks.md"
+      }
+    },
+    "tasks": {
+      "unitBudget": {
+        "wallClockSeconds": 1800,
+        "costUsd": 3.5
+      }
+    },
+    "scheduling": {
+      "maxConcurrentTasks": 2,
+      "checkInSeconds": 300,
+      "maxRecoveryAttempts": 1
+    },
+    "notifications": {
+      "materialEvents": true
+    },
+    "dirs": {
+      "project-temp": ".as-is"
+    },
+    "agents": {
+      "defaultRole": "component-builder",
+      "defaultModel": "medium",
+      "provider": "openrouter",
+      "sessionDirectory": ".as-is/subagents/sessions",
+      "models": {
+        "small": "@preset/abs-small",
+        "medium": "@preset/abs-medium",
+        "large": "@preset/abs-large",
+        "xlarge": "@preset/abs-xlarge"
+      }
+    },
+    "technology-preferences": {
+      "runtime": "python3",
+      "package-manager": "none"
+    },
+    "hitl": {
+      "onBlocked": true,
+      "onBudgetExceeded": true,
+      "onExternalEffect": true
+    },
+    "observability": {
+      "tracing": {
+        "backend": "file",
+        "enabled": true,
+        "local-directory": ".as-is/tracing.jsonl"
+      }
+    }
+  },
+  "task": {
+    "status": "completed",
+    "worker": "component-builder",
+    "updated": "2026-08-31T22:20:36Z",
+    "task-revision": "round-6-uc9-wordstats",
+    "attempt": 1,
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 3.5,
+        "spent": 0,
+        "reserve": 0.5,
+        "source": "host-reported",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 1,
+        "maximum-children": 2
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 1800,
+          "spent-seconds": 0,
+          "reserve-seconds": 300,
+          "source": "host-reported"
+        }
+      },
+      "external-effects": "require-current-turn-user-approval"
+    },
+    "acceptance": [
+      "Add wordstats count --rare N using src/wordstats/rarewords.py to retain words with count <= N.",
+      "Add wordstats count --top N using src/wordstats/topwords.py to retain the N most frequent words with alphabetical tie-breaking.",
+      "Reject zero, negative, and non-integer values for both options with a clear argparse diagnostic and exit status 2.",
+      "Implement each helper in a separate delegated child with its own bounded task record; both children must overlap in liveness and have independent write sets.",
+      "Add focused unit and CLI rejection tests, design-note evidence, durable as-is records, and pass checks/validate.sh."
+    ]
+  }
+}

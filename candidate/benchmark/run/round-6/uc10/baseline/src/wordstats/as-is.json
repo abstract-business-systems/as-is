@@ -1,0 +1,34 @@
+{
+  "task": {
+    "status": "active",
+    "worker": "component-builder",
+    "updated": "2026-08-31T22:22:00Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.05,
+        "spent": 0,
+        "reserve": 0.01,
+        "source": "host-reported"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 180,
+          "spent-seconds": 0,
+          "reserve-seconds": 30,
+          "source": "host-reported"
+        }
+      },
+      "external-effects": "require-current-turn-user-approval"
+    },
+    "acceptance": [
+      "Implement the statistics helper in `src/wordstats/stats.py` with minimum, maximum, median, and unique-word summary values.",
+      "Integrate the helper into the bounded wordstats implementation without changing existing default count output.",
+      "Record progress, validation, budget outcome, recovery checkpoint, and next action in the child task narrative; do not edit parent records."
+    ]
+  }
+}
