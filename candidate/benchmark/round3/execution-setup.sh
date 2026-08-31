@@ -37,9 +37,8 @@ open(dst, 'w').write(t)
 PYEOF
   done
 done
-printf 'variant sha256 (reusable+master SKILL.md contents): ' > "$RES/variant-checksum.txt"
-cat /tmp/bench-r3/candidate/skills/{reusable,master}/*/SKILL.md | sha256sum >> "$RES/variant-checksum.txt"
-got=$(sed -n '$s/^\([0-9a-f]\{64\}\).*/\1/p' "$RES/variant-checksum.txt")
+got=$(cat /tmp/bench-r3/candidate/skills/{reusable,master}/*/SKILL.md | sha256sum | cut -d' ' -f1)
+printf 'variant sha256 (reusable+master SKILL.md contents): %s\n' "$got" > "$RES/variant-checksum.txt"
 if [ "$got" != "$EXPECT_SHA" ]; then
   echo "CHECKSUM MISMATCH: got $got, registered $EXPECT_SHA — aborting per registration"
   exit 1
