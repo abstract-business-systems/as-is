@@ -1,0 +1,15 @@
+{
+  "round": "round-5 (coverage addendum: delegation depth)",
+  "date": "2026-09-01",
+  "registration": "candidate/benchmark/pre-registration-v5.md",
+  "arms": {"baseline": "master @ 9a77e37", "candidate": "post-drop variant, checksum e4cd9366530976fa2f6e086e1447eec967088aa1ef8c476e7eb08afe6472c860"},
+  "runs": [
+    {"run": 1, "status": "VOIDED by user adjudication (infrastructure-contaminated; run-1-defects.md)", "defects": ["bun-x launch-probe race", "toolless children from agent files without tools: declaration (launcher contract: explicit empty set)", "baseline mid-turn truncations x2 (round-4 uc8 pattern)"], "scored": false},
+    {"run": 2, "status": "complete", "jobIds": {"uc9/baseline": "j-mthp5r9h-hhvb6p", "uc9/candidate": "j-mthp5v4r-on3hn9", "uc10/baseline": "j-mthp5yyo-57njid", "uc10/candidate": "j-mthp62u7-28gbgq", "scorer": "j-mthqbxcx-fm8nlx"}, "budgetStopped": false, "scored": true}
+  ],
+  "results": {"uc9": {"baseline": 26, "candidate": 27, "gates": "PASS/PASS"}, "uc10": {"baseline": 27, "candidate": 26, "gates": "PASS/PASS"}, "aggregate": {"baseline": 53, "candidate": 53}, "parity": "MET (criterion: candidate >= baseline - 1 per UC, aggregate deficit <= 3, all gates passing)"},
+  "coverage": {"closed": "MULTIPLE children run CONCURRENTLY (both arms: registry-verified same-second launches, ~36s/62s live overlap)", "partially open": "budget-stop recovery (both arms pinned+forwarded $0.02/180s; no stop fired - children completed at 31s/56s; recovery behavior unexercised on both sides)"},
+  "harnessDefects": ["launch-probe race (bun x concurrent cache race, main-session wave)", "child fast-fail histories in run-1 only; run-2 clean", "store-location asymmetry persists: baseline children local to consumer (.as-is/subagents/sessions inside consumer), candidate children to host; both captured"],
+  "bundleProcedure": "run-2-consumer-bundles: baseline histories verified (git bundle create+verify, ABSOLUTE output paths - relative paths resolve against -C); candidate arms made no in-session commits (empty bundle refused), working trees committed post-strip",
+  "collectorFixes": ["run-2 parent jobIds pinned to exclude voided run-1 names", "uc\\d+ regex (uc10 was missed by uc\\d)", "bundle-verify before strip, absolute paths, arg-tested"]
+}

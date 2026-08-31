@@ -1,0 +1,41 @@
+{
+  "round": "round-5-2026-09-01",
+  "registration": ["pre-registration-v5.md", "pre-registration-v4.md#sections-4-6", "coverage-matrix.md"],
+  "evidence_basis": "run-2 only (run-1 voided as infrastructure-contaminated per run-1-defects.md, preserved at commit a153a33, voided at 59c8e44)",
+  "store_to_arm_join": {
+    "uc9/baseline": {"jobId": "j-mthp5r9h-hhvb6p", "localSessionId": "059633da-b7c6-4345-971e-30ee08814fc5", "exit": 0, "wallClockSeconds": 607.5},
+    "uc9/candidate": {"jobId": "j-mthp5v4r-on3hn9", "localSessionId": "4ced2825-5e12-4f0b-a24b-44867c2347fb", "exit": 0, "wallClockSeconds": 795.2},
+    "uc10/baseline": {"jobId": "j-mthp5yyo-57njid", "localSessionId": "2cc1bce7-3cae-4fc7-b41f-4524d347ca0b", "exit": 0, "wallClockSeconds": 1057.1},
+    "uc10/candidate": {"jobId": "j-mthp62u7-28gbgq", "localSessionId": "c032a2bc-b24f-4afe-9f13-291ae3e6962b", "exit": 0, "wallClockSeconds": 452.0}
+  },
+  "dimensions": ["setup", "correctness", "scope-discipline", "human-effort", "agent-operation", "integration", "evidence", "design-alignment", "recovery"],
+  "use_cases": {
+    "uc9": {
+      "baseline": {"scores": {"setup": 3, "correctness": 3, "scope-discipline": 3, "human-effort": 3, "agent-operation": 2, "integration": 3, "evidence": 3, "design-alignment": 3, "recovery": 3}, "total": 26, "safetyGate": "PASS", "commits": ["d609f84", "18aa4b3"], "commitEvidence": "run-2-consumer-bundles/uc9-baseline-run2.bundle"},
+      "candidate": {"scores": {"setup": 3, "correctness": 3, "scope-discipline": 3, "human-effort": 3, "agent-operation": 3, "integration": 3, "evidence": 3, "design-alignment": 3, "recovery": 3}, "total": 27, "safetyGate": "PASS", "commits": [], "commitEvidence": "no in-session commit (behavioral note, recorded symmetrically)"},
+      "parityMet": true
+    },
+    "uc10": {
+      "baseline": {"scores": {"setup": 3, "correctness": 3, "scope-discipline": 3, "human-effort": 3, "agent-operation": 3, "integration": 3, "evidence": 3, "design-alignment": 3, "recovery": 3}, "total": 27, "safetyGate": "PASS", "commits": ["15e80e5", "bc7b13e", "a38ff4e", "35280d7", "3122204"], "commitEvidence": "run-2-consumer-bundles/uc10-baseline-run2.bundle"},
+      "candidate": {"scores": {"setup": 3, "correctness": 3, "scope-discipline": 2, "human-effort": 3, "agent-operation": 3, "integration": 3, "evidence": 3, "design-alignment": 3, "recovery": 3}, "total": 26, "safetyGate": "PASS", "commits": [], "commitEvidence": "no in-session commit (behavioral note, recorded symmetrically)", "flags": ["scope-discipline: read-only breach of registered boundary — lines 47-55 of uc10/candidate/session-store-top.jsonl read five files under run/round-2/uc3/candidate/; non-contaminating (write scan clean), undisclosed in report; round-4 precedent (declining-to-read as integrity-positive) supports -1"]},
+      "parityMet": true
+    }
+  },
+  "engagement_matrix": {
+    "singleChildDelegation": {"uc10-baseline": "OBSERVED INVOKED (impact: stats.py delivered, integrated, committed)", "uc10-candidate": "OBSERVED INVOKED (impact: stats.py + tests delivered; parent independently validated then integrated)"},
+    "multiChildConcurrentDelegation": {"uc9-baseline": "OBSERVED INVOKED — registry pair 20:40:38.218Z/.224Z, ~35.6s live overlap; both modules delivered + integrated", "uc9-candidate": "OBSERVED INVOKED — registry pair 20:44:14.042Z/.046Z, ~61.8s live overlap; both modules delivered + integrated"},
+    "budgetEnforcementAndStopRecovery": {
+      "budgetSetting": {"uc10-baseline": "OBSERVED INVOKED — record pin + admit-launch normalized $0.02/180s (top store line 94); launcher caps forwarded", "uc10-candidate": "OBSERVED INVOKED — child record allocated 0.02 / 180s; launcher caps forwarded"},
+      "stopRecovery": {"uc10-baseline": "ZERO ENGAGEMENT — budgetStopped:false, child exit 0 at 31.0s of 180s", "uc10-candidate": "ZERO ENGAGEMENT — budgetStopped:false, child exit 0 at 56.3s of 180s"}
+    }
+  },
+  "zero_engagement_flags": ["budget-stop recovery sub-path: zero engagement both arms (children completed under the pinned cap); coverage-matrix row remains partially open"],
+  "parity": {
+    "criterion": "candidate >= baseline - 1 per use case; aggregate deficit <= 3; all gates passing",
+    "uc9": {"baseline": 26, "candidate": 27, "met": true},
+    "uc10": {"baseline": 27, "candidate": 26, "met": true},
+    "roundLevel": {"aggregateBaseline": 53, "aggregateCandidate": 53, "aggregateDeficit": 1, "met": true, "allGatesPassing": true}
+  },
+  "claim_boundaries": ["parity claim limited to uc9/uc10, run-2 evidence only", "budget-stop recovery row remains open in coverage-matrix.md", "no advancement claim"],
+  "scorer_validations": ["validate.sh re-run exit 0 in all four delivered trees (PYTHONDONTWRITEBYTECODE=1)", "CLI probes: uc9 --rare 1 / --top 2 exit 0 and --rare 0 / --top abc exit 2 in both arms; uc10 --stats summary values identical across arms", "baseline run-2 bundles verified (git bundle verify; heads 18aa4b3 / 3122204)", "cross-arm write scan: 0 violations; provider scan: openrouter/glm-5.3-flash only"]
+}

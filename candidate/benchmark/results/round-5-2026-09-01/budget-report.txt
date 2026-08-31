@@ -1,0 +1,15 @@
+Round-5 budget actuals (2026-09-01; model z-ai/glm-5.3-flash via openrouter; extraction: assistant-message usage.cost.total summed per session, run-2 only)
+
+RUN-2 (scored):
+  uc9/baseline      $0.0450  (607.5s)
+  uc9/candidate     $0.0598  (795.2s)
+  uc10/baseline     $0.0838  (1057.1s)
+  uc10/candidate    $0.0372  (452.0s)
+  children (6, both arms, host+consumer-local): $0.0269
+  scorer:           $0.0486  (536.8s)
+  RUN-2 TOTAL:      $0.3014  (caps $2.00/3600s per arm; all far under)
+
+RUN-1 (voided, infrastructure-contaminated): arms + children spend preserved in
+run-1-session-stores/; rough additional ~$0.25. Combined round-5 spend ~= $0.55.
+
+Program benchmark cumulative: ~$2.98 (rounds 1-4 ~$2.43 + round-5 ~$0.55).
