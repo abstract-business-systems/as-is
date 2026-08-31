@@ -160,5 +160,13 @@
     "capPerArm": "$2.00 / 3600s",
     "note": "actuals from deduplicated session stores in budget-report.txt (post-scoring)",
     "actualTotal": "$0.7813 (14 arms + 2 nested children + scorer; budget-report.txt)"
+  },
+  "adjudications": {
+    "uc8-baseline-truncation": {
+      "date": "2026-09-01",
+      "adjudication": "VOIDED by user (harness/session truncation, not workflow behavior; exit 0 at 265s, no report, session ends mid-planning \u2014 same pattern re-confirmed twice in round-5 run-1)",
+      "effect": "uc8 scored cell voided under infrastructure-exception rules; round-4 parity holds on six UCs (candidate 189 vs baseline 158, all gates PASS); scoring.md uc8 numbers retained as recorded-but-voided with this pointer",
+      "residual": "round-4 scoring.md uc8 table numbers stand as recorded evidence, excluded from the parity claim"
+    }
   }
 }
