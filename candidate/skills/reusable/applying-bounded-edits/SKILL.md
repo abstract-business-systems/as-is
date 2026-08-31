@@ -17,15 +17,3 @@ Confirm the exact target and literal transformation; inspect consumers and nearb
 
 This skill makes surgical changes to existing artifacts and does not cover new or substantially generated implementation; `writing-code` is a separate capability.
 
-## Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Target["Exact target"] --> Inspect["Consumers and context"]
-    Inspect --> Edit["Small reversible edit"]
-    Edit --> Review["Collateral-change review"]
-```

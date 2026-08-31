@@ -66,17 +66,16 @@ else
   ok "check4 no path reference to $other"
 fi
 
-# Check 12: design-view Mermaid block structurally exact vs draft
-case "$skill" in
-  applying-bounded-edits) dstart=362; dend=371 ;;
-  choosing-change-methods) dstart=677; dend=686 ;;
-esac
-sed -n "${dstart},${dend}p" "$draft" > /tmp/pilot-draft-mermaid.txt
-sed -n '/^```mermaid$/,/^```$/p' "$file" > /tmp/pilot-real-mermaid.txt
-if diff -q /tmp/pilot-draft-mermaid.txt /tmp/pilot-real-mermaid.txt >/dev/null 2>&1; then
-  ok "check12 Design-view Mermaid block exact (draft lines $dstart-$dend)"
+# Check 12 (post-drop revision 2026-09-01): skill body carries NO Design view section and NO Mermaid block
+if grep -q '^## Design view' "$file"; then
+  bad "check12 Design view section present (dropped by 2026-09-01 draft revision)"
 else
-  bad "check12 Mermaid block differs from draft lines $dstart-$dend"
+  ok "check12 no Design view section (post-drop brief shape)"
+fi
+if grep -q '^```mermaid$' "$file"; then
+  bad "check12 Mermaid block present in skill body"
+else
+  ok "check12 no Mermaid in skill body"
 fi
 
 echo "----"

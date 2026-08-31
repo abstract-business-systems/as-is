@@ -15,15 +15,3 @@ Map each test to an acceptance condition or risk, choose the smallest relevant t
 
 Name the behavior and failure risk; choose unit, integration, fixture, or live coverage; write deterministic success and boundary cases; avoid testing implementation details without contract value; record uncovered conditions and why.
 
-## Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Behavior["Required behavior"] --> Risk["Failure risk"]
-    Risk --> Cases["Focused test cases"]
-    Cases --> Gaps["Coverage and residual gaps"]
-```

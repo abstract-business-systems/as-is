@@ -17,15 +17,3 @@ Read the requirement, interfaces, constraints, and nearby patterns; define chang
 
 This skill supports new or substantially generated implementation from a bounded requirement and does not cover surgical changes to existing artifacts, which applying-bounded-edits covers as a separate capability.
 
-## Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Requirement["Approved requirement"] --> Design["Interfaces and constraints"]
-    Design --> Code["Coherent implementation"]
-    Code --> Tests["Testing handoff"]
-```

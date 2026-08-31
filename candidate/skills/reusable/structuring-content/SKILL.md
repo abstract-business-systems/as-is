@@ -15,15 +15,3 @@ Shape content around reader goals, ownership, discoverability, and lifecycle whi
 
 Identify the reader and retrieval question; inspect the containing structure; choose the smallest meaningful location and representation; keep authority with the owning record; preserve navigation and lifecycle; assess moves before changing existing content.
 
-## Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Need["Reader need"] --> Boundary["Owner and lifecycle"]
-    Boundary --> Shape["Smallest coherent shape"]
-    Shape --> Navigation["Discoverable artifact"]
-```

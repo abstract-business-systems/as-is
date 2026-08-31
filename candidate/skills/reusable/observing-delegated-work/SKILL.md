@@ -15,15 +15,3 @@ Read approved progress and evidence surfaces incrementally, report blockers and 
 
 Use the approved handle, task record, logs, traces, or session selectors; read incrementally; compare progress with acceptance and budget; classify running, blocked, failed, or terminal; preserve the worker's scope and do not infer completion.
 
-## Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Handoff["Approved delegation"] --> Observe["Read progress and evidence"]
-    Observe --> Classify["Running, blocked, or terminal"]
-    Classify --> Report["Observation report"]
-```

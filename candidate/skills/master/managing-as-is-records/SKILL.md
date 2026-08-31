@@ -15,18 +15,6 @@ description: Use when durable component records must be created, aligned, and na
 
 **How it should be done**: Identify the component boundary and parent; read the record contract; create or revise Purpose, Components, Design, Relationships, and navigation; keep task state out; validate links, diagrams, and child parity; stop when ownership is unclear.
 
-## Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Boundary["Component boundary"] --> Context["Purpose and relationships"]
-    Context --> Record["Approved as-is record"]
-    Record --> Navigation["Validated reader navigation"]
-```
 
 ## Composition context
 

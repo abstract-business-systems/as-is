@@ -15,18 +15,6 @@ description: Use when durable histories must be resolved and maintained independ
 
 **How it should be done**: Resolve history from task, component, project, or root contracts; verify the result is durable and owned; write a concise dated or convention-compliant summary with evidence and residual risk; explicitly record no-history outcomes.
 
-## Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Result["Durable result"] --> Resolve["Resolve history owner"]
-    Resolve --> Entry["Concise evidence entry"]
-    Entry --> Retain["Retained project history"]
-```
 
 ## Composition context
 

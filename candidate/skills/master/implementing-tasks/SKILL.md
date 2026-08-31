@@ -15,19 +15,6 @@ description: Use when the existing task lifecycle must be run for authorized bou
 
 **How it should be done**: Verify an active authorized task before editing; record scope, acceptance, worker, budget, dependencies, checkpoints, and changed artifacts; update progress and recovery evidence; require acceptance and terminal descendants; hand completion to history, cleanup, and commit procedures.
 
-## Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Selected["Selected bounded work"] --> Active["Active task record"]
-    Active --> Progress["Implement and checkpoint"]
-    Progress --> Acceptance["Acceptance and closure"]
-    Acceptance --> Completion["Completion handoff"]
-```
 
 ## Composition context
 

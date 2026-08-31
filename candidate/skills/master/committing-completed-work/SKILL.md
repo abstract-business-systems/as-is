@@ -15,18 +15,6 @@ description: Use when completion gates must be verified and scoped durable hando
 
 **How it should be done**: Verify completion eligibility and descendant closure; obtain exact cleanup evidence; stage only declared files; inspect cached diff and whitespace; commit with established style; verify the commit and leave unrelated work untouched.
 
-## Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Result["Validated completed work"] --> Gates["Acceptance and closure gates"]
-    Gates --> Patch["Scoped completion patch"]
-    Patch --> Commit["Durable commit"]
-```
 
 ## Composition context
 

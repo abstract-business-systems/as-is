@@ -41,8 +41,8 @@ for clause in "$purpose" "$approach" "$how"; do
 done
 
 secs=$(grep -E '^## ' "$file" | sed 's/^#* //' | tr '\n' '|')
-if [ "$secs" = "Purpose|Approach|How it should be done|Design view|Composition context|" ]; then
-  ok "check4 sections exactly Purpose/Approach/How it should be done/Design view/Composition context"
+if [ "$secs" = "Purpose|Approach|How it should be done|Composition context|" ]; then
+  ok "check4 sections exactly Purpose/Approach/How it should be done/Composition context"
 else
   bad "check4 section set differs: $secs"
 fi

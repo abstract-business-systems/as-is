@@ -49,10 +49,10 @@ for clause in "$purpose" "$approach" "$how"; do
   grep -qF "$clause" "$file" && ok "check1 $lbl clause verbatim (draft line $ln)" || bad "check1 $lbl clause MISSING: \"$clause\""
 done
 
-# Check 4 proxy: body section set (no invented sections) — exactly Purpose, Approach, How it should be done, Design view
+# Check 4 proxy: body section set (no invented sections) — exactly Purpose, Approach, How it should be done (Design view dropped 2026-09-01)
 secs=$(grep -E '^#{2,4} ' "$file" | sed 's/^#* //' | tr '\n' '|')
-if [ "$secs" = "Purpose|Approach|How it should be done|Design view|" ]; then
-  ok "sections exactly Purpose/Approach/How it should be done/Design view"
+if [ "$secs" = "Purpose|Approach|How it should be done|" ]; then
+  ok "sections exactly Purpose/Approach/How it should be done"
 else
   bad "section set differs: $secs"
 fi

@@ -177,7 +177,7 @@ The arrows describe a proposed composition, not a new runtime engine. Existing t
 
 ## Proposed reusable skills
 
-Each proposed reusable skill is described separately so its responsibility, procedure, and design view can be reviewed without scanning a wide comparison table. These names and contracts remain proposals; existing skills remain authoritative until an approved migration task changes them.
+Each proposed reusable skill is described separately so its responsibility and procedure can be reviewed without scanning a wide comparison table. Per-skill Design-view diagrams were removed from the briefs after the round-2 benchmark A/B (arms that authored Mermaid design views underperformed on all gates; user authorized the drop 2026-09-01). Design views remain draft-level where they explain the approach itself. These names and contracts remain proposals; existing skills remain authoritative until an approved migration task changes them.
 
 ### `building-context`
 
@@ -187,19 +187,6 @@ Each proposed reusable skill is described separately so its responsibility, proc
 
 **How it should be done**: State the question and stopping condition; read the owning record, applicable contract, acceptance conditions, and named dependencies; label facts, assumptions, and unknowns; preserve source links; escalate conflicts instead of filling gaps from proximity.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Question["Bounded question"] --> Sources["Authoritative sources"]
-    Sources --> Context["Provenance-bearing context"]
-    Context -->|sufficient| Handoff["Decision handoff"]
-    Context -->|conflict or gap| Escalate["Escalation"]
-```
 
 ### `resolving-scopes`
 
@@ -209,19 +196,6 @@ flowchart TB
 
 **How it should be done**: Identify the requested outcome and changed artifact; inspect component records and ownership contracts; test component-task applicability; choose component, artifact, project, or root scope; record the decision; stop on competing owners or missing policy.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Request["Requested change"] --> Classify["Classify scope"]
-    Classify --> Owner["Smallest owning scope"]
-    Owner -->|clear| Decision["Scope decision"]
-    Owner -->|ambiguous| Stop["Stop for direction"]
-```
 
 ### `identifying-owners`
 
@@ -231,18 +205,6 @@ flowchart TB
 
 **How it should be done**: Build a concern-to-owner table for implementation, task state, durable records, history, validation, delegation, and commits; verify each owner from a record or contract; distinguish who may advise, edit, authorize, and integrate.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Scope["Resolved scope"] --> Concerns["List concerns"]
-    Concerns --> Authorities["Map authorities"]
-    Authorities --> Handoff["Owner handoff"]
-```
 
 ### `locating-changelogs`
 
@@ -252,18 +214,6 @@ flowchart TB
 
 **How it should be done**: Read the task, component, project, or root history contract; resolve configured filenames and owning records; determine whether history is required; return the exact path and rationale, or explicitly record that no history is required.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Work["Bounded work"] --> Contract["Read history contract"]
-    Contract -->|history required| Changelog["Owning changelog"]
-    Contract -->|not required| None["No history required"]
-```
 
 ### `choosing-names`
 
@@ -273,18 +223,6 @@ flowchart TB
 
 **How it should be done**: Identify the concept's responsibility and lifecycle; inspect parent and sibling names; consult naming guidance; compare alternatives for semantic precision and discoverability; choose one name; update proven references atomically when renaming.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Concept["Responsibility"] --> Vocabulary["Parent and sibling vocabulary"]
-    Vocabulary --> Alternatives["Candidate names"]
-    Alternatives --> Name["Narrow accurate name"]
-```
 
 ### `structuring-content`
 
@@ -294,18 +232,6 @@ flowchart TB
 
 **How it should be done**: Identify the reader and retrieval question; inspect the containing structure; choose the smallest meaningful location and representation; keep authority with the owning record; preserve navigation and lifecycle; assess moves before changing existing content.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Need["Reader need"] --> Boundary["Owner and lifecycle"]
-    Boundary --> Shape["Smallest coherent shape"]
-    Shape --> Navigation["Discoverable artifact"]
-```
 
 ### `drafting-content`
 
@@ -315,18 +241,6 @@ flowchart TB
 
 **How it should be done**: Write the proposed outcome, rationale, scope, alternatives, dependencies, risks, acceptance, and next decision; label it as draft; avoid operational instructions that pretend adoption; route approval to the authority-bearing owner.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Question["Design question"] --> Proposal["Bounded proposal"]
-    Proposal --> Alternatives["Alternatives and assumptions"]
-    Alternatives --> Review["Next decision"]
-```
 
 ### `writing-code`
 
@@ -336,18 +250,6 @@ flowchart TB
 
 **How it should be done**: Read the requirement, interfaces, constraints, and nearby patterns; define changed artifacts and acceptance mapping; implement the smallest coherent path; preserve ownership and error behavior; return the diff for testing and validation rather than claiming completion.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Requirement["Approved requirement"] --> Design["Interfaces and constraints"]
-    Design --> Code["Coherent implementation"]
-    Code --> Tests["Testing handoff"]
-```
 
 ### `applying-bounded-edits`
 
@@ -357,18 +259,6 @@ flowchart TB
 
 **How it should be done**: Confirm the exact target and literal transformation; inspect consumers and nearby context; use a precise replacement; review the diff for collateral changes; run focused checks; stop if the target, owner, or transformation is ambiguous.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Target["Exact target"] --> Inspect["Consumers and context"]
-    Inspect --> Edit["Small reversible edit"]
-    Edit --> Review["Collateral-change review"]
-```
 
 ### `writing-tests`
 
@@ -378,18 +268,6 @@ flowchart TB
 
 **How it should be done**: Name the behavior and failure risk; choose unit, integration, fixture, or live coverage; write deterministic success and boundary cases; avoid testing implementation details without contract value; record uncovered conditions and why.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Behavior["Required behavior"] --> Risk["Failure risk"]
-    Risk --> Cases["Focused test cases"]
-    Cases --> Gaps["Coverage and residual gaps"]
-```
 
 ### `running-tests`
 
@@ -399,18 +277,6 @@ flowchart TB
 
 **How it should be done**: Map changed artifacts to existing focused checks; run the narrowest applicable command; capture pass, failure, skip, timeout, and environment status; do not reinterpret process exit as completion; recommend the next bounded check when evidence is insufficient.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Change["Changed behavior"] --> Check["Smallest relevant check"]
-    Check --> Observation["Observed result"]
-    Observation --> Limits["Limits and next check"]
-```
 
 ### `validating-changes`
 
@@ -420,18 +286,6 @@ flowchart TB
 
 **How it should be done**: Create an acceptance-to-evidence matrix; inspect the actual diff and test results; mark each condition passed, failed, blocked, or untested; separate observations from inferences; record residual risk, recovery, and commit readiness.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Acceptance["Acceptance conditions"] --> Evidence["Collected evidence"]
-    Evidence --> Matrix["Condition mapping"]
-    Matrix --> Result["Validation result and risk"]
-```
 
 ### `recording-evidence`
 
@@ -441,18 +295,6 @@ flowchart TB
 
 **How it should be done**: Record selector, source, timestamp or revision, command or observation, result, interpretation, and limitation; keep secrets and unbounded payloads out; link evidence to the requirement without granting it authority.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Observation["Bounded observation"] --> Provenance["Source and freshness"]
-    Provenance --> Record["Concise evidence"]
-    Record --> Limits["Interpretation and limits"]
-```
 
 ### `designing-diagrams`
 
@@ -462,18 +304,6 @@ flowchart TB
 
 **How it should be done**: Define the reader question and view boundary; choose functional nodes and canonical relationships; include only supported context; design labels and layout for scanning; provide source and expected navigation targets for validation.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Question["Reader question"] --> View["Bounded visual view"]
-    View --> Labels["Functional labels"]
-    Labels --> Source["Validated diagram source"]
-```
 
 ### `rendering-diagrams`
 
@@ -483,18 +313,6 @@ flowchart TB
 
 **How it should be done**: Validate source syntax first; render through the approved local capability; inspect geometry, labels, links, and expected hrefs; distinguish renderer-unavailable from source-invalid; retain source-level evidence when rendering cannot run.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Source["Diagram source"] --> Renderer["Approved renderer"]
-    Renderer -->|available| Inspect["Inspect geometry and links"]
-    Renderer -->|unavailable| Report["Report source-only evidence"]
-```
 
 ### `inspecting-execution-evidence`
 
@@ -504,18 +322,6 @@ flowchart TB
 
 **How it should be done**: Require an exact selector and focused question; read the smallest bounded trace or session slice; correlate event names and timing; report observed facts, hypotheses, unknowns, and freshness; never use evidence to authorize work or completion.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Question["Focused evidence question"] --> Selector["Bounded trace or session"]
-    Selector --> Correlate["Correlate observations"]
-    Correlate --> Finding["Finding with uncertainty"]
-```
 
 ### `assessing-determinism`
 
@@ -525,18 +331,6 @@ flowchart TB
 
 **How it should be done**: Classify steps as policy, transformation, observation, or judgment; compare bounded repetitions; quantify relevant variance and benefit; preserve intentional generative behavior; recommend retention, a bounded backlog item, or an explicitly authorized task.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Behavior["Repeated behavior"] --> Compare["Compare bounded runs"]
-    Compare --> Variance["Relevant variance"]
-    Variance --> Recommendation["Evidence-based recommendation"]
-```
 
 ### `recording-backlog-items`
 
@@ -546,18 +340,6 @@ flowchart TB
 
 **How it should be done**: Write one uniquely named item with purpose, description, owner, scope, acceptance, dependencies, user/system preferences, and notes; use fully qualified dependencies; leave status selection and completion to backlog authority.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Proposal["Approved planning input"] --> Scope["Bounded outcome and owner"]
-    Scope --> Row["Backlog item"]
-    Row --> Review["Selection by backlog authority"]
-```
 
 ### `drafting-changelog-entries`
 
@@ -567,18 +349,6 @@ flowchart TB
 
 **How it should be done**: Wait for validated completion evidence; name the task or change identity; summarize result and checks; state residual risk and source commits where applicable; let the owning procedure decide placement and cleanup.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Result["Validated result"] --> Summary["Concise evidence summary"]
-    Summary --> Owner["Owning changelog"]
-    Owner --> History["Durable history"]
-```
 
 ### `delegating-bounded-work`
 
@@ -588,18 +358,6 @@ flowchart TB
 
 **How it should be done**: Verify the child boundary and configured worker; provide explicit linked context, budget, acceptance, changed-artifact boundary, recovery checkpoint, and return format; record the delegation; do not delegate parent authority or sibling files.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Parent["Parent outcome"] --> Handoff["Scope, budget, context"]
-    Handoff --> Child["Bounded child work"]
-    Child --> Return["Explicit return contract"]
-```
 
 ### `observing-delegated-work`
 
@@ -609,18 +367,6 @@ flowchart TB
 
 **How it should be done**: Use the approved handle, task record, logs, traces, or session selectors; read incrementally; compare progress with acceptance and budget; classify running, blocked, failed, or terminal; preserve the worker's scope and do not infer completion.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Handoff["Approved delegation"] --> Observe["Read progress and evidence"]
-    Observe --> Classify["Running, blocked, or terminal"]
-    Classify --> Report["Observation report"]
-```
 
 ### `preparing-scoped-commits`
 
@@ -630,18 +376,6 @@ flowchart TB
 
 **How it should be done**: Confirm acceptance and descendant closure; identify declared artifacts; stage only the changelog, exact backlog cleanup, task cleanup, and handoff; inspect staged diff and `git diff --cached --check`; commit once with repository message style.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Completion["Validated completion"] --> Scope["Declared handoff scope"]
-    Scope --> Stage["Stage only declared files"]
-    Stage --> Commit["Scoped durable commit"]
-```
 
 ### `presenting-decisions`
 
@@ -651,18 +385,6 @@ flowchart TB
 
 **How it should be done**: State the decision needed first; present evidence, options, benefits, costs, risks, assumptions, and unknowns; recommend only when justified; identify the authority-bearing decider; stop without treating advice as approval.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Decision["Decision needed"] --> Evidence["Evidence and uncertainty"]
-    Evidence --> Options["Bounded alternatives"]
-    Options --> Human["Authority-bearing choice"]
-```
 
 ### `choosing-change-methods`
 
@@ -672,18 +394,6 @@ flowchart TB
 
 **How it should be done**: Classify the requested transformation as new implementation, surgical edit, content drafting, test work, delegation, or maintenance; verify required tools and permissions; choose the least powerful fitting method; stop when no method is authorized.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Request["Requested transformation"] --> Classify["Change type and risk"]
-    Classify --> Method["Least powerful fitting method"]
-    Method --> Gate["Tool and authority gate"]
-```
 
 ## Proposed master skills
 
@@ -697,19 +407,6 @@ Each proposed master skill composes reusable capabilities into an outcome-orient
 
 **How it should be done**: Select this master from the requested outcome; resolve component versus non-component scope first; choose the matching composition variant; verify tools and permissions; compose only applicable skills; enforce validation and history gates; stop on unresolved ownership or task applicability.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Outcome["Desired outcome"] --> Scope["Resolve scope and owner"]
-    Scope --> Method["Choose change method"]
-    Method --> Work["Perform bounded work"]
-    Work --> Validate["Validate and resolve history"]
-```
 
 ### `building-components`
 
@@ -719,19 +416,6 @@ flowchart TB
 
 **How it should be done**: Read the component record and authorized task; build decision context; obtain required plan review; stop at child boundaries; delegate only through configured workers; implement, test, validate, close descendants, write history, reconcile backlog, clean task artifacts, and prepare the scoped commit.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Task["Authorized component task"] --> Context["Build component context"]
-    Context --> Implement["Implement and delegate"]
-    Implement --> Validate["Validate and close descendants"]
-    Validate --> Handoff["Scoped durable handoff"]
-```
 
 ### `implementing-tasks`
 
@@ -741,19 +425,6 @@ flowchart TB
 
 **How it should be done**: Verify an active authorized task before editing; record scope, acceptance, worker, budget, dependencies, checkpoints, and changed artifacts; update progress and recovery evidence; require acceptance and terminal descendants; hand completion to history, cleanup, and commit procedures.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Selected["Selected bounded work"] --> Active["Active task record"]
-    Active --> Progress["Implement and checkpoint"]
-    Progress --> Acceptance["Acceptance and closure"]
-    Acceptance --> Completion["Completion handoff"]
-```
 
 ### `maintaining-components`
 
@@ -763,18 +434,6 @@ flowchart TB
 
 **How it should be done**: Define the component and maintenance signal; inspect records, consumers, and conventions; distinguish confirmed defect from preference; propose or apply the smallest authorized fix; validate structure and behavior; record retained exceptions and residual risk.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Signal["Maintenance signal"] --> Audit["Evidence-based audit"]
-    Audit --> Fix["Smallest supported improvement"]
-    Fix --> Validate["Validate and retain exceptions"]
-```
 
 ### `managing-as-is-records`
 
@@ -784,18 +443,6 @@ flowchart TB
 
 **How it should be done**: Identify the component boundary and parent; read the record contract; create or revise Purpose, Components, Design, Relationships, and navigation; keep task state out; validate links, diagrams, and child parity; stop when ownership is unclear.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Boundary["Component boundary"] --> Context["Purpose and relationships"]
-    Context --> Record["Approved as-is record"]
-    Record --> Navigation["Validated reader navigation"]
-```
 
 ### `designing-mermaid-diagrams`
 
@@ -805,18 +452,6 @@ flowchart TB
 
 **How it should be done**: Define the reader question and diagram scope; choose a supported view and canonical labels; write linked Mermaid source; check structure and hrefs; render only when material; inspect output; report source and renderer evidence separately.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Reader["Reader question"] --> Select["Select bounded view"]
-    Select --> Mermaid["Write Mermaid source"]
-    Mermaid --> Check["Source and render checks"]
-```
 
 ### `managing-backlogs`
 
@@ -826,18 +461,6 @@ flowchart TB
 
 **How it should be done**: Use the owning backlog schema; record one bounded item with exact identity, preferences, dependencies, acceptance, and notes; query ordering; apply only authorized transitions; clean a completed row only after exact changelog evidence.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Proposal["Bounded work proposal"] --> Record["Owned backlog row"]
-    Record --> Prioritize["Dependency-aware view"]
-    Prioritize --> Cleanup["Evidence-gated cleanup"]
-```
 
 ### `managing-changelogs`
 
@@ -847,18 +470,6 @@ flowchart TB
 
 **How it should be done**: Resolve history from task, component, project, or root contracts; verify the result is durable and owned; write a concise dated or convention-compliant summary with evidence and residual risk; explicitly record no-history outcomes.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Result["Durable result"] --> Resolve["Resolve history owner"]
-    Resolve --> Entry["Concise evidence entry"]
-    Entry --> Retain["Retained project history"]
-```
 
 ### `spawning-subagents`
 
@@ -868,18 +479,6 @@ flowchart TB
 
 **How it should be done**: Verify role admission, worker configuration, component boundary, budget, and task state; construct explicit context and return conditions; launch through the approved adapter; observe bounded handles and evidence; recover or stop without inferring completion.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Need["Bounded delegated outcome"] --> Admit["Role, scope, and budget gate"]
-    Admit --> Launch["Launch and observe"]
-    Launch --> Handoff["Validated child handoff"]
-```
 
 ### `exploring-execution-evidence`
 
@@ -889,18 +488,6 @@ flowchart TB
 
 **How it should be done**: Require a focused question and exact selector; read only permitted trace/session evidence; correlate bounded events; label observations, inferences, and unknowns; return a finding and recommendation; never edit, launch, authorize, or treat telemetry as task state.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Question["Focused evidence question"] --> Context["Bounded evidence context"]
-    Context --> Inspect["Inspect traces or sessions"]
-    Inspect --> Finding["Cautious finding"]
-```
 
 ### `consulting-humans`
 
@@ -910,18 +497,6 @@ flowchart TB
 
 **How it should be done**: Clarify only material questions; state the decision and context; present a small set of evidence-backed options and trade-offs; identify uncertainty and professional authority where relevant; recommend without deciding or executing.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Decision["Human decision needed"] --> Frame["Evidence and alternatives"]
-    Frame --> Recommendation["Bounded recommendation"]
-    Recommendation --> Choice["Human choice"]
-```
 
 ### `committing-completed-work`
 
@@ -931,18 +506,6 @@ flowchart TB
 
 **How it should be done**: Verify completion eligibility and descendant closure; obtain exact cleanup evidence; stage only declared files; inspect cached diff and whitespace; commit with established style; verify the commit and leave unrelated work untouched.
 
-#### Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Result["Validated completed work"] --> Gates["Acceptance and closure gates"]
-    Gates --> Patch["Scoped completion patch"]
-    Patch --> Commit["Durable commit"]
-```
 
 ## Design constraints
 

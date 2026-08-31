@@ -15,19 +15,6 @@ description: Use when an authorized component task must be built with delegation
 
 **How it should be done**: Read the component record and authorized task; build decision context; obtain required plan review; stop at child boundaries; delegate only through configured workers; implement, test, validate, close descendants, write history, reconcile backlog, clean task artifacts, and prepare the scoped commit.
 
-## Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Task["Authorized component task"] --> Context["Build component context"]
-    Context --> Implement["Implement and delegate"]
-    Implement --> Validate["Validate and close descendants"]
-    Validate --> Handoff["Scoped durable handoff"]
-```
 
 ## Composition context
 

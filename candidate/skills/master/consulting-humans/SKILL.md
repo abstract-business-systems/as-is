@@ -15,18 +15,6 @@ description: Use when bounded decisions must be guided while preserving human ag
 
 **How it should be done**: Clarify only material questions; state the decision and context; present a small set of evidence-backed options and trade-offs; identify uncertainty and professional authority where relevant; recommend without deciding or executing.
 
-## Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Decision["Human decision needed"] --> Frame["Evidence and alternatives"]
-    Frame --> Recommendation["Bounded recommendation"]
-    Recommendation --> Choice["Human choice"]
-```
 
 ## Composition context
 

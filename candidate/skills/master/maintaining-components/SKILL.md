@@ -15,18 +15,6 @@ description: Use when the smallest evidence-supported component improvements mus
 
 **How it should be done**: Define the component and maintenance signal; inspect records, consumers, and conventions; distinguish confirmed defect from preference; propose or apply the smallest authorized fix; validate structure and behavior; record retained exceptions and residual risk.
 
-## Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Signal["Maintenance signal"] --> Audit["Evidence-based audit"]
-    Audit --> Fix["Smallest supported improvement"]
-    Fix --> Validate["Validate and retain exceptions"]
-```
 
 ## Composition context
 

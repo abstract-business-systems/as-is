@@ -15,15 +15,3 @@ Read only the authorized evidence surface, correlate bounded events, and disting
 
 Require an exact selector and focused question; read the smallest bounded trace or session slice; correlate event names and timing; report observed facts, hypotheses, unknowns, and freshness; never use evidence to authorize work or completion.
 
-## Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Question["Focused evidence question"] --> Selector["Bounded trace or session"]
-    Selector --> Correlate["Correlate observations"]
-    Correlate --> Finding["Finding with uncertainty"]
-```

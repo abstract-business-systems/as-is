@@ -15,15 +15,3 @@ Select checks from the changed behavior and acceptance conditions, execute them 
 
 Map changed artifacts to existing focused checks; run the narrowest applicable command; capture pass, failure, skip, timeout, and environment status; do not reinterpret process exit as completion; recommend the next bounded check when evidence is insufficient.
 
-## Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Change["Changed behavior"] --> Check["Smallest relevant check"]
-    Check --> Observation["Observed result"]
-    Observation --> Limits["Limits and next check"]
-```

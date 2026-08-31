@@ -15,18 +15,6 @@ description: Use when planning indexes must be maintained and evidence-gated rec
 
 **How it should be done**: Use the owning backlog schema; record one bounded item with exact identity, preferences, dependencies, acceptance, and notes; query ordering; apply only authorized transitions; clean a completed row only after exact changelog evidence.
 
-## Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Proposal["Bounded work proposal"] --> Record["Owned backlog row"]
-    Record --> Prioritize["Dependency-aware view"]
-    Prioritize --> Cleanup["Evidence-gated cleanup"]
-```
 
 ## Composition context
 

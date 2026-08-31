@@ -15,15 +15,3 @@ State purpose, alternatives, assumptions, boundaries, and next decision while ke
 
 Write the proposed outcome, rationale, scope, alternatives, dependencies, risks, acceptance, and next decision; label it as draft; avoid operational instructions that pretend adoption; route approval to the authority-bearing owner.
 
-## Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Question["Design question"] --> Proposal["Bounded proposal"]
-    Proposal --> Alternatives["Alternatives and assumptions"]
-    Alternatives --> Review["Next decision"]
-```

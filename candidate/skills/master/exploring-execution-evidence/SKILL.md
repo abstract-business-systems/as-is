@@ -15,18 +15,6 @@ description: Use when bounded execution evidence must be investigated to produce
 
 **How it should be done**: Require a focused question and exact selector; read only permitted trace/session evidence; correlate bounded events; label observations, inferences, and unknowns; return a finding and recommendation; never edit, launch, authorize, or treat telemetry as task state.
 
-## Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Question["Focused evidence question"] --> Context["Bounded evidence context"]
-    Context --> Inspect["Inspect traces or sessions"]
-    Inspect --> Finding["Cautious finding"]
-```
 
 ## Composition context
 

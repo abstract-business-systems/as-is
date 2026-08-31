@@ -15,18 +15,6 @@ description: Use when bounded delegated work must be launched, observed, recover
 
 **How it should be done**: Verify role admission, worker configuration, component boundary, budget, and task state; construct explicit context and return conditions; launch through the approved adapter; observe bounded handles and evidence; recover or stop without inferring completion.
 
-## Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Need["Bounded delegated outcome"] --> Admit["Role, scope, and budget gate"]
-    Admit --> Launch["Launch and observe"]
-    Launch --> Handoff["Validated child handoff"]
-```
 
 ## Composition context
 

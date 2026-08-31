@@ -17,15 +17,3 @@ Treat the final clause as a terminal stop-for-direction step: when scope or comp
 
 Confirm acceptance and descendant closure; identify declared artifacts; stage only the changelog, exact backlog cleanup, task cleanup, and handoff; inspect staged diff and `git diff --cached --check`; commit once with repository message style.
 
-## Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Completion["Validated completion"] --> Scope["Declared handoff scope"]
-    Scope --> Stage["Stage only declared files"]
-    Stage --> Commit["Scoped durable commit"]
-```

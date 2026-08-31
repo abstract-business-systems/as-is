@@ -15,16 +15,3 @@ Classify the requested change, locate the smallest owning scope, and stop for ex
 
 Identify the requested outcome and changed artifact; inspect component records and ownership contracts; test component-task applicability; choose component, artifact, project, or root scope; record the decision; stop on competing owners or missing policy.
 
-## Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Request["Requested change"] --> Classify["Classify scope"]
-    Classify --> Owner["Smallest owning scope"]
-    Owner -->|clear| Decision["Scope decision"]
-    Owner -->|ambiguous| Stop["Stop for direction"]
-```

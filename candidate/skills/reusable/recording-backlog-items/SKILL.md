@@ -15,15 +15,3 @@ Define one outcome, scope, acceptance, dependencies, preferences, and residual n
 
 Write one uniquely named item with purpose, description, owner, scope, acceptance, dependencies, user/system preferences, and notes; use fully qualified dependencies; leave status selection and completion to backlog authority.
 
-## Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Proposal["Approved planning input"] --> Scope["Bounded outcome and owner"]
-    Scope --> Row["Backlog item"]
-    Row --> Review["Selection by backlog authority"]
-```

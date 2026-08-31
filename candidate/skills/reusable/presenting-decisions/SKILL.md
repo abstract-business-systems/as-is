@@ -15,15 +15,3 @@ Frame the decision with evidence, trade-offs, unresolved questions, and an expli
 
 State the decision needed first; present evidence, options, benefits, costs, risks, assumptions, and unknowns; recommend only when justified; identify the authority-bearing decider; stop without treating advice as approval.
 
-## Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Decision["Decision needed"] --> Evidence["Evidence and uncertainty"]
-    Evidence --> Options["Bounded alternatives"]
-    Options --> Human["Authority-bearing choice"]
-```

@@ -15,19 +15,6 @@ description: Use when general changes must be made and validated with the smalle
 
 **How it should be done**: Select this master from the requested outcome; resolve component versus non-component scope first; choose the matching composition variant; verify tools and permissions; compose only applicable skills; enforce validation and history gates; stop on unresolved ownership or task applicability.
 
-## Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Outcome["Desired outcome"] --> Scope["Resolve scope and owner"]
-    Scope --> Method["Choose change method"]
-    Method --> Work["Perform bounded work"]
-    Work --> Validate["Validate and resolve history"]
-```
 
 ## Composition context
 

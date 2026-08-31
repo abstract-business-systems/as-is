@@ -15,18 +15,6 @@ description: Use when bounded Mermaid views must be produced with syntax and ren
 
 **How it should be done**: Define the reader question and diagram scope; choose a supported view and canonical labels; write linked Mermaid source; check structure and hrefs; render only when material; inspect output; report source and renderer evidence separately.
 
-## Design view
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Reader["Reader question"] --> Select["Select bounded view"]
-    Select --> Mermaid["Write Mermaid source"]
-    Mermaid --> Check["Source and render checks"]
-```
 
 ## Composition context
 
