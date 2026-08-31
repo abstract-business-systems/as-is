@@ -1,0 +1,42 @@
+{
+  "round": 6,
+  "registered": "candidate/benchmark/pre-registration-v6.md",
+  "accepted": "candidate/benchmark/round-6-acceptance.md",
+  "model": "@preset/abs-medium (openai/gpt-5.6-luna verified single-model in all sessions)",
+  "arms": {
+    "baseline": "master @ 9a77e37",
+    "candidate": "live post-drop catalog, digest 9f8dbdcb1096edb03b8aea3c1811a0de3b0038467616c273516b70af1f5ec267"
+  },
+  "jobs": [
+    {"name": "round6-uc9-baseline", "jobId": "j-mthsg3zm-wn2kt2", "localSessionId": "fecebd22", "exit": 0, "wallSeconds": 1028.394, "budgetStopped": false, "costUsd": 0.3828},
+    {"name": "round6-uc9-candidate", "jobId": "j-mthsgjti-qyxnec", "localSessionId": "c3abd7c9", "exit": 0, "wallSeconds": 515.269, "budgetStopped": false, "costUsd": 0.1688},
+    {"name": "round6-uc10-baseline", "jobId": "j-mthsh0kv-5oelc3", "localSessionId": "282d555a", "exit": 0, "wallSeconds": 461.71, "budgetStopped": false, "costUsd": 0.0963},
+    {"name": "round6-uc10-candidate", "jobId": "j-mthshgrx-rmujbx", "localSessionId": "e96138dd", "exit": 0, "wallSeconds": 529.068, "budgetStopped": false, "costUsd": 0.1178},
+    {"name": "round6-scorer", "jobId": "j-mthtac4t-ql9q1b", "localSessionId": "d589a0e3", "exit": 0, "wallSeconds": 426.319, "costUsd": 0.2068}
+  ],
+  "results": {
+    "uc9": {"baseline": 25, "candidate": 25, "gates": "FAIL both arms (other_arm_read_or_write — symmetric cross-arm reads, no writes)", "parity": "not met under registered all-gates rule"},
+    "uc10": {"baseline": 25, "candidate": 25, "gates": "PASS both arms", "parity": "met"},
+    "aggregate": {"baseline": 50, "candidate": 50, "deficit": 0}
+  },
+  "adjudications": [
+    {
+      "date": "2026-09-01",
+      "subject": "round-6 uc9 gate failure (symmetric cross-arm reads by delegated children, no writes found)",
+      "decision": "VOID the uc9 cells in both arms (user: 'We can close round 6')",
+      "rationale": "the violation indicts the fixture layout (sibling consumer directories under one parent; children hold broad read access), is exactly symmetric, and involves no cross-arm writes; it is a fixture defect, not a composition difference",
+      "effect": "round-6 outcome stands on uc10 only: parity met 25 v 25, gates PASS; the generalization claim from round 6 is the uc10 single-child result plus registry-verified uc9 concurrency on both arms (scored 25 v 25 before voiding); cost and wall-clock observations remain recorded in temp/benchmarking/cost-wall-clock-comparison.md"
+    },
+    {
+      "date": "2026-09-01",
+      "subject": "budget-stop recovery coverage row",
+      "decision": "row remains OPEN after round 6",
+      "rationale": "uc10 children spent $0.0085/$0.0087 against the $0.05 cap (~6x headroom); budget pressure alone cannot fire the stop even at mid-tier pricing; the registered conclusion stands that the probe needs non-budget pressure (e.g., a task that cannot complete within any reasonable budget)"
+    }
+  ],
+  "notes": [
+    "uc9/candidate had no in-session commits (symmetric with prior candidate arms; not penalized); its consumer history is recoverable from stores",
+    "single-model verification passed: openai/gpt-5.6-luna in every session, both arms",
+    "candidate cost $0.383 vs baseline $0.169 on uc9 (2.3x cheaper); uc10 near-par ($0.096 vs $0.118)"
+  ]
+}
