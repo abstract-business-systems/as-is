@@ -1,0 +1,1 @@
+variant sha256 (reusable+master SKILL.md contents): 9f8dbdcb1096edb03b8aea3c1811a0de3b0038467616c273516b70af1f5ec267
