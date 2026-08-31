@@ -19,7 +19,7 @@ Classify the requested transformation as new implementation, surgical edit, cont
 - This skill does not grant tools. Verify that the agent has every tool needed for its selected path; if a required tool or permission is missing, the workflow stops with a bounded missing-capability blocker, and it must not silently substitute a weaker tool. This rule governs the tools of the selected path; the terminal stop above governs the case where no method is authorized.
 - A master composition may select between `writing-code` and `applying-bounded-edits` after this skill classifies the change; this skill implements, references, and depends on no other skill.
 
-#### Design view
+## Design view
 
 ```mermaid
 ---
