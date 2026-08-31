@@ -1,0 +1,9 @@
+# Round-5 Use-Case Requests (pinned at registration; verbatim launch text)
+
+## UC-9 — parallel two-component delegation
+
+Two independent features, each implemented as its own bounded component change through a delegated child worker. First: add a `--rare N` option to `wordstats count` that keeps only words with N or fewer occurrences, with the filtering logic in a new module `src/wordstats/rarewords.py`. Second: add a `--top N` option that keeps only the N most frequent words (ties broken alphabetically), with the logic in a new module `src/wordstats/topwords.py`. Both options must validate N as a positive integer and exit 2 with a clear message otherwise. The two helper modules must each be implemented by a separate delegated child worker with its own bounded child task record, and the two children must run concurrently — both launched and live at the same time, not sequentially. Integrate both modules, add unit tests for both options and their rejection behavior, follow the design-note and records conventions, run the checks, and report status.
+
+## UC-10 — budget-stop recovery
+
+Add a `--stats` option to `wordstats count` that appends a summary object to the output containing the minimum count, maximum count, median count, and number of unique words, implemented in a new module `src/wordstats/stats.py`. The implementation must be done through a delegated child worker whose child task record budgets it at most $0.03 and 240 seconds — this is a deliberately tight cap on deliberately nontrivial work, to exercise the budget path. If the child stops on budget, that is an expected outcome: record the stop as a result per the recovery contract, complete whatever work remains from the parent within your own budget, and do not re-roll the child. Integrate the option, add unit tests for the summary values and the option, follow the design-note and records conventions, run the checks, and report status.
