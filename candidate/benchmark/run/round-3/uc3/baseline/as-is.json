@@ -1,0 +1,27 @@
+{
+  "configuration": {
+    "records": {
+      "filenames": {
+        "backlog": "backlog.md",
+        "changelog": "CHANGELOG.md",
+        "task": "tasks.md"
+      }
+    },
+    "dirs": {
+      "project-temp": ".as-is"
+    },
+    "agents": {
+      "defaultRole": "component-builder",
+      "provider": "openrouter",
+      "defaultModel": "z-ai/glm-5.3-flash",
+      "sessionDirectory": ".as-is/subagents/sessions"
+    },
+    "observability": {
+      "tracing": {
+        "backend": "file",
+        "enabled": true,
+        "local-directory": ".as-is/tracing.jsonl"
+      }
+    }
+  }
+}

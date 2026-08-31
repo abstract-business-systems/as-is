@@ -1,0 +1,23 @@
+compile: OK
+test_counts_basic_words (test_counter.CountWordsTests.test_counts_basic_words) ... ok
+test_empty_input (test_counter.CountWordsTests.test_empty_input) ... ok
+test_ignores_punctuation_only_tokens (test_counter.CountWordsTests.test_ignores_punctuation_only_tokens) ... ok
+test_strips_punctuation_and_lowercases (test_counter.CountWordsTests.test_strips_punctuation_and_lowercases) ... ok
+test_rare_keeps_only_words_within_n (test_rarewords.CountRareOptionTests.test_rare_keeps_only_words_within_n) ... ok
+test_rare_one_keeps_only_singletons (test_rarewords.CountRareOptionTests.test_rare_one_keeps_only_singletons) ... ok
+test_rejects_negative (test_rarewords.CountRareOptionTests.test_rejects_negative) ... ok
+test_rejects_non_integer (test_rarewords.CountRareOptionTests.test_rejects_non_integer) ... ok
+test_rejects_zero (test_rarewords.CountRareOptionTests.test_rejects_zero) ... ok
+test_without_rare_reports_all_counts (test_rarewords.CountRareOptionTests.test_without_rare_reports_all_counts) ... ok
+test_boundary_n_equals_count_is_kept (test_rarewords.KeepRareWordsTests.test_boundary_n_equals_count_is_kept) ... ok
+test_empty_mapping (test_rarewords.KeepRareWordsTests.test_empty_mapping) ... ok
+test_keeps_only_entries_within_n (test_rarewords.KeepRareWordsTests.test_keeps_only_entries_within_n) ... ok
+test_preserves_key_order_and_does_not_mutate_input (test_rarewords.KeepRareWordsTests.test_preserves_key_order_and_does_not_mutate_input) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.007s
+
+OK
+unit tests: OK
+cli smoke check: OK
+All checks passed.

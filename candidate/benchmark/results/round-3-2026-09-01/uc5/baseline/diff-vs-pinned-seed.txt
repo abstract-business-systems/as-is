@@ -1,0 +1,13 @@
+Only in candidate/benchmark/run/round-3/uc5/baseline: agents
+Only in candidate/benchmark/run/round-3/uc5/baseline: AGENTS.md
+Only in candidate/benchmark/run/round-3/uc5/baseline: as-is.md
+diff -r -u -x .git -x .pi -x .as-is -x __pycache__ -x '*.pyc' /tmp/r3-seedref/records/backlog.md candidate/benchmark/run/round-3/uc5/baseline/records/backlog.md
+--- /tmp/r3-seedref/records/backlog.md	2026-08-31 19:28:40.373944804 +0530
++++ candidate/benchmark/run/round-3/uc5/baseline/records/backlog.md	2026-08-31 19:10:24.884354792 +0530
+@@ -3,3 +3,5 @@
+ Proposals only; selection and completion are governed by the project's planning procedure, not by this file. Newest last.
+ 
+ - Added: baseline setup. Proposal: keep the smoke-check input format stable until the CLI output contract is revisited.
++- Added: human-facing CLI follow-up. Proposal: add a `--json` output flag for human-facing commands.
++- Added: CI follow-up. Proposal: add a CI lint job.
+Only in candidate/benchmark/run/round-3/uc5/baseline: skills

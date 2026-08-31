@@ -1,0 +1,41 @@
+Only in candidate/benchmark/run/round-3/uc2/baseline: AGENTS.md
+Only in candidate/benchmark/run/round-3/uc2/baseline: as-is.md
+diff -r -u -x .git -x .pi -x .as-is -x __pycache__ -x '*.pyc' /tmp/r3-seedref/docs/design-notes.md candidate/benchmark/run/round-3/uc2/baseline/docs/design-notes.md
+--- /tmp/r3-seedref/docs/design-notes.md	2026-08-31 19:28:39.505959926 +0530
++++ candidate/benchmark/run/round-3/uc2/baseline/docs/design-notes.md	2026-08-31 18:40:18.213786906 +0530
+@@ -7,4 +7,11 @@
+ - Request: report word frequencies for a text file.
+ - Decision: `wordstats count <path>` prints a JSON object mapping lowercased words to counts, keys sorted alphabetically, 2-space indent.
+ - Options considered: plain text columns (rejected: harder to consume programmatically); CSV (rejected: quoting complexity for a tiny utility).
+-- Bounded change authorized: the initial `count` command only.
+\ No newline at end of file
++- Bounded change authorized: the initial `count` command only.
++
++## Note: README installation instructions
++
++- Request: fix the stale `## Installation` section of `README.md`, which told users to `pip install wordstats-tools` — a package that does not exist and is not the actual way to get this tool.
++- Decision: replace the section with source-tree usage: no package is published, so users run the CLI directly from a copy of the project via `PYTHONPATH=src python3 -m wordstats.cli count <path-to-text-file>`.
++- Options considered: keeping a corrected package name (rejected: no package exists on any index); publishing a real package (rejected: out of scope for a benchmark seed fixture and beyond the bounded request).
++- Bounded change authorized: the `## Installation` section of `README.md` only.
+\ No newline at end of file
+diff -r -u -x .git -x .pi -x .as-is -x __pycache__ -x '*.pyc' /tmp/r3-seedref/README.md candidate/benchmark/run/round-3/uc2/baseline/README.md
+--- /tmp/r3-seedref/README.md	2026-08-31 19:28:39.509959855 +0530
++++ candidate/benchmark/run/round-3/uc2/baseline/README.md	2026-08-31 18:40:20.249766288 +0530
+@@ -13,13 +13,13 @@
+ 
+ ## Installation
+ 
+-Install the CLI from PyPI:
++This tool is not published to any package index, so there is nothing to `pip install`. To use it, get a copy of this project and run the CLI from the source tree:
+ 
+ ```sh
+-pip install wordstats-tools
++PYTHONPATH=src python3 -m wordstats.cli count <path-to-text-file>
+ ```
+ 
+-Then run it from anywhere.
++This prints the word frequencies for the given UTF-8 text file as a JSON object with sorted keys.
+ 
+ ## Running the checks
+ 
+Only in candidate/benchmark/run/round-3/uc2/baseline/src/wordstats: as-is.md

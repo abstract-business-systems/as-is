@@ -1,0 +1,86 @@
+Only in candidate/benchmark/run/round-3/uc3/candidate: AGENTS.md
+Only in candidate/benchmark/run/round-3/uc3/candidate: as-is.md
+diff -r -u -x .git -x .pi -x .as-is -x __pycache__ -x '*.pyc' /tmp/r3-seedref/CHANGELOG.md candidate/benchmark/run/round-3/uc3/candidate/CHANGELOG.md
+--- /tmp/r3-seedref/CHANGELOG.md	2026-08-31 19:28:39.961951979 +0530
++++ candidate/benchmark/run/round-3/uc3/candidate/CHANGELOG.md	2026-08-31 18:49:27.984031620 +0530
+@@ -1,5 +1,9 @@
+ # Changelog
+ 
++## Unreleased
++
++- Added `--rare N` option to `wordstats count` keeping only words with N or fewer occurrences; N must be a positive integer, otherwise the CLI exits 2 with a clear message. Filtering logic lives in the new `src/wordstats/rarewords.py` helper module.
++
+ ## 1.0.0 — initial seed
+ 
+ - Added `wordstats count` CLI reporting word frequencies as sorted JSON.
+diff -r -u -x .git -x .pi -x .as-is -x __pycache__ -x '*.pyc' /tmp/r3-seedref/docs/design-notes.md candidate/benchmark/run/round-3/uc3/candidate/docs/design-notes.md
+--- /tmp/r3-seedref/docs/design-notes.md	2026-08-31 19:28:39.961951979 +0530
++++ candidate/benchmark/run/round-3/uc3/candidate/docs/design-notes.md	2026-08-31 18:47:18.088152559 +0530
+@@ -7,4 +7,11 @@
+ - Request: report word frequencies for a text file.
+ - Decision: `wordstats count <path>` prints a JSON object mapping lowercased words to counts, keys sorted alphabetically, 2-space indent.
+ - Options considered: plain text columns (rejected: harder to consume programmatically); CSV (rejected: quoting complexity for a tiny utility).
+-- Bounded change authorized: the initial `count` command only.
+\ No newline at end of file
++- Bounded change authorized: the initial `count` command only.
++
++## Existing note: rare word filtering (`--rare` option)
++
++- Request: `wordstats count` should be able to keep only words with N or fewer occurrences.
++- Decision: `wordstats count <path> --rare N` keeps only words whose count is N or fewer; N must be a positive integer, otherwise the CLI exits with status 2 and a clear error message. The filtering logic lives in a new helper module `src/wordstats/rarewords.py`; the CLI only wires the option and prints the filtered result.
++- Options considered: inline filtering in `cli.py` (rejected: keeps filtering logic out of the CLI surface, making it untestable without subprocess calls); a separate subcommand (rejected: expands the CLI surface beyond the requested option).
++- Bounded change authorized: the `--rare N` option on `count`, the `rarewords.py` helper module, and focused unit tests for the option and its rejection behavior.
+\ No newline at end of file
+diff -r -u -x .git -x .pi -x .as-is -x __pycache__ -x '*.pyc' /tmp/r3-seedref/records/ownership-map.md candidate/benchmark/run/round-3/uc3/candidate/records/ownership-map.md
+--- /tmp/r3-seedref/records/ownership-map.md	2026-08-31 19:28:39.961951979 +0530
++++ candidate/benchmark/run/round-3/uc3/candidate/records/ownership-map.md	2026-08-31 18:47:18.088152559 +0530
+@@ -4,6 +4,7 @@
+ | --- | --- | --- |
+ | `src/wordstats/counter.py` | `records/owners/core-utility.md` | component |
+ | `src/wordstats/cli.py` | `records/owners/core-utility.md` | component |
++| `src/wordstats/rarewords.py` | `records/owners/core-utility.md` | component |
+ | `docs/design-notes.md` | `records/owners/design-notes.md` | artifact |
+ | `README.md` | `records/owners/design-notes.md` | artifact |
+ 
+Only in candidate/benchmark/run/round-3/uc3/candidate/src/wordstats: as-is.json
+Only in candidate/benchmark/run/round-3/uc3/candidate/src/wordstats: as-is.md
+diff -r -u -x .git -x .pi -x .as-is -x __pycache__ -x '*.pyc' /tmp/r3-seedref/src/wordstats/cli.py candidate/benchmark/run/round-3/uc3/candidate/src/wordstats/cli.py
+--- /tmp/r3-seedref/src/wordstats/cli.py	2026-08-31 19:28:39.965951908 +0530
++++ candidate/benchmark/run/round-3/uc3/candidate/src/wordstats/cli.py	2026-08-31 18:49:25.024037085 +0530
+@@ -5,6 +5,18 @@
+ import sys
+ 
+ from wordstats.counter import count_words
++from wordstats.rarewords import keep_rare_words
++
++
++def positive_int(value):
++    """Return value as an int; reject anything but a positive integer."""
++    try:
++        number = int(value)
++    except ValueError:
++        raise argparse.ArgumentTypeError("must be a positive integer")
++    if number < 1:
++        raise argparse.ArgumentTypeError("must be a positive integer")
++    return number
+ 
+ 
+ def main(argv=None):
+@@ -12,10 +24,14 @@
+     sub = parser.add_subparsers(dest="command", required=True)
+     count = sub.add_parser("count", help="count words in a text file")
+     count.add_argument("path", help="path to a UTF-8 text file")
++    count.add_argument("--rare", type=positive_int, metavar="N",
++                       help="keep only words with N or fewer occurrences")
+     args = parser.parse_args(argv)
+ 
+     with open(args.path, encoding="utf-8") as handle:
+         counts = count_words(handle.read())
++    if args.rare is not None:
++        counts = keep_rare_words(counts, args.rare)
+     print(json.dumps(counts, indent=2, sort_keys=True))
+     return 0
+ 
+Only in candidate/benchmark/run/round-3/uc3/candidate/src/wordstats: rarewords.py
+Only in candidate/benchmark/run/round-3/uc3/candidate/src/wordstats: tasks.md
+Only in candidate/benchmark/run/round-3/uc3/candidate/tests: test_rarewords.py

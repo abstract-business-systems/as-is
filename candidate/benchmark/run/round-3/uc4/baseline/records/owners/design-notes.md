@@ -1,0 +1,3 @@
+# Owner record: project docs
+
+Owns `docs/design-notes.md`, `docs/validation.md`, and `README.md`. Design notes are recorded here before bounded changes that alter user-visible behavior; each note states the decision, the options considered, and the request it serves. `docs/validation.md` was added and registered under this owner by explicit request (see the validation-documentation note in `docs/design-notes.md`).

@@ -1,0 +1,19 @@
+compile: OK
+test_counts_basic_words (test_counter.CountWordsTests.test_counts_basic_words) ... ok
+test_empty_input (test_counter.CountWordsTests.test_empty_input) ... ok
+test_ignores_punctuation_only_tokens (test_counter.CountWordsTests.test_ignores_punctuation_only_tokens) ... ok
+test_strips_punctuation_and_lowercases (test_counter.CountWordsTests.test_strips_punctuation_and_lowercases) ... ok
+test_keeps_words_at_or_below_threshold (test_rarewords.FilterRareTests.test_keeps_words_at_or_below_threshold) ... ok
+test_returns_new_mapping_without_mutation (test_rarewords.FilterRareTests.test_returns_new_mapping_without_mutation) ... ok
+test_threshold_is_inclusive (test_rarewords.FilterRareTests.test_threshold_is_inclusive) ... ok
+test_rare_option_filters_cli_output (test_rarewords.RareOptionTests.test_rare_option_filters_cli_output) ... ok
+test_rare_option_preserves_sorted_json_format (test_rarewords.RareOptionTests.test_rare_option_preserves_sorted_json_format) ... ok
+test_rejects_zero_negative_and_non_integer (test_rarewords.RareOptionTests.test_rejects_zero_negative_and_non_integer) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.007s
+
+OK
+unit tests: OK
+cli smoke check: OK
+All checks passed.

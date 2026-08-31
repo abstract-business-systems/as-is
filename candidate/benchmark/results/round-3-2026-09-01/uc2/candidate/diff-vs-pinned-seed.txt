@@ -1,0 +1,23 @@
+Only in candidate/benchmark/run/round-3/uc2/candidate: AGENTS.md
+Only in candidate/benchmark/run/round-3/uc2/candidate: as-is.md
+Only in candidate/benchmark/run/round-3/uc2/candidate/docs: as-is-setup-plan.md
+diff -r -u -x .git -x .pi -x .as-is -x __pycache__ -x '*.pyc' /tmp/r3-seedref/README.md candidate/benchmark/run/round-3/uc2/candidate/README.md
+--- /tmp/r3-seedref/README.md	2026-08-31 19:28:39.649957415 +0530
++++ candidate/benchmark/run/round-3/uc2/candidate/README.md	2026-08-31 18:40:14.925820199 +0530
+@@ -13,14 +13,12 @@
+ 
+ ## Installation
+ 
+-Install the CLI from PyPI:
++This tool is not published to PyPI and has no packaging metadata; run it from a checkout of this repository:
+ 
+ ```sh
+-pip install wordstats-tools
++PYTHONPATH=src python3 -m wordstats.cli count <path-to-text-file>
+ ```
+ 
+-Then run it from anywhere.
+-
+ ## Running the checks
+ 
+ ```sh

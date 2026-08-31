@@ -1,0 +1,18 @@
+{
+  "task": {
+    "status": "completed",
+    "worker": "component-builder",
+    "updated": "2026-08-31T14:05:00Z",
+    "constraints": {
+      "cost": { "currency": "USD", "allocated": 0.8, "spent": 0, "reserve": 0.15, "source": "launcher-forwarded" },
+      "delegation": { "maximum-depth": 0, "maximum-children": 0 },
+      "execution": { "wall-clock": { "allocated-seconds": 900, "spent-seconds": 0, "reserve-seconds": 120, "source": "launcher-forwarded" } }
+    },
+    "acceptance": [
+      "Create src/wordstats/rarewords.py containing a pure helper that, given a counts mapping and a positive integer n, returns a new mapping holding only the entries whose count is less than or equal to n, preserving the input key order; no I/O, printing, or CLI concerns.",
+      "Edit only inside the assigned component directory src/wordstats/; do not modify cli.py, counter.py, as-is.md, tests, or any file outside the component.",
+      "Verify the helper with python3 -m compileall -q src and a direct invocation of the helper on a sample mapping, and record the outcome in the task narrative Validation section.",
+      "Leave the task record (this JSON companion and tasks.md) updated with status and evidence."
+    ]
+  }
+}
