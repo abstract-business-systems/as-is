@@ -1,3 +1,0 @@
-# Owner record: project docs
-
-Owns `docs/design-notes.md` and `README.md`, and the artifact-scope records the ownership map assigns to this owner (`CHANGELOG.md`, `docs/as-is-setup-plan.md`, and the as-is adoption and task records: `as-is.md`, `AGENTS.md`, `tasks.md`, `as-is.json`, `src/wordstats/as-is.md`, `src/wordstats/as-is.json`, `src/wordstats/tasks.md`). Design notes are recorded here before bounded changes that alter user-visible behavior; each note states the decision, the options considered, and the request it serves.

@@ -1,4 +1,0 @@
-# Changelog
-
-- 2026-08-30: Added helper module `topwords.py` with `filter_min_counts(counts, min_count)` (returns only entries with count at least `min_count`; raises `ValueError` for zero, negative, non-int, or bool `min_count`). Implemented by the delegated `worker` attempt under this component's task record; validated parent-side via compile check and behavioral spot checks, then covered by parent-added `tests/test_topwords.py`. The parent wired the option into `cli.py` under the root task record.
-- 2026-08-30: Component record set established during agent-workflow adoption (purpose, design, relationships, links) with a task companion pair for the delegated `topwords.py` implementation slice. No product behavior changed yet.
