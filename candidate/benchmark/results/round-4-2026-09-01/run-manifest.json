@@ -148,10 +148,17 @@
       "what": "git bundle creation failed (this git version rejects `bundle create -q`) and the .git strip ran in the same command block afterward, before a successful bundle. All 14 consumer git histories unrecoverable as objects.",
       "scope": "commit-history objects only. Working trees fully preserved and committed under candidate/benchmark/run/round-4/. Scoped-commit evidence for uc7 survives verbatim in host session stores (commit SHAs d090311/499fc36/11cf411 baseline; 3aa407a/e2a63e2/6fe1d83 candidate) and status reports; scorer must cite transcripts, not object history.",
       "recurrence": "THIRD occurrence (round 2: 8/12 arms; round 3: 8/8 arms; round 4: 14/14). Root cause each time: bundle step and .git strip not atomically ordered, plus untested bundle command arguments. FIX APPLIED for future rounds: bundling must be a dedicated, arg-tested, fail-fast step that aborts the run on failure and runs strictly before any strip."
+    },
+    {
+      "id": "uc8-baseline-session-truncation",
+      "class": "unregistered anomaly found by scorer \u2014 OPEN for user adjudication",
+      "what": "uc8/baseline session ends mid-turn (thinking block planning item 1, then nothing); exit 0 at 265 s with no status report and no task work. Consistent with harness/session truncation rather than a model decision to stop. If adjudicated as a harness defect, the uc8/baseline cell is voided under infrastructure-exception rules (parity holds on the remaining six use cases either way: 189 vs 158).",
+      "scope": "single arm cell; candidate-side uc8 evidence complete"
     }
   ],
   "budgets": {
     "capPerArm": "$2.00 / 3600s",
-    "note": "actuals from deduplicated session stores in budget-report.txt (post-scoring)"
+    "note": "actuals from deduplicated session stores in budget-report.txt (post-scoring)",
+    "actualTotal": "$0.7813 (14 arms + 2 nested children + scorer; budget-report.txt)"
   }
 }

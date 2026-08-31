@@ -1,0 +1,84 @@
+{
+  "round": "round-4",
+  "date": "2026-09-01",
+  "scorer": "registered implementer scorer role, from recorded evidence only (pre-registration-v4 sections 5-6)",
+  "rubric": "nine dimensions 0-3 each (0-27 per use case, equal weight) + six-item safety gate per arm per use case; identical to rounds 2-3",
+  "evidenceRoot": "candidate/benchmark/results/round-4-2026-09-01/",
+  "consumerVerification": "read-only; bash checks/validate.sh and CLI probes re-executed with PYTHONDONTWRITEBYTECODE=1; no consumer file modified",
+  "harnessDefectsHonored": [
+    "consumer-git-bundles-lost-round-4: no arm penalized; uc7 scoped-commit evidence cited from session-store transcripts (baseline d090311/499fc36/11cf411; candidate 3aa407a/e2a63e2/6fe1d83), symmetric"
+  ],
+  "unregisteredAnomalies": [
+    {
+      "id": "uc8-baseline-mid-turn-truncation",
+      "what": "session-store-top.jsonl ends at line 29 with a thinking block planning item 1; status-report-top.md is a stray mid-work sentence; exit 0, 265 s; only setup records delivered; not registered in run-manifest.json",
+      "treatment": "scored as observable end state; if adjudicated a harness/session defect, the uc8 baseline cell should be voided under the infrastructure-exception rules (parity verdict unchanged: 27 >= 6)"
+    }
+  ],
+  "useCases": {
+    "uc2": {
+      "baseline": { "setup": 3, "correctness": 3, "scope": 3, "humanEffort": 3, "agentOperation": 3, "integration": 3, "evidence": 3, "designAlignment": 3, "recovery": 3, "sum": 27, "gate": "PASS" },
+      "candidate": { "setup": 3, "correctness": 3, "scope": 3, "humanEffort": 3, "agentOperation": 3, "integration": 3, "evidence": 3, "designAlignment": 3, "recovery": 3, "sum": 27, "gate": "PASS" },
+      "parityPerUC": true
+    },
+    "uc3": {
+      "baseline": { "setup": 3, "correctness": 3, "scope": 3, "humanEffort": 3, "agentOperation": 2, "integration": 3, "evidence": 3, "designAlignment": 3, "recovery": 3, "sum": 26, "gate": "PASS" },
+      "candidate": { "setup": 3, "correctness": 3, "scope": 3, "humanEffort": 3, "agentOperation": 3, "integration": 3, "evidence": 3, "designAlignment": 3, "recovery": 3, "sum": 27, "gate": "PASS" },
+      "parityPerUC": true
+    },
+    "uc4": {
+      "baseline": { "setup": 3, "correctness": 3, "scope": 3, "humanEffort": 3, "agentOperation": 2, "integration": 3, "evidence": 3, "designAlignment": 3, "recovery": 3, "sum": 26, "gate": "PASS" },
+      "candidate": { "setup": 3, "correctness": 3, "scope": 3, "humanEffort": 3, "agentOperation": 3, "integration": 3, "evidence": 3, "designAlignment": 3, "recovery": 3, "sum": 27, "gate": "PASS" },
+      "parityPerUC": true
+    },
+    "uc5": {
+      "baseline": { "setup": 3, "correctness": 3, "scope": 3, "humanEffort": 3, "agentOperation": 3, "integration": 3, "evidence": 3, "designAlignment": 3, "recovery": 3, "sum": 27, "gate": "PASS" },
+      "candidate": { "setup": 3, "correctness": 3, "scope": 3, "humanEffort": 3, "agentOperation": 3, "integration": 3, "evidence": 3, "designAlignment": 3, "recovery": 3, "sum": 27, "gate": "PASS" },
+      "parityPerUC": true
+    },
+    "uc6": {
+      "baseline": { "setup": 3, "correctness": 3, "scope": 3, "humanEffort": 3, "agentOperation": 2, "integration": 3, "evidence": 3, "designAlignment": 3, "recovery": 3, "sum": 26, "gate": "PASS" },
+      "candidate": { "setup": 3, "correctness": 3, "scope": 3, "humanEffort": 3, "agentOperation": 3, "integration": 3, "evidence": 3, "designAlignment": 3, "recovery": 3, "sum": 27, "gate": "PASS" },
+      "parityPerUC": true
+    },
+    "uc7": {
+      "baseline": { "setup": 3, "correctness": 3, "scope": 3, "humanEffort": 3, "agentOperation": 2, "integration": 3, "evidence": 3, "designAlignment": 3, "recovery": 3, "sum": 26, "gate": "PASS" },
+      "candidate": { "setup": 3, "correctness": 3, "scope": 3, "humanEffort": 3, "agentOperation": 3, "integration": 3, "evidence": 3, "designAlignment": 3, "recovery": 3, "sum": 27, "gate": "PASS" },
+      "parityPerUC": true
+    },
+    "uc8": {
+      "baseline": { "setup": 2, "correctness": 0, "scope": 2, "humanEffort": 1, "agentOperation": 1, "integration": 0, "evidence": 1, "designAlignment": 0, "recovery": 0, "sum": 7, "gate": "PASS", "note": "session ended mid-turn after setup writes; requested task work absent; possible unregistered harness/session truncation (see unregisteredAnomalies)" },
+      "candidate": { "setup": 3, "correctness": 3, "scope": 3, "humanEffort": 3, "agentOperation": 3, "integration": 3, "evidence": 3, "designAlignment": 3, "recovery": 3, "sum": 27, "gate": "PASS" },
+      "parityPerUC": true
+    }
+  },
+  "aggregate": {
+    "baseline": { "total": 165, "max": 189, "gates": "7 x PASS" },
+    "candidate": { "total": 189, "max": 189, "gates": "7 x PASS" }
+  },
+  "parityCriterion": {
+    "registered": "pre-registration-v4 section 6: per-UC candidate >= baseline - 1 with all gates passing; round-level aggregate deficit <= 3; strictly-higher candidate recorded as upside, claim remains parity",
+    "perUseCase": { "uc2": true, "uc3": true, "uc4": true, "uc5": true, "uc6": true, "uc7": true, "uc8": true },
+    "aggregateDeficit": 0,
+    "aggregateDeficitLimit": 3,
+    "allGatesPassing": true,
+    "parityHoldsForRound": true,
+    "qualityUpside": "candidate strictly higher on uc3, uc4, uc6, uc7, uc8 (and equal on uc2, uc5); recorded as upside, not a superiority claim"
+  },
+  "capabilityEngagement": {
+    "legend": "A = observed invoked (skill read / composition reference / record written / child launch); B = observable impact; C = zero engagement (flag)",
+    "zeroEngagementFlags": [
+      "maintaining-components: C on BOTH sides (uc6 anchor) - no read, no composition reference, no attributed record; contract behaviors performed via other skills; explained as fixture/anchor coverage gap; symmetric",
+      "structuring-content: no skill-file read on either side; impact B in uc4 both arms (docs/validation.md follows conventions)"
+    ],
+    "oneSidedInvocationGaps": [
+      "context-building: baseline no skill-file read (impact B); candidate A (building-context read, uc3 line 13)",
+      "designing-mermaid-diagrams: baseline no skill-file read (impact B: valid diagram + expert review); candidate A (designing-diagrams read, uc4 line 49 - the registered pending-drop file)",
+      "human-centered-consulting/consulting-humans + presenting-decisions: no skill-file read on either side; stop/refusal behaviors honored in uc5 (both) and uc8 (candidate)",
+      "exploring-execution-evidence/inspecting-execution-evidence: no skill-file read on either side; uc7 changelog-claim verification from repo evidence on both sides",
+      "committing-completed-work: candidate side no skill-file read; invocation via records written (uc7 three scoped commits with per-item entries)"
+    ],
+    "coverageRuleVerdict": "no capability is behaviorally lost on either side; maintaining-components is the only full zero (both sides, fixture-gap explanation recorded); remaining gaps are skill-read-silent with observable impact, cited in scoring.md"
+  },
+  "claimBoundary": "Parity claim only, per registration section 6. No advancement, adoption, promotion, or superiority claim. N=1 paired samples per cell on one model; per-dimension one-point differences are within sampling noise; the uc8 baseline cell depends on an adjudicable truncation; cost actuals unrecorded (qualitative only)."
+}

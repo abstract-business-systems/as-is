@@ -1,0 +1,24 @@
+uc2/baseline/session-store-top.jsonl	session=949388ef-60e0-4b9d-b88d-d93f893df207	$0.0354
+uc2/candidate/session-store-top.jsonl	session=b9301b8e-f99b-4251-9c34-3e08a0561269	$0.0101
+uc3/baseline/session-store-top.jsonl	session=83a0c2a1-5d21-46a3-acdb-47bf21f10f1a	$0.0610
+uc3/candidate/session-store-top.jsonl	session=7cb2e57a-f7ec-4c91-926f-6d362383ae6b	$0.0375
+uc4/baseline/session-store-top.jsonl	session=e66cff4e-6fe2-465e-a38b-9327180e2660	$0.0246
+uc4/candidate/session-store-top.jsonl	session=25066add-ec81-4064-b48b-ccdeef7fe273	$0.0300
+uc5/baseline/session-store-top.jsonl	session=0865e3d4-5b1b-4410-989b-2791af60a88d	$0.0224
+uc5/candidate/session-store-top.jsonl	session=b605b1a3-9046-41f0-816d-a4da01f6139a	$0.0112
+uc6/baseline/session-store-top.jsonl	session=e3a61da6-2a7e-4935-b213-6cfd30cc852e	$0.0289
+uc6/candidate/session-store-top.jsonl	session=b67a67d5-6734-4436-943e-513e767ee239	$0.0108
+uc7/baseline/session-store-top.jsonl	session=a31f4ba7-b452-4c25-b9d5-25ab09d67a54	$0.0306
+uc7/candidate/session-store-top.jsonl	session=73990158-ed94-4327-a8e9-d059254931da	$0.0227
+uc8/baseline/session-store-top.jsonl	session=3260f835-58cc-4433-8863-240d858368cc	$0.0115
+uc8/candidate/session-store-top.jsonl	session=ae6bfb59-d474-4661-b5c6-88b8b4dd6272	$0.0133
+
+total (deduped by session id, 14 stores, 0 duplicate copies excluded): $0.3500
+
+# nested children + scorer
+uc3/candidate/nested-uc3-rarewords/session-store-nested-uc3-rarewords.jsonl	session=9045012f-03e9-48bd-bf7c-4b7ebe5e9137	$0.0032
+round4-scorer (host store)	session=f38e2590-3ede-4a7d-9e48-992a6117c80e	$0.0682
+
+uc3/baseline/nested-uc3-rarewords/ (recovered from consumer-local store)	session=35efafc0-db43-4021-9eea-cc344eda6fdf	$0.0099
+
+ROUND-4 TOTAL (14 arms + 2 nested children + scorer): $0.7813
