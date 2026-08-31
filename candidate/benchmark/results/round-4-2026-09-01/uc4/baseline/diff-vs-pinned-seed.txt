@@ -1,0 +1,21 @@
+Only in candidate/benchmark/run/round-4/uc4/baseline/: AGENTS.md
+Only in candidate/benchmark/run/round-4/uc4/baseline/: as-is.md
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/CHANGELOG.md candidate/benchmark/run/round-4/uc4/baseline/CHANGELOG.md
+6c6,11
+< - Added `checks/validate.sh` deterministic validation (compile, unit tests, CLI smoke check).
+\ No newline at end of file
+---
+> - Added `checks/validate.sh` deterministic validation (compile, unit tests, CLI smoke check).
+> 
+> ## Unreleased — as-is adoption and validation documentation
+> 
+> - Adopted as-is documentation: root `as-is.md` plus component records `src/wordstats/as-is.md` and `checks/as-is.md`, and `AGENTS.md` with the canonical architecture instruction.
+> - Added `docs/validation.md`, a new-reader explanation of deterministic validation with a Mermaid sequence diagram of the validation flow. Documentation only; `checks/validate.sh` and validation semantics are unchanged.
+\ No newline at end of file
+Only in candidate/benchmark/run/round-4/uc4/baseline/checks: as-is.md
+Only in candidate/benchmark/run/round-4/uc4/baseline/docs: validation.md
+Only in candidate/benchmark/run/round-4/uc4/baseline/src/wordstats: as-is.md
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/cli.cpython-311.pyc and candidate/benchmark/run/round-4/uc4/baseline/src/wordstats/__pycache__/cli.cpython-311.pyc differ
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/counter.cpython-311.pyc and candidate/benchmark/run/round-4/uc4/baseline/src/wordstats/__pycache__/counter.cpython-311.pyc differ
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/__init__.cpython-311.pyc and candidate/benchmark/run/round-4/uc4/baseline/src/wordstats/__pycache__/__init__.cpython-311.pyc differ
+Only in candidate/benchmark/run/round-4/uc4/baseline/tests: __pycache__

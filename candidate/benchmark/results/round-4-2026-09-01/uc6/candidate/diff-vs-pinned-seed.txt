@@ -1,0 +1,42 @@
+Only in candidate/benchmark/run/round-4/uc6/candidate/: AGENTS.md
+Only in candidate/benchmark/run/round-4/uc6/candidate/: as-is.md
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/CHANGELOG.md candidate/benchmark/run/round-4/uc6/candidate/CHANGELOG.md
+6c6,11
+< - Added `checks/validate.sh` deterministic validation (compile, unit tests, CLI smoke check).
+\ No newline at end of file
+---
+> - Added `checks/validate.sh` deterministic validation (compile, unit tests, CLI smoke check).
+> 
+> ## Unreleased
+> 
+> - Adopted the as-is documentation convention: root `as-is.md`, component record `src/wordstats/as-is.md`, and the canonical architecture instruction in `AGENTS.md`.
+> - `wordstats count` now also reports a `"total"` key holding the sum of all word counts, alongside the per-word counts; smoke-check expectation updated to match.
+\ No newline at end of file
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/checks/expected-count.json candidate/benchmark/run/round-4/uc6/candidate/checks/expected-count.json
+7c7,8
+<   "the": 3
+---
+>   "the": 3,
+>   "total": 9
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/docs/design-notes.md candidate/benchmark/run/round-4/uc6/candidate/docs/design-notes.md
+10c10,17
+< - Bounded change authorized: the initial `count` command only.
+\ No newline at end of file
+---
+> - Bounded change authorized: the initial `count` command only.
+> 
+> ## Note: count command total
+> 
+> - Request: the `wordstats count` output should also report a `"total"` key holding the sum of all word counts, alongside the per-word counts.
+> - Decision: `wordstats count` adds a `"total"` key to the same JSON object, holding the sum of all per-word counts; per-word keys, alphabetical sorting, and 2-space indentation are unchanged, and the mapping returned by `count_words` stays word-counts-only.
+> - Options considered: a nested `{"counts": ..., "total": ...}` object (rejected: a larger public-contract change than requested); a separate total line outside the JSON object (rejected: breaks the single-JSON-object output contract).
+> - Bounded change authorized: the `count` CLI output only, plus the matching smoke-check expectation in `checks/expected-count.json` and a changelog entry. Known edge behavior: text containing the literal word "total" has that word's per-word count replaced by the sum (the total overwrites the key); accepted for this bounded change.
+\ No newline at end of file
+Only in candidate/benchmark/run/round-4/uc6/candidate/src/wordstats: as-is.md
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/src/wordstats/cli.py candidate/benchmark/run/round-4/uc6/candidate/src/wordstats/cli.py
+18a19
+>     counts["total"] = sum(counts.values())
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/cli.cpython-311.pyc and candidate/benchmark/run/round-4/uc6/candidate/src/wordstats/__pycache__/cli.cpython-311.pyc differ
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/counter.cpython-311.pyc and candidate/benchmark/run/round-4/uc6/candidate/src/wordstats/__pycache__/counter.cpython-311.pyc differ
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/__init__.cpython-311.pyc and candidate/benchmark/run/round-4/uc6/candidate/src/wordstats/__pycache__/__init__.cpython-311.pyc differ
+Only in candidate/benchmark/run/round-4/uc6/candidate/tests: __pycache__

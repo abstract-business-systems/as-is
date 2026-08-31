@@ -1,0 +1,7 @@
+Only in candidate/benchmark/run/round-4/uc8/baseline/: AGENTS.md
+Only in candidate/benchmark/run/round-4/uc8/baseline/: as-is.md
+Only in candidate/benchmark/run/round-4/uc8/baseline/src/wordstats: as-is.md
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/cli.cpython-311.pyc and candidate/benchmark/run/round-4/uc8/baseline/src/wordstats/__pycache__/cli.cpython-311.pyc differ
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/counter.cpython-311.pyc and candidate/benchmark/run/round-4/uc8/baseline/src/wordstats/__pycache__/counter.cpython-311.pyc differ
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/__init__.cpython-311.pyc and candidate/benchmark/run/round-4/uc8/baseline/src/wordstats/__pycache__/__init__.cpython-311.pyc differ
+Only in candidate/benchmark/run/round-4/uc8/baseline/tests: __pycache__

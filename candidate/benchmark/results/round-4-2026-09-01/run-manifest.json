@@ -1,0 +1,157 @@
+{
+  "round": "round-4",
+  "date": "2026-09-01",
+  "procedure": "candidate/benchmark/pre-registration-v4.md",
+  "acceptance": "candidate/benchmark/round-4-acceptance.md",
+  "arms": {
+    "baseline": "master @ 9a77e37 (live workflow, read-only materialization)",
+    "candidate": "post-drop variant, catalog pinned 6cea07f + registered Design-view strip"
+  },
+  "variantChecksum": {
+    "registered": "e4cd9366530976fa2f6e086e1447eec967088aa1ef8c476e7eb08afe6472c860",
+    "verifiedAtSetup": true,
+    "file": "variant-checksum.txt"
+  },
+  "jobs": [
+    {
+      "uc": "uc2",
+      "arm": "baseline",
+      "jobId": "j-mthk264n-am4di2",
+      "localSessionId": "949388ef-60e0-4b9d-b88d-d93f893df207",
+      "exit": 0,
+      "wallSeconds": 628
+    },
+    {
+      "uc": "uc2",
+      "arm": "candidate",
+      "jobId": "j-mthk26o3-1nc6we",
+      "localSessionId": "b9301b8e-f99b-4251-9c34-3e08a0561269",
+      "exit": 0,
+      "wallSeconds": 161
+    },
+    {
+      "uc": "uc3",
+      "arm": "baseline",
+      "jobId": "j-mthk27fw-2obd2o",
+      "localSessionId": "83a0c2a1-5d21-46a3-acdb-47bf21f10f1a",
+      "exit": 0,
+      "wallSeconds": 1366,
+      "nestedChild": {
+        "name": "round4-uc3-rarewords",
+        "localSessionId": "35efafc0-db43-4021-9eea-cc344eda6fdf"
+      }
+    },
+    {
+      "uc": "uc3",
+      "arm": "candidate",
+      "jobId": "j-mthk288t-22g1fk",
+      "localSessionId": "7cb2e57a-f7ec-4c91-926f-6d362383ae6b",
+      "exit": 0,
+      "wallSeconds": 533,
+      "nestedChild": {
+        "name": "round4-uc3-rarewords",
+        "localSessionId": "9045012f-03e9-48bd-bf7c-4b7ebe5e9137"
+      }
+    },
+    {
+      "uc": "uc4",
+      "arm": "baseline",
+      "jobId": "j-mthkst73-ayy4om",
+      "localSessionId": "e66cff4e-6fe2-465e-a38b-9327180e2660",
+      "exit": 0,
+      "wallSeconds": 399
+    },
+    {
+      "uc": "uc4",
+      "arm": "candidate",
+      "jobId": "j-mthkstpx-2t0on5",
+      "localSessionId": "25066add-ec81-4064-b48b-ccdeef7fe273",
+      "exit": 0,
+      "wallSeconds": 405
+    },
+    {
+      "uc": "uc5",
+      "arm": "baseline",
+      "jobId": "j-mthksuc5-it7iot",
+      "localSessionId": "0865e3d4-5b1b-4410-989b-2791af60a88d",
+      "exit": 0,
+      "wallSeconds": 384
+    },
+    {
+      "uc": "uc5",
+      "arm": "candidate",
+      "jobId": "j-mthksv3p-2heuu5",
+      "localSessionId": "b605b1a3-9046-41f0-816d-a4da01f6139a",
+      "exit": 0,
+      "wallSeconds": 214
+    },
+    {
+      "uc": "uc6",
+      "arm": "baseline",
+      "jobId": "j-mthl23ju-7t6mxk",
+      "localSessionId": "e3a61da6-2a7e-4935-b213-6cfd30cc852e",
+      "exit": 0,
+      "wallSeconds": 656
+    },
+    {
+      "uc": "uc6",
+      "arm": "candidate",
+      "jobId": "j-mthl241r-rktevg",
+      "localSessionId": "b67a67d5-6734-4436-943e-513e767ee239",
+      "exit": 0,
+      "wallSeconds": 211
+    },
+    {
+      "uc": "uc7",
+      "arm": "baseline",
+      "jobId": "j-mthl24oh-fdwng9",
+      "localSessionId": "a31f4ba7-b452-4c25-b9d5-25ab09d67a54",
+      "exit": 0,
+      "wallSeconds": 602
+    },
+    {
+      "uc": "uc7",
+      "arm": "candidate",
+      "jobId": "j-mthl25hj-if1n1o",
+      "localSessionId": "73990158-ed94-4327-a8e9-d059254931da",
+      "exit": 0,
+      "wallSeconds": 284
+    },
+    {
+      "uc": "uc8",
+      "arm": "baseline",
+      "jobId": "j-mthllxes-2zjl3j",
+      "localSessionId": "3260f835-58cc-4433-8863-240d858368cc",
+      "exit": 0,
+      "wallSeconds": 265
+    },
+    {
+      "uc": "uc8",
+      "arm": "candidate",
+      "jobId": "j-mthllxva-7mbygn",
+      "localSessionId": "ae6bfb59-d474-4661-b5c6-88b8b4dd6272",
+      "exit": 0,
+      "wallSeconds": 333
+    }
+  ],
+  "jobIdMappingNote": "jobId <-> arm mapping joined on registry sessionName + localSessionId (definitive per rounds 2-3).",
+  "results": {
+    "allArmsExitZero": true,
+    "budgetStops": 0,
+    "postIntegrationChecks": "all 14 consumers exit 0 (check-post-integration.log per arm)",
+    "delegation": "uc3: BOTH arms spawned nested round4-uc3-rarewords children (delegation exercised on both sides)"
+  },
+  "harnessDefects": [
+    {
+      "id": "consumer-git-bundles-lost-round-4",
+      "class": "evidence-collection defect, NOT workflow behavior",
+      "what": "git bundle creation failed (this git version rejects `bundle create -q`) and the .git strip ran in the same command block afterward, before a successful bundle. All 14 consumer git histories unrecoverable as objects.",
+      "scope": "commit-history objects only. Working trees fully preserved and committed under candidate/benchmark/run/round-4/. Scoped-commit evidence for uc7 survives verbatim in host session stores (commit SHAs d090311/499fc36/11cf411 baseline; 3aa407a/e2a63e2/6fe1d83 candidate) and status reports; scorer must cite transcripts, not object history.",
+      "recurrence": "THIRD occurrence (round 2: 8/12 arms; round 3: 8/8 arms; round 4: 14/14). Root cause each time: bundle step and .git strip not atomically ordered, plus untested bundle command arguments. FIX APPLIED for future rounds: bundling must be a dedicated, arg-tested, fail-fast step that aborts the run on failure and runs strictly before any strip."
+    }
+  ],
+  "budgets": {
+    "capPerArm": "$2.00 / 3600s",
+    "note": "actuals from deduplicated session stores in budget-report.txt (post-scoring)"
+  }
+}

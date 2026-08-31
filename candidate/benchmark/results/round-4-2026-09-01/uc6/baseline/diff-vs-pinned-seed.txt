@@ -1,0 +1,38 @@
+Only in candidate/benchmark/run/round-4/uc6/baseline/: AGENTS.md
+Only in candidate/benchmark/run/round-4/uc6/baseline/: as-is.md
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/CHANGELOG.md candidate/benchmark/run/round-4/uc6/baseline/CHANGELOG.md
+2a3,6
+> ## 1.1.0 — total key in count output
+> 
+> - `wordstats count` now also reports a `"total"` key holding the sum of all per-word counts, alongside the word keys (decision in `docs/design-notes.md`; known limitation: a literal input word `total` is overwritten by the sum).
+> 
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/checks/expected-count.json candidate/benchmark/run/round-4/uc6/baseline/checks/expected-count.json
+7c7,8
+<   "the": 3
+---
+>   "the": 3,
+>   "total": 9
+Only in candidate/benchmark/run/round-4/uc6/baseline/docs: as-is-setup-plan.md
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/docs/design-notes.md candidate/benchmark/run/round-4/uc6/baseline/docs/design-notes.md
+10c10,18
+< - Bounded change authorized: the initial `count` command only.
+\ No newline at end of file
+---
+> - Bounded change authorized: the initial `count` command only.
+> 
+> ## Note: total key in count output
+> 
+> - Request: `wordstats count` output should also report a `"total"` key holding the sum of all word counts, alongside the per-word counts; this alters the component's public contract.
+> - Decision: the CLI adds a top-level `"total"` key (integer sum of all per-word counts) next to the per-word keys in the emitted JSON object; it is implemented in the CLI layer after `count_words` returns, keeping the library's word-to-count mapping contract unchanged. Keys stay alphabetically sorted, so `"total"` sorts after the word keys.
+> - Options considered: nested output shape such as `{"counts": {...}, "total": N}` (rejected: a larger break to consumers than the requested alongside placement); a separate opt-in flag such as `--total` (rejected: the request changes the default output contract itself).
+> - Bounded change authorized: the `count` command's JSON output only — add the `"total"` key, update `checks/expected-count.json`, add a changelog entry, and align the component record; no library-contract change.
+> - Known limitation: input containing the literal word `total` has its per-word count overwritten by the sum in the emitted object; accepted as residual risk for this bounded change.
+\ No newline at end of file
+Only in candidate/benchmark/run/round-4/uc6/baseline/src/wordstats: as-is.md
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/src/wordstats/cli.py candidate/benchmark/run/round-4/uc6/baseline/src/wordstats/cli.py
+18a19
+>     counts["total"] = sum(counts.values())
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/cli.cpython-311.pyc and candidate/benchmark/run/round-4/uc6/baseline/src/wordstats/__pycache__/cli.cpython-311.pyc differ
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/counter.cpython-311.pyc and candidate/benchmark/run/round-4/uc6/baseline/src/wordstats/__pycache__/counter.cpython-311.pyc differ
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/__init__.cpython-311.pyc and candidate/benchmark/run/round-4/uc6/baseline/src/wordstats/__pycache__/__init__.cpython-311.pyc differ
+Only in candidate/benchmark/run/round-4/uc6/baseline/tests: __pycache__

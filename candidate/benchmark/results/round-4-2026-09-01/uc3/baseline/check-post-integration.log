@@ -1,0 +1,24 @@
+compile: OK
+test_rare_filters_output (test_cli.RareOptionTests.test_rare_filters_output) ... ok
+test_rare_negative_rejected_with_clear_message_and_exit_2 (test_cli.RareOptionTests.test_rare_negative_rejected_with_clear_message_and_exit_2) ... ok
+test_rare_non_integer_rejected_with_exit_2 (test_cli.RareOptionTests.test_rare_non_integer_rejected_with_exit_2) ... ok
+test_rare_one_keeps_only_singletons (test_cli.RareOptionTests.test_rare_one_keeps_only_singletons) ... ok
+test_rare_preserves_sorted_two_space_indent_format (test_cli.RareOptionTests.test_rare_preserves_sorted_two_space_indent_format) ... ok
+test_rare_zero_rejected_with_clear_message_and_exit_2 (test_cli.RareOptionTests.test_rare_zero_rejected_with_clear_message_and_exit_2) ... ok
+test_counts_basic_words (test_counter.CountWordsTests.test_counts_basic_words) ... ok
+test_empty_input (test_counter.CountWordsTests.test_empty_input) ... ok
+test_ignores_punctuation_only_tokens (test_counter.CountWordsTests.test_ignores_punctuation_only_tokens) ... ok
+test_strips_punctuation_and_lowercases (test_counter.CountWordsTests.test_strips_punctuation_and_lowercases) ... ok
+test_empty_input_yields_empty_output (test_rarewords.FilterRareTests.test_empty_input_yields_empty_output) ... ok
+test_input_is_not_mutated (test_rarewords.FilterRareTests.test_input_is_not_mutated) ... ok
+test_keeps_only_entries_within_threshold (test_rarewords.FilterRareTests.test_keeps_only_entries_within_threshold) ... ok
+test_threshold_is_inclusive (test_rarewords.FilterRareTests.test_threshold_is_inclusive) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.006s
+
+OK
+unit tests: OK
+cli smoke check: OK
+All checks passed.
+exit=0

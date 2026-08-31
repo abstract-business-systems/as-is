@@ -1,0 +1,60 @@
+Only in candidate/benchmark/run/round-4/uc3/baseline/: agents
+Only in candidate/benchmark/run/round-4/uc3/baseline/: AGENTS.md
+Only in candidate/benchmark/run/round-4/uc3/baseline/: as-is.json
+Only in candidate/benchmark/run/round-4/uc3/baseline/: as-is.md
+Only in candidate/benchmark/run/round-4/uc3/baseline/: changelog.md
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/CHANGELOG.md candidate/benchmark/run/round-4/uc3/baseline/CHANGELOG.md
+2a3,6
+> ## Unreleased
+> 
+> - Added `--rare N` option to `wordstats count`: keeps only words with N or fewer occurrences; N must be a positive integer (otherwise exit 2 with a clear message). Filtering logic lives in the new `src/wordstats/rarewords.py` helper module.
+> 
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/docs/design-notes.md candidate/benchmark/run/round-4/uc3/baseline/docs/design-notes.md
+10c10,16
+< - Bounded change authorized: the initial `count` command only.
+\ No newline at end of file
+---
+> - Bounded change authorized: the initial `count` command only.
+> ## Note: --rare N option for count command
+> 
+> - Request: keep only words with N or fewer occurrences in `wordstats count` output.
+> - Decision: add an optional `--rare N` flag to the `count` subcommand. When present, the counted mapping is filtered through the new helper module `src/wordstats/rarewords.py` (`filter_rare`) to entries whose count is at most N before printing; output format is otherwise unchanged. N must be a positive integer: non-integer values are rejected by argparse and zero or negative values by an explicit parser error, both exiting 2 with a clear message and printing no count output.
+> - Options considered: filtering inline in `cli.py` (rejected: the request requires the filtering logic in a dedicated helper module); a separate subcommand (rejected: expands the CLI surface beyond the request); post-processing the printed JSON (rejected: bypasses the counting contract and complicates tests).
+> - Bounded change authorized: the `--rare N` option on `count`, the new helper module, and unit tests covering the option and its rejection behavior only.
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/records/ownership-map.md candidate/benchmark/run/round-4/uc3/baseline/records/ownership-map.md
+6a7,8
+> | `src/wordstats/rarewords.py` | `src/wordstats/rare-words/as-is.md` | component |
+> | `tests/` | `records/owners/core-utility.md` | component |
+Only in candidate/benchmark/run/round-4/uc3/baseline/: skills
+Only in candidate/benchmark/run/round-4/uc3/baseline/src/wordstats: as-is.md
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/src/wordstats/cli.py candidate/benchmark/run/round-4/uc3/baseline/src/wordstats/cli.py
+7a8
+> from wordstats.rarewords import filter_rare
+14a16,21
+>     count.add_argument(
+>         "--rare",
+>         type=int,
+>         default=None,
+>         help="keep only words occurring N or fewer times (N is a positive integer)",
+>     )
+16a24,26
+>     if args.rare is not None and args.rare < 1:
+>         parser.error("--rare must be a positive integer")
+> 
+18a29,30
+>     if args.rare is not None:
+>         counts = filter_rare(counts, args.rare)
+24c36
+<     sys.exit(main())
+---
+>     sys.exit(main())
+\ No newline at end of file
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/cli.cpython-311.pyc and candidate/benchmark/run/round-4/uc3/baseline/src/wordstats/__pycache__/cli.cpython-311.pyc differ
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/counter.cpython-311.pyc and candidate/benchmark/run/round-4/uc3/baseline/src/wordstats/__pycache__/counter.cpython-311.pyc differ
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/__init__.cpython-311.pyc and candidate/benchmark/run/round-4/uc3/baseline/src/wordstats/__pycache__/__init__.cpython-311.pyc differ
+Only in candidate/benchmark/run/round-4/uc3/baseline/src/wordstats/__pycache__: rarewords.cpython-311.pyc
+Only in candidate/benchmark/run/round-4/uc3/baseline/src/wordstats: rare-words
+Only in candidate/benchmark/run/round-4/uc3/baseline/src/wordstats: rarewords.py
+Only in candidate/benchmark/run/round-4/uc3/baseline/tests: __pycache__
+Only in candidate/benchmark/run/round-4/uc3/baseline/tests: test_cli.py
+Only in candidate/benchmark/run/round-4/uc3/baseline/tests: test_rarewords.py

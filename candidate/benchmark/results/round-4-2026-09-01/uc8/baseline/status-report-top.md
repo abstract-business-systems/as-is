@@ -1,0 +1,1 @@
+Now I'll perform the setup writes: `AGENTS.md`, root `as-is.md`, and `src/wordstats/as-is.md`.

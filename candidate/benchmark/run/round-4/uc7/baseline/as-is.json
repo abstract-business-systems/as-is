@@ -1,0 +1,26 @@
+{
+  "task": {
+    "id": "round4-uc7-baseline",
+    "title": "Adopt as-is workflow setup and implement three bounded request items, each with its own commit and changelog entry",
+    "status": "completed",
+    "acceptance": [
+      "as-is setup records exist at root and src/wordstats and pass record validation",
+      "README Usage shows a working command verbatim",
+      "unit test proves internal-hyphen tokens keep the hyphen and count as one word",
+      "1.0.0 changelog claim corrected in place with an Unreleased correction note",
+      "one commit and one changelog entry per request item",
+      "bash checks/validate.sh exits 0 before status report"
+    ],
+    "budget": {
+      "wallClockSeconds": 3600,
+      "costUsd": 2
+    },
+    "evidence": [
+      "expert plan review: REVISE resolved in docs/as-is-setup-plan.md (first call timed out at the 60s worker limit; single retry with extended timeout)",
+      "expert final-diff validation of 5dbee68..11cf411: SAFE TO COMMIT, limitation noted (validator could not execute commands; deterministic checks run by the builder)",
+      "bash checks/validate.sh exit 0 at baseline and after each item",
+      "record validator (managing-as-is-document) reports 0 issues for as-is.md and src/wordstats/as-is.md",
+      "commits: 5dbee68 setup, d090311 README fix, 499fc36 hyphen test, 11cf411 changelog correction; first commit necessarily includes the whole untracked seed tree because the repository had no initial commit"
+    ]
+  }
+}

@@ -1,0 +1,3 @@
+# Owner record: core utility
+
+Owns the word-count logic, CLI surface, and unit tests (`src/wordstats/` and `tests/`). The public contract is: lowercase tokens, punctuation stripped from token edges, punctuation-only tokens ignored, counts returned as a mapping. CLI output is JSON with sorted keys. This directory scope includes new modules added inside `src/wordstats/` and their unit tests; new modules must follow the existing separation of pure logic from CLI presentation.

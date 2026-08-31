@@ -1,0 +1,20 @@
+Only in candidate/benchmark/run/round-4/uc2/candidate/: .agents
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/README.md candidate/benchmark/run/round-4/uc2/candidate/README.md
+13a14,21
+> ## Installation
+> 
+> No packaged distribution exists; run the CLI directly from this repository's source:
+> 
+> ```sh
+> PYTHONPATH=src python3 -m wordstats.cli count <file>
+> ```
+> 
+22c30
+< This project intentionally contains no agent-workflow configuration (no `.agents/`, no skill or agent links, no prompt files). Benchmark consumers must perform their own setup inside their consumer directory before implementing any feature; setup effort is a measured dimension (target-design line 665).
+---
+> This project intentionally contains no agent-workflow configuration (no `.agents/`, no skill or agent links, no prompt files). Benchmark consumers must perform their own setup inside their consumer directory before implementing any feature; setup effort is a measured dimension (target-design line 665).
+\ No newline at end of file
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/cli.cpython-311.pyc and candidate/benchmark/run/round-4/uc2/candidate/src/wordstats/__pycache__/cli.cpython-311.pyc differ
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/counter.cpython-311.pyc and candidate/benchmark/run/round-4/uc2/candidate/src/wordstats/__pycache__/counter.cpython-311.pyc differ
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/__init__.cpython-311.pyc and candidate/benchmark/run/round-4/uc2/candidate/src/wordstats/__pycache__/__init__.cpython-311.pyc differ
+Only in candidate/benchmark/run/round-4/uc2/candidate/tests: __pycache__

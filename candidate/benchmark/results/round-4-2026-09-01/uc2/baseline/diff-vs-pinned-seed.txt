@@ -1,0 +1,46 @@
+Only in candidate/benchmark/run/round-4/uc2/baseline/: agents
+Only in candidate/benchmark/run/round-4/uc2/baseline/: AGENTS.md
+Only in candidate/benchmark/run/round-4/uc2/baseline/: as-is.md
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/CHANGELOG.md candidate/benchmark/run/round-4/uc2/baseline/CHANGELOG.md
+2a3,7
+> ## Unreleased
+> 
+> - Fixed the stale `## Installation` section in README.md: the project publishes no package, so the section now documents running the CLI from a checkout with `PYTHONPATH=src python3 -m wordstats.cli count <path>` (decision recorded in `docs/design-notes.md`).
+> - Adopted as-is documentation: root `as-is.md` component map, `core-utility` component record, and the canonical architecture instruction in `AGENTS.md`.
+> 
+Only in candidate/benchmark/run/round-4/uc2/baseline/docs: as-is-setup-plan.md
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/docs/design-notes.md candidate/benchmark/run/round-4/uc2/baseline/docs/design-notes.md
+10c10,17
+< - Bounded change authorized: the initial `count` command only.
+\ No newline at end of file
+---
+> - Bounded change authorized: the initial `count` command only.
+> 
+> ## Note: installation instructions correction (README)
+> 
+> - Request: fix the stale `## Installation` section in README.md, which instructed users to install `wordstats-tools` from PyPI even though the project publishes no package.
+> - Decision: document the actual usage path — no published package; users run the CLI from a repository checkout with `PYTHONPATH=src python3 -m wordstats.cli count <path>`, matching how `checks/validate.sh` invokes the CLI.
+> - Options considered: publishing `wordstats-tools` to PyPI (rejected: packaging and release work is outside the bounded docs fix and no packaging metadata exists in the project); documenting a bare `python -m wordstats.cli` invocation (rejected: it does not resolve from a checkout root without the `PYTHONPATH` prefix).
+> - Bounded change authorized: the README `## Installation` section wording only; no source, test, or validation behavior changes.
+\ No newline at end of file
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/README.md candidate/benchmark/run/round-4/uc2/baseline/README.md
+13a14,21
+> ## Installation
+> 
+> This project publishes no package. Run the CLI from a checkout of this repository:
+> 
+> ```sh
+> PYTHONPATH=src python3 -m wordstats.cli count <path-to-text-file>
+> ```
+> 
+22c30
+< This project intentionally contains no agent-workflow configuration (no `.agents/`, no skill or agent links, no prompt files). Benchmark consumers must perform their own setup inside their consumer directory before implementing any feature; setup effort is a measured dimension (target-design line 665).
+---
+> This project intentionally contains no agent-workflow configuration (no `.agents/`, no skill or agent links, no prompt files). Benchmark consumers must perform their own setup inside their consumer directory before implementing any feature; setup effort is a measured dimension (target-design line 665).
+\ No newline at end of file
+Only in candidate/benchmark/run/round-4/uc2/baseline/: skills
+Only in candidate/benchmark/run/round-4/uc2/baseline/src/wordstats: as-is.md
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/cli.cpython-311.pyc and candidate/benchmark/run/round-4/uc2/baseline/src/wordstats/__pycache__/cli.cpython-311.pyc differ
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/counter.cpython-311.pyc and candidate/benchmark/run/round-4/uc2/baseline/src/wordstats/__pycache__/counter.cpython-311.pyc differ
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/__init__.cpython-311.pyc and candidate/benchmark/run/round-4/uc2/baseline/src/wordstats/__pycache__/__init__.cpython-311.pyc differ
+Only in candidate/benchmark/run/round-4/uc2/baseline/tests: __pycache__

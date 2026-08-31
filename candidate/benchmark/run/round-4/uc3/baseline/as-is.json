@@ -1,0 +1,25 @@
+{
+  "configuration": {
+    "records": {
+      "filenames": {
+        "task": "tasks.md",
+        "changelog": "changelog.md"
+      }
+    },
+    "dirs": {
+      "project-temp": ".as-is"
+    },
+    "agents": {
+      "defaultRole": "component-builder",
+      "provider": "openrouter",
+      "defaultModel": "z-ai/glm-5.3-flash",
+      "sessionDirectory": ".as-is/subagents/sessions",
+      "models": {
+        "small": "z-ai/glm-5.3-flash",
+        "medium": "z-ai/glm-5.3-flash",
+        "large": "z-ai/glm-5.3-flash",
+        "xlarge": "z-ai/glm-5.3-flash"
+      }
+    }
+  }
+}

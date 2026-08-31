@@ -1,0 +1,49 @@
+Only in candidate/benchmark/run/round-4/uc7/baseline/: agents
+Only in candidate/benchmark/run/round-4/uc7/baseline/: AGENTS.md
+Only in candidate/benchmark/run/round-4/uc7/baseline/: as-is.json
+Only in candidate/benchmark/run/round-4/uc7/baseline/: as-is.md
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/CHANGELOG.md candidate/benchmark/run/round-4/uc7/baseline/CHANGELOG.md
+2a3,8
+> ## Unreleased
+> 
+> - Fixed the README `## Usage` command to the working invocation `PYTHONPATH=src python3 -m wordstats.cli count <file>`; the previously shown `python -m wordstats <file>` never worked (no `__main__.py`, missing `count` subcommand, and `src/` not on the module path).
+> - Added a unit test pinning that tokens with internal hyphens (for example `well-known`) keep the hyphen and are counted as one word; edge punctuation is still stripped.
+> - Corrected the 1.0.0 entry's claim that the CLI reports frequencies as insertion-ordered JSON: the implementation has always used `sort_keys=True`, so the output is key-sorted. Documentation-only correction; no runtime behavior changed. The 1.0.0 validation-script claim was verified correct against the repo.
+> 
+5,6c11,12
+< - Added `wordstats count` CLI reporting word frequencies as sorted JSON.
+< - Added `checks/validate.sh` deterministic validation (compile, unit tests, CLI smoke check).
+\ No newline at end of file
+---
+> - Added `wordstats count` CLI reporting word frequencies as key-sorted JSON.
+> - Added `checks/validate.sh` deterministic validation (compile, unit tests, CLI smoke check).
+Only in candidate/benchmark/run/round-4/uc7/baseline/docs: as-is-setup-plan.md
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/README.md candidate/benchmark/run/round-4/uc7/baseline/README.md
+14c14
+< ## Running the checks
+---
+> ## Usage
+17,22c17,18
+< bash checks/validate.sh
+< ```
+< 
+< ## Setup note
+< 
+< This project intentionally contains no agent-workflow configuration (no `.agents/`, no skill or agent links, no prompt files). Benchmark consumers must perform their own setup inside their consumer directory before implementing any feature; setup effort is a measured dimension (target-design line 665).
+---
+> PYTHONPATH=src python3 -m wordstats.cli count sample-data/words.txt
+> ```
+\ No newline at end of file
+Only in candidate/benchmark/run/round-4/uc7/baseline/src/wordstats: as-is.md
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/cli.cpython-311.pyc and candidate/benchmark/run/round-4/uc7/baseline/src/wordstats/__pycache__/cli.cpython-311.pyc differ
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/counter.cpython-311.pyc and candidate/benchmark/run/round-4/uc7/baseline/src/wordstats/__pycache__/counter.cpython-311.pyc differ
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/__init__.cpython-311.pyc and candidate/benchmark/run/round-4/uc7/baseline/src/wordstats/__pycache__/__init__.cpython-311.pyc differ
+Only in candidate/benchmark/run/round-4/uc7/baseline/tests: __pycache__
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/tests/test_counter.py candidate/benchmark/run/round-4/uc7/baseline/tests/test_counter.py
+17a18,23
+>     def test_preserves_internal_hyphens(self):
+>         self.assertEqual(
+>             count_words("a well-known well-known idea"),
+>             {"a": 1, "well-known": 2, "idea": 1},
+>         )
+> 

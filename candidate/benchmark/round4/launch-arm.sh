@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Round-3 arm launcher (registered procedure per pre-registration-v3.md; one arm = one detached governed child session).
+# Round-4 arm launcher (registered procedure per pre-registration-v4.md; one arm = one detached governed child session).
 # Usage: bash candidate/benchmark/round4/launch-arm.sh <uc> <arm>
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"

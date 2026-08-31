@@ -1,0 +1,70 @@
+Only in candidate/benchmark/run/round-4/uc3/candidate/: AGENTS.md
+Only in candidate/benchmark/run/round-4/uc3/candidate/: as-is.md
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/CHANGELOG.md candidate/benchmark/run/round-4/uc3/candidate/CHANGELOG.md
+2a3,6
+> ## 1.1.0 — unreleased
+> 
+> - Added `wordstats count --rare N` keeping only words with N or fewer occurrences; N must be a positive integer, otherwise the CLI exits 2 with a clear message. Filtering logic lives in new pure helper `src/wordstats/rarewords.py` (`filter_rare`), implemented by a delegated child worker (child component task record: `src/wordstats` task pair, terminal `completed`). Added unit tests for the helper, the `--rare N` option, and its rejection behavior; design decision recorded in `docs/design-notes.md`.
+> 
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/docs/design-notes.md candidate/benchmark/run/round-4/uc3/candidate/docs/design-notes.md
+10c10,17
+< - Bounded change authorized: the initial `count` command only.
+\ No newline at end of file
+---
+> - Bounded change authorized: the initial `count` command only.
+> 
+> ## Note: `--rare N` option on count (2026-08-31)
+> 
+> - Request: add `--rare N` to `wordstats count` that keeps only words with N or fewer occurrences; N must be a positive integer, otherwise exit 2 with a clear message.
+> - Decision: `--rare N` is an option on the existing `count` subcommand, validated at argument-parse time (argparse type) so invalid values exit 2 with a clear message before any file is read. The keep-words-with-count-<=-N rule lives in a new pure helper `filter_rare(counts, limit)` in `src/wordstats/rarewords.py`, so the policy is unit-testable independently of the CLI.
+> - Options considered: filtering inline in `cli.py` (rejected: mixes policy with argument handling and is harder to test); a separate `rare` subcommand (rejected: the request specifies an option); post-filtering the JSON output (rejected: lossy and couples the rule to the output format).
+> - Bounded change authorized: the `--rare N` option on `count`, the new helper module, and unit tests for both; default output without `--rare` is unchanged.
+\ No newline at end of file
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/records/owners/core-utility.md candidate/benchmark/run/round-4/uc3/candidate/records/owners/core-utility.md
+3c3
+< Owns the word-count logic and CLI surface (`src/wordstats/`). The public contract is: lowercase tokens, punctuation stripped from token edges, punctuation-only tokens ignored, counts returned as a mapping. CLI output is JSON with sorted keys.
+\ No newline at end of file
+---
+> Owns the word-count logic, CLI surface, and unit tests (`src/wordstats/` and `tests/`). The public contract is: lowercase tokens, punctuation stripped from token edges, punctuation-only tokens ignored, counts returned as a mapping. CLI output is JSON with sorted keys. This directory scope includes new modules added inside `src/wordstats/` and their unit tests; new modules must follow the existing separation of pure logic from CLI presentation.
+\ No newline at end of file
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/records/ownership-map.md candidate/benchmark/run/round-4/uc3/candidate/records/ownership-map.md
+5,6c5,6
+< | `src/wordstats/counter.py` | `records/owners/core-utility.md` | component |
+< | `src/wordstats/cli.py` | `records/owners/core-utility.md` | component |
+---
+> | `src/wordstats/` | `records/owners/core-utility.md` | component |
+> | `tests/` | `records/owners/core-utility.md` | component |
+Only in candidate/benchmark/run/round-4/uc3/candidate/: setup-plan.md
+Only in candidate/benchmark/run/round-4/uc3/candidate/src/wordstats: as-is.md
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/src/wordstats/cli.py candidate/benchmark/run/round-4/uc3/candidate/src/wordstats/cli.py
+7a8,19
+> from wordstats.rarewords import filter_rare
+> 
+> 
+> def positive_int(value):
+>     """Argparse type for positive integers; invalid values exit 2."""
+>     try:
+>         number = int(value)
+>     except ValueError:
+>         raise argparse.ArgumentTypeError("--rare N must be a positive integer")
+>     if number < 1:
+>         raise argparse.ArgumentTypeError("--rare N must be a positive integer")
+>     return number
+14a27,32
+>     count.add_argument(
+>         "--rare",
+>         type=positive_int,
+>         metavar="N",
+>         help="keep only words with N or fewer occurrences",
+>     )
+18a37,38
+>     if args.rare is not None:
+>         counts = filter_rare(counts, args.rare)
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/cli.cpython-311.pyc and candidate/benchmark/run/round-4/uc3/candidate/src/wordstats/__pycache__/cli.cpython-311.pyc differ
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/counter.cpython-311.pyc and candidate/benchmark/run/round-4/uc3/candidate/src/wordstats/__pycache__/counter.cpython-311.pyc differ
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/__init__.cpython-311.pyc and candidate/benchmark/run/round-4/uc3/candidate/src/wordstats/__pycache__/__init__.cpython-311.pyc differ
+Only in candidate/benchmark/run/round-4/uc3/candidate/src/wordstats/__pycache__: rarewords.cpython-311.pyc
+Only in candidate/benchmark/run/round-4/uc3/candidate/src/wordstats: rarewords.py
+Only in candidate/benchmark/run/round-4/uc3/candidate/tests: __pycache__
+Only in candidate/benchmark/run/round-4/uc3/candidate/tests: test_cli.py
+Only in candidate/benchmark/run/round-4/uc3/candidate/tests: test_rarewords.py

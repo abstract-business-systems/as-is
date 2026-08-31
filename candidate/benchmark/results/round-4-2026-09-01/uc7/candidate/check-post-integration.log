@@ -1,0 +1,15 @@
+compile: OK
+test_counts_basic_words (test_counter.CountWordsTests.test_counts_basic_words) ... ok
+test_empty_input (test_counter.CountWordsTests.test_empty_input) ... ok
+test_ignores_punctuation_only_tokens (test_counter.CountWordsTests.test_ignores_punctuation_only_tokens) ... ok
+test_internal_hyphens_are_kept_and_counted_as_one_word (test_counter.CountWordsTests.test_internal_hyphens_are_kept_and_counted_as_one_word) ... ok
+test_strips_punctuation_and_lowercases (test_counter.CountWordsTests.test_strips_punctuation_and_lowercases) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.000s
+
+OK
+unit tests: OK
+cli smoke check: OK
+All checks passed.
+exit=0

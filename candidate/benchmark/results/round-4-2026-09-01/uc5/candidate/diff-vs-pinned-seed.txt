@@ -1,0 +1,10 @@
+Only in candidate/benchmark/run/round-4/uc5/candidate/: AGENTS.md
+Only in candidate/benchmark/run/round-4/uc5/candidate/: as-is.md
+Only in candidate/benchmark/run/round-4/uc5/candidate/: as-is-setup-plan.md
+Only in candidate/benchmark/run/round-4/uc5/candidate/records: backlog.md
+Only in candidate/benchmark/run/round-4/uc5/candidate/records/owners: unassigned.md
+Only in candidate/benchmark/run/round-4/uc5/candidate/src/wordstats: as-is.md
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/cli.cpython-311.pyc and candidate/benchmark/run/round-4/uc5/candidate/src/wordstats/__pycache__/cli.cpython-311.pyc differ
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/counter.cpython-311.pyc and candidate/benchmark/run/round-4/uc5/candidate/src/wordstats/__pycache__/counter.cpython-311.pyc differ
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/__init__.cpython-311.pyc and candidate/benchmark/run/round-4/uc5/candidate/src/wordstats/__pycache__/__init__.cpython-311.pyc differ
+Only in candidate/benchmark/run/round-4/uc5/candidate/tests: __pycache__

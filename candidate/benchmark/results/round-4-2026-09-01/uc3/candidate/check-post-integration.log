@@ -1,0 +1,24 @@
+compile: OK
+test_rare_boundary_keeps_count_equal_to_limit (test_cli.RareOptionTests.test_rare_boundary_keeps_count_equal_to_limit) ... ok
+test_rare_keeps_only_words_within_limit (test_cli.RareOptionTests.test_rare_keeps_only_words_within_limit) ... ok
+test_rejects_negative (test_cli.RareOptionTests.test_rejects_negative) ... ok
+test_rejects_non_integer (test_cli.RareOptionTests.test_rejects_non_integer) ... ok
+test_rejects_zero (test_cli.RareOptionTests.test_rejects_zero) ... ok
+test_without_rare_reports_all_words (test_cli.RareOptionTests.test_without_rare_reports_all_words) ... ok
+test_counts_basic_words (test_counter.CountWordsTests.test_counts_basic_words) ... ok
+test_empty_input (test_counter.CountWordsTests.test_empty_input) ... ok
+test_ignores_punctuation_only_tokens (test_counter.CountWordsTests.test_ignores_punctuation_only_tokens) ... ok
+test_strips_punctuation_and_lowercases (test_counter.CountWordsTests.test_strips_punctuation_and_lowercases) ... ok
+test_count_above_limit_is_excluded (test_rarewords.FilterRareTests.test_count_above_limit_is_excluded) ... ok
+test_count_equal_to_limit_is_kept (test_rarewords.FilterRareTests.test_count_equal_to_limit_is_kept) ... ok
+test_empty_input (test_rarewords.FilterRareTests.test_empty_input) ... ok
+test_limit_1 (test_rarewords.FilterRareTests.test_limit_1) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.008s
+
+OK
+unit tests: OK
+cli smoke check: OK
+All checks passed.
+exit=0

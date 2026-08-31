@@ -1,0 +1,18 @@
+Only in candidate/benchmark/run/round-4/uc4/candidate/: AGENTS.md
+Only in candidate/benchmark/run/round-4/uc4/candidate/: as-is.md
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/CHANGELOG.md candidate/benchmark/run/round-4/uc4/candidate/CHANGELOG.md
+2a3,7
+> ## 1.0.1 — validation documentation
+> 
+> - Added `docs/validation.md`, a new-reader guide to `checks/validate.sh` (compile check, unit tests, CLI smoke check) with a Mermaid sequence diagram of the validation flow.
+> - Added the adopted agent-workflow setup records: `AGENTS.md`, root `as-is.md`, and `src/wordstats/as-is.md`.
+> 
+Only in candidate/benchmark/run/round-4/uc4/candidate/docs: validation.md
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/README.md candidate/benchmark/run/round-4/uc4/candidate/README.md
+12a13
+> - `docs/validation.md` — a new-reader guide to the deterministic validation flow.
+Only in candidate/benchmark/run/round-4/uc4/candidate/src/wordstats: as-is.md
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/cli.cpython-311.pyc and candidate/benchmark/run/round-4/uc4/candidate/src/wordstats/__pycache__/cli.cpython-311.pyc differ
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/counter.cpython-311.pyc and candidate/benchmark/run/round-4/uc4/candidate/src/wordstats/__pycache__/counter.cpython-311.pyc differ
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/__init__.cpython-311.pyc and candidate/benchmark/run/round-4/uc4/candidate/src/wordstats/__pycache__/__init__.cpython-311.pyc differ
+Only in candidate/benchmark/run/round-4/uc4/candidate/tests: __pycache__

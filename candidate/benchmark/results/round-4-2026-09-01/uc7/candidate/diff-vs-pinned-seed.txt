@@ -1,0 +1,59 @@
+Only in candidate/benchmark/run/round-4/uc7/candidate/: AGENTS.md
+Only in candidate/benchmark/run/round-4/uc7/candidate/: as-is.md
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/CHANGELOG.md candidate/benchmark/run/round-4/uc7/candidate/CHANGELOG.md
+2a3,8
+> ## Unreleased
+> 
+> - Fixed the `## Usage` command in the README to the working CLI invocation (`python -m wordstats.cli count`, with `PYTHONPATH=src`); the documented `python -m wordstats` form never worked because the package has no `__main__` module.
+> - Added a unit test asserting tokens with internal hyphens (for example `well-known`) keep the hyphen and are counted as one word.
+> - Corrected the 1.0.0 entry: the `count` CLI emits alphabetically sorted JSON (`sort_keys=True`), not insertion-ordered JSON, as verified against `src/wordstats/cli.py`, `records/owners/core-utility.md`, and the smoke-check fixture.
+> 
+5,6c11,12
+< - Added `wordstats count` CLI reporting word frequencies as sorted JSON.
+< - Added `checks/validate.sh` deterministic validation (compile, unit tests, CLI smoke check).
+\ No newline at end of file
+---
+> - Added `wordstats count` CLI reporting word frequencies as alphabetically sorted JSON.
+> - Added `checks/validate.sh` deterministic validation (compile, unit tests, CLI smoke check).
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/docs/design-notes.md candidate/benchmark/run/round-4/uc7/candidate/docs/design-notes.md
+10c10,17
+< - Bounded change authorized: the initial `count` command only.
+\ No newline at end of file
+---
+> - Bounded change authorized: the initial `count` command only.
+> 
+> ## Existing note: documented usage command (README correction)
+> 
+> - Request: the README `## Usage` section showed `python -m wordstats sample-data/words.txt`, which fails because the package has no `__main__` module and omits the `count` subcommand.
+> - Decision: document the working invocation `PYTHONPATH=src python -m wordstats.cli count sample-data/words.txt`, matching the CLI smoke check in `checks/validate.sh`.
+> - Options considered: adding a `__main__.py` so `python -m wordstats` works (rejected: expands the CLI surface beyond the corrected-documentation scope); `pip install -e` setup (rejected: no packaging exists in this seed).
+> - Bounded change authorized: README `## Usage` correction only; no code behavior change.
+\ No newline at end of file
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/README.md candidate/benchmark/run/round-4/uc7/candidate/README.md
+14c14
+< ## Running the checks
+---
+> ## Usage
+17,22c17,18
+< bash checks/validate.sh
+< ```
+< 
+< ## Setup note
+< 
+< This project intentionally contains no agent-workflow configuration (no `.agents/`, no skill or agent links, no prompt files). Benchmark consumers must perform their own setup inside their consumer directory before implementing any feature; setup effort is a measured dimension (target-design line 665).
+---
+> PYTHONPATH=src python -m wordstats.cli count sample-data/words.txt
+> ```
+\ No newline at end of file
+Only in candidate/benchmark/run/round-4/uc7/candidate/records: as-is-setup-plan.md
+Only in candidate/benchmark/run/round-4/uc7/candidate/src/wordstats: as-is.md
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/cli.cpython-311.pyc and candidate/benchmark/run/round-4/uc7/candidate/src/wordstats/__pycache__/cli.cpython-311.pyc differ
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/counter.cpython-311.pyc and candidate/benchmark/run/round-4/uc7/candidate/src/wordstats/__pycache__/counter.cpython-311.pyc differ
+Binary files candidate/benchmark/seed/src/wordstats/__pycache__/__init__.cpython-311.pyc and candidate/benchmark/run/round-4/uc7/candidate/src/wordstats/__pycache__/__init__.cpython-311.pyc differ
+Only in candidate/benchmark/run/round-4/uc7/candidate/tests: __pycache__
+diff -r -x .git -x .pi -x .as-is candidate/benchmark/seed/tests/test_counter.py candidate/benchmark/run/round-4/uc7/candidate/tests/test_counter.py
+14a15,18
+>     def test_internal_hyphens_are_kept_and_counted_as_one_word(self):
+>         self.assertEqual(count_words("well-known well-known"), {"well-known": 2})
+>         self.assertEqual(count_words("a well-known idea"), {"a": 1, "well-known": 1, "idea": 1})
+> 

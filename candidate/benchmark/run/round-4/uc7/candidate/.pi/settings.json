@@ -1,0 +1,3 @@
+{
+  "extensions": ["./extensions/worker-tools.ts"]
+}
