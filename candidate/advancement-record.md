@@ -1,6 +1,6 @@
 # Candidate Advancement Record (composable-skills composition)
 
-Status: DRAFT — advancement takes effect only on human sign-off (standing rule: advancement is human-only).
+Status: ACCEPTED — advanced on human sign-off (standing rule: advancement is human-only).
 Scope: declaration-only. No file relocation, no migration, no live-workflow change happens at advancement. Migration mechanics belong to the separately planned adoption flow.
 
 ## 1. What is advanced
@@ -45,4 +45,4 @@ Advance the candidate composition to ACCEPTED-TARGET status: the candidate compo
 
 ## 6. Sign-off
 
-- [ ] Human sign-off recorded (name/date/comment): ______________
+- [x] Human sign-off recorded (name/date/comment): Viswanath Chidambaram, 2026-09-01, session confirmation "Advancement signed off". Advancement effective as a declaration only: no files relocated, master remains at 9a77e37, adoption is a separate authorized flow (sequencing recorded in candidate/adoption-sequence.md).
