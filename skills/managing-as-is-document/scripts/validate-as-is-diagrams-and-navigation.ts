@@ -19,6 +19,8 @@ export type AsIsDiagramValidationOptions = {
   transitionalSectionTitles?: readonly string[];
   /** Transitional-only: allow design links resolving to existing canonical records outside the validated set (excluded transitional namespaces). */
   transitionalExternalRecords?: boolean;
+  /** Transitional-only: tolerate multi-child containers whose remaining transitional children have no live sibling edges (removed at F9). */
+  transitionalEdgelessSiblings?: boolean;
 };
 
 export type AsIsValidationIssue = {
@@ -403,7 +405,7 @@ export function validateAsIsDiagramsAndNavigation(repositoryRoot: string, option
           if (!edge.label?.trim()) addIssue(issues, root, record.path, "sibling-arrow", "structural sibling relationship arrows must have explicit labels");
           if (edge.label && /contains/i.test(edge.label)) addIssue(issues, root, record.path, "sibling-arrow", "containment must be represented by nesting, not a `contains` relationship arrow");
         }
-        if (componentTargets.length > 1 && structural.edges.length === 0) addIssue(issues, root, record.path, "sibling-arrow", "a multi-child structural container must show explicit sibling relationship arrows");
+        if (componentTargets.length > 1 && structural.edges.length === 0 && !options.transitionalEdgelessSiblings) addIssue(issues, root, record.path, "sibling-arrow", "a multi-child structural container must show explicit sibling relationship arrows");
       }
     } else if (record.components !== undefined) {
       addIssue(issues, root, record.path, "components-fallback", "a parent record must declare immediate children in a valid Components table");

@@ -4,8 +4,6 @@
     "./extensions/mermaid-tools.ts"
   ],
   "skills": [
-    "../skills/maintaining-components",
-    "../skills/managing-backlog",
     "../skills/spawning-pi-subagents",
     "../skills/master/building-components",
     "../skills/master/committing-completed-work",
@@ -35,6 +33,8 @@
     "../skills/reusable/writing-tests",
     "../skills/reusable/running-tests",
     "../skills/reusable/choosing-change-methods",
-    "../skills/reusable/resolving-scopes"
+    "../skills/reusable/resolving-scopes",
+    "../skills/reusable/assessing-determinism",
+    "../skills/reusable/recording-backlog-items"
   ]
 }
