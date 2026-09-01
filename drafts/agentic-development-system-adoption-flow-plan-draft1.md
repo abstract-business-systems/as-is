@@ -18,17 +18,17 @@ Plan the adoption of the advanced candidate composition (ACCEPTED-TARGET, `candi
 
 Adoption covers the consuming project's workflow surface only: `skills/`, `agents/`, `.pi/settings.json` skill mounting, `AGENTS.md` and root `as-is.md`/`backlog.md` references, and validation fixtures that reference them. It does not move `candidate/benchmark/` evidence, does not modify `core/`, and does not touch `temp/`.
 
-## 4. Open design decisions (require human or adviser adjudication before freeze)
+## 4. Open design decisions (adjudicated by the user 2026-09-01)
 
-- **D1 — record form for adopted skills.** Baseline skills carry a per-skill `as-is.md` record plus a parent catalog (`skills/as-is.md`). Candidate skills carry only the four-part `SKILL.md` brief (Purpose / Approach / How it should be done / Composition context), which the post-drop design intends as the durable record. Options: (a) treat `SKILL.md` as the adopted record and update `skills/as-is.md` catalog to point at SKILL.md files (smallest, matches design intent); (b) generate per-skill `as-is.md` stubs (convention-consistent, duplicates content). Plan leans (a).
-- **D2 — live agent roster.** Three sets exist: baseline `agents/` (8, live), transient benchmark set `candidate/agents/` (implementer, worker, planning-adviser, external-adviser — note in candidate/agents/target/config.json marks these as construction artifacts, not the live roster), and the designed target roster `candidate/agents/target/` (as-is-orchestrator, component-builder, evidence-validator, execution-advisor, expert, design-prototyper). The adoption plan must pick the live roster. Plan leans: target roster becomes live; transient benchmark agents retire with the benchmark phase; baseline-only agents (`thinking-companion`, `agent-capability-probe`) retire by recorded disposition. Model aliases are replaceable implementation choices per target design.
-- **D3 — TS composition layer.** `candidate/skills/compositions/*.ts`, `registry.ts`, `runner.ts`, and `candidate/tests/skills/` are benchmark-construction artifacts. Decide whether they migrate to live positions (as catalog build tooling), stay under `candidate/`, or retire after adoption. Plan leans: migrate as build tooling only if a consumer exists at cutover; otherwise retire with results preserved.
+- **D1 — record form for adopted skills. DECIDED: per-skill `as-is.md` records are required.** Every adopted candidate skill gets its own `as-is.md` record (derived from its four-part `SKILL.md` brief, which remains the operational contract), consistent with the baseline convention and the repository design-state model. The parent `skills/as-is.md` catalog is rewritten to point at the adopted set. This authoring work is part of F0 (or the family that lands the skill) and is delegable bounded work.
+- **D2 — live agent roster. DECIDED: designed target roster goes live, with two baseline carryovers.** Live roster = `as-is-orchestrator`, `component-builder`, `evidence-validator`, `execution-advisor`, `expert`, `design-prototyper` (from `candidate/agents/target/`) **plus `thinking-companion`** (its purpose is helping with prototypes — carried into the adopted set) **plus `agent-capability-probe`** (its purpose is helping with debugging agents — carried into the adopted set). Backlog items in the agents component revisit the roles of `thinking-companion` and `agent-capability-probe` after adoption lands. Transient benchmark agents (implementer, worker, planning-adviser, external-adviser) retire with the benchmark phase; model aliases remain replaceable implementation choices.
+- **D3 — TS composition layer. DECIDED: retire if not used by the flows.** At F9, if no flow consumes `candidate/skills/compositions/*.ts`, `registry.ts`, `runner.ts`, or `candidate/tests/skills/`, they retire (results preserved under `candidate/benchmark/results/` per the cleanup precedent). If a live consumer emerges during F0–F8, migration as build tooling is re-proposed before retirement.
 
 ## 5. Family sequence (each step = one atomic commit on the branch)
 
 Order rationale: infrastructure first; knowledge and review families before the launcher-critical delegation family; delegation family validated with a live probe; cutover last. The candidate counterpart is introduced in its live position and the baseline counterpart retired in the same commit, with all proven-reference updates (`AGENTS.md`, `skills/as-is.md`, `.pi/settings.json`, core-contract references where they name skills, validation fixtures) atomically included.
 
-1. **F0 — foundations**: live positions for the adopted catalog (`skills/reusable/`, `skills/master/` per D1), `.pi/settings.json` re-mounted to candidate session skills, catalog digest pinned. No baseline retirement yet (side-by-side).
+1. **F0 — foundations**: live positions for the adopted catalog (`skills/reusable/`, `skills/master/`), per-skill `as-is.md` records authored for the adopted set (D1; delegable bounded work), `.pi/settings.json` re-mounted to candidate session skills, catalog digest pinned. No baseline retirement yet (side-by-side).
 2. **F1 — setup/adoption family**: `as-is-setup` + function-absorbed `integrate-as-is-documentation` → candidate setup flow + `managing-as-is-records` (disposition: absorbed; recorded rationale, no skill ported).
 3. **F2 — knowledge family**: `context-building`→`building-context`; `structuring-content` direct; `naming-software-concepts` direct; content/evidence drafting (`drafting-content`, `recording-evidence`, changelog trio `locating-changelogs`/`drafting-changelog-entries`/`managing-changelogs`).
 4. **F3 — review/consulting family**: `human-centered-consulting`→`consulting-humans` + `presenting-decisions` + `identifying-owners`.
@@ -36,8 +36,8 @@ Order rationale: infrastructure first; knowledge and review families before the 
 6. **F5 — records/backlog family**: `managing-as-is-document`→`managing-as-is-records`; `managing-backlog`→`managing-backlogs` + `recording-backlog-items` + `identifying-owners` + `resolving-scopes`; `deterministic-skills`→`assessing-determinism`; `maintaining-components` direct; `designing-mermaid-diagrams` direct.
 7. **F6 — delegation family (highest risk)**: `spawning-pi-subagents`→`spawning-subagents` + `delegating-bounded-work` + `observing-delegated-work`. Gate: live launcher smoke test through the adopted agent roster (the round-1 launch-probe race lesson applies; verify `tools:` declarations non-empty per standing policy).
 8. **F7 — evidence family**: `exploring-execution-evidence`→`inspecting-execution-evidence` + `recording-evidence` (master counterpart also lands).
-9. **F8 — agents**: live roster installed per D2; baseline agent directories retired in the same commit; agent `as-is.md`/`backlog.md` records reconciled.
-10. **F9 — cutover**: retire remaining baseline scaffolding, final `skills/as-is.md` catalog rewrite to the adopted set, root `AGENTS.md`/backlog reference sweep, fidelity checks green at live paths; this is the pre-merge validated state.
+9. **F8 — agents**: live roster installed per D2 (target roster + `thinking-companion` + `agent-capability-probe`); transient benchmark agents and any uncarried baseline agent directories retired in the same commit; agent `as-is.md`/`backlog.md` records reconciled; the two agents-component backlog items revisiting `thinking-companion` and `agent-capability-probe` roles are created in this commit.
+10. **F9 — cutover**: retire remaining baseline scaffolding, final `skills/as-is.md` catalog rewrite to the adopted set, D3 retirement check and execution (TS layer retires if no flow consumer; results preserved), root `AGENTS.md`/backlog reference sweep, fidelity checks green at live paths; this is the pre-merge validated state.
 
 ## 6. Validation gates
 
@@ -48,8 +48,8 @@ Order rationale: infrastructure first; knowledge and review families before the 
 
 ## 7. Human gates
 
-1. Plan approval (this draft, after review/freeze) — authorizes design promotion (update `skills/as-is.md` and affected records as approved design) and derives the per-family backlog items.
-2. D1/D2/D3 adjudication — may ride the plan approval.
+1. Plan approval (this draft, after review/freeze) — authorizes design promotion (per-skill `as-is.md` records per D1, update `skills/as-is.md` and affected records as approved design) and derives the per-family backlog items.
+2. D1/D2/D3 — adjudicated 2026-09-01 (section 4); no further adjudication needed.
 3. Family execution — batched selection acceptable once F0–F2 land clean; F6 and F9 individually confirmed.
 4. Merge to master — human-authorized per `adoption-sequence.md`.
 
