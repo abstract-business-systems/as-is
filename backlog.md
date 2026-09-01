@@ -88,7 +88,7 @@ state only.
 
 - [x] F0 foundations: catalog at `skills/reusable/` + `skills/master/`, 35 per-skill `as-is.md` records authored via five worker children (all exit 0), `.pi/settings.json` remounted side-by-side (baseline 9 + candidate 16), digest `9f8dbdcb…` verified unchanged. (2026-09-01)
 - [x] F1 setup/adoption family swap: retired `skills/as-is-setup` + `skills/integrate-as-is-documentation` (absorbed disposition), catalog/setup entries rewired to adopted `master/managing-as-is-records`; pre-family core/ reconciliation (63ba578) and family commit (aa5edda); gates green; A13 fix-as-you-go + final pre-merge benchmark decisions recorded. (2026-09-01)
-- [ ] F2 knowledge family swap.
+- [x] F2 knowledge family swap: retired `context-building`/`naming-software-concepts`/`structuring-content` (adopted `building-context`/`choosing-names`/`structuring-content` live; first same-name swap clean), mounted `drafting-content`/`recording-evidence`/`locating-changelogs`/`drafting-changelog-entries`; gates green (79bc0c8). (2026-09-01)
 - [ ] F3 review/consulting family swap.
 - [ ] F4 change-execution family swap.
 - [ ] F5 records/backlog family swap.
@@ -97,7 +97,7 @@ state only.
 - [ ] F8 agents family: target roster + `thinking-companion` + `agent-capability-probe` live; two agents-component revisit backlog items created (individually confirmed).
 - [ ] F9 cutover: remaining retirement, D3 TS-layer retirement check, reference sweep, pre-merge validation (individually confirmed).
 
-Execution state: F0 landed (baffb95) and reconciled with D1 (b51f438: link offsets, adopted names, transitional parent catalog); F1 landed (aa5edda) with the human-authorized A12 core/ reconciliation (63ba578) and A13 fix-as-you-go + final pre-merge benchmark policy; F2-F5 cleared to proceed (adviser PROCEED, `reviews/agentic-development-system/adoption-flow-plan-draft1-adviser-rereview.md`). F2 next.
+Execution state: F0 landed (baffb95) and reconciled with D1 (b51f438); F1 landed (63ba578 + aa5edda) with A12/A13; F2 landed (79bc0c8); F3-F5 cleared to proceed (adviser PROCEED, `reviews/agentic-development-system/adoption-flow-plan-draft1-adviser-rereview.md`). F3 next.
 
 Acceptance: each family commit passes its plan gate (reference sweep clean,
 consumers pass, digest verified); pre-merge state passes fidelity checks at
