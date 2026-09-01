@@ -9,6 +9,22 @@
     "../skills/naming-software-concepts",
     "../skills/spawning-pi-subagents",
     "../skills/structuring-content",
-    "../skills/verification-discipline"
+    "../skills/verification-discipline",
+    "../skills/master/building-components",
+    "../skills/master/committing-completed-work",
+    "../skills/master/consulting-humans",
+    "../skills/master/designing-mermaid-diagrams",
+    "../skills/master/exploring-execution-evidence",
+    "../skills/master/implementing-tasks",
+    "../skills/master/maintaining-components",
+    "../skills/master/making-changes",
+    "../skills/master/managing-as-is-records",
+    "../skills/master/managing-backlogs",
+    "../skills/master/managing-changelogs",
+    "../skills/master/spawning-subagents",
+    "../skills/reusable/building-context",
+    "../skills/reusable/choosing-names",
+    "../skills/reusable/structuring-content",
+    "../skills/reusable/validating-changes"
   ]
 }

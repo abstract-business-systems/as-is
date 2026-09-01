@@ -84,7 +84,7 @@ single `--no-ff` merge into master as the human-authorized cutover. Family
 order and per-step gates are owned by the plan; this index tracks execution
 state only.
 
-- [ ] F0 foundations: catalog at `skills/reusable/` + `skills/master/`, per-skill `as-is.md` records (D1, delegable), `.pi/settings.json` remount, digest pinned; no baseline retirement.
+- [x] F0 foundations: catalog at `skills/reusable/` + `skills/master/`, 35 per-skill `as-is.md` records authored via five worker children (all exit 0), `.pi/settings.json` remounted side-by-side (baseline 9 + candidate 16), digest `9f8dbdcb…` verified unchanged. (2026-09-01)
 - [ ] F1 setup/adoption family swap.
 - [ ] F2 knowledge family swap.
 - [ ] F3 review/consulting family swap.
