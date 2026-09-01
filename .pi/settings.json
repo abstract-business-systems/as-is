@@ -1,14 +1,14 @@
 {
-  "extensions": ["./extensions/worker-tools.ts", "./extensions/mermaid-tools.ts"],
+  "extensions": [
+    "./extensions/worker-tools.ts",
+    "./extensions/mermaid-tools.ts"
+  ],
   "skills": [
     "../skills/committing-completed-work",
-    "../skills/context-building",
     "../skills/implementing-component-tasks",
     "../skills/maintaining-components",
     "../skills/managing-backlog",
-    "../skills/naming-software-concepts",
     "../skills/spawning-pi-subagents",
-    "../skills/structuring-content",
     "../skills/verification-discipline",
     "../skills/master/building-components",
     "../skills/master/committing-completed-work",
@@ -25,6 +25,10 @@
     "../skills/reusable/building-context",
     "../skills/reusable/choosing-names",
     "../skills/reusable/structuring-content",
-    "../skills/reusable/validating-changes"
+    "../skills/reusable/validating-changes",
+    "../skills/reusable/drafting-content",
+    "../skills/reusable/recording-evidence",
+    "../skills/reusable/locating-changelogs",
+    "../skills/reusable/drafting-changelog-entries"
   ]
 }

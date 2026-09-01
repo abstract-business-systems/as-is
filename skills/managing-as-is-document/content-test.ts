@@ -167,15 +167,15 @@ const repositoryRoot = dirname(dirname(dirname(new URL(import.meta.url).pathname
 const taskProtocol = readFileSync(join(repositoryRoot, "core", "contracts", "component-task-record-protocol.md"), "utf8");
 const configurationGuide = readFileSync(join(repositoryRoot, "core", "contracts", "configuration.md"), "utf8");
 const executionContract = readFileSync(join(repositoryRoot, "core", "contracts", "execution-contract.md"), "utf8");
-const structuringSkill = readFileSync(join(repositoryRoot, "skills", "structuring-content", "SKILL.md"), "utf8");
-const namingSkill = readFileSync(join(repositoryRoot, "skills", "naming-software-concepts", "SKILL.md"), "utf8");
+const structuringSkill = readFileSync(join(repositoryRoot, "skills", "reusable", "structuring-content", "SKILL.md"), "utf8");
+const namingSkill = readFileSync(join(repositoryRoot, "skills", "reusable", "choosing-names", "SKILL.md"), "utf8");
 const historicalRecord = readFileSync(join(repositoryRoot, "agents", "as-is", "as-is-record-structure.md"), "utf8");
 for (const [name, text, phrases] of [
   ["task protocol", taskProtocol, ["## Authority Boundary", "This protocol owns task metadata", "does not define component architecture", "does not define component architecture, durable component-record structure"]],
   ["configuration guide", configurationGuide, ["Each consumer owns the keys it reads", "generic resolver owns JSON parsing", "core/modules/task-control/task-record-policy.ts", "core/modules/observability/tracer.ts"]],
   ["execution contract", executionContract, ["core/contracts/execution-contract.md", "no standalone executable runtime contract module exists yet", "concrete consumer need"]],
-  ["structuring skill", structuringSkill, ["Decide the parent concept,", "authoritative entry point before choosing", "For a new meaningful group, default its authoritative entry point", "Choose that subject name after the containing structure and entry point"]],
-  ["naming skill", namingSkill, ["Apply naming after the containing structure, grouping, authority, lifecycle, and", "entry point have been settled"]],
+  ["structuring skill", structuringSkill, ["Shape content around reader goals, ownership, discoverability, and lifecycle while preserving existing structural conventions", "choose the smallest meaningful location and representation", "keep authority with the owning record"]],
+  ["naming skill", namingSkill, ["Inspect the concept's parent, siblings, and naming guidance, then choose the narrowest accurate name and record material departures", "update proven references atomically when renaming"]],
   ["historical as-is record", historicalRecord, ["historical companion", "current operational authority", "separate `## Boundary` heading is not mandatory"]],
 ] as const) {
   for (const phrase of phrases) if (!text.includes(phrase)) throw new Error(`${name} is missing reconciliation test phrase: ${phrase}`);

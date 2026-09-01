@@ -7,7 +7,7 @@ thinking: high
 tools: read,grep,find,ls,search_traces,get_trace,summarize_trace,compare_traces,analyze_session,resolve_component_context
 skills:
   - skills/exploring-execution-evidence
-  - skills/context-building
+  - skills/reusable/building-context
 permission:
   task: deny
   webfetch: deny

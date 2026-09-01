@@ -30,7 +30,7 @@ narrative. The authorized builder owns the operational relationship with descend
 This procedure supplies reusable build steps and evidence requirements to an already-authorized role or orchestrator. It does not select a role, grant access, authorize a task transition, launch or delegate work, integrate a child, or decide semantic completion. The caller supplies the component boundary, task authority, configured worker, effective constraints, and any required approvals; the caller or task manager performs those authority-bearing actions.
 
 1. Read `as-is.md`, the current task, and named dependencies. Apply
-   `context-building` to assemble the smallest decision-ready context set:
+   `building-context` to assemble the smallest decision-ready context set:
    state the bounded objective and scope, identify authoritative sources and
    constraints, preserve provenance, separate facts from assumptions and
    unknowns, and escalate conflicts or missing authority. The resulting
@@ -142,7 +142,7 @@ proves caller ancestry.
 
 ## Named Contracts
 
-- `../context-building/SKILL.md` — bounded context composition and escalation.
+- `../reusable/building-context/SKILL.md` — bounded context composition and escalation.
 - `implementing-component-tasks/SKILL.md` — task lifecycle and boundaries.
 - `committing-completed-work/SKILL.md` — completion eligibility and scoped
   commit procedure.
