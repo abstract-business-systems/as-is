@@ -22,7 +22,6 @@ operational contract.
 | [Verification discipline](verification-discipline/as-is.md#design) | Select acceptance evidence by risk. |
 | [Building components](building-components/as-is.md#design) | Build bounded components and produce durable handoffs. |
 | [Committing completed work](committing-completed-work/as-is.md#design) | Create scoped commits for validated completed work. |
-| [Human-centered consulting](human-centered-consulting/as-is.md#design) | Guide concise, agency-preserving consultation. |
 
 ## Design
 
@@ -79,7 +78,6 @@ flowchart LR
         Verification["<a href='./verification-discipline/as-is.md#design'>Verification discipline</a>"]
         Building["<a href='./building-components/as-is.md#design'>Building components</a>"]
         Committing["<a href='./committing-completed-work/as-is.md#design'>Committing completed<br/>work</a>"]
-        Consulting["<a href='./human-centered-consulting/as-is.md#design'>Human-centered<br/>consulting</a>"]
 
         ManagingAsIs -->|uses generic mechanics<br/>from| MermaidDesign
         ImplementingTasks -->|validated by| Verification
@@ -91,7 +89,7 @@ flowchart LR
     classDef component fill:#f8fafc,fill-opacity:0.1,stroke:#334155,stroke-width:2px
     classDef child fill:#2563eb,fill-opacity:0.1,stroke:#64748b,stroke-width:1px
     class Skills component
-    class ManagingAsIs,ExecutionEvidence,MermaidDesign,ImplementingTasks,MaintainingComponents,DeterministicSkills,ManagingBacklog,SpawningSubagents,Verification,Building,Committing,Consulting child
+    class ManagingAsIs,ExecutionEvidence,MermaidDesign,ImplementingTasks,MaintainingComponents,DeterministicSkills,ManagingBacklog,SpawningSubagents,Verification,Building,Committing child
 ```
 
 If the host Markdown renderer suppresses Mermaid navigation, use the component

@@ -29,6 +29,8 @@
     "../skills/reusable/drafting-content",
     "../skills/reusable/recording-evidence",
     "../skills/reusable/locating-changelogs",
-    "../skills/reusable/drafting-changelog-entries"
+    "../skills/reusable/drafting-changelog-entries",
+    "../skills/reusable/presenting-decisions",
+    "../skills/reusable/identifying-owners"
   ]
 }

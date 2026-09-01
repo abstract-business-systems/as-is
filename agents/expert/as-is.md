@@ -29,4 +29,4 @@ The role is independently selectable and is used for deeper consultation when un
 ## Links
 
 - [`agent.md`](agent.md) — canonical role contract and read-only capability boundary.
-- [`../../skills/human-centered-consulting/SKILL.md`](../../skills/human-centered-consulting/SKILL.md) — consultation procedure.
+- [`../../skills/master/consulting-humans/SKILL.md`](../../skills/master/consulting-humans/SKILL.md) — consultation procedure.

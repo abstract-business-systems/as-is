@@ -29,4 +29,4 @@ The role is a human-facing consultation boundary. It complements the as-is route
 ## Links
 
 - [`agent.md`](agent.md) — canonical role contract.
-- [`../../skills/human-centered-consulting/SKILL.md`](../../skills/human-centered-consulting/SKILL.md) — consultation procedure.
+- [`../../skills/master/consulting-humans/SKILL.md`](../../skills/master/consulting-humans/SKILL.md) — consultation procedure.
