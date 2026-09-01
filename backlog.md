@@ -95,7 +95,7 @@ state only.
 - [ ] F8 agents family: target roster + `thinking-companion` + `agent-capability-probe` live; two agents-component revisit backlog items created (individually confirmed).
 - [ ] F9 cutover: remaining retirement, D3 TS-layer retirement check, reference sweep, pre-merge validation (individually confirmed).
 
-Execution state: F0 landed (eac3c9b) and reconciled with D1 (fddb0d8: link offsets, adopted names, transitional parent catalog); F1-F5 remain paused pending confirmation after the second adviser pass (all 11 findings incorporated; 4 residual wording gaps fixed same-turn: core/ contradiction removed, F6 roster wording corrected to still-live role + F8 full-roster smoke, runtime owner explicitly declared, pre-merge exact commands recorded). A confirmation re-review runs before F1 proceeds.
+Execution state: F0 landed (eac3c9b) and reconciled with D1 (fddb0d8: link offsets, adopted names, transitional parent catalog); F1-F5 cleared to proceed: adviser confirmation pass returned PROCEED (all four residuals resolved, no new contradictions; `reviews/agentic-development-system/adoption-flow-plan-draft1-adviser-rereview.md`). F1 resumes next.
 
 Acceptance: each family commit passes its plan gate (reference sweep clean,
 consumers pass, digest verified); pre-merge state passes fidelity checks at
