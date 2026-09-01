@@ -39,4 +39,4 @@ flowchart TD
 - [`../../core/modules/observability/as-is.md`](../../core/modules/observability/as-is.md) — trace ownership and boundaries.
 - [`../../core/modules/observability/tracing-design.md`](../../core/modules/observability/tracing-design.md) — session-reference-first and privacy policy.
 - [`../reusable/building-context/SKILL.md`](../reusable/building-context/SKILL.md) — bounded context and provenance procedure.
-- [`../verification-discipline/SKILL.md`](../verification-discipline/SKILL.md) — evidence and residual-risk guidance.
+- [`../reusable/validating-changes/SKILL.md`](../reusable/validating-changes/SKILL.md) — evidence and residual-risk guidance.

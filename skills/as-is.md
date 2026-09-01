@@ -14,14 +14,10 @@ operational contract.
 | [Managing as-is documents](managing-as-is-document/as-is.md#design) | Create and maintain durable component records. |
 | [Execution evidence](exploring-execution-evidence/as-is.md#design) | Investigate traces and readable sessions. |
 | [Designing Mermaid diagrams](designing-mermaid-diagrams/as-is.md#design) | Design bounded Mermaid diagrams for complete component context. |
-| [Implementing tasks](implementing-component-tasks/as-is.md#design) | Run bounded component-task lifecycle. |
 | [Maintaining components](maintaining-components/as-is.md#design) | Perform evidence-based component housekeeping. |
 | [Deterministic skills](deterministic-skills/as-is.md#design) | Identify evidence-supported deterministic improvements while preserving intentional generative work. |
 | [Managing backlog](managing-backlog/as-is.md#design) | Prioritize bounded work proposals. |
 | [Spawning subagents](spawning-pi-subagents/as-is.md#design) | Launch and observe bounded Pi subprocesses. |
-| [Verification discipline](verification-discipline/as-is.md#design) | Select acceptance evidence by risk. |
-| [Building components](building-components/as-is.md#design) | Build bounded components and produce durable handoffs. |
-| [Committing completed work](committing-completed-work/as-is.md#design) | Create scoped commits for validated completed work. |
 
 ## Design
 
@@ -70,26 +66,18 @@ flowchart LR
         ManagingAsIs["<a href='./managing-as-is-document/as-is.md#design'>Managing as-is documents</a>"]
         ExecutionEvidence["<a href='./exploring-execution-evidence/as-is.md#design'>Execution evidence</a>"]
         MermaidDesign["<a href='./designing-mermaid-diagrams/as-is.md#design'>Designing Mermaid<br/>diagrams</a>"]
-        ImplementingTasks["<a href='./implementing-component-tasks/as-is.md#design'>Implementing tasks</a>"]
-        MaintainingComponents["<a href='./maintaining-components/as-is.md#design'>Maintaining components</a>"]
         DeterministicSkills["<a href='./deterministic-skills/as-is.md#design'>Deterministic skills</a>"]
+        MaintainingComponents["<a href='./maintaining-components/as-is.md#design'>Maintaining components</a>"]
         ManagingBacklog["<a href='./managing-backlog/as-is.md#design'>Managing backlog</a>"]
         SpawningSubagents["<a href='./spawning-pi-subagents/as-is.md#design'>Spawning subagents</a>"]
-        Verification["<a href='./verification-discipline/as-is.md#design'>Verification discipline</a>"]
-        Building["<a href='./building-components/as-is.md#design'>Building components</a>"]
-        Committing["<a href='./committing-completed-work/as-is.md#design'>Committing completed<br/>work</a>"]
 
         ManagingAsIs -->|uses generic mechanics<br/>from| MermaidDesign
-        ImplementingTasks -->|validated by| Verification
-        SpawningSubagents -->|uses| Verification
-        Building -->|uses| Verification
-        Building -->|hands completed work to| Committing
 
     end
     classDef component fill:#f8fafc,fill-opacity:0.1,stroke:#334155,stroke-width:2px
     classDef child fill:#2563eb,fill-opacity:0.1,stroke:#64748b,stroke-width:1px
     class Skills component
-    class ManagingAsIs,ExecutionEvidence,MermaidDesign,ImplementingTasks,MaintainingComponents,DeterministicSkills,ManagingBacklog,SpawningSubagents,Verification,Building,Committing child
+    class ManagingAsIs,ExecutionEvidence,MermaidDesign,MaintainingComponents,DeterministicSkills,ManagingBacklog,SpawningSubagents child
 ```
 
 If the host Markdown renderer suppresses Mermaid navigation, use the component

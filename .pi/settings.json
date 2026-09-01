@@ -4,12 +4,9 @@
     "./extensions/mermaid-tools.ts"
   ],
   "skills": [
-    "../skills/committing-completed-work",
-    "../skills/implementing-component-tasks",
     "../skills/maintaining-components",
     "../skills/managing-backlog",
     "../skills/spawning-pi-subagents",
-    "../skills/verification-discipline",
     "../skills/master/building-components",
     "../skills/master/committing-completed-work",
     "../skills/master/consulting-humans",
@@ -31,6 +28,13 @@
     "../skills/reusable/locating-changelogs",
     "../skills/reusable/drafting-changelog-entries",
     "../skills/reusable/presenting-decisions",
-    "../skills/reusable/identifying-owners"
+    "../skills/reusable/identifying-owners",
+    "../skills/reusable/applying-bounded-edits",
+    "../skills/reusable/preparing-scoped-commits",
+    "../skills/reusable/writing-code",
+    "../skills/reusable/writing-tests",
+    "../skills/reusable/running-tests",
+    "../skills/reusable/choosing-change-methods",
+    "../skills/reusable/resolving-scopes"
   ]
 }

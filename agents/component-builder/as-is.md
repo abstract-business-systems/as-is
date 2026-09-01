@@ -68,9 +68,9 @@ flowchart TB
 
 - [`agent.md`](agent.md) — canonical role authority, tools, and required flow.
 - [`../../skills/reusable/building-context/SKILL.md`](../../skills/reusable/building-context/SKILL.md) — bounded context composition applied through the build procedure.
-- [`../../.agents/skills/building-components/SKILL.md`](../../.agents/skills/building-components/SKILL.md) — component build procedure.
-- [`../../skills/implementing-component-tasks/SKILL.md`](../../skills/implementing-component-tasks/SKILL.md) — task lifecycle and child boundaries.
-- [`../../skills/verification-discipline/SKILL.md`](../../skills/verification-discipline/SKILL.md) — validation and evidence selection.
-- [`../../skills/committing-completed-work/SKILL.md`](../../skills/committing-completed-work/SKILL.md) — scoped completion commit.
+- [`../../skills/master/building-components/SKILL.md`](../../skills/master/building-components/SKILL.md) — component build procedure.
+- [`../../skills/master/implementing-tasks/SKILL.md`](../../skills/master/implementing-tasks/SKILL.md) — task lifecycle and child boundaries.
+- [`../../skills/reusable/validating-changes/SKILL.md`](../../skills/reusable/validating-changes/SKILL.md) — validation and evidence selection.
+- [`../../skills/master/committing-completed-work/SKILL.md`](../../skills/master/committing-completed-work/SKILL.md) — scoped completion commit.
 - [`../../skills/spawning-pi-subagents/SKILL.md`](../../skills/spawning-pi-subagents/SKILL.md) — bounded child launch and ancestry evidence.
 - [`../../core/contracts/component-task-record-protocol.md`](../../core/contracts/component-task-record-protocol.md) — task metadata, narrative, budget, recovery, and completion authority.

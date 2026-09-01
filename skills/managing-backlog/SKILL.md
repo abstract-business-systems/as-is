@@ -193,7 +193,7 @@ delay the requested order when dependencies or boundaries require it.
 | Scope | Description, notes, and acceptance are bounded to the owning component |
 | Hierarchy | A backlog may propose work within its own component boundary, but a descendant backlog cannot authorize changes to an ancestor, sibling, or shared boundary |
 | Dependencies | Required inputs are named as `component:id`; uncertain mappings remain in notes |
-| Selection | Invoke `implementing-component-tasks` with the selected item |
+| Selection | Invoke `implementing-tasks` with the selected item |
 
 ## Completion Reconciliation
 
