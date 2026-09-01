@@ -1,6 +1,6 @@
 # Adoption Flow Plan — Draft 1 (composable-skills composition)
 
-Status: APPROVED with amendments (2026-09-01). Human plan approval 2026-09-01; adviser review (HOLD verdict, `reviews/agentic-development-system/adoption-flow-plan-draft1-adviser-review.md`) produced findings 1-11; all incorporated below as amendments, marked [A1]-[A11]. The reviewed F0 state was reconciled before F1 (commit da3c604). Planning context only; each family swap remains governed by `candidate/adoption-sequence.md` and the merge stays human-authorized.
+Status: APPROVED with amendments (2026-09-01). Human plan approval 2026-09-01; adviser review (HOLD verdict, `reviews/agentic-development-system/adoption-flow-plan-draft1-adviser-review.md`) produced findings 1-11; all incorporated below as amendments, marked [A1]-[A11]. The reviewed F0 state was reconciled before F1 (commit b51f438). Planning context only; each family swap remains governed by `candidate/adoption-sequence.md` and the merge stays human-authorized.
 
 ## 1. Purpose
 

@@ -10,7 +10,7 @@ Does the round-4/5 composition-level parity finding generalize to a mid-tier mod
 ## 2. Arms and model (changed)
 
 - `baseline`: live workflow from `master @ 9a77e37` (unchanged).
-- `candidate`: the live post-drop catalog is now the variant itself (design views dropped, commit 1935f05); digest `9f8dbdcb1096edb03b8aea3c1811a0de3b0038467616c273516b70af1f5ec267` verified at setup by the registered recipe (`cat candidate/skills/{reusable,master}/*/SKILL.md | sha256sum`). No strip transform runs in round 6; the round-4 registered strip regex is retired (it carried a broken lookahead that is only safe on last-section files).
+- `candidate`: the live post-drop catalog is now the variant itself (design views dropped, commit ca26110); digest `9f8dbdcb1096edb03b8aea3c1811a0de3b0038467616c273516b70af1f5ec267` verified at setup by the registered recipe (`cat candidate/skills/{reusable,master}/*/SKILL.md | sha256sum`). No strip transform runs in round 6; the round-4 registered strip regex is retired (it carried a broken lookahead that is only safe on last-section files).
 - Model for EVERY role in every arm, including the scorer: `@preset/abs-medium` via `--model` on every launcher call (launcher-level override proven rounds 4–5). `thinking: high` pinned for every role. Because the user confirmed the preset resolves to a single model, no drift control is needed; `responseModel` is still recorded per session in the manifest as cheap verification, and the scorer re-verifies single-model per session (standing check).
 
 ## 3. Use cases (2)

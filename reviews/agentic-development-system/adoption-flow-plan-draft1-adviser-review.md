@@ -2,7 +2,7 @@
 
 Reviewer: planning-adviser (openai/gpt-5.6-sol, thinking high, read-only tools). Session: `94b4626e-1063-49c7-a105-f5f42d180006`, job `j-mthyaftq-z2iepg`, exit 0, 222.4s. Trigger: the human observed the plan had been approved without the offered adviser review pass; this review was run before F1-F5 execution continues. Verdict: HOLD.
 
-Task: /tmp/adoption-plan-review-task.txt (read-only review of drafts/agentic-development-system-adoption-flow-plan-draft1.md against adoption-sequence, advancement record, coverage matrix, and the repository state at 32a7588).
+Task: /tmp/adoption-plan-review-task.txt (read-only review of drafts/agentic-development-system-adoption-flow-plan-draft1.md against adoption-sequence, advancement record, coverage matrix, and the repository state at baffb95).
 
 ## Verbatim findings
 

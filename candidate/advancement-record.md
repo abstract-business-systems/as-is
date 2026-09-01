@@ -7,7 +7,7 @@ Scope: declaration-only. No file relocation, no migration, no live-workflow chan
 
 The candidate composition under `candidate/` on branch `implementing-composable-skills`:
 
-- 23 reusable skills + 12 master skills (`candidate/skills/`), post-drop variant (per-skill Mermaid design views removed; draft revision authorized by the user 2026-09-01, commit 1935f05).
+- 23 reusable skills + 12 master skills (`candidate/skills/`), post-drop variant (per-skill Mermaid design views removed; draft revision authorized by the user 2026-09-01, commit ca26110).
 - Transient agent set under `candidate/agents/`: implementer, worker, planning-adviser, external-adviser (advisers read-only; never used in benchmark arms).
 - Registered catalog digest: `9f8dbdcb1096edb03b8aea3c1811a0de3b0038467616c273516b70af1f5ec267` (reusable+master SKILL.md contents).
 
