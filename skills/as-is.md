@@ -7,24 +7,17 @@ This record is also the concise capability catalog for discovering the skill
 components below; each component's `SKILL.md` remains authoritative for its
 operational contract.
 
-## Components
-
-| Component | Purpose |
-| --- | --- |
-| [Execution evidence](exploring-execution-evidence/as-is.md#design) | Investigate traces and readable sessions. |
-    end
-
 ## Design
 
-The Skills component groups immediate documented skill components; deeper records remain owned by those components. The container diagram uses the actual Skills name and linked child boxes. `**Lineage**: ` provides reverse navigation, while the Components table provides renderer-independent child navigation.
+The Skills component groups the documented skill definitions; deeper records remain owned by those components. `**Lineage**: ` provides reverse navigation. The baseline container retired family-by-family; the adopted catalog below is the live capability catalog until the F9 catalog reduction.
 
 **As-is guidance ownership**
 
 | Concern | Canonical owner | Boundary and unresolved work |
 | --- | --- | --- |
 | Project adoption, setup scope, and approved component identification | [`Managing as-is records`](master/managing-as-is-records/SKILL.md) (adopted; absorbed disposition) and [`core/adapters/host-setup`](../core/adapters/host-setup/as-is.md) | The standalone setup skills are retired with the capability absorbed: durable record creation is carried by the adopted records skill (which grants no tools or authority and does not perform host setup), executable existing-project host wiring remains with the host-setup adapter, and approved component identification remains root-owned backlog work.
-| Durable as-is record shape, component meaning, hierarchy, navigation, and as-is-specific diagram meaning | [`Managing as-is documents`](managing-as-is-document/SKILL.md) | This skill owns record-specific structure and meaning; it does not select components or own generic Mermaid mechanics. |
-| Generic Mermaid representation, view selection, functional framing, labels, readability, and render checks | [`Designing Mermaid diagrams`](designing-mermaid-diagrams/SKILL.md) | The generic skill is target-neutral; host-specific record and navigation rules remain with `managing-as-is-document`. |
+| Durable as-is record shape, component meaning, hierarchy, navigation, and as-is-specific diagram meaning | [`Managing as-is records`](master/managing-as-is-records/SKILL.md) (adopted) | The adopted records skill owns record-specific structure and meaning; it does not select components or own generic Mermaid mechanics. (Baseline `managing-as-is-document` retired at F5; runtime-only home retains its validators.) |
+| Generic Mermaid representation, view selection, functional framing, labels, readability, and render checks | [`Designing Mermaid diagrams`](master/designing-mermaid-diagrams/SKILL.md) | The generic skill is target-neutral; host-specific record and navigation rules remain with the adopted records skill. (Baseline retired at F5; renderer runtime remains at `skills/designing-mermaid-diagrams/`.) |
 | General repository instruction and durable-document disposition | Root [`AGENTS.md`](../AGENTS.md) and root backlog/design tasks | The temporary `As-Is Guidance` section and the root `dissolve-documents-into-as-is-records` review remain unresolved root-owned work; this map does not retire or relocate them. |
 
 The table is an ownership map, not a second procedure or task authority. The linked skill contracts remain authoritative.
@@ -56,19 +49,13 @@ Prefer canonical atomic skills over tool-specific procedures or duplicated role 
 ```mermaid
 %%{init: {"securityLevel": "loose"}}%%
 flowchart LR
-    subgraph Skills["Skills"]
-        direction LR
-        ExecutionEvidence["<a href='./exploring-execution-evidence/as-is.md#design'>Execution evidence</a>"]
-
-    end
+    Skills["Skills catalog"]
     classDef component fill:#f8fafc,fill-opacity:0.1,stroke:#334155,stroke-width:2px
-    classDef child fill:#2563eb,fill-opacity:0.1,stroke:#64748b,stroke-width:1px
     class Skills component
-    class ExecutionEvidence child
 ```
 
-If the host Markdown renderer suppresses Mermaid navigation, use the component
-names in the table above; those Markdown links remain authoritative.
+All live skill definitions are cataloged in the adopted sections below; the
+baseline container retired when its last baseline child retired at F7.
 ## Links
 
 - [../design-principles.md](../design-principles.md) — repository-wide authority and design principles.

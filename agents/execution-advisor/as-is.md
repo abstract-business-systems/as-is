@@ -40,7 +40,7 @@ flowchart TB
 ## Links
 
 - [`agent.md`](agent.md) — canonical role contract.
-- [`../../skills/exploring-execution-evidence/SKILL.md`](../../skills/exploring-execution-evidence/SKILL.md) — bounded execution evidence procedure.
+- [`../../skills/reusable/inspecting-execution-evidence/SKILL.md`](../../skills/reusable/inspecting-execution-evidence/SKILL.md) — bounded execution evidence procedure (baseline `exploring-execution-evidence` retired at F7; the adopted master counterpart `master/exploring-execution-evidence` remains live side-by-side until F9).
 - [`../../core/contracts/component-task-record-protocol.md`](../../core/contracts/component-task-record-protocol.md) — task metadata, budget, recovery, and observation authority.
 - [`../../core/contracts/execution-contract.md`](../../core/contracts/execution-contract.md) — host-neutral execution boundary.
 - [`../../core/modules/observability/tracing-design.md`](../../core/modules/observability/tracing-design.md) — session-reference-first policy.
