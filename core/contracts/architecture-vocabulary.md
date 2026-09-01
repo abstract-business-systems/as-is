@@ -70,7 +70,6 @@ When a repository document needs shared terminology, link the relevant term anch
 | Consumer | Relevant vocabulary |
 | --- | --- |
 | [Managing As-Is Documents](../../skills/managing-as-is-document/as-is.md#design) | [canonical record](#canonical-record), [structural containment](#structural-containment), [authority and evidence](#owner-and-authority), and [relationship labels](#relationship-labels) |
-| [Building Components](../../skills/building-components/as-is.md#design) | [component boundary](#component-boundary), [owner and authority](#owner-and-authority), and [evidence](#evidence) |
 | [Designing Mermaid Diagrams](../../skills/designing-mermaid-diagrams/as-is.md#design) | [structural containment](#structural-containment) and [relationship labels](#relationship-labels); generic Mermaid mechanics remain target-neutral |
 | [Core Contracts](as-is.md#design) | [scope and authority](#scope-and-authority) and this document's role as a shared reference |
 
