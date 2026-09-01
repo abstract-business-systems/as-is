@@ -93,11 +93,11 @@ state only.
 - [x] F4 change-execution family swap: retired `building-components`/`committing-completed-work` (same-name swaps to adopted masters)/`implementing-component-tasks`/`verification-discipline`, mounted 7 reusables; core/ reconciliation `936f0b5` (one vocabulary row removed after failed term-use check); gates green (5f34d42). (2026-09-01)
 - [x] F5 records/backlog family swap: 5 baseline skills retired (adopted counterparts live; A14 runtime-only homes keep validators/query tooling/mermaid renderer in place); core/ reconciliation 723f9a6 (2 vocabulary rows removed; configuration.md repointed per A15); adviser-gated and user-authorized (A14/A15); gates green (1f8e889). (2026-09-01)
 - [x] F6 delegation family swap: spawning-pi-subagents narrative retired; A4 runtime-only home keeps launcher runtime; adopted spawning-subagents + delegating-bounded-work + observing-delegated-work live; full gate battery + live spawn probe green (afd48fd). (2026-09-01)
-- [ ] F7 evidence family swap.
+- [x] F7 evidence family swap: exploring-execution-evidence retired (final baseline skill; adopted master + inspecting-execution-evidence + recording-evidence live); execution-advisor repointed; gates green (9d38603). (2026-09-01).
 - [ ] F8 agents family: target roster + `thinking-companion` + `agent-capability-probe` live; two agents-component revisit backlog items created (individually confirmed).
 - [ ] F9 cutover: remaining retirement, D3 TS-layer retirement check, reference sweep, pre-merge validation (individually confirmed).
 
-Execution state: F0-F6 landed (latest 1b8ba1c, afd48fd); F1-F6 complete under A12/A13/A14/A15; F7 next, then F8, then F9 prep (benchmark + cutover human-gated).
+Execution state: F0-F7 landed (latest 9d38603); F1-F7 complete under A12-A15 — all baseline skills retired; F8 (agents roster per D2) next, then F9 prep (final benchmark + cutover, human-gated).
 
 Acceptance: each family commit passes its plan gate (reference sweep clean,
 consumers pass, digest verified); pre-merge state passes fidelity checks at
