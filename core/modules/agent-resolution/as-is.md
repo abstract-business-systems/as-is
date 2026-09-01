@@ -32,4 +32,4 @@ flowchart TB
 
 - [`agent-resolution.ts`](agent-resolution.ts) — canonical parsing and resolution implementation.
 - [`../../../designs/core-modules-tools-and-skills.md`](../../../designs/core-modules-tools-and-skills.md) — staged module direction.
-- [`../../../skills/spawning-pi-subagents/as-is.md`](../../../skills/spawning-pi-subagents/as-is.md) — launcher ownership and consumer context.
+- [`../../../skills/master/spawning-subagents/as-is.md`](../../../skills/master/spawning-subagents/as-is.md) — launcher ownership and consumer context (baseline `spawning-pi-subagents` skill record retired at F6; launcher runtime remains at `skills/spawning-pi-subagents/scripts/`).
