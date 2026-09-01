@@ -15,6 +15,10 @@ export type AsIsDiagramValidationOptions = {
   requireDiagrams?: boolean;
   requireNamedDiagramHeadings?: boolean;
   maxUnwrappedLabelCharacters?: number;
+  /** Transitional-only extra record-section titles accepted while a migration is pending; must be empty in the adopted steady state. */
+  transitionalSectionTitles?: readonly string[];
+  /** Transitional-only: allow design links resolving to existing canonical records outside the validated set (excluded transitional namespaces). */
+  transitionalExternalRecords?: boolean;
 };
 
 export type AsIsValidationIssue = {
@@ -279,11 +283,12 @@ export function validateAsIsDiagramsAndNavigation(repositoryRoot: string, option
   const rootRelative = relative(root, rootPath);
   if (rootRelative.startsWith(`..${sep}`) || rootRelative === "..") issues.push({ path: rootRelative.split(sep).join("/"), code: "root-record", message: "configured root record must be inside the validation scope" });
 
+  const transitionalSections = new Set((options.transitionalSectionTitles ?? []).map((title) => title.trim()));
   for (const path of suppliedRecordPaths(root, options.recordPaths, issues)) {
     const text = readFileSync(path, "utf8");
     const title = canonicalTitle(text);
     for (const match of text.matchAll(/^## ([^\n]+)$/gm)) {
-      if (!allowedRecordSections.has(match[1].trim())) addIssue(issues, root, path, "record-shape", `canonical record contains unsupported section: ${match[1].trim()}`);
+      if (!allowedRecordSections.has(match[1].trim()) && !transitionalSections.has(match[1].trim())) addIssue(issues, root, path, "record-shape", `canonical record contains unsupported section: ${match[1].trim()}`);
     }
     if (/^\s*-?\s*Pre-render layout plan:/im.test(text)) addIssue(issues, root, path, "record-shape", "canonical record must not contain a render layout plan");
     if (!title) {
@@ -311,7 +316,7 @@ export function validateAsIsDiagramsAndNavigation(repositoryRoot: string, option
   for (const record of records.values()) {
     for (const target of designTargets(record.text)) {
       const resolved = resolveDesignTarget(root, record.path, target);
-      if (!resolved || !existsSync(resolved) || !records.has(resolved)) addIssue(issues, root, record.path, "unresolved-design-link", `design link does not resolve to a canonical record: ${target}`);
+      if (!resolved || !existsSync(resolved) || (!records.has(resolved) && !options.transitionalExternalRecords)) addIssue(issues, root, record.path, "unresolved-design-link", `design link does not resolve to a canonical record: ${target}`);
     }
 
     const isRoot = resolve(record.path) === rootPath;

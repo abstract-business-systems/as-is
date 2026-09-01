@@ -5,7 +5,7 @@ description: Defines and maintains durable as-is.md component records with clear
 
 # Managing As-Is Documents
 
-This skill defines the durable record contract for an individual `as-is.md` component record. It applies when a record for an approved component boundary is created, maintained, aligned with implementation evidence, or structurally reconciled; project adoption and component identification remain the concerns of `as-is-setup` and `integrate-as-is-documentation`. It does not create task, backlog, configuration, runtime, or agent authority.
+This skill defines the durable record contract for an individual `as-is.md` component record. It applies when a record for an approved component boundary is created, maintained, aligned with implementation evidence, or structurally reconciled; project adoption and component identification remain outside this skill's authority (the standalone setup skills are retired with their capability absorbed; adopted record creation is `master/managing-as-is-records`). It does not create task, backlog, configuration, runtime, or agent authority.
 
 ## Scope And Authority
 
@@ -129,7 +129,7 @@ flowchart TB
 
 | Situation | Record treatment |
 | --- | --- |
-| Approved component boundary without an `as-is.md` | An initial record contains supported durable purpose, design, relationships, and direct context. Component identification and approval remain owned by `as-is-setup` or `integrate-as-is-documentation`. A child record contains only its own context and `**Lineage**: ` line; applicable parent maps and container views remain parent-owned. |
+| Approved component boundary without an `as-is.md` | An initial record contains supported durable purpose, design, relationships, and direct context. Component identification and approval remain owned by the approved adoption/setup flow, not by this skill. A child record contains only its own context and `**Lineage**: ` line; applicable parent maps and container views remain parent-owned. |
 | Implementation evidence changes reader-relevant context | Alignment is semantic rather than file-by-file. It covers purpose, boundary, immediate composition, material relationship or authority, and consequential lifecycle, failure, or recovery behavior; private helpers, generated artifacts, routine control flow, and non-material refactoring detail remain outside the record. |
 | Record and implementation conflict | Implementation is evidence rather than automatic record authority. An intended or approved behavior change makes the record stale; unexpected implementation divergence remains an implementation or escalation concern; unresolved ambiguity leaves the record unchanged. |
 | Material reorganization with unchanged component identity and boundary | In-place revision is the default. A controlled replacement is justified only when incremental revision cannot retain coherent purpose, structure, or navigation and preservation needs have been assessed. |

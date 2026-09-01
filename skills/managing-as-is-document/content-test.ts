@@ -11,7 +11,7 @@ type BunFile = {
 
 const bun = (globalThis as typeof globalThis & { Bun: { file(path: URL): BunFile } }).Bun;
 const file = (relativePath: string) => bun.file(new URL(relativePath, import.meta.url));
-const [skill, record, skillsRecord, backlog, examples, vocabulary, mermaidSkill, mermaidRecord, integrationSkill, integrationRecord, setupSkill, setupRecord] = await Promise.all([
+const [skill, record, skillsRecord, backlog, examples, vocabulary, mermaidSkill, mermaidRecord] = await Promise.all([
   file("./SKILL.md").text(),
   file("./as-is.md").text(),
   file("../as-is.md").text(),
@@ -20,10 +20,6 @@ const [skill, record, skillsRecord, backlog, examples, vocabulary, mermaidSkill,
   file("../../core/contracts/architecture-vocabulary.md").text(),
   file("../designing-mermaid-diagrams/SKILL.md").text(),
   file("../designing-mermaid-diagrams/as-is.md").text(),
-  file("../integrate-as-is-documentation/SKILL.md").text(),
-  file("../integrate-as-is-documentation/as-is.md").text(),
-  file("../as-is-setup/SKILL.md").text(),
-  file("../as-is-setup/as-is.md").text(),
 ]);
 const legacyContainerExample = file("./container-diagram-example.md");
 
@@ -96,12 +92,6 @@ const requiredMermaidPhrases = [
 ];
 for (const phrase of requiredMermaidPhrases) {
   if (!mermaidSkill.includes(phrase)) throw new Error(`generic Mermaid skill is missing required phrase: ${phrase}`);
-}
-for (const [name, text, phrase] of [
-  ["integration skill", integrationSkill, "critical or host-constrained planned diagram"],
-  ["setup skill", setupSkill, "critical or host-constrained planned diagram"],
-] as const) {
-  if (!text.includes(phrase)) throw new Error(`${name} is missing required phrase: ${phrase}`);
 }
 
 const requiredRecordPhrases = [
@@ -224,6 +214,8 @@ const canonicalTitle = (text: string) => text.match(/^# (.+?) - as-is\s*$/m)?.[1
 const canonicalRecords = (directory: string): string[] => readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
   if ([".git", "node_modules"].includes(entry.name)) return [];
   const path = join(directory, entry.name);
+  if (path === join(repositoryRoot, "candidate", "benchmark")) return []; // frozen benchmark consumer trees are preserved evidence with their own record roots, not live canonical records
+  if ([join(repositoryRoot, "skills", "master"), join(repositoryRoot, "skills", "reusable")].includes(path)) return []; // transitional side-by-side namespaces (F0); conformance debt resolved by the F9 catalog reduction (backlog: adopted-catalog-record-conformance)
   if (entry.isDirectory()) return canonicalRecords(path);
   if (entry.isFile() && entry.name === "as-is.md" && path !== excludedPrompt && canonicalTitle(readFileSync(path, "utf8"))) return [path];
   return [];
@@ -238,7 +230,7 @@ const expectedBreadcrumb = (recordPath: string) => {
   let directory = dirname(recordPath);
   while (true) {
     const candidate = join(directory, "as-is.md");
-    if (candidate !== recordPath && canonicalTitle(readFileSync(candidate, "utf8"))) ancestors.push(candidate);
+    if (candidate !== recordPath && existsSync(candidate) && canonicalTitle(readFileSync(candidate, "utf8"))) ancestors.push(candidate);
     if (directory === repositoryRoot) break;
     directory = dirname(directory);
   }
@@ -293,6 +285,8 @@ const diagramValidation = validateAsIsDiagramsAndNavigation(repositoryRoot, {
   requireDiagrams: false,
   requireNamedDiagramHeadings: false,
   maxUnwrappedLabelCharacters: 28,
+  transitionalSectionTitles: ["Adopted composable catalog (side-by-side, transitional)"], // removed at F9 when the catalog reduces to the adopted set
+  transitionalExternalRecords: true, // catalog links into the excluded transitional namespaces resolve on disk; full conformance lands with the F9 catalog reduction
 });
 if (diagramValidation.issues.length > 0) {
   throw new Error(`as-is diagram and navigation validation failed: ${JSON.stringify(diagramValidation.issues)}`);

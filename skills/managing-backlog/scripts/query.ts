@@ -1,5 +1,5 @@
 import { existsSync, lstatSync, readFileSync, readdirSync, renameSync, statSync, unlinkSync, writeFileSync } from "node:fs";
-import { join, relative, resolve } from "node:path";
+import { basename, join, relative, resolve } from "node:path";
 
 export type BacklogStatus = "open" | "selected" | "deferred";
 
@@ -242,6 +242,7 @@ function repositoryFiles(directory: string, filename: string): string[] {
   for (const entry of readdirSync(directory)) {
     if (entry === ".git" || entry === "node_modules") continue;
     const path = join(directory, entry);
+    if (entry === "benchmark" && basename(directory) === "candidate") continue; // frozen benchmark evidence trees are registration/consumer artifacts with their own record schemas, not live component backlogs
     let stat;
     try {
       if (lstatSync(path).isSymbolicLink()) continue;

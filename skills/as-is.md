@@ -11,8 +11,6 @@ operational contract.
 
 | Component | Purpose |
 | --- | --- |
-| [As-is setup](as-is-setup/as-is.md#design) | Introduce canonical as-is documentation into an existing project. |
-| [Integrating as-is documentation](integrate-as-is-documentation/as-is.md#design) | Review and create as-is records in an existing project. |
 | [Managing as-is documents](managing-as-is-document/as-is.md#design) | Create and maintain durable component records. |
 | [Context building](context-building/as-is.md#design) | Assemble bounded, provenance-bearing context. |
 | [Execution evidence](exploring-execution-evidence/as-is.md#design) | Investigate traces and readable sessions. |
@@ -37,7 +35,7 @@ The Skills component groups immediate documented skill components; deeper record
 
 | Concern | Canonical owner | Boundary and unresolved work |
 | --- | --- | --- |
-| Project adoption, setup scope, and approved component identification | [`As-is setup`](as-is-setup/SKILL.md) and [`Integrating as-is documentation`](integrate-as-is-documentation/SKILL.md) | Setup owns whole-project or directory-scoped adoption and its reviewable plan; integration composes setup with reviewable decomposition and record creation. Existing-project host wiring is implemented by [`core/adapters/host-setup`](../core/adapters/host-setup/as-is.md). |
+| Project adoption, setup scope, and approved component identification | [`Managing as-is records`](master/managing-as-is-records/SKILL.md) (adopted; absorbed disposition) and [`core/adapters/host-setup`](../core/adapters/host-setup/as-is.md) | The standalone setup skills are retired with the capability absorbed: durable record creation is carried by the adopted records skill (which grants no tools or authority and does not perform host setup), executable existing-project host wiring remains with the host-setup adapter, and approved component identification remains root-owned backlog work.
 | Durable as-is record shape, component meaning, hierarchy, navigation, and as-is-specific diagram meaning | [`Managing as-is documents`](managing-as-is-document/SKILL.md) | This skill owns record-specific structure and meaning; it does not select components or own generic Mermaid mechanics. |
 | Generic Mermaid representation, view selection, functional framing, labels, readability, and render checks | [`Designing Mermaid diagrams`](designing-mermaid-diagrams/SKILL.md) | The generic skill is target-neutral; host-specific record and navigation rules remain with `managing-as-is-document`. |
 | General repository instruction and durable-document disposition | Root [`AGENTS.md`](../AGENTS.md) and root backlog/design tasks | The temporary `As-Is Guidance` section and the root `dissolve-documents-into-as-is-records` review remain unresolved root-owned work; this map does not retire or relocate them. |
@@ -73,8 +71,6 @@ Prefer canonical atomic skills over tool-specific procedures or duplicated role 
 flowchart LR
     subgraph Skills["Skills"]
         direction LR
-        Setup["<a href='./as-is-setup/as-is.md#design'>As-is setup</a>"]
-        Integrate["<a href='./integrate-as-is-documentation/as-is.md#design'>Integrating as-is<br/>documentation</a>"]
         ManagingAsIs["<a href='./managing-as-is-document/as-is.md#design'>Managing as-is documents</a>"]
         ContextBuilding["<a href='./context-building/as-is.md#design'>Context building</a>"]
         ExecutionEvidence["<a href='./exploring-execution-evidence/as-is.md#design'>Execution evidence</a>"]
@@ -91,8 +87,6 @@ flowchart LR
         Committing["<a href='./committing-completed-work/as-is.md#design'>Committing completed<br/>work</a>"]
         Consulting["<a href='./human-centered-consulting/as-is.md#design'>Human-centered<br/>consulting</a>"]
 
-        Setup -->|creates records through| ManagingAsIs
-        Integrate -->|composes setup and<br/>review for| ManagingAsIs
         ManagingAsIs -->|uses generic mechanics<br/>from| MermaidDesign
         ImplementingTasks -->|validated by| Verification
         SpawningSubagents -->|uses| Verification
@@ -104,7 +98,7 @@ flowchart LR
     classDef component fill:#f8fafc,fill-opacity:0.1,stroke:#334155,stroke-width:2px
     classDef child fill:#2563eb,fill-opacity:0.1,stroke:#64748b,stroke-width:1px
     class Skills component
-    class Setup,Integrate,ManagingAsIs,ContextBuilding,ExecutionEvidence,MermaidDesign,ImplementingTasks,MaintainingComponents,DeterministicSkills,ManagingBacklog,SpawningSubagents,StructuringContent,Verification,Naming,Building,Committing,Consulting child
+    class ManagingAsIs,ContextBuilding,ExecutionEvidence,MermaidDesign,ImplementingTasks,MaintainingComponents,DeterministicSkills,ManagingBacklog,SpawningSubagents,StructuringContent,Verification,Naming,Building,Committing,Consulting child
 ```
 
 If the host Markdown renderer suppresses Mermaid navigation, use the component
