@@ -11,7 +11,7 @@ It is a reusable sibling under the skills catalog: validating-changes consumes i
 
 It establishes fit only and grants no tools or authority; it reports results and limitations and recommends the next bounded check rather than declaring completion when evidence is insufficient.
 
-**Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Running Tests**
+**Lineage**: [as-is](../../../as-is.md#design) / [Skills](../../as-is.md#design) / **Running Tests**
 
 ### Check selection and run flow
 
@@ -24,4 +24,4 @@ flowchart TD
 
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
-- [../as-is.md](../as-is.md) — concise capability catalog entry.
+- [../../as-is.md](../../as-is.md) — concise capability catalog entry.

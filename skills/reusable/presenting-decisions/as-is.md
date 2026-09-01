@@ -11,7 +11,7 @@ It is a reusable sibling under the skills catalog alongside procedures such as b
 
 It establishes fit only and grants no tools, no task authority, and no permission to proceed; the decider alone holds the authority-bearing choice.
 
-**Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Presenting Decisions**
+**Lineage**: [as-is](../../../as-is.md#design) / [Skills](../../as-is.md#design) / **Presenting Decisions**
 
 ### Decision presentation flow
 
@@ -24,4 +24,4 @@ flowchart TD
 
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
-- [../as-is.md](../as-is.md) — concise capability catalog entry.
+- [../../as-is.md](../../as-is.md) — concise capability catalog entry.

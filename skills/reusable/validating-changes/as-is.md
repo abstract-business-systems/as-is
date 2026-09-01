@@ -11,8 +11,8 @@ It is a reusable sibling under the skills catalog: it consumes evidence recorded
 
 It grants no tools, permissions, or authority; unsupported claims must not be marked passed, and residual risk remains explicitly recorded rather than absorbed into a completion claim.
 
-**Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Validating Changes**
+**Lineage**: [as-is](../../../as-is.md#design) / [Skills](../../as-is.md#design) / **Validating Changes**
 
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
-- [../as-is.md](../as-is.md) — concise capability catalog entry.
+- [../../as-is.md](../../as-is.md) — concise capability catalog entry.

@@ -11,8 +11,8 @@ It is a reusable sibling under the skills catalog: choosing-names complements it
 
 It holds no task authority; it must preserve existing structural conventions, navigation, and lifecycle rather than overriding owning records or restructuring beyond the reader's retrieval needs.
 
-**Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Structuring Content**
+**Lineage**: [as-is](../../../as-is.md#design) / [Skills](../../as-is.md#design) / **Structuring Content**
 
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
-- [../as-is.md](../as-is.md) — concise capability catalog entry.
+- [../../as-is.md](../../as-is.md) — concise capability catalog entry.

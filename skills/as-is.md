@@ -112,3 +112,57 @@ names in the table above; those Markdown links remain authoritative.
 ## Links
 
 - [../design-principles.md](../design-principles.md) — repository-wide authority and design principles.
+
+## Adopted composable catalog (side-by-side, transitional)
+
+The composable-skills composition is advanced (ACCEPTED-TARGET,
+`candidate/advancement-record.md`) and lands side-by-side per the approved
+adoption plan. Each entry's `as-is.md` is approved design; its `SKILL.md`
+remains the operational contract. This section is transitional: baseline
+entries above retire family-by-family, and this catalog reduces to the
+adopted set at F9.
+
+### Master skills (skills/master/)
+
+| Component | Purpose |
+| --- | --- |
+| [Building components](master/building-components/as-is.md#design) | Build bounded components and produce durable handoffs. |
+| [Committing completed work](master/committing-completed-work/as-is.md#design) | Create scoped commits for validated completed work. |
+| [Consulting humans](master/consulting-humans/as-is.md#design) | Guide concise, agency-preserving consultation. |
+| [Designing Mermaid diagrams](master/designing-mermaid-diagrams/as-is.md#design) | Design bounded Mermaid diagrams for complete component context. |
+| [Exploring execution evidence](master/exploring-execution-evidence/as-is.md#design) | Investigate traces and readable sessions. |
+| [Implementing tasks](master/implementing-tasks/as-is.md#design) | Run bounded component-task lifecycle. |
+| [Maintaining components](master/maintaining-components/as-is.md#design) | Perform evidence-based component housekeeping. |
+| [Making changes](master/making-changes/as-is.md#design) | Apply bounded, validated changes to components. |
+| [Managing as-is records](master/managing-as-is-records/as-is.md#design) | Create and maintain durable component records. |
+| [Managing backlogs](master/managing-backlogs/as-is.md#design) | Prioritize bounded work proposals. |
+| [Managing changelogs](master/managing-changelogs/as-is.md#design) | Maintain component changelogs. |
+| [Spawning subagents](master/spawning-subagents/as-is.md#design) | Launch and observe bounded Pi subprocesses. |
+
+### Reusable skills (skills/reusable/)
+
+| Component | Purpose |
+| --- | --- |
+| [Applying bounded edits](reusable/applying-bounded-edits/as-is.md#design) | Make small, precise edits within a bounded scope. |
+| [Assessing determinism](reusable/assessing-determinism/as-is.md#design) | Identify evidence-supported deterministic improvements. |
+| [Building context](reusable/building-context/as-is.md#design) | Assemble bounded, provenance-bearing context. |
+| [Choosing change methods](reusable/choosing-change-methods/as-is.md#design) | Select the smallest change method that satisfies the need. |
+| [Choosing names](reusable/choosing-names/as-is.md#design) | Choose semantically accurate names for repository concepts. |
+| [Delegating bounded work](reusable/delegating-bounded-work/as-is.md#design) | Delegate bounded tasks under existing authority. |
+| [Designing diagrams](reusable/designing-diagrams/as-is.md#design) | Design bounded diagrams for component context. |
+| [Drafting changelog entries](reusable/drafting-changelog-entries/as-is.md#design) | Draft concise changelog entries. |
+| [Drafting content](reusable/drafting-content/as-is.md#design) | Draft durable repository content. |
+| [Identifying owners](reusable/identifying-owners/as-is.md#design) | Identify owning components and authorities. |
+| [Inspecting execution evidence](reusable/inspecting-execution-evidence/as-is.md#design) | Investigate traces and readable sessions read-only. |
+| [Locating changelogs](reusable/locating-changelogs/as-is.md#design) | Locate the owning changelog for a change. |
+| [Observing delegated work](reusable/observing-delegated-work/as-is.md#design) | Observe delegated work without granting execution authority. |
+| [Preparing scoped commits](reusable/preparing-scoped-commits/as-is.md#design) | Prepare scoped Git commits for validated work. |
+| [Presenting decisions](reusable/presenting-decisions/as-is.md#design) | Present decisions with alternatives and material effects. |
+| [Recording backlog items](reusable/recording-backlog-items/as-is.md#design) | Record bounded work proposals in backlog records. |
+| [Recording evidence](reusable/recording-evidence/as-is.md#design) | Record completion and validation evidence. |
+| [Resolving scopes](reusable/resolving-scopes/as-is.md#design) | Resolve component scopes and boundaries for work. |
+| [Running tests](reusable/running-tests/as-is.md#design) | Run the smallest relevant test automation. |
+| [Structuring content](reusable/structuring-content/as-is.md#design) | Organize repository knowledge. |
+| [Validating changes](reusable/validating-changes/as-is.md#design) | Validate changed behavior against acceptance conditions. |
+| [Writing code](reusable/writing-code/as-is.md#design) | Create or substantially implement code from bounded requirements. |
+| [Writing tests](reusable/writing-tests/as-is.md#design) | Write focused tests for bounded behavior. |

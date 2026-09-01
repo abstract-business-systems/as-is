@@ -11,8 +11,8 @@ It is a reusable sibling under the skills catalog: observations returned by runn
 
 It establishes fit for capturing reproducible evidence and grants no tools, permissions, or authority; evidence itself carries no decision authority beyond the authorized requirement it supports.
 
-**Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Recording Evidence**
+**Lineage**: [as-is](../../../as-is.md#design) / [Skills](../../as-is.md#design) / **Recording Evidence**
 
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
-- [../as-is.md](../as-is.md) — concise capability catalog entry.
+- [../../as-is.md](../../as-is.md) — concise capability catalog entry.
