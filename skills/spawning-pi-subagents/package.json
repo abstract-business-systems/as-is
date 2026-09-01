@@ -2,7 +2,7 @@
   "name": "as-is-spawning-pi-subagents",
   "private": true,
   "type": "module",
-  "description": "Skill-owned runtime and focused test dependencies for spawning-pi-subagents.",
+  "description": "Runtime-only home (A4): launcher runtime and focused test dependencies for the governed spawning-subagents procedure.",
   "exports": {
     "./worker-tools": "./extensions/worker-tools.ts"
   },

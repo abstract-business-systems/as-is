@@ -4,7 +4,6 @@
     "./extensions/mermaid-tools.ts"
   ],
   "skills": [
-    "../skills/spawning-pi-subagents",
     "../skills/master/building-components",
     "../skills/master/committing-completed-work",
     "../skills/master/consulting-humans",
@@ -17,6 +16,8 @@
     "../skills/master/managing-backlogs",
     "../skills/master/managing-changelogs",
     "../skills/master/spawning-subagents",
+    "../skills/reusable/delegating-bounded-work",
+    "../skills/reusable/observing-delegated-work",
     "../skills/reusable/building-context",
     "../skills/reusable/choosing-names",
     "../skills/reusable/structuring-content",

@@ -68,4 +68,4 @@ The child boxes link directly to the seven child records; the Components table i
 | Failure behavior | Unsupported, unavailable, or unauthorized tools fail closed before launch. Read-only roles may receive explicit host safety caps. |
 ## Links
 
-- [spawning-pi-subagents](../skills/spawning-pi-subagents/SKILL.md) — host/package admission contract distinct from the child-role catalog.
+- [spawning-subagents](../skills/master/spawning-subagents/SKILL.md) — host/package admission contract distinct from the child-role catalog (launcher runtime: `skills/spawning-pi-subagents/scripts/`).

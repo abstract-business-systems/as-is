@@ -72,5 +72,5 @@ flowchart TB
 - [`../../skills/master/implementing-tasks/SKILL.md`](../../skills/master/implementing-tasks/SKILL.md) — task lifecycle and child boundaries.
 - [`../../skills/reusable/validating-changes/SKILL.md`](../../skills/reusable/validating-changes/SKILL.md) — validation and evidence selection.
 - [`../../skills/master/committing-completed-work/SKILL.md`](../../skills/master/committing-completed-work/SKILL.md) — scoped completion commit.
-- [`../../skills/spawning-pi-subagents/SKILL.md`](../../skills/spawning-pi-subagents/SKILL.md) — bounded child launch and ancestry evidence.
+- [`../../skills/master/spawning-subagents/SKILL.md`](../../skills/master/spawning-subagents/SKILL.md) — bounded child launch and ancestry evidence (launcher runtime remains at `skills/spawning-pi-subagents/scripts/`).
 - [`../../core/contracts/component-task-record-protocol.md`](../../core/contracts/component-task-record-protocol.md) — task metadata, narrative, budget, recovery, and completion authority.

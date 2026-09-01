@@ -12,7 +12,7 @@ operational contract.
 | Component | Purpose |
 | --- | --- |
 | [Execution evidence](exploring-execution-evidence/as-is.md#design) | Investigate traces and readable sessions. |
-| [Spawning subagents](spawning-pi-subagents/as-is.md#design) | Launch and observe bounded Pi subprocesses. |
+    end
 
 ## Design
 
@@ -59,13 +59,12 @@ flowchart LR
     subgraph Skills["Skills"]
         direction LR
         ExecutionEvidence["<a href='./exploring-execution-evidence/as-is.md#design'>Execution evidence</a>"]
-        SpawningSubagents["<a href='./spawning-pi-subagents/as-is.md#design'>Spawning subagents</a>"]
 
     end
     classDef component fill:#f8fafc,fill-opacity:0.1,stroke:#334155,stroke-width:2px
     classDef child fill:#2563eb,fill-opacity:0.1,stroke:#64748b,stroke-width:1px
     class Skills component
-    class ExecutionEvidence,SpawningSubagents child
+    class ExecutionEvidence child
 ```
 
 If the host Markdown renderer suppresses Mermaid navigation, use the component

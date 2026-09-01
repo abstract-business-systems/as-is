@@ -39,8 +39,9 @@ skills cannot make.
   parent reconciliation.
 - Use in-process `call_subagent` for same-component assistance and serial
   read-only expert plan, advice, and final validation. Delegate a separately
-  owned child, including a recursive component-builder, through
-  `spawning-pi-subagents`; never use that launcher for same-component work or
+  owned child, including a recursive component-builder, through the governed
+  launcher procedure (`master/spawning-subagents` + `delegating-bounded-work`);
+  never use that launcher for same-component work or
   expert review. A report-only delegated task orients and returns without
   building.
 - Select only the configured worker named by the child record. Never substitute
