@@ -95,6 +95,8 @@ state only.
 - [ ] F8 agents family: target roster + `thinking-companion` + `agent-capability-probe` live; two agents-component revisit backlog items created (individually confirmed).
 - [ ] F9 cutover: remaining retirement, D3 TS-layer retirement check, reference sweep, pre-merge validation (individually confirmed).
 
+Execution state: F0 landed (eac3c9b); F1-F5 paused on the adviser HOLD verdict (`reviews/agentic-development-system/adoption-flow-plan-draft1-adviser-review.md`): findings 1-5 are required plan amendments, findings 6-11 become mandatory gates for their families and the cutover; F1 proceeds only after the F0/D1 reconciliation gate passes.
+
 Acceptance: each family commit passes its plan gate (reference sweep clean,
 consumers pass, digest verified); pre-merge state passes fidelity checks at
 live paths plus one real end-to-end task; master remains at `9a77e37` until
