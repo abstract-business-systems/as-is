@@ -91,13 +91,13 @@ state only.
 - [x] F2 knowledge family swap: retired `context-building`/`naming-software-concepts`/`structuring-content` (adopted `building-context`/`choosing-names`/`structuring-content` live; first same-name swap clean), mounted `drafting-content`/`recording-evidence`/`locating-changelogs`/`drafting-changelog-entries`; gates green (79bc0c8). (2026-09-01)
 - [x] F3 review/consulting family swap: retired `human-centered-consulting` (adopted `consulting-humans` live; `presenting-decisions` + `identifying-owners` mounted; thinking-companion test realigned to adopted contract); gates green (909b0ec). (2026-09-01)
 - [x] F4 change-execution family swap: retired `building-components`/`committing-completed-work` (same-name swaps to adopted masters)/`implementing-component-tasks`/`verification-discipline`, mounted 7 reusables; core/ reconciliation `936f0b5` (one vocabulary row removed after failed term-use check); gates green (5f34d42). (2026-09-01)
-- [ ] F5 records/backlog family swap.
+- [x] F5 records/backlog family swap: 5 baseline skills retired (adopted counterparts live; A14 runtime-only homes keep validators/query tooling/mermaid renderer in place); core/ reconciliation 723f9a6 (2 vocabulary rows removed; configuration.md repointed per A15); adviser-gated and user-authorized (A14/A15); gates green (1f8e889). (2026-09-01)
 - [ ] F6 delegation family swap with live launcher smoke test (individually confirmed).
 - [ ] F7 evidence family swap.
 - [ ] F8 agents family: target roster + `thinking-companion` + `agent-capability-probe` live; two agents-component revisit backlog items created (individually confirmed).
 - [ ] F9 cutover: remaining retirement, D3 TS-layer retirement check, reference sweep, pre-merge validation (individually confirmed).
 
-Execution state: F0 landed (baffb95) and reconciled with D1 (b51f438); F1 landed (63ba578 + aa5edda) with A12/A13; F2 landed (79bc0c8); F3 landed (909b0ec); F4 landed (936f0b5 + 5f34d42); F5 cleared to proceed (adviser PROCEED, `reviews/agentic-development-system/adoption-flow-plan-draft1-adviser-rereview.md`). F5 next; F6-F8 need individual confirmation.
+Execution state: F0-F5 landed (latest 71f2c79, 723f9a6, 1f8e889); F1-F5 complete under A12/A13/A14/A15; F6 (delegation, highest risk) needs individual confirmation per plan, then F7, then F8, F9.
 
 Acceptance: each family commit passes its plan gate (reference sweep clean,
 consumers pass, digest verified); pre-merge state passes fidelity checks at
