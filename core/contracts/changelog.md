@@ -1,3 +1,4 @@
 # Changelog
 
+- 2026-09-01: Removed the two consumer rows linking `skills/as-is-setup` and `skills/integrate-as-is-documentation` as vocabulary consumers; both standalone setup skills are retired by the human-authorized adoption flow, and the adopted `master/managing-as-is-records` record does not rely on this document's shared term anchors, so no replacement consumer row was added. Existing term-anchor rows for still-live skills are unchanged.
 - 2026-08-24: Established `core/contracts/` as the normative document collection and moved the task-record protocol, generic configuration boundary, execution contract, and shared architecture vocabulary from `docs/`. Added the grouped `index.md` entry point and durable collection record. Existing implementations remain in their owning modules, adapters, skills, and roles; benchmark artifacts and dependencies remain outside this component.

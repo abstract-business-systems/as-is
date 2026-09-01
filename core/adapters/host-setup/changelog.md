@@ -1,5 +1,6 @@
 # Changelog
 
+- 2026-09-01: Rewrote backlog rule 5 for the human-authorized adoption flow: the standalone setup skills (`skills/as-is-setup/`, `skills/integrate-as-is-documentation/`) are retired with the setup capability absorbed (record creation carried by the adopted `master/managing-as-is-records`; the executable setup implementation remains in this adapter). The removal rule now also covers the retired `skills/as-is-setup/` path.
 - Completion evidence: `core/adapters/host-setup:establish-host-setup-adapter` completed with focused setup validation and destination ownership reconciliation; the exact selected destination backlog item is eligible for cleanup.
 
 - 2026-08-16: Relocated the deterministic setup adapter from the retired `components/as-is-setup/` path to `core/adapters/host-setup/` with history-preserving moves. Setup behavior, focused tests, collision preservation, client detection, and canonical-resource linking remain unchanged; host-integration remains a separate planning and approval boundary. Final root dissolution remains pending reference-evidence relocation and topology reconciliation.
