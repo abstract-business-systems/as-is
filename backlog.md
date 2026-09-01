@@ -72,3 +72,31 @@ Current user-directed sequence for the next restructuring work is: (1) completed
 | Completion | Remove completed items from the owning component backlog after recording their concise summary in the owning component's `changelog.md`. |
 | Budget and recovery | Child allocations subtract parent spent use and reserve; excess cost or wall-clock requirements bubble to a durable approval/blocker. Failed, cancelled, or budget-stopped descendants remain accounted for and do not silently trigger duplicate attempts. |
 | Integration | Child commits remain recoverable source evidence; the parent consolidates related worktree commits into one scoped integration commit before merging into the original branch and records source/result SHAs. |
+
+### Composable-skills adoption execution (F0-F9)
+
+Adopt the advanced candidate composition (ACCEPTED-TARGET per
+`candidate/advancement-record.md`) as the live workflow of record, per the
+approved plan `drafts/agentic-development-system-adoption-flow-plan-draft1.md`
+and the sequencing decision `candidate/adoption-sequence.md`: all preparation
+on branch `implementing-composable-skills`, one atomic commit per family,
+single `--no-ff` merge into master as the human-authorized cutover. Family
+order and per-step gates are owned by the plan; this index tracks execution
+state only.
+
+- [ ] F0 foundations: catalog at `skills/reusable/` + `skills/master/`, per-skill `as-is.md` records (D1, delegable), `.pi/settings.json` remount, digest pinned; no baseline retirement.
+- [ ] F1 setup/adoption family swap.
+- [ ] F2 knowledge family swap.
+- [ ] F3 review/consulting family swap.
+- [ ] F4 change-execution family swap.
+- [ ] F5 records/backlog family swap.
+- [ ] F6 delegation family swap with live launcher smoke test (individually confirmed).
+- [ ] F7 evidence family swap.
+- [ ] F8 agents family: target roster + `thinking-companion` + `agent-capability-probe` live; two agents-component revisit backlog items created (individually confirmed).
+- [ ] F9 cutover: remaining retirement, D3 TS-layer retirement check, reference sweep, pre-merge validation (individually confirmed).
+
+Acceptance: each family commit passes its plan gate (reference sweep clean,
+consumers pass, digest verified); pre-merge state passes fidelity checks at
+live paths plus one real end-to-end task; master remains at `9a77e37` until
+the human-authorized cutover merge. Deferred: `core/` contract migration;
+quarantined-draft cleanup; benchmark rerun.

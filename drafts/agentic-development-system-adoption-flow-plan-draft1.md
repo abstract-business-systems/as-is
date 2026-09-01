@@ -1,6 +1,6 @@
 # Adoption Flow Plan — Draft 1 (composable-skills composition)
 
-Status: DRAFT — planning context only. It is not approved design, task authority, or implementation authority. Approval is a human decision.
+Status: APPROVED — human plan approval 2026-09-01 ("Looks good. Please, start."), D1–D3 adjudicated. This draft is the approved adoption plan; family execution proceeds per section 5 with the gates in sections 6–7. Planning context only; each family swap remains governed by `candidate/adoption-sequence.md` and the merge stays human-authorized.
 
 ## 1. Purpose
 
