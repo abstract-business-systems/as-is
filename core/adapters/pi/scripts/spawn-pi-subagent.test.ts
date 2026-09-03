@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { evaluateHandoffEligibility, type HandoffFacts } from "../../../../core/modules/task-control/handoff-eligibility.ts";
@@ -86,6 +86,62 @@ test("Pi version probe arguments preserve package fallback and suppress extensio
   expect(versionProbeArguments(invocation)).toEqual(["x", "--bun", "@earendil-works/pi-coding-agent@0.84.4", "--version", "--no-extensions"]);
 });
 
+test("wraps a .bin-style JavaScript Pi entry with the Bun runtime", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "as-is-pi-bun-js-entry-test-"));
+  const runtimePath = join(dir, "runtime");
+  try {
+    mkdirSync(join(dir, "dist"), { recursive: true });
+    mkdirSync(join(dir, "node_modules", ".bin"), { recursive: true });
+    writeFileSync(join(dir, "dist", "cli.js"), [
+      "import { writeFileSync } from \"node:fs\";",
+      `if (process.argv.includes("--version")) writeFileSync(${JSON.stringify(runtimePath)}, process.execPath);`,
+      "process.stdout.write(\"0.84.4\\n\");",
+      "",
+    ].join("\n"));
+    symlinkSync("../../dist/cli.js", join(dir, "node_modules", ".bin", "pi"));
+    const result = await runLauncher([
+      "--agent", AGENT, "--task", "Bun JavaScript entry.", "--cwd", process.cwd(),
+      "--pi", join(dir, "node_modules", ".bin", "pi"), "--dry-run",
+    ]);
+    expect(result.exitCode).toBe(0);
+    expect(JSON.parse(result.stdout).piSource).toBe("explicit");
+    expect(readFileSync(runtimePath, "utf8")).toBe(process.execPath);
+    expect(process.versions.bun).toBeTruthy();
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("passes through a non-JavaScript explicit Pi binary", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "as-is-pi-non-js-entry-test-"));
+  try {
+    const stub = join(dir, "pi-wrapper.sh");
+    writeFileSync(stub, "#!/usr/bin/env bash\nif [[ \"$1\" == \"--version\" ]]; then printf '0.84.4\n'; fi\n", { mode: 0o755 });
+    const result = await runLauncher([
+      "--agent", AGENT, "--task", "Non-JavaScript entry.", "--cwd", process.cwd(), "--pi", stub, "--dry-run",
+    ]);
+    expect(result.exitCode).toBe(0);
+    expect(JSON.parse(result.stdout).piSource).toBe("explicit");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("resolves the co-located install to the skill-local source with the official bun entry", async () => {
+  // The launcher is co-located with its pi install (core/adapters/pi); the bun-preferred
+  // policy resolves that install to the skill-local source running the official
+  // dist/bun/cli.js entry (the package bin's dist/bundle/cli.js cannot run under bun).
+  const baseEnv = { ...process.env };
+  delete baseEnv.PI_BIN;
+  const result = await runLauncher(
+    ["--agent", resolve(AGENT), "--task", "Co-located skill-local bun entry.", "--cwd", mkdtempSync(join(tmpdir(), "as-is-pi-colocated-test-")), "--dry-run"],
+    baseEnv,
+  );
+  expect(result.exitCode).toBe(0);
+  const parsed = JSON.parse(result.stdout);
+  // The skill-local source probed the official bun entry successfully (piVersion
+  // proves the version probe ran through the bun-wrapped dist/bun/cli.js invocation;
+  // the invocation shape itself stays private in dry-run output).
+  expect(parsed.piSource).toBe("skill-local");
+  expect(parsed.piVersion).toBe("0.84.4");
+});
+
 test("launcher rejects an explicit Pi binary before dry-run or child launch on mismatch", async () => {
   const dir = mkdtempSync(join(tmpdir(), "as-is-pi-version-mismatch-test-"));
   try {
@@ -129,6 +185,13 @@ test("launcher preflights environment, skill-local, and package-fallback Pi sour
   const baseEnv = { ...process.env };
   delete baseEnv.PI_BIN;
   try {
+    const explicit = await runLauncher(
+      ["--agent", AGENT, "--task", "Explicit Pi.", "--cwd", process.cwd(), "--pi", matching, "--dry-run"],
+      baseEnv,
+    );
+    expect(explicit.exitCode).toBe(0);
+    expect(JSON.parse(explicit.stdout).piSource).toBe("explicit");
+
     const environment = await runLauncher(
       ["--agent", AGENT, "--task", "Environment Pi.", "--cwd", process.cwd(), "--dry-run"],
       { ...baseEnv, PI_BIN: matching },
@@ -144,19 +207,21 @@ test("launcher preflights environment, skill-local, and package-fallback Pi sour
     expect(JSON.parse(local.stdout).piSource).toBe("skill-local");
 
     const fallback = await runLauncher(
-      ["--agent", resolve(AGENT), "--task", "Package fallback Pi.", "--cwd", dir, "--dry-run"],
+      ["--agent", resolve(AGENT), "--task", "Co-located skill-local Pi.", "--cwd", dir, "--dry-run"],
       { ...baseEnv, PI_PACKAGE: "@earendil-works/pi-coding-agent@0.84.4" },
     );
     expect(fallback.exitCode).toBe(0);
-    expect(JSON.parse(fallback.stdout).piSource).toBe("package-fallback");
+    expect(JSON.parse(fallback.stdout).piSource).toBe("skill-local");
     expect(JSON.parse(fallback.stdout).piVersion).toBe("0.84.4");
 
+    // PI_PACKAGE guards only the package-fallback branch; with the co-located
+    // install resolving first, the skill-local source ignores it.
     const incompatible = await runLauncher(
       ["--agent", resolve(AGENT), "--task", "Incompatible package.", "--cwd", dir, "--dry-run"],
       { ...baseEnv, PI_PACKAGE: "@earendil-works/pi-coding-agent@0.83.0" },
     );
-    expect(incompatible.exitCode).toBe(1);
-    expect(incompatible.stderr).toContain("must match the skill-owned Pi package contract");
+    expect(incompatible.exitCode).toBe(0);
+    expect(JSON.parse(incompatible.stdout).piSource).toBe("skill-local");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 

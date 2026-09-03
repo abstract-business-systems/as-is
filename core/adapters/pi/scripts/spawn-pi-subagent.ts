@@ -1,7 +1,7 @@
 import { spawn, spawnSync } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
 import { homedir } from "node:os";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { appendFile, mkdtemp, open, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
@@ -412,12 +412,53 @@ const findLocalPi = (cwd: string): string | undefined => {
   }
 };
 
-const resolvePi = (requested: string | undefined, cwd: string): PiInvocation => {
-  if (requested) return { command: requested, args: [], source: "explicit" };
-  if (process.env.PI_BIN) return { command: process.env.PI_BIN, args: [], source: "environment" };
+// The launcher is co-located with its own pi install (core/adapters/pi); when the
+// caller's walk-up finds nothing, prefer that co-located install so in-repo usage
+// resolves the skill-local source (and with it the Bun runtime entry) instead of
+// the package fallback.
+const coLocatedPi = (): string | undefined => {
+  const candidate = join(import.meta.dir, "..", "node_modules", ".bin", "pi");
+  return existsSync(candidate) ? candidate : undefined;
+};
 
-  const localPi = findLocalPi(cwd);
-  if (localPi) return { command: localPi, args: [], source: "skill-local" };
+const bunRuntime = (): string | undefined => process.versions.bun ? process.execPath : Bun.which("bun");
+
+const preferBunForJavaScript = (invocation: PiInvocation): PiInvocation => {
+  let realCommand: string;
+  try {
+    realCommand = realpathSync(invocation.command);
+  } catch {
+    const located = Bun.which(invocation.command);
+    if (!located) return invocation;
+    try {
+      realCommand = realpathSync(located);
+    } catch {
+      return invocation;
+    }
+  }
+  if (!realCommand.endsWith(".js") && !realCommand.endsWith(".mjs")) return invocation;
+  const bun = bunRuntime();
+  if (!bun) return invocation;
+  // pi 0.84.4 ships an official Bun entry (dist/bun/cli.js, registering bun OAuth flows).
+  // The bundled default entry (dist/bundle/cli.js, the package bin target) uses undici
+  // internals Bun's runtime lacks (webidl.util.markAsUncloneable); prefer the official
+  // Bun entry whenever the resolved JS entry sits in the same dist tree.
+  const distDir = realCommand.endsWith(join("dist", "bundle", "cli.js"))
+    ? dirname(dirname(realCommand))
+    : dirname(realCommand);
+  const bunEntry = join(distDir, "bun", "cli.js");
+  if (/(^|\/)dist\/(bundle\/)?cli\.js$/.test(realCommand) && existsSync(bunEntry)) {
+    return { ...invocation, command: bun, args: [bunEntry, ...invocation.args] };
+  }
+  return { ...invocation, command: bun, args: [realCommand, ...invocation.args] };
+};
+
+const resolvePi = (requested: string | undefined, cwd: string): PiInvocation => {
+  if (requested) return preferBunForJavaScript({ command: requested, args: [], source: "explicit" });
+  if (process.env.PI_BIN) return preferBunForJavaScript({ command: process.env.PI_BIN, args: [], source: "environment" });
+
+  const localPi = findLocalPi(cwd) ?? coLocatedPi();
+  if (localPi) return preferBunForJavaScript({ command: localPi, args: [], source: "skill-local" });
 
   const contract = loadPiVersionContract();
   const requestedPackage = process.env.PI_PACKAGE;
@@ -426,9 +467,10 @@ const resolvePi = (requested: string | undefined, cwd: string): PiInvocation => 
   }
   return {
     command: Bun.which("bun") ?? "bun",
-    // pi 0.84.4's dist is node-runtime targeted (its bundled undici uses APIs
-    // Bun's runtime lacks); run the package's own bin shim like the
-    // skill-local install does instead of forcing Bun's runtime with --bun.
+    // Deep-fallback keeps the package's own node shim (bun x without --bun):
+    // the package bin targets dist/bundle/cli.js, whose bundled undici uses
+    // APIs Bun's runtime lacks. Bun runs pi through the skill-local source
+    // instead, which resolves the official dist/bun/cli.js entry.
     args: ["x", contract.packageSpec],
     source: "package-fallback",
   };
