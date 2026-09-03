@@ -18,5 +18,6 @@ Single-commit big-bang on the live workflow (drop all baseline items and introdu
 ## Preconditions for the merge
 
 - master must not advance from `9a77e37` before the merge (currently true; baseline unchanged since the round-1 pin).
+- [Amended gate evidence 2026-09-03] Final head-to-head benchmark recorded PASS before the merge request: candidate 23/27 ≥ baseline 22/27, all six gates PASS both arms (`candidate/benchmark/results/f9-cutover-2026-09-03/`); merge request may proceed to the human authorization of step 4.
 - Advancement record signed off (declaration-only) before adoption work repositions files.
 - The adoption-flow plan (separately drafted, large-chunk work — compact before starting) enumerates the family order and the validation gate per step.
