@@ -7,7 +7,7 @@
     "./worker-tools": "./extensions/worker-tools.ts"
   },
   "scripts": {
-    "test:worker-tools": "cd ../.. && bun test --timeout 120000 tools/agent/subagent-tools.test.ts",
+    "test:worker-tools": "cd ../../.. && bun test --timeout 120000 tools/agent/subagent-tools.test.ts",
     "build:launcher": "bun build --no-bundle --target bun --outfile /tmp/as-is-spawn-launcher-build scripts/spawn-pi-subagent.ts",
     "build:evidence-extension": "bun build --no-bundle --target bun --outfile /tmp/as-is-spawn-evidence-build scripts/evidence-validator-inspection-extension.ts"
   },

@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { correlateJobRegistryWithTraces, readJobRegistryEvidence, readTraceEvidence } from "../../tools/evidence/worker-tools-observability.ts";
 
-const launcher = resolve("skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts");
+const launcher = resolve("core/adapters/pi/scripts/spawn-pi-subagent.ts");
 const asIsAgent = resolve("agents/as-is/agent.md");
 const builderAgent = resolve("agents/component-builder/agent.md");
 const record = resolve("validation-fixtures/dummy-delegation/tasks.md");

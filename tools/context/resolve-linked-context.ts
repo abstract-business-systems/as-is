@@ -1,6 +1,6 @@
 import { join } from "node:path";
-import { Type } from "../../skills/spawning-pi-subagents/node_modules/typebox";
-import type { ToolDefinition } from "../../skills/spawning-pi-subagents/node_modules/@earendil-works/pi-coding-agent";
+import { Type } from "../../core/adapters/pi/node_modules/typebox";
+import type { ToolDefinition } from "../../core/adapters/pi/node_modules/@earendil-works/pi-coding-agent";
 import { resolveLocalLinkedContext } from "../../core/modules/context-resolution/linked-context-resolver.ts";
 
 function taskRecordNames(): string[] | undefined {

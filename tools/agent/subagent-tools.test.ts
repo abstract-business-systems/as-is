@@ -2,9 +2,9 @@ import { describe, expect, test } from "bun:test";
 import { mkdtemp, mkdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createAgentSession, createExtensionRuntime, ModelRuntime, SessionManager } from "../../skills/spawning-pi-subagents/node_modules/@earendil-works/pi-coding-agent";
+import { createAgentSession, createExtensionRuntime, ModelRuntime, SessionManager } from "../../core/adapters/pi/node_modules/@earendil-works/pi-coding-agent";
 import workerTools, { analyzeProjectSession, currentSessionName, currentSessionReference, newNestedDelegationContext, resolveWorkerThinkingLevel, toolsForTarget, workerSessionMetadata, workerSessionOptions } from "../../.pi/extensions/worker-tools";
-import { registerWorkerTools } from "../../skills/spawning-pi-subagents/extensions/worker-tools.ts";
+import { registerWorkerTools } from "../../core/adapters/pi/extensions/worker-tools.ts";
 
 const rootRecord = "# Root\n";
 

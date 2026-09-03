@@ -5,7 +5,7 @@ test("focused check has a code-owned literal argv and bounded environment", () =
   expect(FOCUSED_CHECK_IDENTIFIER).toBe("evidence-validator-focused-suite");
   expect(FOCUSED_CHECK_FILES).toEqual([
     "core/modules/task-control/task-record-validator.test.ts",
-    "skills/managing-backlog/query.test.ts",
+    "tools/backlog-query/query.test.ts",
   ]);
   expect(focusedCheckArguments()).toEqual([
     process.execPath, "test", "--timeout", "20000", ...FOCUSED_CHECK_FILES,

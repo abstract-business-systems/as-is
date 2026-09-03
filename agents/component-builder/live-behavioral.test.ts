@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 const root = process.cwd();
-const launcher = resolve(root, "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts");
+const launcher = resolve(root, "core/adapters/pi/scripts/spawn-pi-subagent.ts");
 const builderAgent = resolve(root, "agents/component-builder/agent.md");
 const liveEnabled = process.env.AS_IS_LIVE_INTEGRATION === "1";
 const configuredCaller = "component-builder";

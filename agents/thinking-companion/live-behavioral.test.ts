@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 const root = process.cwd();
-const launcher = resolve(root, "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts");
+const launcher = resolve(root, "core/adapters/pi/scripts/spawn-pi-subagent.ts");
 const agent = resolve(root, "agents/thinking-companion/agent.md");
 const skill = resolve(root, "skills/master/consulting-humans/SKILL.md");
 const expert = resolve(root, "agents/expert/agent.md");

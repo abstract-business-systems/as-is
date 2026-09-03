@@ -4,10 +4,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { calculateWeights, cleanupCompletedBacklogs, findAncestorAndDescendantCandidates, findCompletedItems, loadBacklogs, loadComponentContexts, parseBacklog, reconcileBacklogs, renderQuery, validateQueryRepresentation } from "./scripts/query";
 
-const schema = `# Backlog\n\n| id | status | user preference | system preference | purpose | description | dependencies | acceptance | notes |\n| --- | --- | ---: | ---: | --- | --- | --- | --- | --- |\n| prerequisite | open | 3 | 1 | Unblock work | Do prerequisite | - | It works | user value |\n| dependent | selected | 2 | 0 | Deliver value | Use prerequisite | skills/managing-backlog:prerequisite | It integrates | selected intentionally |\n`;
+const schema = `# Backlog\n\n| id | status | user preference | system preference | purpose | description | dependencies | acceptance | notes |\n| --- | --- | ---: | ---: | --- | --- | --- | --- | --- |\n| prerequisite | open | 3 | 1 | Unblock work | Do prerequisite | - | It works | user value |\n| dependent | selected | 2 | 0 | Deliver value | Use prerequisite | tools/backlog-query:prerequisite | It integrates | selected intentionally |\n`;
 
 test("parses the durable recording schema and component identity", () => {
-  const items = parseBacklog(schema, "skills/managing-backlog/backlog.md", "skills/managing-backlog");
+  const items = parseBacklog(schema, "tools/backlog-query/backlog.md", "tools/backlog-query");
   expect(items).toHaveLength(2);
   expect(items[0]).toMatchObject({
     id: "prerequisite",
@@ -15,19 +15,19 @@ test("parses the durable recording schema and component identity", () => {
     userPreference: 3,
     systemPreference: 1,
     dependencies: [],
-    component: "skills/managing-backlog",
+    component: "tools/backlog-query",
   });
-  expect(items[1].dependencies).toEqual(["skills/managing-backlog:prerequisite"]);
+  expect(items[1].dependencies).toEqual(["tools/backlog-query:prerequisite"]);
 });
 
 test("rejects statuses, preferences, and dependencies outside the schema", () => {
   expect(() => parseBacklog(schema.replace("selected", "active"))).toThrow("status");
   expect(() => parseBacklog(schema.replace("| 3 |", "| High |"))).toThrow("integer");
-  expect(() => parseBacklog(schema.replace("skills/managing-backlog:prerequisite", "prerequisite"))).toThrow("component:id");
+  expect(() => parseBacklog(schema.replace("tools/backlog-query:prerequisite", "prerequisite"))).toThrow("component:id");
 });
 
 test("queries rather than stores weight and lets selected dependents elevate prerequisites", () => {
-  const items = parseBacklog(schema, "skills/managing-backlog/backlog.md", "skills/managing-backlog");
+  const items = parseBacklog(schema, "tools/backlog-query/backlog.md", "tools/backlog-query");
   const weighted = calculateWeights(items);
   expect(weighted.find((item) => item.id === "dependent")?.weight).toBe(6);
   expect(weighted.find((item) => item.id === "prerequisite")?.weight).toBe(10);
@@ -36,7 +36,7 @@ test("queries rather than stores weight and lets selected dependents elevate pre
 });
 
 test("validates the requested representation columns and rejects the observed five-column response", () => {
-  const valid = renderQuery(calculateWeights(parseBacklog(schema, "skills/managing-backlog/backlog.md", "skills/managing-backlog")));
+  const valid = renderQuery(calculateWeights(parseBacklog(schema, "tools/backlog-query/backlog.md", "tools/backlog-query")));
   expect(() => validateQueryRepresentation(valid)).not.toThrow();
   const observed = `| Weight | Component | ID | Status | Purpose |\n|---:|---|---|---|---|\n| 18 | skills | \`backlog-table-schema\` | open | Record backlog proposals |`;
   expect(() => validateQueryRepresentation(observed)).toThrow("weight, component, id, status, purpose, description, dependencies, notes");
@@ -45,21 +45,21 @@ test("validates the requested representation columns and rejects the observed fi
 test("renders the top 10 by default and supports explicit view overrides", () => {
   const items = Array.from({ length: 12 }, (_, index) => parseBacklog(
     `| id | status | user preference | system preference | purpose | description | dependencies | acceptance | notes |\n| --- | --- | ---: | ---: | --- | --- | --- | --- | --- |\n| item-${index} | open | ${12 - index} | 0 | Purpose ${index} | Description ${index} | - | Works | - |`,
-    "skills/managing-backlog/backlog.md",
-    "skills/managing-backlog",
+    "tools/backlog-query/backlog.md",
+    "tools/backlog-query",
   )[0]);
   const weighted = calculateWeights(items);
   expect(renderQuery(weighted).split("\n")).toHaveLength(12);
   expect(renderQuery(weighted, null).split("\n")).toHaveLength(14);
   expect(renderQuery(weighted, 3).split("\n")).toHaveLength(5);
-  expect(renderQuery(weighted)).not.toContain("| 1 | skills/managing-backlog | item-11 |");
+  expect(renderQuery(weighted)).not.toContain("| 1 | tools/backlog-query | item-11 |");
 });
 
 test("renders the representation sorted by descending derived weight", () => {
-  const items = parseBacklog(schema, "skills/managing-backlog/backlog.md", "skills/managing-backlog");
+  const items = parseBacklog(schema, "tools/backlog-query/backlog.md", "tools/backlog-query");
   const output = renderQuery(calculateWeights(items));
-  expect(output.indexOf("| 10 | skills/managing-backlog | prerequisite |"))
-    .toBeLessThan(output.indexOf("| 6 | skills/managing-backlog | dependent |"));
+  expect(output.indexOf("| 10 | tools/backlog-query | prerequisite |"))
+    .toBeLessThan(output.indexOf("| 6 | tools/backlog-query | dependent |"));
   expect(output).toContain("| weight | component | id | status | purpose | description | dependencies | notes |");
   expect(output).not.toContain("user preference");
 });
@@ -73,19 +73,19 @@ test("loads every repository backlog using the same schema", () => {
 });
 
 test("finds completion only when the owning changelog names the item with completion evidence", () => {
-  const items = parseBacklog(schema, "skills/managing-backlog/backlog.md", "skills/managing-backlog");
+  const items = parseBacklog(schema, "tools/backlog-query/backlog.md", "tools/backlog-query");
   const completed = findCompletedItems(items, new Map([
-    ["skills/managing-backlog", "# Changelog\n- Completed `prerequisite`; validation passed.\n"],
+    ["tools/backlog-query", "# Changelog\n- Completed `prerequisite`; validation passed.\n"],
   ]));
   expect(completed.map((item) => item.id)).toEqual(["prerequisite"]);
   expect(completed[0].evidence).toContain("prerequisite");
 });
 
 test("does not remove a stale item from a different component or an unverified changelog", () => {
-  const items = parseBacklog(schema, "skills/managing-backlog/backlog.md", "skills/managing-backlog");
+  const items = parseBacklog(schema, "tools/backlog-query/backlog.md", "tools/backlog-query");
   expect(findCompletedItems(items, new Map([
     ["other-component", "- Completed `prerequisite`."],
-    ["skills/managing-backlog", "- Work mentioned prerequisite but remains open."],
+    ["tools/backlog-query", "- Work mentioned prerequisite but remains open."],
   ]))).toEqual([]);
 });
 
@@ -94,7 +94,7 @@ test("cleans only the selected evidenced identity and rejects missing or malform
   const component = join(root, "component");
   mkdirSync(component);
   Bun.write(join(component, "as-is.md"), "# Component\n");
-  writeFileSync(join(component, "backlog.md"), `${schema.replace("skills/managing-backlog/backlog.md", "component/backlog-table-schema")}\n| uncompleted | open | 0 | 0 | Uncompleted | No completion evidence | - | It remains | - |\n`);
+  writeFileSync(join(component, "backlog.md"), `${schema.replace("tools/backlog-query/backlog.md", "component/backlog-table-schema")}\n| uncompleted | open | 0 | 0 | Uncompleted | No completion evidence | - | It remains | - |\n`);
   writeFileSync(join(component, "changelog.md"), "# Changelog\n- Completed `prerequisite`; tests passed.\n- Completed `dependent`; tests passed.\n");
 
   const completed = cleanupCompletedBacklogs(root, "component:prerequisite");
@@ -115,7 +115,7 @@ test("loads component context and limits candidates to ancestor and descendant b
     const directory = join(root, component);
     mkdirSync(directory, { recursive: true });
     writeFileSync(join(directory, "as-is.md"), `# ${component || "root"}\n\n## Purpose\n${purpose}\n`);
-    writeFileSync(join(directory, "backlog.md"), `${schema.replace("skills/managing-backlog/backlog.md", `${component || "root"}/backlog.md`).replace("prerequisite", row)}\n`);
+    writeFileSync(join(directory, "backlog.md"), `${schema.replace("tools/backlog-query/backlog.md", `${component || "root"}/backlog.md`).replace("prerequisite", row)}\n`);
   };
   writeComponent("", "Root owner", "same");
   writeComponent("parent", "Parent owner", "same");
@@ -177,7 +177,7 @@ test("refuses malformed or out-of-scope reconciliation without writing", () => {
   mkdirSync(join(root, "component"));
   writeFileSync(join(root, "as-is.md"), "# root\n\n## Purpose\nRoot\n");
   writeFileSync(join(root, "component", "as-is.md"), "# component\n\n## Purpose\nComponent\n");
-  const markdown = `${schema.replaceAll("skills/managing-backlog", "component")}\n`;
+  const markdown = `${schema.replaceAll("tools/backlog-query", "component")}\n`;
   writeFileSync(join(root, "backlog.md"), markdown);
   writeFileSync(join(root, "component", "backlog.md"), markdown);
   const before = readFileSync(join(root, "backlog.md"), "utf8");
@@ -187,7 +187,7 @@ test("refuses malformed or out-of-scope reconciliation without writing", () => {
 });
 
 test("breaks dependency cycles deterministically", () => {
-  const cycle = parseBacklog(`| id | status | user preference | system preference | purpose | description | dependencies | acceptance | notes |\n| --- | --- | ---: | ---: | --- | --- | --- | --- | --- |\n| a | open | 1 | 0 | A | A | skills/managing-backlog:b | A | - |\n| b | open | 1 | 0 | B | B | skills/managing-backlog:a | B | - |`, "skills/managing-backlog/backlog.md", "skills/managing-backlog");
+  const cycle = parseBacklog(`| id | status | user preference | system preference | purpose | description | dependencies | acceptance | notes |\n| --- | --- | ---: | ---: | --- | --- | --- | --- | --- |\n| a | open | 1 | 0 | A | A | tools/backlog-query:b | A | - |\n| b | open | 1 | 0 | B | B | tools/backlog-query:a | B | - |`, "tools/backlog-query/backlog.md", "tools/backlog-query");
   expect(() => calculateWeights(cycle)).not.toThrow();
   expect(calculateWeights(cycle).map((item) => item.weight)).toEqual([3, 2]);
 });

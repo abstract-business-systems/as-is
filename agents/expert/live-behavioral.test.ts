@@ -7,7 +7,7 @@ import { join, resolve } from "node:path";
 
 const root = process.cwd();
 const agent = resolve(root, "agents/expert/agent.md");
-const launcher = resolve(root, "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts");
+const launcher = resolve(root, "core/adapters/pi/scripts/spawn-pi-subagent.ts");
 const liveEnabled = process.env.AS_IS_LIVE_INTEGRATION === "1";
 
 type Event = Record<string, any>;

@@ -4,11 +4,11 @@ import {
   SessionManager,
   type SessionEntry,
   type ToolDefinition,
-} from "../../skills/spawning-pi-subagents/node_modules/@earendil-works/pi-coding-agent";
-import { Type } from "../../skills/spawning-pi-subagents/node_modules/typebox";
+} from "../../core/adapters/pi/node_modules/@earendil-works/pi-coding-agent";
+import { Type } from "../../core/adapters/pi/node_modules/typebox";
 import { resolveConfigurationFromCwdSync } from "../../core/modules/context-resolution/configuration-resolver.ts";
-import { resolveSessionDirectory } from "../../skills/spawning-pi-subagents/scripts/session-directory.ts";
-import { sessionNameFromTaskName } from "../../skills/spawning-pi-subagents/scripts/session-naming.ts";
+import { resolveSessionDirectory } from "../../core/adapters/pi/scripts/session-directory.ts";
+import { sessionNameFromTaskName } from "../../core/adapters/pi/scripts/session-naming.ts";
 
 const maxResultCharacters = 100_000;
 const maxRegistryBytes = 1_000_000;

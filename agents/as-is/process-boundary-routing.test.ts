@@ -4,7 +4,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-const launcher = "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts";
+const launcher = "core/adapters/pi/scripts/spawn-pi-subagent.ts";
 const root = process.cwd();
 type Run = { stdout: string; stderr: string; exitCode: number };
 

@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
-import { renderMermaidBatch, rendererConfiguration } from "../../designing-mermaid-diagrams/rendered-navigation";
+import { renderMermaidBatch, rendererConfiguration } from "../../mermaid-renderer/rendered-navigation";
 import { validateAsIsDiagramsAndNavigation } from "./validate-as-is-diagrams-and-navigation";
 
 const recordPaths = (root: string): string[] => {

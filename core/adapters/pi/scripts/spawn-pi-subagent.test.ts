@@ -3,14 +3,14 @@ import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import { evaluateHandoffEligibility, type HandoffFacts } from "../../../core/modules/task-control/handoff-eligibility.ts";
+import { evaluateHandoffEligibility, type HandoffFacts } from "../../../../core/modules/task-control/handoff-eligibility.ts";
 import { assertPiVersionCompatible, contractFromPackageManifest, parsePiVersionOutput, versionProbeArguments, type PiInvocation } from "./pi-version.ts";
 import { recoveryCandidateFor } from "./recovery-reconciliation.ts";
-import { analyzeProjectSession } from "../../../tools/evidence/worker-tools-observability.ts";
+import { analyzeProjectSession } from "../../../../tools/evidence/worker-tools-observability.ts";
 import { resolveSessionDirectory } from "./session-directory.ts";
 import { localSessionIdFromJsonOutput, localSessionIdObservation } from "./session-id.ts";
 
-const SCRIPT = resolve("skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts");
+const SCRIPT = resolve("core/adapters/pi/scripts/spawn-pi-subagent.ts");
 const AGENT = "agents/as-is/agent.md";
 
 type RunResult = { stdout: string; stderr: string; exitCode: number };
@@ -137,7 +137,7 @@ test("launcher preflights environment, skill-local, and package-fallback Pi sour
     expect(JSON.parse(environment.stdout).piSource).toBe("environment");
 
     const local = await runLauncher(
-      ["--agent", resolve(AGENT), "--task", "Skill-local Pi.", "--cwd", resolve("skills/spawning-pi-subagents"), "--dry-run"],
+      ["--agent", resolve(AGENT), "--task", "Skill-local Pi.", "--cwd", resolve("core/adapters/pi"), "--dry-run"],
       baseEnv,
     );
     expect(local.exitCode).toBe(0);
@@ -843,8 +843,8 @@ test("child commit handoff is explicitly pending parent integration", async () =
     const stubPi = join(dir, "pi-commit-stub.sh");
     writeFileSync(stubPi, [
       "#!/usr/bin/env bash", "if [[ \"$1\" == \"--version\" ]]; then printf '0.84.4\\n'; exit 0; fi",
-      "printf '\\n// handoff fixture\\n' >> skills/managing-as-is-document/scripts/orient.ts",
-      "git add skills/managing-as-is-document/scripts/orient.ts",
+      "printf '\\n// handoff fixture\\n' >> tools/as-is-validators/scripts/orient.ts",
+      "git add tools/as-is-validators/scripts/orient.ts",
       "git -c user.email=test@example.invalid -c user.name=test commit --allow-empty -m 'test(launcher): record child handoff' >/dev/null",
       "exit 0",
       "",
@@ -1232,7 +1232,7 @@ test("integration status distinguishes an unreachable child commit", () => {
     expect(git(["add", "."]).status).toBe(0);
     expect(git(["-c", "user.email=test@example.invalid", "-c", "user.name=test", "commit", "-qm", "base"]).status).toBe(0);
     const unreachableSha = "0".repeat(40);
-    expect(spawnSync(Bun.which("bun") ?? "bun", ["-e", `import { integrationStatusFor } from ${JSON.stringify(join(process.cwd(), "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts"))}; console.log(integrationStatusFor(${JSON.stringify(unreachableSha)}, ${JSON.stringify(dir)}));`], { encoding: "utf8" }).stdout.trim()).toBe("unreachable");
+    expect(spawnSync(Bun.which("bun") ?? "bun", ["-e", `import { integrationStatusFor } from ${JSON.stringify(join(process.cwd(), "core/adapters/pi/scripts/spawn-pi-subagent.ts"))}; console.log(integrationStatusFor(${JSON.stringify(unreachableSha)}, ${JSON.stringify(dir)}));`], { encoding: "utf8" }).stdout.trim()).toBe("unreachable");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
@@ -1500,8 +1500,8 @@ test("worktree preservation: uncommitted work on clean exit is preserved", async
     writeFileSync(stubPi, [
       "#!/usr/bin/env bash", "if [[ \"$1\" == \"--version\" ]]; then printf '0.84.4\\n'; exit 0; fi",
       "# Simulate an agent that does work but exits without committing.",
-      "mkdir -p skills/managing-as-is-document/scripts",
-      "echo 'unfinished work' > skills/managing-as-is-document/scripts/scratch.ts",
+      "mkdir -p tools/as-is-validators/scripts",
+      "echo 'unfinished work' > tools/as-is-validators/scripts/scratch.ts",
       "exit 0",
       "",
     ].join("\n"), { mode: 0o755 });
@@ -1527,7 +1527,7 @@ test("worktree preservation: uncommitted work on clean exit is preserved", async
     const privateLines = readFileSync(`${registry}.private`, "utf8").split("\n").filter(Boolean).map((line) => JSON.parse(line));
     const privateHandle = privateLines.find((line) => line.jobId === handle.jobId) as { worktreePath: string };
     expect(existsSync(privateHandle.worktreePath)).toBe(true);
-    const scratch = join(privateHandle.worktreePath, "skills/managing-as-is-document/scripts/scratch.ts");
+    const scratch = join(privateHandle.worktreePath, "tools/as-is-validators/scripts/scratch.ts");
     expect(existsSync(scratch)).toBe(true);
     expect(readFileSync(scratch, "utf8")).toContain("unfinished work");
 

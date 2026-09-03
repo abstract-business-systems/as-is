@@ -11,13 +11,13 @@ type BunFile = {
 
 const bun = (globalThis as typeof globalThis & { Bun: { file(path: URL): BunFile } }).Bun;
 const file = (relativePath: string) => bun.file(new URL(relativePath, import.meta.url));
-// A14 runtime home: of skills/managing-as-is-document retired at F5; this validator is retained runtime tooling.
+// A14 runtime home: of tools/as-is-validators retired at F5; this validator is retained runtime tooling.
 // Its former self-referential narrative phrase batteries retired with that narrative; the repository-wide record walk, breadcrumb rules,
 // and diagram/navigation validation below remain the repo-wide conformance gate; A13's transitional scope is resolved at F9.
 const [vocabulary, mermaidSkill, skillsRecord] = await Promise.all([
   file("../../core/contracts/architecture-vocabulary.md").text(),
   file("../../skills/master/designing-mermaid-diagrams/SKILL.md").text(),
-  file("../as-is.md").text(),
+  file("../../skills/as-is.md").text(),
 ]);
 
 for (const phrase of [

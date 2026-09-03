@@ -5,8 +5,8 @@ import { resolve } from "node:path";
 const root = process.cwd();
 const agent = readFileSync(resolve(root, "agents/evidence-validator/agent.md"), "utf8");
 const asIs = readFileSync(resolve(root, "agents/evidence-validator/as-is.md"), "utf8");
-const launcher = readFileSync(resolve(root, "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts"), "utf8");
-const extension = readFileSync(resolve(root, "skills/spawning-pi-subagents/scripts/evidence-validator-inspection-extension.ts"), "utf8");
+const launcher = readFileSync(resolve(root, "core/adapters/pi/scripts/spawn-pi-subagent.ts"), "utf8");
+const extension = readFileSync(resolve(root, "core/adapters/pi/scripts/evidence-validator-inspection-extension.ts"), "utf8");
 
 function profileFor(caller: string): string {
   // This is a provider-independent admission model: the role-owned contract

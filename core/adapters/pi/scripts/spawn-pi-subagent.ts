@@ -6,14 +6,14 @@ import { appendFile, mkdtemp, open, readFile, rm, writeFile } from "node:fs/prom
 import { tmpdir } from "node:os";
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { assertPiVersionCompatible, loadPiVersionContract, versionProbeArguments, type PiInvocation } from "./pi-version.ts";
-import { boundedLimit } from "../../../core/modules/task-control/budget.ts";
-import { runBoundedProcess } from "../../../core/adapters/process/bounded-process-supervisor.ts";
-import { emitTrace, startSpan, serializeSessionReference, type SessionReference, type TraceObservation, type TraceObservationKind, type TraceObservationSource } from "../../../core/modules/observability/tracer.ts";
-import { isLocalSessionUuid } from "../../../core/modules/observability/provider-correlation.ts";
-import { evaluateHandoffEligibility, type HandoffFacts } from "../../../core/modules/task-control/handoff-eligibility.ts";
-import { resolveInstructionContext } from "../../../core/modules/context-resolution/instruction-resolver.ts";
-import { findConfigurationRootSync, parseAsIsJson, resolveConfigurationSync } from "../../../core/modules/context-resolution/configuration-resolver.ts";
-import { taskRecordNameFromConfiguration } from "../../../core/modules/task-control/task-record-policy.ts";
+import { boundedLimit } from "../../../../core/modules/task-control/budget.ts";
+import { runBoundedProcess } from "../../../../core/adapters/process/bounded-process-supervisor.ts";
+import { emitTrace, startSpan, serializeSessionReference, type SessionReference, type TraceObservation, type TraceObservationKind, type TraceObservationSource } from "../../../../core/modules/observability/tracer.ts";
+import { isLocalSessionUuid } from "../../../../core/modules/observability/provider-correlation.ts";
+import { evaluateHandoffEligibility, type HandoffFacts } from "../../../../core/modules/task-control/handoff-eligibility.ts";
+import { resolveInstructionContext } from "../../../../core/modules/context-resolution/instruction-resolver.ts";
+import { findConfigurationRootSync, parseAsIsJson, resolveConfigurationSync } from "../../../../core/modules/context-resolution/configuration-resolver.ts";
+import { taskRecordNameFromConfiguration } from "../../../../core/modules/task-control/task-record-policy.ts";
 import { parseThinkingLevel, resolveThinkingLevel, type ThinkingLevel } from "./agent-thinking.ts";
 import { recoveryCandidateFor, type RecoveryCandidateObservation } from "./recovery-reconciliation.ts";
 import {
@@ -21,7 +21,7 @@ import {
   parseDeclaredTools,
   identityFromAgent,
   type AgentDefinition,
-} from "../../../core/modules/agent-resolution/agent-resolution.ts";
+} from "../../../../core/modules/agent-resolution/agent-resolution.ts";
 import { retainPiUsageAggregate, summarizePiUsage, type PiUsageSummary } from "./pi-usage-accounting.ts";
 import { sessionNameFromTaskName } from "./session-naming.ts";
 import { resolveSessionDirectory } from "./session-directory.ts";
@@ -190,7 +190,7 @@ const recordComponentTrace = async (cwd: string, event: Record<string, unknown>)
 };
 
 const usage = `Usage:
-  bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts [options]
+  bun core/adapters/pi/scripts/spawn-pi-subagent.ts [options]
 
 Required (unless --supervise or --jobs):
   --agent <path>             Agent Markdown file to load
@@ -1159,7 +1159,7 @@ const main = async() => {
     noSession: Boolean(options.noSession) && !isEvidenceValidation,
     noExtensions: true,
     extensionPath: resolve(cwd, isEvidenceValidation
-      ? "skills/spawning-pi-subagents/scripts/evidence-validator-inspection-extension.ts"
+      ? "core/adapters/pi/scripts/evidence-validator-inspection-extension.ts"
       : ".pi/extensions/worker-tools.ts"),
     noApprove: isEvidenceValidation || Boolean(options.noApprove),
     worktree: isEvidenceValidation ? false : !(options.noWorktree ?? false),

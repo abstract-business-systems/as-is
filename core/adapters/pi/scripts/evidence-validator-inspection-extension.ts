@@ -4,7 +4,7 @@ import { Type } from "typebox";
 export const FOCUSED_CHECK_IDENTIFIER = "evidence-validator-focused-suite";
 export const FOCUSED_CHECK_FILES = [
   "core/modules/task-control/task-record-validator.test.ts",
-  "skills/managing-backlog/query.test.ts",
+  "tools/backlog-query/query.test.ts",
 ] as const;
 const FOCUSED_CHECK_TIMEOUT_MS = 120_000;
 const KILL_GRACE_MS = 500;
@@ -28,8 +28,8 @@ const FIXED_BUN_EXECUTABLE = process.execPath;
 
 const OPERATIONS = {
   status: ["status", "--short"],
-  diff: ["diff", "--no-ext-diff", "--", "skills/spawning-pi-subagents", "agents/evidence-validator"],
-  diffCheck: ["diff", "--check", "--no-ext-diff", "--", "skills/spawning-pi-subagents", "agents/evidence-validator"],
+  diff: ["diff", "--no-ext-diff", "--", "core/adapters/pi", "agents/evidence-validator"],
+  diffCheck: ["diff", "--check", "--no-ext-diff", "--", "core/adapters/pi", "agents/evidence-validator"],
   head: ["log", "-1", "--oneline", "--decorate"],
 } as const;
 

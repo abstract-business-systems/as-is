@@ -3,7 +3,7 @@ import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { analyzeProjectSession, correlateJobRegistryWithTraces, createTraceQueryTools, filterTraceEvents, readJobRegistryEvidence, readTraceEvents, readTraceEvidence, summarizeTraceCorrelation } from "./worker-tools-observability.ts";
-import { SessionManager } from "../../skills/spawning-pi-subagents/node_modules/@earendil-works/pi-coding-agent";
+import { SessionManager } from "../../core/adapters/pi/node_modules/@earendil-works/pi-coding-agent";
 
 test("focused observability functionality keeps session summaries bounded and details explicit", async () => {
   const cwd = await mkdtemp(join(tmpdir(), "as-is-focused-observability-"));
