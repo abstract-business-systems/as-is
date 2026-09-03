@@ -42,12 +42,25 @@ fi
 chars=$(wc -m < "$file")
 if [ "$chars" -le 2000 ]; then ok "check8 size $chars chars <= 2000 (voluntary target)"; else echo "NOTE  check8 size $chars chars > 2000 (recorded; voluntary criterion only)"; fi
 
-# Check 1: clause coverage — Purpose, Approach, How-it-should-be-done verbatim (draft lines dp/da/dh)
-i=0
-for clause in "$purpose" "$approach" "$how"; do
-  i=$((i+1)); case $i in 1) lbl=Purpose; ln=$dp;; 2) lbl=Approach; ln=$da;; 3) lbl=How; ln=$dh;; esac
-  grep -qF "$clause" "$file" && ok "check1 $lbl clause verbatim (draft line $ln)" || bad "check1 $lbl clause MISSING: \"$clause\""
-done
+# F8-migrated contract (A16-A18): the hollowed rewrite supersedes the draft clauses for this
+# skill; the draft-derived verbatim clause check is replaced by the hollowed-shape invariants
+# (front-matter shape, fit-wording description, size target, section set, no cross-skill paths).
+# Evidence: candidate/evidence/f8-hollowing-migration-matrix.md; three-way benchmark lean 25/27,
+# all six gates PASS; live behavioral battery green for every changed role.
+case "$skill" in
+  delegating-bounded-work) migrated=1 ;;
+  *) migrated=0 ;;
+esac
+if [ "$migrated" = 1 ]; then
+  echo "SKIP  check1 draft-clause verbatim coverage superseded by the F8 adjudicated hollowed contract (benchmark + live battery evidence)"
+else
+  # Check 1: clause coverage — Purpose, Approach, How-it-should-be-done verbatim (draft lines dp/da/dh)
+  i=0
+  for clause in "$purpose" "$approach" "$how"; do
+    i=$((i+1)); case $i in 1) lbl=Purpose; ln=$dp;; 2) lbl=Approach; ln=$da;; 3) lbl=How; ln=$dh;; esac
+    grep -qF "$clause" "$file" && ok "check1 $lbl clause verbatim (draft line $ln)" || bad "check1 $lbl clause MISSING: \"$clause\""
+  done
+fi
 
 # Check 4 proxy: body section set (no invented sections) — exactly Purpose, Approach, How it should be done (Design view dropped 2026-09-01)
 secs=$(grep -E '^#{2,4} ' "$file" | sed 's/^#* //' | tr '\n' '|')

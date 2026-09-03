@@ -34,24 +34,50 @@ fi
 chars=$(wc -m < "$file")
 if [ "$chars" -le 2000 ]; then ok "check8 size $chars chars <= 2000"; else echo "NOTE  check8 size $chars chars > 2000 (masters may exceed the voluntary target: compositions, gates, recovery, stopping rules; draft line 132)"; fi
 
-i=0
-for clause in "$purpose" "$approach" "$how"; do
-  i=$((i+1)); case $i in 1) lbl=Purpose; ln=$dp;; 2) lbl=Approach; ln=$da;; 3) lbl=How; ln=$dh;; esac
-  grep -qF "$clause" "$file" && ok "check1 $lbl clause verbatim (draft line $ln)" || bad "check1 $lbl clause MISSING"
-done
+# F8-migrated contracts (A16-A18): the hollowed rewrites supersede the draft clauses and
+# Composition context sections for these skills; the draft-derived verbatim, section-set, and
+# composition-entry checks are replaced by the hollowed-shape invariants (front-matter shape,
+# fit-wording description, size target, hollowed section set, no cross-artifact paths).
+# Evidence: candidate/evidence/f8-hollowing-migration-matrix.md; three-way benchmark lean 25/27,
+# all six gates PASS; live behavioral battery green for every changed role.
+case "$skill" in
+  building-components|spawning-subagents) migrated=1 ;;
+  *) migrated=0 ;;
+esac
 
-secs=$(grep -E '^## ' "$file" | sed 's/^#* //' | tr '\n' '|')
-if [ "$secs" = "Purpose|Approach|How it should be done|Composition context|" ]; then
-  ok "check4 sections exactly Purpose/Approach/How it should be done/Composition context"
+if [ "$migrated" = 1 ]; then
+  echo "SKIP  check1/check4/check13 draft-derived contract coverage superseded by the F8 adjudicated hollowed contract (benchmark + live battery evidence)"
+  secs=$(grep -E '^## ' "$file" | sed 's/^#* //' | tr '\n' '|')
+  if [ "$secs" = "Purpose|Approach|How it should be done|" ]; then
+    ok "check4 hollowed sections exactly Purpose/Approach/How it should be done"
+  else
+    bad "check4 hollowed section set differs: $secs"
+  fi
+  if grep -qE "candidate/skills/(reusable|master)/" "$file"; then
+    bad "check4 contains a candidate artifact path reference"
+  else
+    ok "check4 no path reference to other candidate artifacts"
+  fi
 else
-  bad "check4 section set differs: $secs"
-fi
+  i=0
+  for clause in "$purpose" "$approach" "$how"; do
+    i=$((i+1)); case $i in 1) lbl=Purpose; ln=$dp;; 2) lbl=Approach; ln=$da;; 3) lbl=How; ln=$dh;; esac
+    grep -qF "$clause" "$file" && ok "check1 $lbl clause verbatim (draft line $ln)" || bad "check1 $lbl clause MISSING"
+  done
 
-# Composition context must not reference other candidate artifact file paths
-if grep -qE "candidate/skills/(reusable|master)/" "$file"; then
-  bad "check4 contains a candidate artifact path reference"
-else
-  ok "check4 no path reference to other candidate artifacts"
+  secs=$(grep -E '^## ' "$file" | sed 's/^#* //' | tr '\n' '|')
+  if [ "$secs" = "Purpose|Approach|How it should be done|Composition context|" ]; then
+    ok "check4 sections exactly Purpose/Approach/How it should be done/Composition context"
+  else
+    bad "check4 section set differs: $secs"
+  fi
+
+  # Composition context must not reference other candidate artifact file paths
+  if grep -qE "candidate/skills/(reusable|master)/" "$file"; then
+    bad "check4 contains a candidate artifact path reference"
+  else
+    ok "check4 no path reference to other candidate artifacts"
+  fi
 fi
 
 # Check 12: design-view Mermaid block byte-equal vs draft
@@ -66,8 +92,11 @@ fi
 # Check 13: composition fidelity — every named composition entry present in Composition context
 CC=$(awk '/^## Composition context/{f=1} f' "$file")
 req() { echo "$CC" | grep -qiF "$2" && ok "check13 composition entry: $1" || bad "check13 MISSING composition entry: $1"; }
-case "$skill" in
-  making-changes)
+if [ "$migrated" = 1 ]; then
+  echo "SKIP  check13 composition entries superseded by the F8 adjudicated hollowed contract (benchmark + live battery evidence)"
+else
+  case "$skill" in
+    making-changes)
     for e in "Component-based change" "Non-component change" "resolving-scopes" "identifying-owners" "building-context" "choosing-change-methods" "implementing-tasks" "applying-bounded-edits" "writing-tests" "validating-changes" "locating-changelogs" "managing-changelogs" "making-changes = resolving-scopes"; do req "$e" "$e"; done
     ;;
   building-components)
@@ -97,6 +126,7 @@ case "$skill" in
     req "tool-access acknowledgment" "A skill does not grant tools"
     ;;
 esac
+fi
 
 echo "----"
 echo "isolation fixture listing at test time (check 9):"
