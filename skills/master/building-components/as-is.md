@@ -8,7 +8,7 @@ Build bounded component tasks with delegation, validation, history, and completi
 
 The skill is the master composition for reading durable context, obtaining attributable plan review, preparing configured delegation, and composing implementation, validation, history, recovery, and completion procedures. It grants no tools or authority. The role and task record remain authoritative for admission, scope, integration, and completion decisions.
 
-**Lineage**: [as-is](../../../as-is.md#design) / [Skills](../../as-is.md#design) / **Building components**
+**Lineage**: [as-is](../../../as-is.md#design) / [Skills](../../as-is.md#design) / [Master skills](../as-is.md#design) / **Building components**
 
 ### Component task flow
 

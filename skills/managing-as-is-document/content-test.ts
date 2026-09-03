@@ -13,7 +13,7 @@ const bun = (globalThis as typeof globalThis & { Bun: { file(path: URL): BunFile
 const file = (relativePath: string) => bun.file(new URL(relativePath, import.meta.url));
 // A14 runtime home: of skills/managing-as-is-document retired at F5; this validator is retained runtime tooling.
 // Its former self-referential narrative phrase batteries retired with that narrative; the repository-wide record walk, breadcrumb rules,
-// and diagram/navigation validation below remain the repo-wide conformance gate (A13 tracks their transitional scope until F9).
+// and diagram/navigation validation below remain the repo-wide conformance gate; A13's transitional scope is resolved at F9.
 const [vocabulary, mermaidSkill, skillsRecord] = await Promise.all([
   file("../../core/contracts/architecture-vocabulary.md").text(),
   file("../../skills/master/designing-mermaid-diagrams/SKILL.md").text(),
@@ -68,7 +68,6 @@ const canonicalRecords = (directory: string): string[] => readdirSync(directory,
   if ([".git", "node_modules"].includes(entry.name)) return [];
   const path = join(directory, entry.name);
   if (path === join(repositoryRoot, "candidate", "benchmark")) return []; // frozen benchmark consumer trees are preserved evidence with their own record roots, not live canonical records
-  if ([join(repositoryRoot, "skills", "master"), join(repositoryRoot, "skills", "reusable")].includes(path)) return []; // transitional side-by-side namespaces (F0); conformance debt resolved by the F9 catalog reduction (backlog: adopted-catalog-record-conformance)
   if (entry.isDirectory()) return canonicalRecords(path);
   if (entry.isFile() && entry.name === "as-is.md" && path !== excludedPrompt && canonicalTitle(readFileSync(path, "utf8"))) return [path];
   return [];
@@ -138,9 +137,6 @@ const diagramValidation = validateAsIsDiagramsAndNavigation(repositoryRoot, {
   requireDiagrams: false,
   requireNamedDiagramHeadings: false,
   maxUnwrappedLabelCharacters: 28,
-  transitionalSectionTitles: ["Adopted composable catalog (side-by-side, transitional)"], // removed at F9 when the catalog reduces to the adopted set
-  transitionalExternalRecords: true, // catalog links into the excluded transitional namespaces resolve on disk; full conformance lands with the F9 catalog reduction
-  transitionalEdgelessSiblings: true, // F5-F8 transitional container holds 1-2 unconnected retiring children; full sibling wiring lands with the F9 catalog reduction
 });
 if (diagramValidation.issues.length > 0) {
   throw new Error(`as-is diagram and navigation validation failed: ${JSON.stringify(diagramValidation.issues)}`);

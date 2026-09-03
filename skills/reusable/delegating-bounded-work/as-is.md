@@ -8,7 +8,7 @@ Prepare a bounded child handoff without transferring authority implicitly while 
 
 The skill distinguishes in-process `call_subagent` assistance within the same component from a separately owned child, verifies the child's boundary, configured worker, task revision, and active-attempt state, and calculates a handoff that fits available cost and wall-clock budget after local use and retained reserve. It grants no tools or authority and does not launch the child.
 
-**Lineage**: [as-is](../../../as-is.md#design) / [Skills](../../as-is.md#design) / **Delegating Bounded Work**
+**Lineage**: [as-is](../../../as-is.md#design) / [Skills](../../as-is.md#design) / [Reusable skills](../as-is.md#design) / **Delegating Bounded Work**
 
 ### Bounded handoff flow
 

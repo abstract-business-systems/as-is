@@ -8,7 +8,7 @@ Launch, observe, recover, and hand off bounded delegated work under existing aut
 
 The skill consumes the control plane's `admitLaunch()` result and invokes only the approved host adapter with the admitted role, task, record, caller linkage, and handoff budget. It describes the launch and observation procedure; deterministic admission and limit enforcement remain runtime/control-plane responsibilities.
 
-**Lineage**: [as-is](../../../as-is.md#design) / [Skills](../../as-is.md#design) / **Spawning Subagents**
+**Lineage**: [as-is](../../../as-is.md#design) / [Skills](../../as-is.md#design) / [Master skills](../as-is.md#design) / **Spawning Subagents**
 
 ### Bounded launch flow
 

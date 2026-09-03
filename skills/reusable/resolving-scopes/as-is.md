@@ -11,7 +11,7 @@ It is a reusable sibling under the skills catalog; its scope resolution feeds do
 
 It establishes fit only and grants no tools or authority; it must not assume a component task or override an owning component's authority when ownership is ambiguous.
 
-**Lineage**: [as-is](../../../as-is.md#design) / [Skills](../../as-is.md#design) / **Resolving Scopes**
+**Lineage**: [as-is](../../../as-is.md#design) / [Skills](../../as-is.md#design) / [Reusable skills](../as-is.md#design) / **Resolving Scopes**
 
 ### Scope resolution flow
 

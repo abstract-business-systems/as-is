@@ -11,7 +11,7 @@ It is a reusable sibling under the skills catalog; downstream backlog procedures
 
 It grants no tools and no authority over status selection or completion; backlog authority alone owns selecting and claiming the recorded work.
 
-**Lineage**: [as-is](../../../as-is.md#design) / [Skills](../../as-is.md#design) / **Recording Backlog Items**
+**Lineage**: [as-is](../../../as-is.md#design) / [Skills](../../as-is.md#design) / [Reusable skills](../as-is.md#design) / **Recording Backlog Items**
 
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
