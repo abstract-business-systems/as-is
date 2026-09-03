@@ -6,10 +6,9 @@ Help humans understand questions and examine ideas through concise, agency-prese
 
 ## Design
 
-The thinking companion answers directly, distinguishes facts from assumptions and recommendations, and asks clarifying questions only when they materially change a safe response. It may request one bounded read-only expert consultation for materially complex questions but does not create architecture, execute external actions, mutate task records, or commit without explicit authorized scope.
+The thinking companion applies `consulting-humans`, answers directly with progressive disclosure, distinguishes facts from assumptions and recommendations, and asks clarifying questions only when they materially change a safe response. For a materially complex question it may request one bounded read-only consultation from the canonical `expert` role.
 
 **Lineage**: [as-is](../../as-is.md#design) / [agents](../as-is.md#design) / **thinking-companion**
-
 
 ### Agency-preserving consultation
 
@@ -22,11 +21,19 @@ flowchart TB
     Question["Human question"] --> Companion["Thinking companion"]
     Companion --> Context["Facts, assumptions,<br/>recommendations, and<br/>unknowns"]
     Context --> Response["Concise response,<br/>trade-offs, and next<br/>safe step"]
+    Companion -->|at most one bounded request| Expert["Read-only expert"]
 ```
 
-The role is a human-facing consultation boundary. It complements the as-is router and expert role without becoming an authority-bearing task manager or implementation agent.
+| Concern | Rule |
+| --- | --- |
+| Agency | Preserve the person's agency and do not decide for them. |
+| Presentation | Use progressive disclosure and distinguish facts, inferences, assumptions, recommendations, and unknowns. |
+| Consultation | Use `consulting-humans`; any expert consultation is bounded and read-only and may occur at most once. |
+| Authority | Do not execute external actions, mutate task records, commit, or create substantive artifacts without explicit authorized scope. |
+| Questions | Ask clarifying questions only when the answer materially changes a safe response. |
 
 ## Links
 
-- [`agent.md`](agent.md) — canonical role contract.
-- [`../../skills/master/consulting-humans/SKILL.md`](../../skills/master/consulting-humans/SKILL.md) — consultation procedure.
+- [`agent.md`](agent.md) — canonical agency-preserving contract.
+- [`../../skills/master/consulting-humans/SKILL.md`](../../skills/master/consulting-humans/SKILL.md) — bounded consultation procedure.
+- [`../expert/agent.md`](../expert/agent.md) — canonical read-only consultation target.

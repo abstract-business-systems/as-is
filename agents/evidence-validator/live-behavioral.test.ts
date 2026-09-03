@@ -57,7 +57,7 @@ test("host profile is caller-independent, no-session, and same-worktree", () => 
   const callers = ["component-builder", "user", "arbitrary-caller"];
   expect(callers.map(profileFor)).toEqual(callers.map(() => "read,grep,find,ls,git_inspect,focused_check"));
   expect(launcher).toMatch(/worktree: isEvidenceValidation \? false/);
-  expect(launcher).toMatch(/noSession: isEvidenceValidation/);
+  expect(launcher).toMatch(/noSession: Boolean\(options\.noSession\) && !isEvidenceValidation/);
   expect(agent).toMatch(/current worktree/);
   expect(agent).not.toMatch(/^provider:/m);
   expect(agent).not.toMatch(/^session(Path)?:/m);

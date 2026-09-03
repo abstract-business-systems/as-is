@@ -426,7 +426,10 @@ const resolvePi = (requested: string | undefined, cwd: string): PiInvocation => 
   }
   return {
     command: Bun.which("bun") ?? "bun",
-    args: ["x", "--bun", contract.packageSpec],
+    // pi 0.84.4's dist is node-runtime targeted (its bundled undici uses APIs
+    // Bun's runtime lacks); run the package's own bin shim like the
+    // skill-local install does instead of forcing Bun's runtime with --bun.
+    args: ["x", contract.packageSpec],
     source: "package-fallback",
   };
 };

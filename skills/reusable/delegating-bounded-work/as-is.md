@@ -1,14 +1,36 @@
 # Delegating Bounded Work - as-is
 
 ## Purpose
-Prepare a bounded child handoff without transferring authority implicitly.
+
+Prepare a bounded child handoff without transferring authority implicitly while the parent retains task, budget, status, and ownership authority.
 
 ## Design
 
-The skill defines the child outcome, scope, budget, context, acceptance, changed-artifact boundary, recovery checkpoint, and return contract while the parent retains authority and ownership boundaries. It is a delegation sibling under the Skills catalog, distinct from the launch-and-observe procedure that runs child processes: this skill governs the handoff contract, not the child's execution. The skill establishes fit only and grants no tools or authority; it never delegates parent authority or sibling files, and it records the delegation rather than expanding the child's scope.
+The skill distinguishes in-process `call_subagent` assistance within the same component from a separately owned child, verifies the child's boundary, configured worker, task revision, and active-attempt state, and calculates a handoff that fits available cost and wall-clock budget after local use and retained reserve. It grants no tools or authority and does not launch the child.
 
 **Lineage**: [as-is](../../../as-is.md#design) / [Skills](../../as-is.md#design) / **Delegating Bounded Work**
 
+### Bounded handoff flow
+
+```mermaid
+flowchart TD
+    Boundary["Child boundary and<br/>configured worker"] --> Budget["Available budget and<br/>active-attempt check"]
+    Budget --> Packet["Bounded handoff packet"]
+    Packet --> Admission["Control-plane<br/>admission request"]
+    Admission --> Record["Delegation, blocker,<br/>or approval record"]
+```
+
+| Concern | Rule |
+| --- | --- |
+| Boundary | Use in-process `call_subagent` for same-component assistance, distinguish it from a separately owned child, and never delegate parent authority or sibling files. |
+| Admission | Verify component boundary, configured worker, task revision, and absence of an active attempt before requesting control-plane admission. |
+| Budget | Calculate allocation minus local spent use and retained reserve, then fit this handoff with existing child allocations. |
+| Handoff | Record outcome, scope, linked context, acceptance, changed-artifact boundary, recovery checkpoint, return format, and handoff budget. |
+| Recording | Record the delegation, blocker, or required approval durably; this skill does not launch or authorize work. |
+| Authority | The parent retains task, budget, status, and ownership authority; the skill grants no tools or authority. |
+
 ## Links
-- [SKILL.md](SKILL.md) — authoritative procedure and contract.
-- [../../as-is.md](../../as-is.md) — concise capability catalog entry.
+
+- [SKILL.md](SKILL.md) — authoritative bounded handoff procedure.
+- [../../as-is.md](../../as-is.md#design) — concise capability catalog entry.
+- [../../../agents/component-builder/as-is.md#design](../../../agents/component-builder/as-is.md#design) — role ownership and boundary.

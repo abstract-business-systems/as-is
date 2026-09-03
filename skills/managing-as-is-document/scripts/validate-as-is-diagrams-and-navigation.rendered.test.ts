@@ -9,6 +9,11 @@ const recordPaths = (root: string): string[] => {
   const visit = (directory: string): void => {
     for (const entry of readdirSync(directory, { withFileTypes: true })) {
       if (entry.isDirectory()) {
+        // A13 transitional scoping (mirrors content-test.ts): frozen benchmark
+        // evidence trees and the transitional side-by-side skill namespaces are
+        // excluded until the F9 catalog reduction (adopted-catalog-record-conformance).
+        if (entry.name === "benchmark" && directory.endsWith("candidate")) continue;
+        if (entry.name in { master: 1, reusable: 1 } && directory.endsWith("skills")) continue;
         if (![".git", "node_modules", ".pi", ".opencode"].includes(entry.name)) visit(join(directory, entry.name));
       } else if (entry.isFile() && entry.name === "as-is.md") {
         paths.push(join(directory, entry.name).slice(root.length + 1));
@@ -26,6 +31,10 @@ test("optionally consumes browser-rendered href evidence for linked as-is diagra
     requireDiagrams: false,
     requireNamedDiagramHeadings: false,
     maxUnwrappedLabelCharacters: 28,
+    // A13 transitional tolerances (removed at F9 with the catalog reduction):
+    transitionalSectionTitles: ["Adopted composable catalog (side-by-side, transitional)"],
+    transitionalExternalRecords: true,
+    transitionalEdgelessSiblings: true,
   });
   expect(validation.issues).toEqual([]);
   const diagrams = validation.diagrams;

@@ -5,13 +5,15 @@ description: Use when a bounded child handoff must be prepared without transferr
 
 ## Purpose
 
-Prepare a bounded child handoff without transferring authority implicitly.
+Prepare a bounded child handoff without transferring authority implicitly, while the parent retains task, budget, status, and ownership authority.
 
 ## Approach
 
-Define the child outcome, scope, budget, context, acceptance, and return contract while retaining parent authority and ownership boundaries.
+Distinguish in-process `call_subagent` assistance within the same component from a separately owned child; verify the child's component boundary, configured worker, task revision, and absence of an active attempt.
+
+Calculate available cost and wall-clock budget as allocation minus local spent use and retained reserve, then ensure this handoff plus existing child allocations fits the remainder.
 
 ## How it should be done
 
-Verify the child boundary and configured worker; provide explicit linked context, budget, acceptance, changed-artifact boundary, recovery checkpoint, and return format; record the delegation; do not delegate parent authority or sibling files.
+Record the outcome, scope, linked context, acceptance, changed-artifact boundary, recovery checkpoint, return format, and handoff budget; request control-plane admission before launch and record the delegation, blocker, or required approval durably; never substitute a worker, delegate parent authority, or edit parent or sibling files.
 

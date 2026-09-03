@@ -32,8 +32,8 @@ function makePiStub(dir: string): string {
   writeFileSync(path, `#!/usr/bin/env bash
 set -u
 if [[ "\${1:-}" == "--version" ]]; then
-  printf '0.84.0\\n' > '${probe}'
-  printf '0.84.0\\n'
+  printf '0.84.4\\n' > '${probe}'
+  printf '0.84.4\\n'
   exit 0
 fi
 session_id=""
@@ -80,7 +80,7 @@ test("as-is reconstructs a bounded failed attempt and fresh retry from registry 
     const pi = makePiStub(root);
     const failed = launchChild(pi, registry, trace, "dummy-retry", "1", undefined, { AS_IS_STUB_ATTEMPT: "failure" });
     expect(failed.exitCode).toBe(17);
-    expect(readFileSync(join(root, "version-probe-observed"), "utf8").trim()).toBe("0.84.0");
+    expect(readFileSync(join(root, "version-probe-observed"), "utf8").trim()).toBe("0.84.4");
     const firstLaunch = readEvents(registry).find((event) => event.event === "launched");
     expect(firstLaunch).toBeDefined();
 
@@ -133,11 +133,11 @@ test("as-is delegates one bounded component-builder attempt with durable evidenc
   try {
     const registry = join(root, "jobs.jsonl");
     const innerStub = join(root, "component-builder-pi-stub.sh");
-    writeFileSync(innerStub, "#!/usr/bin/env bash\nif [[ \"$1\" == \"--version\" ]]; then printf '0.84.0\\n'; exit 0; fi\nprintf '{\\\"fixture\\\":true}\\n'\n", { mode: 0o755 });
+    writeFileSync(innerStub, "#!/usr/bin/env bash\nif [[ \"$1\" == \"--version\" ]]; then printf '0.84.4\\n'; exit 0; fi\nprintf '{\\\"fixture\\\":true}\\n'\n", { mode: 0o755 });
     const callerStub = join(root, "as-is-caller-stub.sh");
     writeFileSync(callerStub, [
       "#!/usr/bin/env bash",
-      `if [[ "$1" == "--version" ]]; then printf '0.84.0\\n'; exit 0; fi`,
+      `if [[ "$1" == "--version" ]]; then printf '0.84.4\\n'; exit 0; fi`,
       `exec bun '${launcher}' --agent '${builderAgent}' --task 'Dummy component-builder attempt.' --cwd '${process.cwd()}' --record '${record}' --caller as-is --pi '${innerStub}' --no-worktree --no-session --budget-wall-clock-seconds 10 --budget-cost-usd 0.01`,
       "",
     ].join("\n"), { mode: 0o755 });

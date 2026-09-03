@@ -6,10 +6,9 @@ Perform bounded, read-only validation of supplied controlled-worktree evidence a
 
 ## Design
 
-The validator inspects the applicable task record, supplied task scope, and bounded controlled-worktree Git evidence, then returns a finding, observed evidence, the smallest safe next action, and residual risk. Its fixed `focused_check` capability collects code-owned, parameterless evidence from the declared local suite; it is not arbitrary command execution and accepts no caller-selected command, path, argument, environment, or authority. The validator does not edit, delegate, commit, or grant task authority.
+The validator is caller-independent and inspects only the supplied task scope and bounded controlled-worktree evidence. Its fixed `focused_check` capability is parameterless, code-owned fixed evidence collection only, and not arbitrary command execution. The role reports bounded evidence and grants no execution, mutation, task, delegation, commit, or completion authority.
 
 **Lineage**: [as-is](../../as-is.md#design) / [agents](../as-is.md#design) / **evidence-validator**
-
 
 ### Controlled-worktree validation boundary
 
@@ -19,13 +18,21 @@ config:
   layout: elk
 ---
 flowchart TB
-    Validator["Evidence validator"] -->|reads| Scope["Supplied task scope"]
-    Validator -->|validates| Evidence["Controlled-worktree<br/>evidence"]
-    Validator -->|provides| Report["Finding, evidence,<br/>recommendation, and<br/>residual risk"]
+    Scope["Supplied task scope"] --> Validator["evidence-validator"]
+    Evidence["Controlled-worktree evidence"] --> Validator
+    Validator --> Report["Finding, evidence,<br/>recommendation, residual risk"]
 ```
 
-The role is a validation boundary rather than an implementation worker. Its fixed inspection profile, including the parameterless code-owned `focused_check`, keeps evidence review separate from the builder's implementation authority; the focused check reports bounded evidence and grants no execution, mutation, task, delegation, commit, or completion authority.
+| Concern | Rule |
+| --- | --- |
+| Scope | Inspect only supplied controlled-worktree evidence and applicable task context. |
+| Capability | Use the parameterless `focused_check` capability as code-owned fixed evidence collection only; accept no caller-selected command, path, argument, or environment. |
+| Boundary | Do not use shell, write, edit, web, session, delegation, commit, or authority capabilities. |
+| Output | Return exactly the bounded Finding, Evidence, Recommendation, and Residual risk interface. |
+| Conclusion | State whether a passing implementation is safe to commit or a passing plan may begin within its recorded scope. |
+| Authority | Telemetry and process exit do not grant task authority; missing scope or evidence is a failure or residual-risk finding. |
 
 ## Links
 
 - [`agent.md`](agent.md) — canonical role contract and inspection limits.
+- [`../../skills/master/spawning-subagents/SKILL.md`](../../skills/master/spawning-subagents/SKILL.md) — approved role admission and launch context.

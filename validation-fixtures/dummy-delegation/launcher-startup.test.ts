@@ -16,7 +16,7 @@ test("same launcher prompt construction reaches a local child without model late
     const stub = join(dir, "pi-startup-stub.sh");
     writeFileSync(stub, [
       "#!/usr/bin/env bash",
-      `if [[ \"$1\" == \"--version\" ]]; then printf '0.84.0\\n'; exit 0; fi`,
+      `if [[ \"$1\" == \"--version\" ]]; then printf '0.84.4\\n'; exit 0; fi`,
       `printf '%s\\n' \"$*\" > '${capture}'`,
       "exit 0",
       "",

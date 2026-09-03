@@ -5,21 +5,14 @@ description: Use when bounded delegated work must be launched, observed, recover
 
 ## Purpose
 
-**Purpose**: Launch, observe, recover, and hand off bounded delegated work under existing authority.
+**Purpose**: Launch, observe, recover, and hand off bounded delegated work under existing authority without making the launcher a task-record or completion authority.
 
 ## Approach
 
-**Approach**: Build a bounded handoff, launch through the approved host path, observe progress and evidence, enforce budgets and recovery, and retain parent authority.
+**Approach**: Consume the control plane's `admitLaunch()` result, including its normalized wall-clock limit, and invoke only the approved host adapter with the admitted role, task, record, caller linkage, and handoff budget.
+
+The runtime/control-plane implementation enforces these limits deterministically, while this skill prose is not runtime enforcement.
 
 ## How it should be done
 
-**How it should be done**: Verify role admission, worker configuration, component boundary, budget, and task state; construct explicit context and return conditions; launch through the approved adapter; observe bounded handles and evidence; recover or stop without inferring completion.
-
-
-## Composition context
-
-Tool-access row (drafts/composable-skills.md line 123):
-
-| Delegating or observing work | The approved delegation or bounded observation tools for the role | Delegation, recovery, cancellation, and observation remain role/orchestrator authority and are never inferred from a skill reference. |
-
-Tool-access composition admission (drafts/composable-skills.md lines 112-113): A skill does not grant tools. Before an agent is admitted to a master skill or composition, the composition's required tool set must be compared with the agent's declared tools, permissions, and authority. The agent must have every tool needed for its selected path, or the workflow must stop with a bounded missing-capability blocker; it must not silently substitute a weaker tool, broaden permissions, or ask a read-only agent to perform mutation.
+**How it should be done**: Verify role admission, configured worker, component boundary, task state, capability, and budget; forward the approved value exactly as `--budget-wall-clock-seconds <admitLaunch().wallClockSeconds>` to `spawn-pi-subagent.ts`; observe the bounded handle, task record, and source-labelled evidence, then recover with preserved cumulative budgets and a new attempt or stop on failure, unavailability, staleness, or cancellation; do not infer completion from exit, telemetry, or handles, and do not let the generic launcher parse task records.

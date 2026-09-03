@@ -38,20 +38,20 @@ const runLauncher = (args: string[], env: NodeJS.ProcessEnv = process.env, launc
 
 const writeSleepStub = (dir: string, seconds: number): string => {
   const path = join(dir, "pi-stub.sh");
-  writeFileSync(path, `#!/usr/bin/env bash\nif [[ "$1" == "--version" ]]; then printf '0.84.0\\n'; exit 0; fi\nsleep ${seconds}\nexit 0\n`, { mode: 0o755 });
+  writeFileSync(path, `#!/usr/bin/env bash\nif [[ "$1" == "--version" ]]; then printf '0.84.4\\n'; exit 0; fi\nsleep ${seconds}\nexit 0\n`, { mode: 0o755 });
   return path;
 };
 
 const writeSessionHeaderStub = (dir: string, sessionId: string): string => {
   const path = join(dir, "pi-session-header-stub.sh");
-  writeFileSync(path, `#!/usr/bin/env bash\nif [[ "$1" == "--version" ]]; then printf '0.84.0\\n'; exit 0; fi\nprintf '%s\\n' '{"type":"session","id":"${sessionId}"}'\nexit 0\n`, { mode: 0o755 });
+  writeFileSync(path, `#!/usr/bin/env bash\nif [[ "$1" == "--version" ]]; then printf '0.84.4\\n'; exit 0; fi\nprintf '%s\\n' '{"type":"session","id":"${sessionId}"}'\nexit 0\n`, { mode: 0o755 });
   return path;
 };
 
 const writeDurableSessionStub = (dir: string): string => {
   const path = join(dir, "pi-durable-session-stub.sh");
   writeFileSync(path, `#!/usr/bin/env bash
-if [[ "$1" == "--version" ]]; then printf '0.84.0\\n'; exit 0; fi
+if [[ "$1" == "--version" ]]; then printf '0.84.4\\n'; exit 0; fi
 session_dir=""
 session_id=""
 while [[ "$#" -gt 0 ]]; do
@@ -73,17 +73,17 @@ exit 0
 };
 
 test("Pi version contract is exact, manifest-derived, and fail-closed", () => {
-  const contract = contractFromPackageManifest({ dependencies: { "@earendil-works/pi-coding-agent": "0.84.0" } });
-  expect(contract.packageSpec).toBe("@earendil-works/pi-coding-agent@0.84.0");
-  expect(parsePiVersionOutput("0.84.0\n")).toBe("0.84.0");
-  expect(() => parsePiVersionOutput("pi 0.84.0\n0.84.0\n")).toThrow("malformed or ambiguous");
-  expect(() => assertPiVersionCompatible("0.83.0\n", contract)).toThrow("expected 0.84.0");
-  expect(() => contractFromPackageManifest({ dependencies: { "@earendil-works/pi-coding-agent": "^0.84.0" } })).toThrow("exact version");
+  const contract = contractFromPackageManifest({ dependencies: { "@earendil-works/pi-coding-agent": "0.84.4" } });
+  expect(contract.packageSpec).toBe("@earendil-works/pi-coding-agent@0.84.4");
+  expect(parsePiVersionOutput("0.84.4\n")).toBe("0.84.4");
+  expect(() => parsePiVersionOutput("pi 0.84.4\n0.84.4\n")).toThrow("malformed or ambiguous");
+  expect(() => assertPiVersionCompatible("0.83.0\n", contract)).toThrow("expected 0.84.4");
+  expect(() => contractFromPackageManifest({ dependencies: { "@earendil-works/pi-coding-agent": "^0.84.4" } })).toThrow("exact version");
 });
 
 test("Pi version probe arguments preserve package fallback and suppress extensions", () => {
-  const invocation: PiInvocation = { command: "bun", args: ["x", "--bun", "@earendil-works/pi-coding-agent@0.84.0"], source: "package-fallback" };
-  expect(versionProbeArguments(invocation)).toEqual(["x", "--bun", "@earendil-works/pi-coding-agent@0.84.0", "--version", "--no-extensions"]);
+  const invocation: PiInvocation = { command: "bun", args: ["x", "--bun", "@earendil-works/pi-coding-agent@0.84.4"], source: "package-fallback" };
+  expect(versionProbeArguments(invocation)).toEqual(["x", "--bun", "@earendil-works/pi-coding-agent@0.84.4", "--version", "--no-extensions"]);
 });
 
 test("launcher rejects an explicit Pi binary before dry-run or child launch on mismatch", async () => {
@@ -93,7 +93,7 @@ test("launcher rejects an explicit Pi binary before dry-run or child launch on m
     writeFileSync(stub, "#!/usr/bin/env bash\nif [[ \"$1\" == \"--version\" ]]; then printf '0.83.0\\n'; exit 0; fi\nprintf 'child-started\\n' > child-started.txt\n", { mode: 0o755 });
     const result = await runLauncher(["--agent", AGENT, "--task", "Version mismatch.", "--cwd", process.cwd(), "--pi", stub, "--dry-run"]);
     expect(result.exitCode).toBe(1);
-    expect(result.stderr).toContain("expected 0.84.0");
+    expect(result.stderr).toContain("expected 0.84.4");
     expect(existsSync(join(dir, "child-started.txt"))).toBe(false);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
@@ -116,7 +116,7 @@ test("launcher rejects nonzero and malformed version probes before child launch"
     expect(failed.stderr).toContain("version probe failed");
 
     const malformed = join(dir, "pi-malformed.sh");
-    writeFileSync(malformed, "#!/usr/bin/env bash\nif [[ \"$1\" == \"--version\" ]]; then printf 'pi 0.84.0\\n'; exit 0; fi\n", { mode: 0o755 });
+    writeFileSync(malformed, "#!/usr/bin/env bash\nif [[ \"$1\" == \"--version\" ]]; then printf 'pi 0.84.4\\n'; exit 0; fi\n", { mode: 0o755 });
     const rejected = await runLauncher(["--agent", AGENT, "--task", "Malformed version.", "--cwd", process.cwd(), "--pi", malformed, "--dry-run"]);
     expect(rejected.exitCode).toBe(1);
     expect(rejected.stderr).toContain("malformed or ambiguous");
@@ -145,11 +145,11 @@ test("launcher preflights environment, skill-local, and package-fallback Pi sour
 
     const fallback = await runLauncher(
       ["--agent", resolve(AGENT), "--task", "Package fallback Pi.", "--cwd", dir, "--dry-run"],
-      { ...baseEnv, PI_PACKAGE: "@earendil-works/pi-coding-agent@0.84.0" },
+      { ...baseEnv, PI_PACKAGE: "@earendil-works/pi-coding-agent@0.84.4" },
     );
     expect(fallback.exitCode).toBe(0);
     expect(JSON.parse(fallback.stdout).piSource).toBe("package-fallback");
-    expect(JSON.parse(fallback.stdout).piVersion).toBe("0.84.0");
+    expect(JSON.parse(fallback.stdout).piVersion).toBe("0.84.4");
 
     const incompatible = await runLauncher(
       ["--agent", resolve(AGENT), "--task", "Incompatible package.", "--cwd", dir, "--dry-run"],
@@ -284,7 +284,7 @@ test("forwards the effective thinking level to a real child-process boundary", a
     const argsFile = join(fixture, "args");
     const stub = join(fixture, "pi-stub.sh");
     writeFileSync(agent, ["---", "name: fixture-role", "mode: subagent", "thinking: max", "tools: read", "---", "Return ok."].join("\n"));
-    writeFileSync(stub, ["#!/usr/bin/env bash", "if [[ \"$1\" == \"--version\" ]]; then printf '0.84.0\\n'; exit 0; fi", "if [[ \"$1\" == \"--version\" ]]; then printf '0.84.0\\n'; exit 0; fi", `printf '%s\\n' \"$@\" > ${JSON.stringify(argsFile)}`, "exit 0", ""].join("\n"), { mode: 0o755 });
+    writeFileSync(stub, ["#!/usr/bin/env bash", "if [[ \"$1\" == \"--version\" ]]; then printf '0.84.4\\n'; exit 0; fi", "if [[ \"$1\" == \"--version\" ]]; then printf '0.84.4\\n'; exit 0; fi", `printf '%s\\n' \"$@\" > ${JSON.stringify(argsFile)}`, "exit 0", ""].join("\n"), { mode: 0o755 });
     const result = await runLauncher([
       "--agent", agent, "--task", "Thinking forwarding.", "--cwd", process.cwd(), "--pi", stub,
       "--no-worktree", "--no-session", "--no-registry",
@@ -374,7 +374,10 @@ test("all repository agent definitions declare the intended thinking level", asy
     const text = readFileSync(path, "utf8");
     const declarations = text.match(/^thinking:\s*([^\s]+)\s*$/gm) ?? [];
     expect(declarations).toHaveLength(1);
-    const expected = path.startsWith(join(process.cwd(), "agents") + "/") ? "medium" : "max";
+    // Per-role intended levels (as-is routes at medium; deliberative subagents at high; the disposable fixture probes at max).
+    const expected = path.includes("validation-fixtures") || path.includes("agent-capability-probe")
+      ? "max"
+      : path.includes(join(process.cwd(), "agents", "as-is") + "/") ? "medium" : "high";
     expect(declarations[0]).toBe(`thinking: ${expected}`);
   }
 });
@@ -839,7 +842,7 @@ test("child commit handoff is explicitly pending parent integration", async () =
     const localUserConfigBefore = ["user.name", "user.email"].map((key) => spawnSync("git", ["config", "--local", "--get", key], { encoding: "utf8" }).stdout.trim());
     const stubPi = join(dir, "pi-commit-stub.sh");
     writeFileSync(stubPi, [
-      "#!/usr/bin/env bash", "if [[ \"$1\" == \"--version\" ]]; then printf '0.84.0\\n'; exit 0; fi",
+      "#!/usr/bin/env bash", "if [[ \"$1\" == \"--version\" ]]; then printf '0.84.4\\n'; exit 0; fi",
       "printf '\\n// handoff fixture\\n' >> skills/managing-as-is-document/scripts/orient.ts",
       "git add skills/managing-as-is-document/scripts/orient.ts",
       "git -c user.email=test@example.invalid -c user.name=test commit --allow-empty -m 'test(launcher): record child handoff' >/dev/null",
@@ -955,7 +958,7 @@ test("producer traces preserve malformed inputs and failure or budget-stop outco
     expect(absentLaunch?.observations?.find((item) => item.kind === "parentCallId")?.availability).toBe("unavailable");
 
     const failingStub = join(dir, "pi-failing.sh");
-    writeFileSync(failingStub, "#!/usr/bin/env bash\nif [[ \"$1\" == \"--version\" ]]; then printf '0.84.0\\n'; exit 0; fi\nexit 2\n", { mode: 0o755 });
+    writeFileSync(failingStub, "#!/usr/bin/env bash\nif [[ \"$1\" == \"--version\" ]]; then printf '0.84.4\\n'; exit 0; fi\nexit 2\n", { mode: 0o755 });
     const failed = await runLauncher([
       "--agent", AGENT, "--task", "Failed producer observation.", "--cwd", process.cwd(),
       "--pi", failingStub, "--no-session", "--no-worktree", "--no-registry",
@@ -1109,7 +1112,7 @@ test("budget stop remains authoritative when a child outlives the deadline", asy
   try {
     const stubPi = join(dir, "pi-late-success-stub.sh");
     writeFileSync(stubPi, [
-      "#!/usr/bin/env bash", "if [[ \"$1\" == \"--version\" ]]; then printf '0.84.0\\n'; exit 0; fi",
+      "#!/usr/bin/env bash", "if [[ \"$1\" == \"--version\" ]]; then printf '0.84.4\\n'; exit 0; fi",
       "trap '' TERM",
       "end=$((SECONDS + 10))",
       "while [ $SECONDS -lt $end ]; do :; done",
@@ -1386,7 +1389,7 @@ test("detached delegation emits bounded lifecycle spans for success and budget-s
     const successHandle = JSON.parse(success.stdout);
     expect(await pidGone(successHandle.pid, 5000)).toBe(true);
     const failureStub = join(dir, "pi-failure-stub.sh");
-    writeFileSync(failureStub, "#!/usr/bin/env bash\nif [[ \"$1\" == \"--version\" ]]; then printf '0.84.0\\n'; exit 0; fi\nexit 7\n", { mode: 0o755 });
+    writeFileSync(failureStub, "#!/usr/bin/env bash\nif [[ \"$1\" == \"--version\" ]]; then printf '0.84.4\\n'; exit 0; fi\nexit 7\n", { mode: 0o755 });
     const failure = await runLauncher([
       "--agent", AGENT, "--task", "Lifecycle failure.", "--cwd", process.cwd(), "--pi", failureStub,
       "--detach", "--no-worktree", "--caller", "as-is",
@@ -1447,16 +1450,16 @@ test("worktree isolation: a child git restore does not touch the caller's workin
     // then exits cleanly. The caller's copy of that file must be unchanged.
     const stubPi = join(dir, "pi-restore-stub.sh");
     writeFileSync(stubPi, [
-      "#!/usr/bin/env bash", "if [[ \"$1\" == \"--version\" ]]; then printf '0.84.0\\n'; exit 0; fi",
+      "#!/usr/bin/env bash", "if [[ \"$1\" == \"--version\" ]]; then printf '0.84.4\\n'; exit 0; fi",
       "# Simulate a subagent reverting a tracked file to HEAD.",
-      "git restore -- skills/spawning-pi-subagents/SKILL.md",
+      "git restore -- skills/master/spawning-subagents/SKILL.md",
       "exit 0",
       "",
     ].join("\n"), { mode: 0o755 });
 
-    // Snapshot the caller's SKILL.md (which has uncommitted edits in this
+    // Snapshot the caller's skill SKILL.md (which has uncommitted edits in this
     // working tree) before launching the child.
-    const targetFile = "skills/spawning-pi-subagents/SKILL.md";
+    const targetFile = "skills/master/spawning-subagents/SKILL.md";
     const before = readFileSync(targetFile, "utf8");
 
     const result = await runLauncher([
@@ -1495,7 +1498,7 @@ test("worktree preservation: uncommitted work on clean exit is preserved", async
     // dirty) and exits 0 without committing.
     const stubPi = join(dir, "pi-dirty-stub.sh");
     writeFileSync(stubPi, [
-      "#!/usr/bin/env bash", "if [[ \"$1\" == \"--version\" ]]; then printf '0.84.0\\n'; exit 0; fi",
+      "#!/usr/bin/env bash", "if [[ \"$1\" == \"--version\" ]]; then printf '0.84.4\\n'; exit 0; fi",
       "# Simulate an agent that does work but exits without committing.",
       "mkdir -p skills/managing-as-is-document/scripts",
       "echo 'unfinished work' > skills/managing-as-is-document/scripts/scratch.ts",
