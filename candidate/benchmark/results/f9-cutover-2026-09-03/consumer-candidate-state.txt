@@ -1,0 +1,23 @@
+== candidate consumer ==
+1a1f06f chore: start stats task
+e3ee384 chore: adopt workflow context
+--- status:
+ M .as-is/setup-plan.md
+ M as-is.json
+ M src/wordstats/as-is.json
+ M tasks.md
+?? .as-is/tracing.jsonl
+?? .pi/extensions/
+?? .pi/settings.json
+?? CHANGELOG.md
+?? README.md
+?? agents/
+?? checks/
+?? records/
+?? sample-data/
+?? src/wordstats/__init__.py
+?? src/wordstats/__pycache__/
+?? src/wordstats/cli.py
+?? src/wordstats/counter.py
+?? src/wordstats/stats.py
+?? tests/

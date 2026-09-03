@@ -1,0 +1,29 @@
+{
+  "configuration": {
+    "records": {"filenames": {"task": "tasks.md", "changelog": "CHANGELOG.md"}},
+    "tasks": {"unitBudget": {"wallClockSeconds": 3600, "costUsd": 4.0}},
+    "agents": {"defaultRole": "as-is", "defaultModel": "medium", "provider": "openrouter", "models": {"medium": "@preset/abs-medium"}},
+    "technology-preferences": {"runtime": "python3", "package-manager": "none"}
+  },
+  "task": {
+    "status": "blocked",
+    "worker": "component-builder",
+    "updated": "2026-09-03T13:35:00Z",
+    "task-revision": "uc10-stats-001",
+    "attempt": 1,
+    "constraints": {
+      "cost": {"currency": "USD", "allocated": 4.0, "spent": 0, "reserve": 0.5, "source": "unavailable", "fallback-metric": "validation elapsed-seconds"},
+      "delegation": {"maximum-depth": 1, "maximum-children": 1},
+      "execution": {"wall-clock": {"allocated-seconds": 3600, "spent-seconds": 0, "reserve-seconds": 360, "source": "unavailable"}},
+      "external-effects": "require-current-turn-user-approval"
+    },
+    "acceptance": [
+      "Add src/wordstats/stats.py with deterministic minimum count, maximum count, median count, and unique-word summary behavior.",
+      "Add a --stats option to wordstats count that appends the summary object while preserving existing output without the option.",
+      "Add focused unit tests for summary values and the CLI option.",
+      "Record the user-visible output decision in docs/design-notes.md before implementation.",
+      "Run bash checks/validate.sh and retain its exact output and exit code.",
+      "Account for the delegated child result, including an expected budget stop if it occurs, and preserve terminal descendant evidence."
+    ]
+  }
+}

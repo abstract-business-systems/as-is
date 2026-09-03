@@ -17,7 +17,10 @@ case "$arm" in
     WF="/tmp/bench-r9/baseline-workflow"
     LAUNCHER="$WF/skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts"
     AGENT="$WF/agents/component-builder/agent.md"
-    PI_BIN="$WF/skills/spawning-pi-subagents/node_modules/.bin/pi"
+    # Master-pinned pi 0.84.0 under the bun runtime (round-6 arm runtime `bun x --bun pi@0.84.0`,
+    # under which the repo extension import chain loads; node runtime cannot resolve it).
+    # Disclosed harness accommodation for the F9 baseline arm.
+    PI_BIN="/tmp/bench-r9/pi0840-bun"
     RUNDIR="$WF"
     mapfile -t skills < <(find "$WF/skills" -mindepth 1 -maxdepth 1 -type d)
     ;;

@@ -1,0 +1,35 @@
+{
+  "task": {
+    "status": "completed",
+    "worker": "worker",
+    "updated": "2026-09-03T13:06:09Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.05,
+        "spent": 0,
+        "reserve": 0.01,
+        "source": "unavailable",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 180,
+          "spent-seconds": 0,
+          "reserve-seconds": 30,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "require-current-turn-user-approval"
+    },
+    "acceptance": [
+      "Implement the new src/wordstats/stats.py module with deterministic summary statistics for a count mapping.",
+      "Return minimum count, maximum count, median count, and number of unique words with the agreed empty-input behavior.",
+      "Edit only the assigned component scope and report a terminal result without delegating or committing."
+    ]
+  }
+}

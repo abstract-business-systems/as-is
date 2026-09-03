@@ -1,0 +1,1 @@
+baseline variant sha256 (baseline-workflow SKILL.md contents at 9a77e37): b4006d32cc808540fe8cd21855c983b0f905cc10f75ac15e5c6483172357969a

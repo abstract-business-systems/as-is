@@ -1,0 +1,17 @@
+compile: OK
+test_counts_basic_words (test_counter.CountWordsTests.test_counts_basic_words) ... ok
+test_empty_input (test_counter.CountWordsTests.test_empty_input) ... ok
+test_ignores_punctuation_only_tokens (test_counter.CountWordsTests.test_ignores_punctuation_only_tokens) ... ok
+test_strips_punctuation_and_lowercases (test_counter.CountWordsTests.test_strips_punctuation_and_lowercases) ... ok
+test_default_output_has_no_summary_object (test_stats.StatsOptionTests.test_default_output_has_no_summary_object) ... ok
+test_stats_option_appends_summary_object (test_stats.StatsOptionTests.test_stats_option_appends_summary_object) ... ok
+test_empty_summary (test_stats.SummaryStatisticsTests.test_empty_summary) ... ok
+test_summary_values (test_stats.SummaryStatisticsTests.test_summary_values) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.003s
+
+OK
+unit tests: OK
+cli smoke check: OK
+All checks passed.

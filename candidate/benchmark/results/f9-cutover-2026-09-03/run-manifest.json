@@ -1,0 +1,66 @@
+{
+  "benchmark": "F9 final pre-merge head-to-head (master baseline vs adopted branch), uc10",
+  "registered_by": "candidate/benchmark/pre-registration-f9.md",
+  "date": "2026-09-03",
+  "arms": {
+    "baseline": {
+      "workflow": "master pin 9a77e37 (master-era component-builder role contract, baseline skill mounts, master-era launcher contract)",
+      "workflow_head": "9a77e37",
+      "checkout": "/tmp/bench-r9/baseline-workflow (clone at 9a77e37, bun install in skills/spawning-pi-subagents)",
+      "consumer": "candidate/benchmark/run/f9-cutover/uc10/baseline",
+      "variant_checksum": "b4006d32cc808540fe8cd21855c983b0f905cc10f75ac15e5c6483172357969a",
+      "top_job": "j-mtljav6l-b4ar7x",
+      "top_exit": 0,
+      "top_wall_seconds": 2491.8,
+      "child_jobs": {
+        "implementation_child": {"id": "j-mtljzvul-q9ypgm", "exit": 0, "wall_seconds": 19.551, "note": "delegated implementation child failed upstream: recorded openai/gpt-5.6-luna rate-limit error before any tool call (store 475e8278)"},
+        "final_evidence_validator": {"id": "j-mtljf44m-xtnlgp", "exit": 143, "wall_seconds": 180.03, "budget_stopped": true},
+        "final_validation": {"id": "j-mtlkm15p-f5k1dk", "exit": 1, "wall_seconds": 0.605, "note": "failed on missing inspection extension path in the baseline consumer"}
+      },
+      "session_stores": [
+        "session-stores/2026-09-03T13-01-48-167Z_befa6d18-5885-4ffe-9328-cf13852e02b7.jsonl (top)",
+        "session-stores/2026-09-03T13-21-14-932Z_475e8278-053c-438e-946c-4665a7a03843.jsonl (child, consumer-local)"
+      ]
+    },
+    "candidate": {
+      "workflow": "adopted lean workflow at the F9 tip on implementing-composable-skills (live component-builder role contract, mounted adopted catalog, branch launcher)",
+      "workflow_head": "787632f",
+      "checkout": "/home/vc/dev/as-is (branch tip at launch)",
+      "consumer": "candidate/benchmark/run/f9-cutover/uc10/candidate",
+      "variant_checksum": "01c9e750702350c2a731eb9a57a432092ed6a548f7459c2bd33dc0c8c7b6c6d7",
+      "top_job": "j-mtlj0eur-ks9bdy",
+      "top_exit": 0,
+      "top_wall_seconds": 1850.5,
+      "child_job": "j-mtljcyqm-vs31yb",
+      "child_exit": 143,
+      "child_budget_stopped": true,
+      "session_stores": [
+        "session-stores/2026-09-03T12-53-40-295Z_c75fa86f-602a-434e-98e4-d45c383ff58e.jsonl (top)",
+        "session-stores/2026-09-03T13-03-26-215Z_2a770291-ea6a-4d48-9818-eacf7bf68d5a.jsonl (stats-child)"
+      ]
+    }
+  },
+  "shared_conditions": {
+    "model": "@preset/abs-medium",
+    "thinking": "high",
+    "arm_budget": "$4.00 / 3600s per arm",
+    "child_budget": "$0.05 / 180s per the uc10 request text",
+    "consumer_roots": "disjoint per arm (candidate/benchmark/run/f9-cutover/uc10/{baseline,candidate})",
+    "pristine_setup": "both consumers check-setup-pristine logs show All checks passed before launch"
+  },
+  "environment_notes": [
+    "Baseline arm pi runtime: master-pinned pi 0.84.0 under the bun runtime via wrapper /tmp/bench-r9/pi0840-bun. The master-era launcher's node-runtime .bin/pi (first launch j-mtlj0d4z-mviecu, exit 1 at child-spawn, zero arm work) cannot resolve the repo extension import chain (typebox) — the recorded F8 finding. Round-6 arms ran pi 0.84.0 under bun (`bun x --bun`); the wrapper reproduces that runtime. The re-launch was a harness fix before any arm work, not an agent retry of a workflow step.",
+    "Candidate arm pi runtime: system pi 0.84.4 (PI_BIN=/shared/store/pi/bin/pi), branch launcher, per the F8-lean arm mechanics.",
+    "Upstream provider rate-limiting of openai/gpt-5.6-luna occurred during the window: the baseline arm's implementation child failed with a recorded rate-limit error (no retry, per the pinned rule), and the first scorer launch (e6072b3b) also died rate-limited (relaunched after cooldown). Recorded as environment noise, symmetric exposure across arms.",
+    "The uc10 child wall-clock budget stop (180s) ENGAGED for the first time in benchmark history (candidate stats-child budgetStopped=true; baseline child also terminated at its budget). Prior six rounds recorded zero engagement for this recovery path.",
+    "Nested child transcript collector gap: children-of-children session stores are not collected (disclosed, symmetric across arms)."
+  ],
+  "consumer_verification_at_scoring_time": {
+    "baseline_validate": "consumer-baseline-validate.log: All checks passed (exit 0)",
+    "candidate_validate": "consumer-candidate-validate.log: All checks passed (exit 0)"
+  },
+  "scoring": {
+    "scorer": "read-only scorer child session (agent candidate/benchmark/f8-lean/scorer-agent.md, model @preset/abs-medium, thinking high), evidence-only",
+    "deliverables": ["scoring.md", "scorer-output.json"]
+  }
+}
