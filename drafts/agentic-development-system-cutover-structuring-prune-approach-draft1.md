@@ -59,6 +59,10 @@ The open question is **where they should live** (post-merge, or pre-merge if the
 - **Q3 — prune keep-list tightened**: retained cited reviews are kept individually (no wholesale `reviews/` prune); `temp/benchmarking/cost-wall-clock-comparison.md` is cited by the advancement record — disposition required before any `temp/` prune; **BLOCKER**: full reference sweep of retained records before any bulk prune; retained records must name the evidence tag/commit explicitly ("recoverable forever" qualified to tag+SHA reachability).
 - **Q4 — coverage check scoped to component boundaries**: declared-vs-discovered comparison at approved component boundaries (not every nested implementation directory); `lstat` for symlinks with escape rejection; `node_modules` under `skills/` is a failure after the re-home; explicit reviewed allowlist for generated locations; unrecognized direct children of declared namespaces fail.
 
+## 4c. Pi runtime: bun-preferred (user push-back adopted, verified 2026-09-03)
+
+The user challenged the node-for-pi status quo ("if bun could work we should be using bun"). Empirical re-test on bun 1.3.14: pi 0.84.4 passes the version probe AND a full real session with the extension shim chain and a live model call under bun — the F8-era "bundled undici API gap" does not reproduce (bun node-compat improved since the F8 finding). Decision: **pi invocations prefer the bun runtime**; node remains only as automatic fallback when no bun binary is resolvable. Implementation: `resolvePi` wraps JS entries (skill-local/explicit cli.js) as `bun <entry>` using `process.execPath` (the bun running the launcher itself), and the package fallback restores `--bun`; non-JS explicit binaries run as-is. Version-contract probe unchanged (exact 0.84.4). This is a post-benchmark harness delta for the F9 candidate arm (which ran node) — disclosed, smoke-validated, workflow behavior unaffected (the runtime is below the workflow; model route identical).
+
 ## 5. Prune approach (A3, on the branch, pre-merge)
 
 1. Tag the branch tip: `adoption-evidence-full` (immutable snapshot of the complete evidence tree; deleted bulk recoverable by SHA forever).
