@@ -1,0 +1,10 @@
+{
+  "configuration": {
+    "agents": {
+      "defaultModel": "@preset/abs-medium",
+      "defaultThinkingLevel": "high",
+      "provider": "openrouter",
+      "sessionDirectory": ".as-is/subagents/sessions"
+    }
+  }
+}
