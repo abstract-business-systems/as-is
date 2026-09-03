@@ -69,10 +69,10 @@ The open question is **where they should live** (post-merge, or pre-merge if the
 
 ## 6. Sequence (updated 2026-09-03: user ruled the TS re-home pre-merge)
 
-1. **User decisions**: TS re-home pre-merge — DECIDED; structuring option O1/O2 — O2 (lean) is the root's recorded lean, pending Sol's planning review.
-2. **Sol planning consult** (planning-adviser) on the structuring design + re-home targets + prune keep-list; review recorded.
-3. **Re-home implementation** (component-builder child; atomic move + repoint of every consumer; launcher suite, live-behavioral suites, dummy-delegation, validators all green; digest unchanged).
-4. **Structuring implementation** (component-builder child; records covering the post-move tree per §3 with the care rules; coverage validator added).
-5. **Curated prune** (A3: tag `adoption-evidence-full`, keep/prune per §5, reference sweep) — mechanical, in-session where possible.
+1. **User decisions**: TS re-home pre-merge — DECIDED; structuring option O1/O2 — O2 adopted per Sol review (§4b).
+2. **Sol planning consult** — DONE (`reviews/agentic-development-system/sol-cutover-structuring-prune-review.md`); dispositions in §4b.
+3. **Re-home implementation** — DONE (child `runtime-rehome-pre-merge`, commit `1f9c25e`): the four moves with atomic consumer repoints (.pi extensions/prompts, 9 agent test suites, fixtures, focused-check file list, typebox import); digest unchanged; `skills/` now holds only record/nav content + `master/` + `reusable/`. Battery: launcher 83/0, agents 39 pass + 22 opt-in skip / 0 fail, validators 15/0, backlog-query 15/0 (incl. repo-wide schema walk), backlog+mermaid 17/0, dummy-delegation 4/0, content-test 69 records/41 diagrams, digest `01c9e750…`, tree clean.
+4. **Structuring implementation** (component-builder child; records covering the post-move tree per §3+§4b with the care rules; coverage validator added) — NEXT.
+5. **Curated prune** (A3: tag `adoption-evidence-full`, keep/prune per §5 + §4b Q3 tightenings, reference sweep BEFORE bulk deletion) — mechanical, in-session where possible.
 6. Full gates; **merge request** (human-authorized `--no-ff`); post-merge smoke.
 7. Post-merge backlog (already tracked): trust hardenings (read-boundary enforcement, task-record completion guard), `audit-as-is-guidance-coverage`, adviser-agent retirement (A18 D-phase), draft-tree reduction.
