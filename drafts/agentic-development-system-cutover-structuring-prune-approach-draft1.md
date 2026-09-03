@@ -24,7 +24,7 @@ Common requirements regardless of option: runtime homes become declared, recorde
 
 Decision: user, advised by Sol.
 
-## 4. TS/runtime re-homing — reasoning for the discussion (decision pending)
+## 4a. TS/runtime re-homing — historical reasoning for the original deferral (superseded by §4 decision)
 
 Current state (per A4/A14 runtime-only home pattern): the governed launcher + worker-tools extension + skill-local `node_modules` live in `skills/spawning-pi-subagents/`; the dogfood validators in `skills/managing-as-is-document/`; backlog query tooling in `skills/managing-backlog/`; the mermaid renderer in `skills/designing-mermaid-diagrams/`. The narrative records were retired; the runtimes stayed.
 
@@ -51,6 +51,13 @@ The user ruled the re-home happens **before the merge** (reversing the A4/A14 de
 Historical reasoning for the original deferral (A4/A14) is retained below for provenance:
 
 The open question is **where they should live** (post-merge, or pre-merge if the user rules): `core/adapters/` (host-adapter pattern exists: host-setup), `tools/` (existing `tools/agent/`), a new top-level `runtime/` home, or unchanged. Trade-offs: `tools/` matches "agent-facing programs, not skill definitions" semantics; `core/adapters/` matches the bounded-supervisor/adapter pattern (bounded-process-supervisor already lives in `core/adapters/process/`); staying avoids churn but leaves the catalog record explaining away non-skills under `skills/`. The re-homing decision should also settle whether runtime homes get their **own top-level component identity** (e.g., a "governed runtime" component with one record covering all four) instead of four scattered homes.
+
+## 4b. Sol review dispositions (2026-09-03, reviews/agentic-development-system/sol-cutover-structuring-prune-review.md)
+
+- **Q1 — O2 adopted with a BLOCKER correction**: the re-homed runtime homes are recorded under their **actual parents** (`core/adapters/as-is.md`, `tools/as-is.md`), never as `skills/as-is.md` children; `skills/as-is.md` may cross-reference them in an ownership/runtime-support table only. The catalog classification table is the authoritative capability classification; container records/diagrams keep exactly their physical children; the containers must state plainly they are storage namespaces, not capability classes.
+- **Q2 — launcher renamed**: `core/adapters/pi/` (the whole home moves together: launcher scripts, worker-tools registration boundary, package + node_modules). `tools/backlog-query` and `tools/mermaid-renderer` accepted; `tools/as-is-validators` accepted with the parent `tools` record explicitly covering repository validation utilities.
+- **Q3 — prune keep-list tightened**: retained cited reviews are kept individually (no wholesale `reviews/` prune); `temp/benchmarking/cost-wall-clock-comparison.md` is cited by the advancement record — disposition required before any `temp/` prune; **BLOCKER**: full reference sweep of retained records before any bulk prune; retained records must name the evidence tag/commit explicitly ("recoverable forever" qualified to tag+SHA reachability).
+- **Q4 — coverage check scoped to component boundaries**: declared-vs-discovered comparison at approved component boundaries (not every nested implementation directory); `lstat` for symlinks with escape rejection; `node_modules` under `skills/` is a failure after the re-home; explicit reviewed allowlist for generated locations; unrecognized direct children of declared namespaces fail.
 
 ## 5. Prune approach (A3, on the branch, pre-merge)
 
