@@ -1,8 +1,7 @@
 # Reusable skills - as-is
 
 ## Purpose
-
-Organize the adopted reusable skills that provide focused capabilities to master skills and workflows.
+Document the adopted reusable skills as a physical storage grouping from the adoption sequence. New composable pieces landed here; same-name swaps landed under `master/`. This directory is not a semantic capability class; classification authority lives in the catalog record at [Skills](../as-is.md#design).
 
 ## Components
 
@@ -33,6 +32,8 @@ Organize the adopted reusable skills that provide focused capabilities to master
 | [Writing tests](writing-tests/as-is.md#design) | Write focused tests for bounded behavior. |
 
 ## Design
+
+This directory is a physical storage grouping from the adoption sequence, not a semantic capability class. Its twenty-three immediate children are the exact physical skill components shown in the table and diagram; the catalog at [Skills](../as-is.md#design) supplies each component's authoritative classification.
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Reusable skills**
 
@@ -72,5 +73,5 @@ flowchart LR
 
 ## Links
 
-- [../as-is.md](../as-is.md) — Skills namespace record and adopted catalog.
+- [../as-is.md](../as-is.md) — Skills namespace record and authoritative classification catalog.
 - [../../design-principles.md](../../design-principles.md) — repository-wide authority and design principles.

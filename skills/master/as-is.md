@@ -1,8 +1,7 @@
 # Master skills - as-is
 
 ## Purpose
-
-Organize the adopted master skills that compose authoritative workflows and bounded component outcomes.
+Document the adopted master skills as a physical storage grouping from the adoption sequence. Same-name swaps landed here; new composable pieces landed under `reusable/`. This directory is not a semantic capability class; classification authority lives in the catalog record at [Skills](../as-is.md#design).
 
 ## Components
 
@@ -22,6 +21,8 @@ Organize the adopted master skills that compose authoritative workflows and boun
 | [Spawning subagents](spawning-subagents/as-is.md#design) | Launch and observe bounded Pi subprocesses. |
 
 ## Design
+
+This directory is a physical storage grouping from the adoption sequence, not a semantic capability class. Its twelve immediate children are the exact physical skill components shown in the table and diagram; the catalog at [Skills](../as-is.md#design) supplies each component's authoritative classification.
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Master skills**
 
@@ -50,5 +51,5 @@ flowchart LR
 
 ## Links
 
-- [../as-is.md](../as-is.md) — Skills namespace record and adopted catalog.
+- [../as-is.md](../as-is.md) — Skills namespace record and authoritative classification catalog.
 - [../../design-principles.md](../../design-principles.md) — repository-wide authority and design principles.

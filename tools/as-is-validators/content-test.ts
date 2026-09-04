@@ -1,8 +1,8 @@
 // This is an as-is repository dogfood validator, not a portable skill conformance suite.
 // Its repository-wide navigation assertions implement this repository's approved adoption policy.
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, lstatSync, readdirSync, readFileSync, realpathSync } from "node:fs";
 import { validateAsIsDiagramsAndNavigation } from "./scripts/validate-as-is-diagrams-and-navigation";
-import { dirname, join, relative, sep } from "node:path";
+import { basename, dirname, join, relative, resolve, sep } from "node:path";
 
 type BunFile = {
   text(): Promise<string>;
@@ -76,6 +76,72 @@ const normalizeTarget = (target: string) => target.replace(/(^|\/)\.\//g, "$1");
 const linkTargets = (text: string) => Array.from(text.matchAll(/(?:href=['"]|\]\()([^'")\s]+as-is\.md#design)/g), (match) => normalizeTarget(match[1]));
 const markdownTargets = (text: string) => Array.from(text.matchAll(/\]\(([^)\s]+)\)/g), (match) => normalizeTarget(match[1]));
 const rootRecord = join(repositoryRoot, "as-is.md");
+const componentTargetPaths = (recordPath: string, text: string): string[] => Array.from(text.matchAll(/^\|\s*\[[^\]]+\]\(([^)\s]+as-is\.md#design)\)/gm), (match) => resolve(dirname(recordPath), match[1].split("#", 1)[0]));
+const namespaceArtifacts = (text: string): string[] => {
+  const declaration = text.match(/The physical namespace also retains these directly owned artifacts:\s*([^\n]+)/);
+  return declaration ? Array.from(declaration[1].split(". ", 1)[0].matchAll(/`([^`]+)`/g), (match) => match[1]) : [];
+};
+const pathInsideRepository = (path: string): boolean => {
+  const root = resolve(repositoryRoot);
+  const candidate = resolve(path);
+  const remainder = relative(root, candidate);
+  return remainder === "" || (!remainder.startsWith("..") && !remainder.startsWith(`${sep}..`));
+};
+const checkCoveragePath = (path: string, label: string, issues: string[]): boolean => {
+  let stat;
+  try {
+    stat = lstatSync(path);
+  } catch {
+    issues.push(`${label} does not exist: ${relative(repositoryRoot, path)}`);
+    return false;
+  }
+  if (!stat.isSymbolicLink()) return true;
+  try {
+    const target = realpathSync(path);
+    if (!pathInsideRepository(target)) {
+      issues.push(`${label} symlink escapes repository: ${relative(repositoryRoot, path)}`);
+      return false;
+    }
+    return true;
+  } catch {
+    issues.push(`${label} symlink target cannot be resolved: ${relative(repositoryRoot, path)}`);
+    return false;
+  }
+};
+const validateComponentCoverage = (): void => {
+  const issues: string[] = [];
+  const records = canonicalRecords(repositoryRoot);
+  for (const recordPath of records) {
+    for (const target of componentTargetPaths(recordPath, readFileSync(recordPath, "utf8"))) {
+      checkCoveragePath(target, "declared record", issues);
+      checkCoveragePath(dirname(target), "declared component", issues);
+    }
+  }
+
+  const boundaries = [
+    { path: join(repositoryRoot, "skills"), record: join(repositoryRoot, "skills", "as-is.md"), artifacts: namespaceArtifacts(readFileSync(join(repositoryRoot, "skills", "as-is.md"), "utf8")) },
+    { path: join(repositoryRoot, "skills", "master"), record: join(repositoryRoot, "skills", "master", "as-is.md"), artifacts: ["as-is.md"] },
+    { path: join(repositoryRoot, "skills", "reusable"), record: join(repositoryRoot, "skills", "reusable", "as-is.md"), artifacts: ["as-is.md"] },
+    { path: join(repositoryRoot, "core", "adapters"), record: join(repositoryRoot, "core", "adapters", "as-is.md"), artifacts: ["as-is.md"] },
+    { path: join(repositoryRoot, "tools"), record: join(repositoryRoot, "tools", "as-is.md"), artifacts: ["as-is.md"] },
+  ];
+  for (const boundary of boundaries) {
+    if (!checkCoveragePath(boundary.path, "checked boundary", issues)) continue;
+    const expected = new Set([
+      ...componentTargetPaths(boundary.record, readFileSync(boundary.record, "utf8")).filter((target) => dirname(dirname(target)) === boundary.path).map((target) => basename(dirname(target))),
+      ...boundary.artifacts,
+    ]);
+    for (const entry of readdirSync(boundary.path)) {
+      const entryPath = join(boundary.path, entry);
+      checkCoveragePath(entryPath, "boundary entry", issues);
+      if (entry === "node_modules") issues.push(`node_modules is forbidden at checked boundary: ${relative(repositoryRoot, entryPath)}`);
+      if (!expected.has(entry)) issues.push(`undeclared direct child at checked boundary: ${relative(repositoryRoot, entryPath)}`);
+    }
+    for (const entry of expected) checkCoveragePath(join(boundary.path, entry), "declared boundary child", issues);
+  }
+  if (issues.length > 0) throw new Error(`tree-to-record coverage validation failed: ${JSON.stringify(issues)}`);
+  console.log(`tree-to-record coverage passed (${records.length} records, ${boundaries.length} boundaries)`);
+};
 const expectedBreadcrumb = (recordPath: string) => {
   if (recordPath === rootRecord) return "**Lineage**: **as-is**";
   const ancestors: string[] = [];
@@ -130,6 +196,7 @@ const adapterDesign = adapterText.slice(adapterText.indexOf("\n## Design\n"), ad
 for (const phrase of ["### Adapter hierarchy", "flowchart TB", "host-setup"]) {
   if (!adapterDesign.includes(phrase)) throw new Error(`Core adapter diagram must include ${phrase}`);
 }
+validateComponentCoverage();
 
 const diagramValidation = validateAsIsDiagramsAndNavigation(repositoryRoot, {
   rootRecordPath: "as-is.md",
