@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document is the authoritative implementation plan, candidate contract specification, and alignment contract for realizing the candidate agentic development system on branch `implementing-composable-skills`. It establishes complete contract fidelity to the source design documents (`drafts/composable-skills.md`, `drafts/agentic-development-system-cutover/high-level-design-draft11/target-design.md`, `drafts/agentic-development-system-cutover/executable-realization-plan-draft6.md`, and `drafts/multi-model-development-orchestration.md`), defines the hardened execution-control kernel, details all 24 reusable skills and 12 master compositions with per-skill contracts and test matrices, establishes the candidate migration ledger, and specifies the pre-registered Section 13 comparative benchmark against pinned `master` commit `9a77e37bebbce0d802d4debb6b54e6df2d223208`.
+This document is the authoritative implementation plan, candidate contract specification, and alignment contract for realizing the candidate agentic development system on branch `implementing-composable-skills`. It establishes complete contract fidelity to the source design documents (`drafts/composable-skills.md`, `drafts/agentic-development-system-cutover/high-level-design-draft11/target-design.md (historical cutover-folder path; content recoverable via tag `adoption-evidence-f9-confirm` @ `f48dd00` after the folder drops at merge)`, `drafts/agentic-development-system-cutover/executable-realization-plan-draft6.md (historical cutover-folder path; content recoverable via tag `adoption-evidence-f9-confirm` @ `f48dd00` after the folder drops at merge)`, and `drafts/multi-model-development-orchestration.md`), defines the hardened execution-control kernel, details all 24 reusable skills and 12 master compositions with per-skill contracts and test matrices, establishes the candidate migration ledger, and specifies the pre-registered Section 13 comparative benchmark against pinned `master` commit `9a77e37bebbce0d802d4debb6b54e6df2d223208`.
 
 ---
 
@@ -53,7 +53,7 @@ This document is the authoritative implementation plan, candidate contract speci
 
 ### 3.1 Plan Admission Engine (`admission.ts`)
 - **Strict Frozen-Envelope Schema & RFC 8785 JCS:**
-  - `targetDesignSha256`: Expected exact SHA256 hex string (`abc4d367d6e7f314454c6510e4574f49d9b1e8a5f03ffb90ff2d3b0ca65e1836`) matching `drafts/agentic-development-system-cutover/high-level-design-draft11/target-design.md`.
+  - `targetDesignSha256`: Expected exact SHA256 hex string (`abc4d367d6e7f314454c6510e4574f49d9b1e8a5f03ffb90ff2d3b0ca65e1836`) matching `drafts/agentic-development-system-cutover/high-level-design-draft11/target-design.md (historical cutover-folder path; content recoverable via tag `adoption-evidence-f9-confirm` @ `f48dd00` after the folder drops at merge)`.
   - `targetPacketDigest`: Canonical SHA256 hash computed via RFC 8785 JSON Canonicalization Scheme (JCS) over the plan envelope excluding transport wrappers.
   - Fail-closed validation at admission and dequeue: Reject missing, malformed, non-hex, byte-different, or substituted envelope values using constant-time string equality.
 - **DAG Acyclicity & Dependency Graph Validation:**
