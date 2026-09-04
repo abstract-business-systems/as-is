@@ -5,7 +5,7 @@ import { join, resolve } from "node:path";
 import { analyzeProjectSession, correlateJobRegistryWithTraces, readJobRegistryEvidence, readTraceEvidence } from "../../tools/evidence/worker-tools-observability.ts";
 
 const root = process.cwd();
-const launcher = resolve(root, "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts");
+const launcher = resolve(root, "core/adapters/pi/scripts/spawn-pi-subagent.ts");
 const nestedFixtureAgents = {
   root: `---\nname: nested-root\ndescription: Three-level live fixture root.\nmode: subagent\nmodel: medium\nthinking: max\ntools: read,grep,find,ls,call_subagent\npermission:\n  task: deny\n---\nUse call_subagent exactly once for role nested-middle with the bounded question: call nested-leaf exactly once and return a concise success report. Do not edit, commit, or delegate beyond that one call.`,
   middle: `---\nname: nested-middle\ndescription: Three-level live fixture middle.\nmode: subagent\nmodel: medium\nthinking: max\ntools: read,grep,find,ls,call_subagent\npermission:\n  task: deny\n---\nUse call_subagent exactly once for role nested-leaf with the bounded question: return a concise success report. Do not edit, commit, or delegate beyond that one call.`,

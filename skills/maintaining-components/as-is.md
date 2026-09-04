@@ -1,29 +1,24 @@
-
 # Maintaining Components - as-is
 
 ## Purpose
-
-Maintain the reusable `maintaining-components` skill as the durable backlog and
-handoff record for evidence-based housekeeping work. This record captures the
-current maintenance assignment without executing the audit itself.
-
+Inspect and apply the smallest evidence-supported component improvements.
 
 ## Design
 
-The component is organized around the following relationships and flow.
+The skill audits a bounded component against applicable records and conventions, fixes confirmed defects only, validates the change, and preserves ownership and recovery boundaries; no composition table, workflow example, or tool-access row is cited for it, so it stands alongside the other master skills as a directly selectable maintenance outcome rather than a composition stage. It establishes fit, not permission: it grants no tools or authority, must not edit parent-owned records or expand preference into defect work, and stops when authorization or ownership is unresolved.
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Maintaining Components**
 
-
-### Maintenance evidence-to-handoff flow
+### Evidence-based maintenance flow
 
 ```mermaid
-flowchart TD
-    A["Maintenance evidence"] --> B["Maintenance procedure"]
-    B --> C["Bounded backlog or<br/>handoff"]
+flowchart LR
+    Skill["Maintaining components"] -->|reads| Component["Bounded component"]
+    Skill -->|reads| Records["Records and<br/>conventions"]
+    Skill -->|provides| Improvement["Confirmed<br/>improvement"]
+    Skill -.-> Boundary["No tools or<br/>authority"]
 ```
 
-
 ## Links
-
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
+- [../as-is.md](../../as-is.md) — concise capability catalog entry.

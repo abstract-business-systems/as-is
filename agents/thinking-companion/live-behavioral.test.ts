@@ -5,9 +5,9 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 const root = process.cwd();
-const launcher = resolve(root, "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts");
+const launcher = resolve(root, "core/adapters/pi/scripts/spawn-pi-subagent.ts");
 const agent = resolve(root, "agents/thinking-companion/agent.md");
-const skill = resolve(root, "skills/human-centered-consulting/SKILL.md");
+const skill = resolve(root, "skills/consulting-humans/SKILL.md");
 const expert = resolve(root, "agents/expert/agent.md");
 const liveEnabled = process.env.AS_IS_LIVE_INTEGRATION === "1";
 
@@ -17,16 +17,14 @@ test("human-facing consultation roles use progressive disclosure", () => {
   const role = readFileSync(agent, "utf8");
   const expertRole = readFileSync(expert, "utf8");
   const procedure = readFileSync(skill, "utf8");
-  expect(role).toContain("human-centered-consulting");
+  expect(role).toContain("consulting-humans");
   expect(role).toContain("progressive disclosure");
   expect(role).toContain("Preserve the person's agency");
-  expect(expertRole).toContain("progressive disclosure");
-  expect(expertRole).toContain("analysis in temporary files");
-  expect(procedure).toContain("## Option Count");
-  expect(procedure).toContain("at least three and ideally five");
-  expect(procedure).toContain("no more than three");
-  expect(procedure).toContain("progressive disclosure");
-  expect(procedure).toContain("temporary files are for operational needs");
+  expect(expertRole).toContain("advisory and read-only");
+  expect(expertRole).toContain("consulting-humans");
+  expect(procedure).toContain("preserving human agency");
+  expect(procedure).toContain("present a small set of evidence-backed options and trade-offs");
+  expect(procedure).toContain("recommend without deciding or executing");
 });
 
 test("thinking-companion launcher exposes a bounded non-authoritative profile", () => {

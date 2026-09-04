@@ -1,0 +1,35 @@
+{
+  "task": {
+    "status": "cancelled",
+    "worker": "component-builder",
+    "updated": "2026-08-29T15:19:09Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.9,
+        "spent": 0,
+        "reserve": 0.1,
+        "source": "unavailable",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 2,
+        "maximum-children": 2
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 780,
+          "spent-seconds": 0,
+          "reserve-seconds": 120,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "require-current-turn-user-approval"
+    },
+    "acceptance": [
+      "Coordinate only the separately owned core/modules child for the selected task-control slice.",
+      "Preserve component boundaries, child allocation accounting, dependency ordering, protected inputs, recovery, and terminal disposition.",
+      "Do not implement task-control, process-adapter, fixture, benchmark, migration, adoption, retirement, commit, or merge work."
+    ]
+  }
+}

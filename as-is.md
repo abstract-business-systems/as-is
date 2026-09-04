@@ -57,7 +57,7 @@ flowchart LR
     class Agents,Designs,Skills,Fixtures,Core,Tools,Drafts child
 ```
 
-Only areas with their own `as-is.md` are components in this record. Other repository directories remain navigable through their own files or links but are not listed as components here. Root `design-principles.md` provides repository-wide principles; `core/contracts/` provides normative contract documents. `.pi/` remains a projected bundle artifact rather than canonical source. `.opencode/`, `scripts/`, `temp/`, and `.agents/` remain ordinary or projected artifacts without independent records.
+Only areas with their own `as-is.md` are components in this record. Other repository directories remain navigable through their own files or links but are not listed as components here. Root `design-principles.md` provides repository-wide principles; `core/contracts/` provides normative contract documents. `.pi/` remains a projected bundle artifact rather than canonical source. `.opencode/`, `scripts/`, and `.agents/` remain ordinary or projected artifacts without independent records.
 
 - The repository is composed of filesystem areas and components with durable
   `as-is.md` records.

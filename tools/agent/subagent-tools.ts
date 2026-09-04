@@ -9,20 +9,20 @@ import {
   type ResourceLoader,
   type ToolDefinition,
   type ExtensionAPI,
-} from "../../skills/spawning-pi-subagents/node_modules/@earendil-works/pi-coding-agent";
-import { Type } from "../../skills/spawning-pi-subagents/node_modules/typebox";
+} from "../../core/adapters/pi/node_modules/@earendil-works/pi-coding-agent";
+import { Type } from "../../core/adapters/pi/node_modules/typebox";
 import {
   analyzeProjectSession as focusedAnalyzeProjectSession,
   createSessionAnalysisTool as createFocusedSessionAnalysisTool,
   createTraceQueryTools as createFocusedTraceQueryTools,
 } from "../evidence/worker-tools-observability.ts";
 import { boundedLimit } from "../../core/modules/task-control/budget.ts";
-import { parseThinkingLevel, resolveThinkingLevel, type ThinkingLevel } from "../../skills/spawning-pi-subagents/scripts/agent-thinking.ts";
+import { parseThinkingLevel, resolveThinkingLevel, type ThinkingLevel } from "../../core/adapters/pi/scripts/agent-thinking.ts";
 import { resolveCanonicalAgent } from "../../core/modules/agent-resolution/agent-resolution.ts";
 import { readAsIsJson, resolveConfigurationFromCwdSync } from "../../core/modules/context-resolution/configuration-resolver.ts";
 import { resolveLinkedContextTool } from "../context/resolve-linked-context.ts";
-import { sessionNameFromTaskName } from "../../skills/spawning-pi-subagents/scripts/session-naming.ts";
-import { resolveSessionDirectory } from "../../skills/spawning-pi-subagents/scripts/session-directory.ts";
+import { sessionNameFromTaskName } from "../../core/adapters/pi/scripts/session-naming.ts";
+import { resolveSessionDirectory } from "../../core/adapters/pi/scripts/session-directory.ts";
 import {
   emitTrace,
   serializeSessionReference,

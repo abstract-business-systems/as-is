@@ -10,7 +10,7 @@ The root JSON companion is the repository machine-data entry point. This documen
 | --- | --- | --- |
 | Project configuration | Root or component JSON companion under `configuration` | The context resolver cascades JSON configuration from repository to target and reports provenance and diagnostics. |
 | Task metadata | Root or component JSON companion under `task` | Task-control owns its schema and keeps task metadata local; it never cascades. |
-| Durable component context | Component `as-is.md` | The managing-as-is-document skill owns purpose, design, relationships, and navigation. |
+| Durable component context | Component `as-is.md` | The managing-as-is-records skill owns purpose, design, relationships, and navigation. |
 | Task narrative | Component task-control-selected Markdown filename | Task-control owns task-record naming and narrative shape. |
 | Runtime state | Private user or temporary state | Runtime observations remain subordinate and cannot become configuration authority. |
 

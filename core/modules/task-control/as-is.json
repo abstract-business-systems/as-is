@@ -1,0 +1,37 @@
+{
+  "task": {
+    "status": "cancelled",
+    "worker": "component-builder",
+    "updated": "2026-08-29T15:19:09Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.2,
+        "spent": 0,
+        "reserve": 0.04,
+        "source": "unavailable",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 0,
+        "maximum-children": 0
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 240,
+          "spent-seconds": 0,
+          "reserve-seconds": 60,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "require-current-turn-user-approval"
+    },
+    "acceptance": [
+      "Implement deterministic plan-envelope readiness and admission-result evaluation within core/modules/task-control.",
+      "Implement dependency classification and invalidation facts without silently changing scope, ordering, reservation, budget, or task status.",
+      "Implement atomic per-component and bounded parent-allocation reservation acquisition, release, stale-owner recovery, orphan handling, and no-partial-admission behavior.",
+      "Preserve or extend fail-closed parent-closure evaluation so non-terminal, failed, cancelled, unintegrated, or unaccounted descendants cannot produce successful closure.",
+      "Add focused provider-free deterministic checks while preserving existing task-control regression behavior and current contracts."
+    ]
+  }
+}

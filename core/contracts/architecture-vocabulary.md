@@ -69,11 +69,6 @@ When a repository document needs shared terminology, link the relevant term anch
 
 | Consumer | Relevant vocabulary |
 | --- | --- |
-| [As-Is Setup](../../skills/as-is-setup/as-is.md#design) | [component boundary](#component-boundary), [parent and child terms](#parent-immediate-child-descendant-and-sibling), and [evidence](#evidence) |
-| [Integrating As-Is Documentation](../../skills/integrate-as-is-documentation/as-is.md#design) | [component boundary](#component-boundary), [structural containment](#structural-containment), and [canonical record](#canonical-record) |
-| [Managing As-Is Documents](../../skills/managing-as-is-document/as-is.md#design) | [canonical record](#canonical-record), [structural containment](#structural-containment), [authority and evidence](#owner-and-authority), and [relationship labels](#relationship-labels) |
-| [Building Components](../../skills/building-components/as-is.md#design) | [component boundary](#component-boundary), [owner and authority](#owner-and-authority), and [evidence](#evidence) |
-| [Designing Mermaid Diagrams](../../skills/designing-mermaid-diagrams/as-is.md#design) | [structural containment](#structural-containment) and [relationship labels](#relationship-labels); generic Mermaid mechanics remain target-neutral |
 | [Core Contracts](as-is.md#design) | [scope and authority](#scope-and-authority) and this document's role as a shared reference |
 
 These links improve discovery without turning the vocabulary into a second component map. Add a new consumer only when it genuinely relies on a shared term and can name the relevant anchor.

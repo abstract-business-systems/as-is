@@ -1,10 +1,10 @@
-import type { ExtensionAPI, ToolDefinition } from "../../skills/spawning-pi-subagents/node_modules/@earendil-works/pi-coding-agent";
-import { Type } from "../../skills/spawning-pi-subagents/node_modules/typebox";
+import type { ExtensionAPI, ToolDefinition } from "../../core/adapters/pi/node_modules/@earendil-works/pi-coding-agent";
+import { Type } from "../../core/adapters/pi/node_modules/typebox";
 import {
   renderMermaidBatch,
   rendererConfiguration,
   type MermaidDiagramInput,
-} from "../../skills/designing-mermaid-diagrams/rendered-navigation";
+} from "../../tools/mermaid-renderer/rendered-navigation";
 
 const maxResultCharacters = 100_000;
 const diagramInput = Type.Object({

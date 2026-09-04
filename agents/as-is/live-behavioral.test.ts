@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const root = process.cwd();
-const launcher = "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts";
+const launcher = "core/adapters/pi/scripts/spawn-pi-subagent.ts";
 const liveEnabled = process.env.AS_IS_LIVE_INTEGRATION === "1";
 
 type Run = { stdout: string; stderr: string; exitCode: number };

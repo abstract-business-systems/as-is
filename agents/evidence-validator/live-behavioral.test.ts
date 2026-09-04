@@ -5,8 +5,8 @@ import { resolve } from "node:path";
 const root = process.cwd();
 const agent = readFileSync(resolve(root, "agents/evidence-validator/agent.md"), "utf8");
 const asIs = readFileSync(resolve(root, "agents/evidence-validator/as-is.md"), "utf8");
-const launcher = readFileSync(resolve(root, "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts"), "utf8");
-const extension = readFileSync(resolve(root, "skills/spawning-pi-subagents/scripts/evidence-validator-inspection-extension.ts"), "utf8");
+const launcher = readFileSync(resolve(root, "core/adapters/pi/scripts/spawn-pi-subagent.ts"), "utf8");
+const extension = readFileSync(resolve(root, "core/adapters/pi/scripts/evidence-validator-inspection-extension.ts"), "utf8");
 
 function profileFor(caller: string): string {
   // This is a provider-independent admission model: the role-owned contract
@@ -57,7 +57,7 @@ test("host profile is caller-independent, no-session, and same-worktree", () => 
   const callers = ["component-builder", "user", "arbitrary-caller"];
   expect(callers.map(profileFor)).toEqual(callers.map(() => "read,grep,find,ls,git_inspect,focused_check"));
   expect(launcher).toMatch(/worktree: isEvidenceValidation \? false/);
-  expect(launcher).toMatch(/noSession: isEvidenceValidation/);
+  expect(launcher).toMatch(/noSession: Boolean\(options\.noSession\) && !isEvidenceValidation/);
   expect(agent).toMatch(/current worktree/);
   expect(agent).not.toMatch(/^provider:/m);
   expect(agent).not.toMatch(/^session(Path)?:/m);

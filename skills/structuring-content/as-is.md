@@ -1,31 +1,28 @@
-
 # Structuring Content - as-is
 
 ## Purpose
-
-Maintain the reusable `structuring-content` skill as the authoritative procedure
-for purposeful, discoverable repository organization. This new bounded task
-extends its creation-time rule to explicitly cover authorized maintenance-time
-restructuring. The task is scoped to the skill component and its durable handoff
-record; it does not physically move existing fixtures. The procedure also omits optional empty sections, applies the target project's applicable history-placement convention rather than prescribing one, and treats links as distinct context rather than a repeated catalog of breadcrumbs, required Markdown fallbacks, ordinary direct-child contracts, or routine implementation files.
-
+Choose a durable location, hierarchy, and representation for repository content.
 
 ## Design
 
-The component is organized around the following relationships and flow.
+The skill shapes content into durable, discoverable artifacts by identifying the reader and retrieval question, inspecting the containing structure, choosing the smallest meaningful location and representation, and assessing moves before changing existing content.
+
+It is a reusable sibling under the skills catalog: choosing-names complements it when a new concept name must be selected, and owning records such as a component's as-is.md keep authority over the shaped content.
+
+It holds no task authority; it must preserve existing structural conventions, navigation, and lifecycle rather than overriding owning records or restructuring beyond the reader's retrieval needs.
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Structuring Content**
 
-
-### Content structuring flow
+### Content-structuring flow
 
 ```mermaid
-flowchart TD
-    A["Repository concept"] --> B["Content-structuring<br/>procedure"]
-    B --> C["Discoverable<br/>authoritative artifact"]
+flowchart LR
+    Skill["Structuring content"] -->|reads| Content["Repository<br/>content"]
+    Skill -->|reads| Structure["Containing structure"]
+    Skill -->|provides| Location["Durable location,<br/>hierarchy, and form"]
+    Skill -.-> Boundary["Preserves owning<br/>authority"]
 ```
 
-
 ## Links
-
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
+- [../as-is.md](../../as-is.md) — concise capability catalog entry.

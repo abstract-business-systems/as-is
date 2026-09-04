@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 const root = process.cwd();
-const launcher = resolve(root, "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts");
+const launcher = resolve(root, "core/adapters/pi/scripts/spawn-pi-subagent.ts");
 const worker = resolve(root, "agents/worker/agent.md");
 const liveEnabled = process.env.AS_IS_LIVE_INTEGRATION === "1";
 // The launcher requires this configured caller for worker admission. It is

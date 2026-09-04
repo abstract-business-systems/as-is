@@ -1,5 +1,5 @@
-import type { ExtensionAPI } from "../../skills/spawning-pi-subagents/node_modules/@earendil-works/pi-coding-agent";
-import { registerWorkerTools } from "../../skills/spawning-pi-subagents/extensions/worker-tools.ts";
+import type { ExtensionAPI } from "../../core/adapters/pi/node_modules/@earendil-works/pi-coding-agent";
+import { registerWorkerTools } from "../../core/adapters/pi/extensions/worker-tools.ts";
 import { agentTools } from "../../tools/agent/subagent-tools.ts";
 
 export * from "../../tools/agent/subagent-tools.ts";

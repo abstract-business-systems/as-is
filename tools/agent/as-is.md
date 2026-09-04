@@ -8,10 +8,23 @@ Expose bounded agent-assistance operations, currently canonical-role subagent ca
 
 **Lineage**: [as-is](../../as-is.md#design) / [tools](../as-is.md#design) / **agent tools**
 
-`subagent-tools.ts` contains the repository-owned Pi-facing tool definitions and supporting host-service composition for `call_subagent`, including bounded nested lineage propagation and deterministic depth/child limits while preserving every declared capability; canonical role resolution belongs to `core/modules/agent-resolution`. The package-owned `skills/spawning-pi-subagents/extensions/worker-tools.ts` provides only a versioned registration boundary; `.pi/extensions/worker-tools.ts` statically injects the repository tools into that boundary.
+`subagent-tools.ts` contains the repository-owned Pi-facing tool definitions and supporting host-service composition for `call_subagent`, including bounded nested lineage propagation and deterministic depth/child limits while preserving every declared capability; canonical role resolution belongs to `core/modules/agent-resolution`. The package-owned `core/adapters/pi/extensions/worker-tools.ts` provides only a versioned registration boundary; `.pi/extensions/worker-tools.ts` statically injects the repository tools into that boundary.
+
+### Tool boundary view
+
+```mermaid
+flowchart LR
+    PiExtension["Pi host<br/>registration shim"]
+    RegistrationBoundary["<a href='../../adapters/pi/extensions/worker-tools.ts'>pi extensions<br/>worker-tools.ts</a>"]
+    SubagentTools["<a href='./subagent-tools.ts'>subagent-tools.ts</a>"]
+    AgentResolution["<a href='../../core/modules/agent-resolution/as-is.md#design'>agent-<br/>resolution</a>"]
+    PiExtension -->|registers through| RegistrationBoundary
+    RegistrationBoundary -->|exposes| SubagentTools
+    SubagentTools -->|resolves roles via| AgentResolution
+```
 
 ## Links
 
 - [`subagent-tools.ts`](subagent-tools.ts) — bounded agent tool implementation and repository host adapter composition.
-- [`../../skills/spawning-pi-subagents/extensions/worker-tools.ts`](../../skills/spawning-pi-subagents/extensions/worker-tools.ts) — package-owned versioned registration boundary.
+- [`../../adapters/pi/extensions/worker-tools.ts`](../../adapters/pi/extensions/worker-tools.ts) — package-owned versioned registration boundary.
 - [`../../core/modules/agent-resolution/as-is.md`](../../core/modules/agent-resolution/as-is.md#design) — role contract resolution.

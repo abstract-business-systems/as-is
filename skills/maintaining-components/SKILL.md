@@ -1,51 +1,21 @@
 ---
 name: maintaining-components
-description: Maintains and improves one bounded component through evidence-based housekeeping and targeted changes. Use when reviewing a component for stale, redundant, inconsistent, costly, or unnecessarily nondeterministic work.
+description: Use when the smallest evidence-supported component improvements must be inspected and applied; establishes fit, not permission (grants no tools or authority).
 ---
 
-# Maintaining Components
+## Purpose
 
-Maintain a component as a bounded unit of work. Preserve useful behavior and
-durable context while removing avoidable maintenance cost, inconsistency, and
-unnecessary nondeterminism.
+**Purpose**: Inspect and apply the smallest evidence-supported component improvements.
 
-## Method
+## Approach
 
-1. Read the component's `as-is.md`, applicable permanent specifications, and the
-   smallest necessary implementation context.
-2. Identify concrete maintenance signals: stale or superseded material, duplicate
-   knowledge, inconsistent conventions, missing validation, avoidable manual
-   repetition, recovery gaps, or a nondeterministic flow where repeatable
-   behavior is required.
-3. State the specific maintenance need, affected artifacts, acceptance
-   conditions, and residual risk in the component task record before changing
-   the component.
-4. Select the smallest suitable improvement. Compose existing focused skills for
-   naming, structuring, verification, setup, and committing rather than
-   duplicating their methods.
-5. Replace a nondeterministic flow with deterministic behavior only when a
-   concrete correctness, cost, recovery, or repeatability benefit is supported
-   by evidence. Preserve intentional generative work and validate any changed
-   behavior against its requirement.
-6. Validate the resulting component with the smallest relevant checks. Record
-   observations, inferred conclusions, residual risk, recovery state, and next
-   action before completing the task.
+**Approach**: Audit a bounded component against applicable records and conventions, fix confirmed issues only, validate the change, and preserve ownership and recovery boundaries.
 
-## Boundaries
+## How it should be done
 
-- Work only within the assigned component directory unless the requirement names
-  an external dependency or the user authorizes broader access.
-- Do not turn a housekeeping task into an unbounded refactor or generic
-  framework.
-- Escalate a cross-component concern to the nearest common ancestor task.
-- Do not claim that deterministic behavior is inherently superior; assess the
-  component's actual acceptance conditions and operating risk.
+**How it should be done**: Define the component and maintenance signal; inspect records, consumers, and conventions; distinguish confirmed defect from preference; propose or apply the smallest authorized fix; validate structure and behavior; record retained exceptions and residual risk.
 
-## Quality Checks
 
-- Every change addresses a recorded maintenance signal and acceptance condition.
-- Existing focused skills are reused rather than copied into this skill.
-- A deterministic replacement has observable benefit and relevant validation.
-- Intentional generative behavior is retained when it serves the component.
-- Completion evidence and residual risk are recorded in the component task
-  record.
+## Composition context
+
+No composition table, workflow example, or tool-access row is cited for this master by the realization plan (plan section 7 composition-context column: "—"). Carry the general tool-access acknowledgment as composition-admission documentation (drafts/composable-skills.md lines 112-113): A skill does not grant tools. Before an agent is admitted to a master skill or composition, the composition's required tool set must be compared with the agent's declared tools, permissions, and authority. The agent must have every tool needed for its selected path, or the workflow must stop with a bounded missing-capability blocker; it must not silently substitute a weaker tool, broaden permissions, or ask a read-only agent to perform mutation.

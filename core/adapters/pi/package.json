@@ -1,0 +1,18 @@
+{
+  "name": "as-is-spawning-pi-subagents",
+  "private": true,
+  "type": "module",
+  "description": "Runtime-only home (A4): launcher runtime and focused test dependencies for the governed spawning-subagents procedure.",
+  "exports": {
+    "./worker-tools": "./extensions/worker-tools.ts"
+  },
+  "scripts": {
+    "test:worker-tools": "cd ../../.. && bun test --timeout 120000 tools/agent/subagent-tools.test.ts",
+    "build:launcher": "bun build --no-bundle --target bun --outfile /tmp/as-is-spawn-launcher-build scripts/spawn-pi-subagent.ts",
+    "build:evidence-extension": "bun build --no-bundle --target bun --outfile /tmp/as-is-spawn-evidence-build scripts/evidence-validator-inspection-extension.ts"
+  },
+  "dependencies": {
+    "@earendil-works/pi-coding-agent": "0.84.4",
+    "typebox": "1.3.7"
+  }
+}

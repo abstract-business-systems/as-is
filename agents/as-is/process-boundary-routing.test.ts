@@ -4,7 +4,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-const launcher = "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts";
+const launcher = "core/adapters/pi/scripts/spawn-pi-subagent.ts";
 const root = process.cwd();
 type Run = { stdout: string; stderr: string; exitCode: number };
 
@@ -12,6 +12,7 @@ function makePiStub(dir: string) {
   const path = join(dir, "pi-stub.sh");
   writeFileSync(path, `#!/usr/bin/env bash
 printf '%s' "$$" > "$AS_IS_STUB_PID_FILE"
+if [[ "\${1:-}" == "--version" ]]; then printf '0.84.4\n'; exit 0; fi
 case "$AS_IS_STUB_MODE" in
   route) printf '%s\\n' '{"role":"as-is","request":"What'"'"'s next?","route":"backlog-inspection","backlog":{"available":true,"inspected":true,"itemId":"whats-next-routing","component":"agents/as-is","priority":"High"},"authorization":"recommendation only","startsWork":false,"delegatedTo":null,"traceId":"trace-routing-fixture","sessionReference":{"sessionId":"opaque-session-routing","store":"project-local","availability":"available"}}' ;;
 

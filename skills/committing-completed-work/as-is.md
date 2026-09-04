@@ -1,43 +1,25 @@
-# Committing Completed Work - as-is
+# Committing completed work - as-is
 
 ## Purpose
-
-Provide the reusable completion procedure for creating one scoped Git handoff from validated, descendant-closed component work without staging unrelated changes.
+Verify completion gates and prepare scoped durable handoffs.
 
 ## Design
 
-The skill is the completion-half of a two-commit lifecycle. The task-start
-handoff records selected backlog status and active task artifacts; this skill
-stages the declared durable handoff together with the owning changelog summary,
-exact evidence-gated backlog-row removal, and configured task-artifact cleanup,
-validates the complete completion patch, creates the second concise commit, and
-preserves unrelated work. It does not authorize partial or unvalidated commits
-or separate task-deletion/backlog-clearance commits. The changelog evidence is
-written before backlog cleanup eligibility is evaluated, and all completion
-artifacts become durable together at the second Git commit boundary.
+The skill confirms acceptance and descendant closure, stages only the changelog, exact backlog cleanup, task cleanup, and declared handoff, then verifies and commits once. It is the terminal completion step that compositions such as `building-components` reach after validation and changelog work, and its tool-access row states that staging and commit access requires completion gates and scoped ownership. The skill grants no tools or authority: a composition cannot grant commit authority, and unrelated work is left untouched.
 
-**Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Committing Completed Work**
+**Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Committing completed work**
 
-
-### Scoped commit handoff
+### Scoped completion flow
 
 ```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Start["Task-start commit:<br/>selected + active task"] --> Evidence["Validated,<br/>descendant-closed work"]
-    Evidence -->|authorizes| Scope["Declared durable handoff"]
-    Scope -->|prepares| Finalization["Changelog + exact backlog<br/>cleanup + task cleanup"]
-    Finalization -->|validates| Patch["Staged completion<br/>patch"]
-    Patch -->|provides| Commit["Second Git commit"]
+flowchart LR
+    Validated["Validated,<br/>closed work"] -->|provides| Skill["Committing completed<br/>work"]
+    History["Changelog and<br/>cleanup evidence"] -->|provides| Skill
+    Skill -->|provides| Handoff["Scoped durable<br/>handoff"]
+    Skill -->|validates| Patch["Staged completion<br/>patch"]
+    Skill -.-> Boundary["No commit<br/>authority"]
 ```
 
-The completion procedure is downstream of task authority and validation. The owning agent decides semantic completion; the skill supplies mechanical scope and evidence gates.
-
 ## Links
-
-- [`SKILL.md`](SKILL.md) — authoritative scoped-commit procedure.
-- [`../implementing-component-tasks/SKILL.md`](../implementing-component-tasks/SKILL.md) — task completion preconditions.
-- [`../managing-backlog/SKILL.md`](../managing-backlog/SKILL.md) — evidence-gated backlog reconciliation.
+- [SKILL.md](SKILL.md) — authoritative procedure and contract.
+- [../as-is.md](../../as-is.md) — concise capability catalog entry.

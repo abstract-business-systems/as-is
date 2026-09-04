@@ -2,7 +2,7 @@
 
 ## Status And Scope
 
-This file retains the earlier planning context for durable `as-is.md` records. The current operational authority is [`managing-as-is-document`](../../skills/managing-as-is-document/SKILL.md); this file does not define a parallel record contract or authorize a repository-wide rewrite.
+This file retains the earlier planning context for durable `as-is.md` records. The current operational authority is [`managing-as-is-records`](../../skills/managing-as-is-records/SKILL.md); this file does not define a parallel record contract or authorize a repository-wide rewrite.
 
 ## Superseded Decisions
 

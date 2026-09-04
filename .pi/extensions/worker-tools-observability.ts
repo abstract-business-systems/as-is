@@ -1,4 +1,4 @@
-import type { ExtensionAPI } from "../../skills/spawning-pi-subagents/node_modules/@earendil-works/pi-coding-agent";
+import type { ExtensionAPI } from "../../core/adapters/pi/node_modules/@earendil-works/pi-coding-agent";
 
 export * from "../../tools/evidence/worker-tools-observability.ts";
 

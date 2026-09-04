@@ -1,37 +1,36 @@
-# Building Components - as-is
+# Building components - as-is
 
 ## Purpose
 
-Provide the reusable procedure for building one bounded component and producing a validated, scoped durable handoff while preserving agent authority and task-record ownership.
+Build bounded component tasks with delegation, validation, history, and completion handoffs while the receiving parent retains semantic integration and completion authority.
 
 ## Design
 
-The skill composes task implementation, validation, recovery, and completion procedures. It guides a builder through context, expert review, bounded implementation, child handoff, acceptance evidence, descendant closure, and durable handoff without selecting or launching agents itself. Behavioral tests of affected agent and skill contracts are the primary regression anchor for component-building and restructuring work. When a build or restructuring change alters a component's purpose, design, relationships, boundary, ownership, or links, the relevant durable `as-is.md` record is updated in the same handoff.
+The skill is the master composition for reading durable context, obtaining attributable plan review, preparing configured delegation, and composing implementation, validation, history, recovery, and completion procedures. It grants no tools or authority. The role and task record remain authoritative for admission, scope, integration, and completion decisions.
 
-**Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Building Components**
+**Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Building components**
 
-
-### Bounded build handoff
+### Component task flow
 
 ```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Builder["Component builder"] -->|uses| Procedure["Bounded build procedure"]
-    Procedure -->|validates| Work["Component work"]
-    Work -->|provides| Handoff["Scoped durable handoff"]
+flowchart TD
+    Context["Read durable context<br/>and authorized task"] --> Review["Obtain attributable<br/>plan review"]
+    Review --> Work["Compose bounded<br/>implementation and<br/>delegation"]
+    Work --> Validate["Validate acceptance<br/>and descendant closure"]
+    Validate --> Handoff["Prepare scoped<br/>durable handoff"]
 ```
 
-The skill is reusable procedure, not authority. The configured agent remains responsible for component selection, delegation, parent integration, completion decisions, and any required approvals.
+| Concern | Rule |
+| --- | --- |
+| Composition | Compose `building-context`, task lifecycle, bounded changes, tests, validation, changelog, and scoped completion procedures as applicable. |
+| Delegation | Stop at separately owned child boundaries and use configured workers through the approved delegation and launch procedures. |
+| Integration | Require committed, scoped, validated child evidence; record source, result, and integrated SHAs; handle only in-scope conflicts; prove ancestry and run parent-side validation. |
+| Closure | Keep `pending-parent-integration` non-terminal, close descendants, consolidate related results, and record `no-separate-integration` for parent-owned, same-component, or no-change work. |
+| Authority | The receiving role owns semantic integration and completion; this skill grants no tools or authority and does not replace the task record. |
+| Runtime boundary | Launcher and control-plane runtime provide mechanical handoff and ancestry evidence; this skill record does not claim runtime enforcement. |
 
 ## Links
 
-- [`SKILL.md`](SKILL.md) — authoritative build procedure.
-- [`../context-building/SKILL.md`](../context-building/SKILL.md) — bounded context composition used before implementation and relevant handoffs.
-- [`../../core/contracts/architecture-vocabulary.md#component-boundary`](../../core/contracts/architecture-vocabulary.md#component-boundary) — current-system boundary and ownership definitions used by the build procedure.
-- [`../../agents/component-builder/agent.md`](../../agents/component-builder/agent.md) — role that retains build authority.
-- [`../implementing-component-tasks/SKILL.md`](../implementing-component-tasks/SKILL.md) — task lifecycle.
-- [`../verification-discipline/SKILL.md`](../verification-discipline/SKILL.md) — validation evidence.
-- [`../../agents/component-builder/live-behavioral.test.ts`](../../agents/component-builder/live-behavioral.test.ts) — live behavioral contract checks for component-builder behavior when the live integration gate is enabled.
+- [SKILL.md](SKILL.md) — authoritative component-building procedure.
+- [../as-is.md](../../as-is.md#design) — concise capability catalog entry.
+- [../../agents/component-builder/as-is.md#design](../../agents/component-builder/as-is.md#design) — role ownership and boundary.

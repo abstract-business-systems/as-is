@@ -1,47 +1,24 @@
-# Designing Mermaid Diagrams - as-is
+# Designing Mermaid diagrams - as-is
 
 ## Purpose
-Design bounded Mermaid diagrams that make a component's purpose, immediate
-subcomponents, responsibilities, relationships, interactions, boundaries,
-consequential flows, and observable outcomes understandable to readers without
-implementation knowledge.
+Produce bounded Mermaid views and validate their syntax and rendering when needed.
 
 ## Design
 
-| Concern | Rule |
-| --- | --- |
-| Representation | Select the generic Mermaid view from the reader's question and keep authoritative context in prose. |
-| Owned mechanics | Own Mermaid mechanics, diagram-type selection, and communication guidance for generic subjects. |
-| Navigation | The host procedure decides whether nodes require links; a required Markdown fallback preserves navigation when a renderer suppresses a diagram link. |
-| Duplication | A fallback is distinct navigation, not a reason to duplicate targets or ordinary direct-child contracts in a separate catalog. |
-| Host conventions | Repository-specific record structure and `**Lineage**: ` navigation belong to the host procedure. |
-| Rendering | Renderer checks accept bounded diagram-source batches; callers own document discovery; checks install no providers and contact no external services. |
-| Layout planning | Keep render planning in working context for critical views, not canonical records. |
+The skill designs the reader-oriented view, preserves navigational hrefs, runs source checks, renders when available, and reports renderer limitations explicitly. The realization plan cites no composition table, workflow example, or tool-access row for this master, so it carries only the general composition-admission acknowledgment that admission requires the agent to hold every tool needed for its selected path or the workflow stops with a bounded missing-capability blocker. The skill establishes fit, not permission: it grants no tools or authority and reports source and renderer evidence separately without claiming more than the evidence supports.
 
-**Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Designing Mermaid Diagrams**
+**Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Designing Mermaid diagrams**
 
-### Generic outcome flow
-
+### Mermaid validation flow
 
 ```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    ACTOR["Actor goal"] --> SUBJECT["Subject responsibility"]
-    SUBJECT --> CHILD["Relevant subcomponent<br/>responsibility"]
-    CHILD --> OUTCOME["Observable outcome"]
+flowchart LR
+    Question["Reader question<br/>and scope"] -->|provides| Skill["Designing Mermaid<br/>diagrams"]
+    Skill -->|provides| Source["Linked Mermaid<br/>source"]
+    Skill -->|validates| Evidence["Source and render<br/>evidence"]
+    Skill -.-> Boundary["No tools or<br/>authority"]
 ```
 
-
-The skill owns reusable diagram design and validation guidance. The owning
-component record owns the meaning and authority of its purpose, boundaries,
-and relationships. This skill does not own component behavior, task authority,
-agent selection, context resolution, or architectural decisions.
 ## Links
-
-- [SKILL.md](SKILL.md) — authoritative procedure and Mermaid type-selection guidance.
-- [rendered-navigation.md](rendered-navigation.md) — repository-local optional browser-batch input and evidence contract.
-- [../../core/contracts/architecture-vocabulary.md#relationship-labels](../../core/contracts/architecture-vocabulary.md#relationship-labels) — current-system relationship meanings consumed by as-is diagrams; generic Mermaid mechanics remain target-neutral.
-- [../managing-as-is-document/SKILL.md](../managing-as-is-document/SKILL.md) — host-specific as-is diagram conventions are owned outside this generic skill.
+- [SKILL.md](SKILL.md) — authoritative procedure and contract.
+- [../as-is.md](../../as-is.md) — concise capability catalog entry.

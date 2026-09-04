@@ -1,0 +1,36 @@
+{
+  "task": {
+    "status": "cancelled",
+    "worker": "component-builder",
+    "updated": "2026-08-29T15:19:09Z",
+    "constraints": {
+      "cost": {
+        "currency": "USD",
+        "allocated": 0.8,
+        "spent": 0,
+        "reserve": 0.1,
+        "source": "unavailable",
+        "fallback-metric": "validation elapsed-seconds"
+      },
+      "delegation": {
+        "maximum-depth": 1,
+        "maximum-children": 2
+      },
+      "execution": {
+        "wall-clock": {
+          "allocated-seconds": 660,
+          "spent-seconds": 0,
+          "reserve-seconds": 120,
+          "source": "unavailable"
+        }
+      },
+      "external-effects": "require-current-turn-user-approval"
+    },
+    "acceptance": [
+      "Coordinate only the separately owned core/modules/task-control child for the selected task-control slice.",
+      "Account for the existing terminal core/modules/observability task without changing its record or claiming new work for it.",
+      "Preserve the modules boundary, child allocation accounting, protected inputs, recovery, and terminal disposition.",
+      "Do not implement task-control, process-adapter, fixture, benchmark, migration, adoption, retirement, commit, or merge work."
+    ]
+  }
+}

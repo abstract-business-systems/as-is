@@ -16,13 +16,13 @@ test("same launcher prompt construction reaches a local child without model late
     const stub = join(dir, "pi-startup-stub.sh");
     writeFileSync(stub, [
       "#!/usr/bin/env bash",
-      `if [[ \"$1\" == \"--version\" ]]; then printf '0.84.0\\n'; exit 0; fi`,
+      `if [[ \"$1\" == \"--version\" ]]; then printf '0.84.4\\n'; exit 0; fi`,
       `printf '%s\\n' \"$*\" > '${capture}'`,
       "exit 0",
       "",
     ].join("\n"), { mode: 0o755 });
     const result = Bun.spawnSync([
-      "bun", "skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts",
+      "bun", "core/adapters/pi/scripts/spawn-pi-subagent.ts",
       "--agent", "agents/as-is/agent.md",
       "--task", "Startup-only dummy diagnostic.",
       "--cwd", process.cwd(),

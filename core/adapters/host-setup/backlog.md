@@ -16,9 +16,10 @@ in the component `changelog.md`; only open or deferred planning items remain.
    Remove completed items after recording their durable summary in `changelog.md`.
 4. Record the selected item, exact artifact boundary, acceptance conditions,
    and any external dependency in the configured task record before editing.
-5. Keep the canonical setup skill under `skills/as-is-setup/` and the executable
-   setup implementation in this adapter. Do not recreate the removed
-   `skills/setting-up-as-is` path or maintain a second skill implementation.
+5. The standalone setup skills (`skills/as-is-setup/`, `skills/integrate-as-is-documentation/`) are retired by the human-authorized adoption flow
+   (recorded disposition: absorbed); setup record creation is carried by the adopted `master/managing-as-is-records` capability and the executable setup
+   implementation remains in this adapter. Do not recreate the removed `skills/setting-up-as-is` or `skills/as-is-setup/` paths or maintain a second skill
+   implementation. The adopted records skill grants no tools or authority and does not perform host setup itself.
 6. Validate the focused component tests and the affected host inspection
    behavior, then record the handoff and residual risk.
 

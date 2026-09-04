@@ -6,7 +6,7 @@ agent through the repository launcher.
 For a new request, pass the request as the task:
 
 ```bash
-bun skills/spawning-pi-subagents/scripts/spawn-pi-subagent.ts \
+bun core/adapters/pi/scripts/spawn-pi-subagent.ts \
   --agent agents/as-is/agent.md \
   --task "$@" \
   --cwd "$PWD" \
