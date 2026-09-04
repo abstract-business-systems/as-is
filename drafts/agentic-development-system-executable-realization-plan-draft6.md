@@ -25,8 +25,7 @@ The plan is a planning artifact, not an implementation packet or task record. A 
 - Focused parallel-child draft-2 content SHA-256 at plan authoring: `c231b1639da9f59f6dfb3b124f795bdccdb3eacae96f0388ccbe5d779b47583d`.
 - Actual draft-2 Sol review: `reviews/agentic-development-system/sol-parallel-child-build-processing-draft2.md`.
 - Actual draft-2 Kimi review: `reviews/agentic-development-system/kimi-parallel-child-build-processing-draft2.md`.
-- Quarantine index: `drafts/agentic-development-system/quarantine/README.md`.
-- Later-realization source reviewed for bounded concerns: `drafts/agentic-development-system/quarantine/agentic-development-system-blocker-resolution-plan-draft6.md`, with advisory reviews in `drafts/agentic-development-system/quarantine/reviews/sol-blocker-resolution-plan-draft6.md` and `drafts/agentic-development-system/quarantine/reviews/kimi-blocker-resolution-plan-draft6.md`.
+- Quarantine index and quarantined provenance (blocker-resolution plan draft 6 plus its Sol and Kimi advisory reviews): pruned at adoption closure; recoverable via tag `adoption-evidence-full` (commit `c5c208c`).
 - Draft-1 realization-plan review: `reviews/agentic-development-system/sol-executable-realization-plan-draft1.md`.
 - Draft-2 realization-plan review: `reviews/agentic-development-system/sol-executable-realization-plan-draft2.md` (unavailable; not reconstructed).
 - Draft-3 realization-plan review: `reviews/agentic-development-system/sol-executable-realization-plan-draft3.md`.

@@ -1,3 +1,0 @@
-# Owner record: stats helper
-
-Owns the count-summary statistics helper for the count CLI (`src/wordstats/stats.py`) and its focused unit tests (`tests/test_stats.py`). The public contract is: `summarize_counts(counts)` returns a mapping with keys `min`, `max`, `median`, and `unique` computed from the counts' values; `unique` is the number of distinct words (length of the mapping); `min`, `max`, and `median` are the standard minimum, maximum, and median of the count values, and are `None` when the mapping is empty; the median of an even number of values is the average of the two middle values; the input mapping is not mutated.

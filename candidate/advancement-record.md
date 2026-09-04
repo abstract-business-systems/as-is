@@ -22,7 +22,7 @@ The candidate composition under `candidate/` on branch `implementing-composable-
 | 5 | delegation depth, uc9-uc10 (run-1 voided, infrastructure) | aggregate 53 v 53 | met |
 | 6 | model-tier generalization (abs-medium/gpt-5.6-luna) + cost | uc10 25 v 25 all gates PASS; uc9 scored 25 v 25 with registry-verified concurrency, then voided (symmetric fixture defect, user adjudication) | uc10 met |
 
-Fidelity: 442 + 32 checks PASS, 0 FAIL, post-drop shape asserted (no Design-view section, no Mermaid in skill bodies). Concurrency and budget pinning mechanically verified from launcher-registry evidence in rounds 5-6. Cost/wall-clock: candidate ~40-60% of baseline wall clock, ~60-100% of baseline cost per UC across both model tiers (recorded in `temp/benchmarking/cost-wall-clock-comparison.md`). Program spend ~$3.75.
+Fidelity: 442 + 32 checks PASS, 0 FAIL, post-drop shape asserted (no Design-view section, no Mermaid in skill bodies). Concurrency and budget pinning mechanically verified from launcher-registry evidence in rounds 5-6. Cost/wall-clock: candidate ~40-60% of baseline wall clock, ~60-100% of baseline cost per UC across both model tiers. (The detailed comparison was untracked scratch under gitignored `temp/benchmarking/`, pruned at adoption closure; the material facts are this summary, and the per-round inputs remain in the registered budget reports and run manifests cited above.) Program spend ~$3.75.
 
 ## 3. Baseline-skill disposition table (17 baseline skills at master @ 9a77e37)
 
