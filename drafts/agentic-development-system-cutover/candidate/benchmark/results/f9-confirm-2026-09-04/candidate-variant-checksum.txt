@@ -1,0 +1,1 @@
+candidate variant sha256 (flattened SKILL.md contents): 52f23199c255fc3c016ec59b513d06da814e6d7c01cf06738c3e70c87cc59aae

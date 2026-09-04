@@ -1,0 +1,66 @@
+{
+  "registration": "drafts/agentic-development-system-cutover/benchmark-confirmation-addendum-f9c1.md",
+  "run_id": "f9-confirm-2026-09-04",
+  "arms": {
+    "candidate": {
+      "workflow_head": "0ace6ca5a5de8f17e60593d7cfb58675fb87ece9",
+      "launcher": "core/adapters/pi/scripts/spawn-pi-subagent.ts (post re-home)",
+      "skills_seeding": "flat: find skills -mindepth 1 -maxdepth 1 -type d (35 components)",
+      "variant_sha256_flattened": "52f23199c255fc3c016ec59b513d06da814e6d7c01cf06738c3e70c87cc59aae",
+      "pi_runtime": "/shared/store/pi/bin/pi (0.84.4, bun entry)",
+      "model": "@preset/abs-medium",
+      "thinking": "high",
+      "top_job": "j-mtmdpblc-vtvgkv",
+      "top_session": "4fbd48d3-ae57-4216-8b0d-38968ebd54ec",
+      "child_job": "j-mtmdvhku-9u7xhh",
+      "child_session": "54488517-644d-4c03-8327-363f97b05f5d",
+      "budget": {
+        "cap_usd": 4.0,
+        "cap_wall_seconds": 3600,
+        "actual_usd": 0.12154747,
+        "budget_stopped": false
+      },
+      "consumer_validate": "All checks passed (exit 0)",
+      "consumer_bundle": "consumer-candidate.bundle (full consumer repo incl. arm commit)"
+    }
+  },
+  "baseline": {
+    "reused": true,
+    "source": "F9 recorded baseline",
+    "total": 22,
+    "job": "j-mtljav6l-b4ar7x",
+    "note": "not re-run; master 9a77e37 frozen"
+  },
+  "acceptance": {
+    "required": "candidate >= 22 AND six gates PASS",
+    "candidate_total": 25,
+    "gates_pass": true,
+    "verdict": "PASS"
+  },
+  "scorer": {
+    "sessions": [
+      "9c735500-12bd-44e6-95a3-8eb1177af17c (read-only attempt; gate evidence gap resolved mechanically)",
+      "ba6c819d-10b9-45e6-8a60-8579a2f735c7 (empty capability set; pinned policy)",
+      "3f223931-eae7-4692-bd8c-0b0683c876f8 (registered implementer scorer; outputs written)"
+    ],
+    "model": "@preset/abs-medium",
+    "thinking": "high"
+  },
+  "script_variant": [
+    "drafts/agentic-development-system-cutover/candidate/benchmark/f9-confirm/execution-setup.sh",
+    "drafts/agentic-development-system-cutover/candidate/benchmark/f9-confirm/launch-arm.sh"
+  ],
+  "evidence_files": [
+    "candidate-variant-checksum.txt",
+    "candidate-workflow-head.txt",
+    "check-setup-pristine-uc10-candidate.log",
+    "consumer-candidate-state.txt",
+    "consumer-candidate-validate.log",
+    "uc10/candidate/arm-task-prompt.md",
+    "uc10/candidate/session-stores/",
+    "scorer-output.json",
+    "scoring.md",
+    "consumer-candidate.bundle"
+  ],
+  "recorded_at": "2026-09-04T04:02:31.105785+00:00"
+}
