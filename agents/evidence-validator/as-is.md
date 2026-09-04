@@ -35,4 +35,4 @@ flowchart TB
 ## Links
 
 - [`agent.md`](agent.md) — canonical role contract and inspection limits.
-- [`../../skills/master/spawning-subagents/SKILL.md`](../../skills/master/spawning-subagents/SKILL.md) — approved role admission and launch context.
+- [`../../skills/spawning-subagents/SKILL.md`](../../skills/spawning-subagents/SKILL.md) — approved role admission and launch context.

@@ -36,5 +36,5 @@ flowchart TB
 ## Links
 
 - [`agent.md`](agent.md) — canonical advisory contract.
-- [`../../skills/reusable/inspecting-execution-evidence/SKILL.md`](../../skills/reusable/inspecting-execution-evidence/SKILL.md) — bounded evidence inspection.
-- [`../../skills/reusable/building-context/SKILL.md`](../../skills/reusable/building-context/SKILL.md) — bounded context assembly.
+- [`../../skills/inspecting-execution-evidence/SKILL.md`](../../skills/inspecting-execution-evidence/SKILL.md) — bounded evidence inspection.
+- [`../../skills/building-context/SKILL.md`](../../skills/building-context/SKILL.md) — bounded context assembly.

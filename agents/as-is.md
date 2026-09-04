@@ -73,4 +73,4 @@ The seven F8 role boxes and the retained transient worker fixture link to their 
 
 ## Links
 
-- [spawning-subagents](../skills/master/spawning-subagents/SKILL.md) — approved host admission and launch procedure.
+- [spawning-subagents](../skills/spawning-subagents/SKILL.md) — approved host admission and launch procedure.

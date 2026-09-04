@@ -34,4 +34,4 @@ flowchart TB
 ## Links
 
 - [`agent.md`](agent.md) — canonical read-only consultation boundary.
-- [`../../skills/master/consulting-humans/SKILL.md`](../../skills/master/consulting-humans/SKILL.md) — bounded human consultation procedure.
+- [`../../skills/consulting-humans/SKILL.md`](../../skills/consulting-humans/SKILL.md) — bounded human consultation procedure.

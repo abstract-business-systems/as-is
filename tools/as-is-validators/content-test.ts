@@ -16,7 +16,7 @@ const file = (relativePath: string) => bun.file(new URL(relativePath, import.met
 // and diagram/navigation validation below remain the repo-wide conformance gate; A13's transitional scope is resolved at F9.
 const [vocabulary, mermaidSkill, skillsRecord] = await Promise.all([
   file("../../core/contracts/architecture-vocabulary.md").text(),
-  file("../../skills/master/designing-mermaid-diagrams/SKILL.md").text(),
+  file("../../skills/designing-mermaid-diagrams/SKILL.md").text(),
   file("../../skills/as-is.md").text(),
 ]);
 
@@ -43,8 +43,8 @@ const repositoryRoot = dirname(dirname(dirname(new URL(import.meta.url).pathname
 const taskProtocol = readFileSync(join(repositoryRoot, "core", "contracts", "component-task-record-protocol.md"), "utf8");
 const configurationGuide = readFileSync(join(repositoryRoot, "core", "contracts", "configuration.md"), "utf8");
 const executionContract = readFileSync(join(repositoryRoot, "core", "contracts", "execution-contract.md"), "utf8");
-const structuringSkill = readFileSync(join(repositoryRoot, "skills", "reusable", "structuring-content", "SKILL.md"), "utf8");
-const namingSkill = readFileSync(join(repositoryRoot, "skills", "reusable", "choosing-names", "SKILL.md"), "utf8");
+const structuringSkill = readFileSync(join(repositoryRoot, "skills", "structuring-content", "SKILL.md"), "utf8");
+const namingSkill = readFileSync(join(repositoryRoot, "skills", "choosing-names", "SKILL.md"), "utf8");
 const historicalRecord = readFileSync(join(repositoryRoot, "agents", "as-is", "as-is-record-structure.md"), "utf8");
 for (const [name, text, phrases] of [
   ["task protocol", taskProtocol, ["## Authority Boundary", "This protocol owns task metadata", "does not define component architecture", "does not define component architecture, durable component-record structure"]],
@@ -78,7 +78,7 @@ const markdownTargets = (text: string) => Array.from(text.matchAll(/\]\(([^)\s]+
 const rootRecord = join(repositoryRoot, "as-is.md");
 const componentTargetPaths = (recordPath: string, text: string): string[] => Array.from(text.matchAll(/^\|\s*\[[^\]]+\]\(([^)\s]+as-is\.md#design)\)/gm), (match) => resolve(dirname(recordPath), match[1].split("#", 1)[0]));
 const namespaceArtifacts = (text: string): string[] => {
-  const declaration = text.match(/The physical namespace also retains these directly owned artifacts:\s*([^\n]+)/);
+  const declaration = text.match(/The (?:physical|flat) namespace also retains these directly owned artifacts:\s*([^\n]+)/);
   return declaration ? Array.from(declaration[1].split(". ", 1)[0].matchAll(/`([^`]+)`/g), (match) => match[1]) : [];
 };
 const pathInsideRepository = (path: string): boolean => {
@@ -120,8 +120,6 @@ const validateComponentCoverage = (): void => {
 
   const boundaries = [
     { path: join(repositoryRoot, "skills"), record: join(repositoryRoot, "skills", "as-is.md"), artifacts: namespaceArtifacts(readFileSync(join(repositoryRoot, "skills", "as-is.md"), "utf8")) },
-    { path: join(repositoryRoot, "skills", "master"), record: join(repositoryRoot, "skills", "master", "as-is.md"), artifacts: [] },
-    { path: join(repositoryRoot, "skills", "reusable"), record: join(repositoryRoot, "skills", "reusable", "as-is.md"), artifacts: [] },
     { path: join(repositoryRoot, "core", "adapters"), record: join(repositoryRoot, "core", "adapters", "as-is.md"), artifacts: [] },
     { path: join(repositoryRoot, "tools"), record: join(repositoryRoot, "tools", "as-is.md"), artifacts: [] },
   ];

@@ -6,7 +6,7 @@ model: large
 thinking: high
 tools: read,grep,find,ls,resolve_component_context
 skills:
-  - skills/master/consulting-humans
+  - skills/consulting-humans
 permission:
   task: deny
   webfetch: deny

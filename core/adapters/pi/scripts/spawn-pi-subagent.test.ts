@@ -574,7 +574,7 @@ test("ordinary fixture roles use generic declarative dispatch", async () => {
       "model: medium",
       "tools: read,grep,call_subagent",
       "skills:",
-      "  - skills/reusable/building-context",
+      "  - skills/building-context",
       "---",
       "Return the bounded fixture report.",
     ].join("\n"));
@@ -637,10 +637,10 @@ const declarativeDispatchScenarios: DeclarativeDispatchScenario[] = [
       "mode: subagent",
       "tools: read,grep,call_subagent",
       "skills:",
-      "  - skills/reusable/building-context",
+      "  - skills/building-context",
     ],
     expectedTools: "read,grep,call_subagent",
-    expectedSkills: [`${process.cwd()}/skills/reusable/building-context`],
+    expectedSkills: [`${process.cwd()}/skills/building-context`],
     expectedWorktree: true,
     expectedSessionPath: "<session-dir>",
   },
@@ -1517,14 +1517,14 @@ test("worktree isolation: a child git restore does not touch the caller's workin
     writeFileSync(stubPi, [
       "#!/usr/bin/env bash", "if [[ \"$1\" == \"--version\" ]]; then printf '0.84.4\\n'; exit 0; fi",
       "# Simulate a subagent reverting a tracked file to HEAD.",
-      "git restore -- skills/master/spawning-subagents/SKILL.md",
+      "git restore -- skills/spawning-subagents/SKILL.md",
       "exit 0",
       "",
     ].join("\n"), { mode: 0o755 });
 
     // Snapshot the caller's skill SKILL.md (which has uncommitted edits in this
     // working tree) before launching the child.
-    const targetFile = "skills/master/spawning-subagents/SKILL.md";
+    const targetFile = "skills/spawning-subagents/SKILL.md";
     const before = readFileSync(targetFile, "utf8");
 
     const result = await runLauncher([

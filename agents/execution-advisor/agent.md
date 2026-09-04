@@ -6,8 +6,8 @@ model: medium
 thinking: high
 tools: read,grep,find,ls,search_traces,get_trace,summarize_trace,compare_traces,analyze_session,resolve_component_context
 skills:
-  - skills/reusable/inspecting-execution-evidence
-  - skills/reusable/building-context
+  - skills/inspecting-execution-evidence
+  - skills/building-context
 permission:
   task: deny
   webfetch: deny

@@ -35,5 +35,5 @@ flowchart TB
 ## Links
 
 - [`agent.md`](agent.md) — canonical agency-preserving contract.
-- [`../../skills/master/consulting-humans/SKILL.md`](../../skills/master/consulting-humans/SKILL.md) — bounded consultation procedure.
+- [`../../skills/consulting-humans/SKILL.md`](../../skills/consulting-humans/SKILL.md) — bounded consultation procedure.
 - [`../expert/agent.md`](../expert/agent.md) — canonical read-only consultation target.

@@ -10,7 +10,7 @@ This planning artifact compares the current skill contracts and durable records.
 
 | Subject | Current primary purpose | Distinct authority or boundary | Current composition and consumers |
 | --- | --- | --- | --- |
-| [`building-components`](master/building-components/SKILL.md) | Compose bounded component-building context, implementation, review, validation, descendant closure, recovery, and durable handoff. | A reusable composition procedure; it does not select, authorize, start, or delegate agents. The configured component-builder role retains those decisions. | Composes [`building-context`](reusable/building-context/SKILL.md), [`implementing-component-tasks`](implementing-component-tasks/SKILL.md), [`verification-discipline`](verification-discipline/SKILL.md), and [`committing-completed-work`](committing-completed-work/SKILL.md). The component-builder role invokes the procedure while retaining role authority. |
+| [`building-components`](building-components/SKILL.md) | Compose bounded component-building context, implementation, review, validation, descendant closure, recovery, and durable handoff. | A reusable composition procedure; it does not select, authorize, start, or delegate agents. The configured component-builder role retains those decisions. | Composes [`building-context`](building-context/SKILL.md), [`implementing-component-tasks`](implementing-component-tasks/SKILL.md), [`verification-discipline`](verification-discipline/SKILL.md), and [`committing-completed-work`](committing-completed-work/SKILL.md). The component-builder role invokes the procedure while retaining role authority. |
 | [`maintaining-components`](maintaining-components/SKILL.md) | Identify and address stale, redundant, inconsistent, costly, or unnecessarily nondeterministic work in one bounded component. | Evidence-based housekeeping and improvement selection; it preserves intentional generative behavior and does not become an unbounded refactor or generic framework. | Composes focused naming, structuring, verification, setup, and committing skills as needed. Its backlog and task scope remain component-maintenance inputs, not a component-build lifecycle replacement. |
 | [`implementing-component-tasks`](implementing-component-tasks/SKILL.md) | Execute one selected bounded component task through task-record creation, scoped implementation, child boundaries, validation, changelog handoff, cleanup, and completion reconciliation. | Task lifecycle and descendant closure: task records own active machine/human state, child boundaries require configured component-builder delegation, and completion requires acceptance evidence and terminal descendants. | Invoked by component builders and backlog/task management. It is reusable for implementation tasks and remains the lifecycle contract that `building-components` composes. |
 
@@ -46,7 +46,7 @@ The assessment is based on current repository-authored contracts and references,
 
 ## Links
 
-- [`building-components/as-is.md#design`](master/building-components/as-is.md#design) — composition skill context.
+- [`building-components/as-is.md#design`](building-components/as-is.md#design) — composition skill context.
 - [`maintaining-components/as-is.md#design`](maintaining-components/as-is.md#design) — maintenance skill context.
-- [`implementing-component-tasks/as-is.md#design`](master/implementing-tasks/as-is.md#design) — task lifecycle context.
+- [`implementing-component-tasks/as-is.md#design`](implementing-tasks/as-is.md#design) — task lifecycle context.
 - [`../designs/skills-agents-separation-plan.md`](../designs/skills-agents-separation-plan.md) — separation rationale and component-builder migration boundary.

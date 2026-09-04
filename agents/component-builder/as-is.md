@@ -36,10 +36,10 @@ flowchart TB
 ## Links
 
 - [`agent.md`](agent.md) — canonical role authority and boundaries.
-- [`../../skills/master/building-components/SKILL.md`](../../skills/master/building-components/SKILL.md) — component-building mechanics.
-- [`../../skills/reusable/delegating-bounded-work/SKILL.md`](../../skills/reusable/delegating-bounded-work/SKILL.md) — bounded handoff preparation.
-- [`../../skills/master/spawning-subagents/SKILL.md`](../../skills/master/spawning-subagents/SKILL.md) — approved child launch and observation procedure.
-- [`../../skills/master/implementing-tasks/SKILL.md`](../../skills/master/implementing-tasks/SKILL.md) — task lifecycle and child boundaries.
-- [`../../skills/reusable/building-context/SKILL.md`](../../skills/reusable/building-context/SKILL.md) — bounded context composition.
-- [`../../skills/reusable/validating-changes/SKILL.md`](../../skills/reusable/validating-changes/SKILL.md) — validation and evidence selection.
-- [`../../skills/master/committing-completed-work/SKILL.md`](../../skills/master/committing-completed-work/SKILL.md) — scoped completion handoff.
+- [`../../skills/building-components/SKILL.md`](../../skills/building-components/SKILL.md) — component-building mechanics.
+- [`../../skills/delegating-bounded-work/SKILL.md`](../../skills/delegating-bounded-work/SKILL.md) — bounded handoff preparation.
+- [`../../skills/spawning-subagents/SKILL.md`](../../skills/spawning-subagents/SKILL.md) — approved child launch and observation procedure.
+- [`../../skills/implementing-tasks/SKILL.md`](../../skills/implementing-tasks/SKILL.md) — task lifecycle and child boundaries.
+- [`../../skills/building-context/SKILL.md`](../../skills/building-context/SKILL.md) — bounded context composition.
+- [`../../skills/validating-changes/SKILL.md`](../../skills/validating-changes/SKILL.md) — validation and evidence selection.
+- [`../../skills/committing-completed-work/SKILL.md`](../../skills/committing-completed-work/SKILL.md) — scoped completion handoff.
