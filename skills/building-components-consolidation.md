@@ -49,4 +49,4 @@ The assessment is based on current repository-authored contracts and references,
 - [`building-components/as-is.md#design`](building-components/as-is.md#design) — composition skill context.
 - [`maintaining-components/as-is.md#design`](maintaining-components/as-is.md#design) — maintenance skill context.
 - [`implementing-component-tasks/as-is.md#design`](implementing-tasks/as-is.md#design) — task lifecycle context.
-- [`../designs/skills-agents-separation-plan.md`](../designs/skills-agents-separation-plan.md) — separation rationale and component-builder migration boundary.
+- Skills-agents separation rationale and component-builder migration boundary: the separation plan was executed (F8 agent hollowing, 2026-09-03) and pruned from `designs/` on 2026-09-04; the original plan is recoverable from git history.

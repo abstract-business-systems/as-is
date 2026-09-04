@@ -12,7 +12,7 @@ This document is the constructed history of how this repository's live workflow 
 ## Phase 1 — seed and adapter exploration (2026-07-25 to 2026-07-31)
 
 - The repository was seeded from the abs-seed project at `b32c7e8` (2026-07-25).
-- The first host-adapter direction was OpenCode integration, explored on the `opencode-dead-end` branch (13 commits, diverged from `370dd05`, tip `835cfb5` 2026-07-28). The integration dead-ended on host capability gaps and was never merged; the branch was kept as a named dead-end snapshot, and its readiness mapping survived as [`designs/opencode-adapter-readiness.md`](../../designs/opencode-adapter-readiness.md).
+- The first host-adapter direction was OpenCode integration, explored on the `opencode-dead-end` branch (13 commits, diverged from `370dd05`, tip `835cfb5` 2026-07-28). The integration dead-ended on host capability gaps and was never merged; the branch was kept as a named dead-end snapshot, and its readiness mapping survived as a designs readiness document (pruned 2026-09-04 after the direction closed; recoverable from git history).
 - The pi host won. The `retry-with-pi` branch (tip `65ac54f`, 2026-07-31, "resolve independent delegation budget ownership") was absorbed into the mainline; it is a strict ancestor of master.
 
 ## Phase 2 — self-hosting mainline (2026-07-31 to 2026-08-19)
@@ -84,4 +84,4 @@ Each round was pre-registered before execution and recorded acceptance, run evid
 
 - The live workflow of record on master is the adopted composable skills composition; the repository-wide digest of the flattened skill roster is `52f23199c255fc3c016ec59b513d06da814e6d7c01cf06738c3e70c87cc59aae`.
 - Recorded post-cutover work lives in the root `backlog.md`: transient-agent roster integration, tracer fail-closed path resolution, trust hardenings, adviser retirement (A18 D-phase), and `audit-as-is-guidance-coverage`.
-- The `designs/` tree remains tracked with its citations into the dropped cutover folder amended to the evidence tags; its final disposition was left as an explicit future decision.
+- The `designs/` tree kept its live-cited authority documents (`core-modules-tools-and-skills`, `component-scoped-context-resolution`, `aspirational-architecture-handoff`, `model-simplicity-guidance`) with citations into the dropped cutover folder amended to the evidence tags; on 2026-09-04 the human-ruled prune removed the twelve implemented or superseded design documents, which remain recoverable from git history (the three agentic-development-system plans via cutover commit `c9c73e0`, the rest via the pushed pre-cutover history).

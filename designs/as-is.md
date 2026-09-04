@@ -28,14 +28,11 @@ artifacts in this directory are ordinary documents rather than child
 `as-is.md` components, so no container diagram is included.
 
 ## Links
-- [agentic-development-system-implementation-plan.md](agentic-development-system-implementation-plan.md) — locked direct implementation plan for candidate realization across execution control, composable skills, and benchmarking.
-- [execution-accounting-design.md](execution-accounting-design.md) — execution accounting design.
-- [orchestration-design.md](orchestration-design.md) — orchestration design.
-- [independent-delegation.md](independent-delegation.md) — independent delegation design.
 - [model-simplicity-guidance.md](model-simplicity-guidance.md) — guidance for model-assisted coding to
   prefer simple central ownership over duplicated local solutions. Its open
   implementation item is recorded in the root [`backlog.md`](../backlog.md).
 - [core-modules-tools-and-skills.md](core-modules-tools-and-skills.md) — phased handoff for separating core modules, agent-facing tools, skills, roles, adapters, component tasks, and subagent-first implementation.
 - [aspirational-architecture-handoff.md](aspirational-architecture-handoff.md) — current-to-future boundary, ownership, sequencing, and non-authorizations for the remaining aspirational architecture items.
-- [documentation-ownership-reconciliation-handoff.md](documentation-ownership-reconciliation-handoff.md) — bounded recovery handoff for documentation authority, consumer-owned configuration, test follow-up, and the established `core/contracts/` document collection.
-- [opencode-adapter-readiness.md](opencode-adapter-readiness.md) — draft OpenCode host-adapter readiness and blocked capability mapping.
+- [component-scoped-context-resolution.md](component-scoped-context-resolution.md) — component-building execution model that minimizes ambient context while preserving project-tool behavior; implemented by [`core/modules/context-resolution`](../core/modules/context-resolution/as-is.md).
+
+Pruned designs (implemented or superseded programs, removed 2026-09-04) remain recoverable from git history: the three agentic-development-system plan documents via the cutover commit `c9c73e0`, and the remaining nine via the pushed history up to `9a77e37`.
