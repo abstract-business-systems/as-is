@@ -120,16 +120,17 @@ const validateComponentCoverage = (): void => {
 
   const boundaries = [
     { path: join(repositoryRoot, "skills"), record: join(repositoryRoot, "skills", "as-is.md"), artifacts: namespaceArtifacts(readFileSync(join(repositoryRoot, "skills", "as-is.md"), "utf8")) },
-    { path: join(repositoryRoot, "skills", "master"), record: join(repositoryRoot, "skills", "master", "as-is.md"), artifacts: ["as-is.md"] },
-    { path: join(repositoryRoot, "skills", "reusable"), record: join(repositoryRoot, "skills", "reusable", "as-is.md"), artifacts: ["as-is.md"] },
-    { path: join(repositoryRoot, "core", "adapters"), record: join(repositoryRoot, "core", "adapters", "as-is.md"), artifacts: ["as-is.md"] },
-    { path: join(repositoryRoot, "tools"), record: join(repositoryRoot, "tools", "as-is.md"), artifacts: ["as-is.md"] },
+    { path: join(repositoryRoot, "skills", "master"), record: join(repositoryRoot, "skills", "master", "as-is.md"), artifacts: [] },
+    { path: join(repositoryRoot, "skills", "reusable"), record: join(repositoryRoot, "skills", "reusable", "as-is.md"), artifacts: [] },
+    { path: join(repositoryRoot, "core", "adapters"), record: join(repositoryRoot, "core", "adapters", "as-is.md"), artifacts: [] },
+    { path: join(repositoryRoot, "tools"), record: join(repositoryRoot, "tools", "as-is.md"), artifacts: [] },
   ];
   for (const boundary of boundaries) {
     if (!checkCoveragePath(boundary.path, "checked boundary", issues)) continue;
     const expected = new Set([
       ...componentTargetPaths(boundary.record, readFileSync(boundary.record, "utf8")).filter((target) => dirname(dirname(target)) === boundary.path).map((target) => basename(dirname(target))),
       ...boundary.artifacts,
+      basename(boundary.record),
     ]);
     for (const entry of readdirSync(boundary.path)) {
       const entryPath = join(boundary.path, entry);
