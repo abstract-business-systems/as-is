@@ -23,7 +23,7 @@ The configured root role is `as-is` with current default model setting `small` r
 - `git diff --check`: passed before the task-start checkpoint.
 - Read-only current control-plane launch-budget preflight passed for root, `core`, `core/modules`, and `core/modules/task-control`, with effective wall-clock limits of 780, 660, 540, and 180 seconds respectively; no status or budget mutation occurred.
 - `bun core/modules/task-control/control-plane.ts status .`: no active task; all four prepared records remain `ready`.
-- Full exact admission remains blocked because the current launch-budget operation does not establish candidate plan, reservation, dependency, protected-input, capability, holder, or model facts. Evidence is recorded in `reviews/agentic-development-system/first-task-control-slice-admission-preflight.md`.
+- Full exact admission remains blocked because the current launch-budget operation does not establish candidate plan, reservation, dependency, protected-input, capability, holder, or model facts. Evidence is recorded in `drafts/agentic-development-system-cutover/reviews/agentic-development-system/first-task-control-slice-admission-preflight.md`.
 
 Admission must use current task-control authority and must not be inferred from file creation, process exit, telemetry, or this parent record. No provider-backed execution is authorized.
 

@@ -81,7 +81,7 @@ Current user-directed sequence for the next restructuring work is: (1) completed
 
 Adopt the advanced candidate composition (ACCEPTED-TARGET per
 `drafts/agentic-development-system-cutover/candidate/advancement-record.md`) as the live workflow of record, per the
-approved plan `drafts/agentic-development-system-adoption-flow-plan-draft1.md`
+approved plan `drafts/agentic-development-system-cutover/adoption-flow-plan-draft1.md`
 and the sequencing decision `drafts/agentic-development-system-cutover/candidate/adoption-sequence.md`: all preparation
 on branch `implementing-composable-skills`, one atomic commit per family,
 single `--no-ff` merge into master as the human-authorized cutover. Family
