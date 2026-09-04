@@ -13,6 +13,16 @@ It grants no tools and no authority over status selection or completion; backlog
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Recording Backlog Items**
 
+### Backlog proposal flow
+
+```mermaid
+flowchart LR
+    Scope["Bounded work<br/>proposal"] -->|provides| Skill["Recording backlog<br/>items"]
+    Skill -->|provides| Item["Uniquely named<br/>backlog item"]
+    Item -->|provides| Backlog["Owning backlog"]
+    Skill -.-> Boundary["No selection or<br/>completion authority"]
+```
+
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
 - [../as-is.md](../../as-is.md) — concise capability catalog entry.

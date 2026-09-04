@@ -9,6 +9,16 @@ The skill translates an authorized requirement into new or substantially generat
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Writing code**
 
+### Implementation handoff flow
+
+```mermaid
+flowchart LR
+    Requirement["Authorized<br/>requirement"] -->|provides| Skill["Writing code"]
+    Skill -->|writes| Implementation["New or substantial<br/>implementation"]
+    Tests["Focused testing"] -->|uses| Implementation
+    Skill -.-> Boundary["No tools or<br/>authority"]
+```
+
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
 - [../as-is.md](../../as-is.md) — concise capability catalog entry.

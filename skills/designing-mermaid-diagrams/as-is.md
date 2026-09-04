@@ -9,6 +9,16 @@ The skill designs the reader-oriented view, preserves navigational hrefs, runs s
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Designing Mermaid diagrams**
 
+### Mermaid validation flow
+
+```mermaid
+flowchart LR
+    Question["Reader question<br/>and scope"] -->|provides| Skill["Designing Mermaid<br/>diagrams"]
+    Skill -->|provides| Source["Linked Mermaid<br/>source"]
+    Skill -->|validates| Evidence["Source and render<br/>evidence"]
+    Skill -.-> Boundary["No tools or<br/>authority"]
+```
+
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
 - [../as-is.md](../../as-is.md) — concise capability catalog entry.

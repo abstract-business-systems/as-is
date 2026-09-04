@@ -9,6 +9,15 @@ The skill compares repeated behavior and inputs, isolates nondeterministic sourc
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Assessing Determinism**
 
+### Determinism assessment flow
+
+```mermaid
+flowchart LR
+    Repetitions["Repeated behavior<br/>and inputs"] -->|provides| Skill["Assessing<br/>determinism"]
+    Skill -->|provides| Recommendation["Bounded recommendation"]
+    Skill -.-> Boundary["No tools or<br/>authority"]
+```
+
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
 - [../as-is.md](../../as-is.md) — concise capability catalog entry.

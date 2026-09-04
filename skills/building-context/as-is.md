@@ -9,6 +9,16 @@ The skill states the decision question and stopping condition, gathers authorita
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Building Context**
 
+### Context assembly flow
+
+```mermaid
+flowchart LR
+    Skill["Building context"] -->|reads| Records["Authoritative<br/>records"]
+    Evidence["Direct evidence"] -->|provides| Skill
+    Skill -->|provides| Context["Sufficient bounded<br/>context"]
+    Skill -.-> Boundary["No tools or<br/>authority"]
+```
+
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
 - [../as-is.md](../../as-is.md) — concise capability catalog entry.

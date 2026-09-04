@@ -9,6 +9,16 @@ The skill audits a bounded component against applicable records and conventions,
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Maintaining Components**
 
+### Evidence-based maintenance flow
+
+```mermaid
+flowchart LR
+    Skill["Maintaining components"] -->|reads| Component["Bounded component"]
+    Skill -->|reads| Records["Records and<br/>conventions"]
+    Skill -->|provides| Improvement["Confirmed<br/>improvement"]
+    Skill -.-> Boundary["No tools or<br/>authority"]
+```
+
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
 - [../as-is.md](../../as-is.md) — concise capability catalog entry.

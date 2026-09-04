@@ -8,6 +8,16 @@ The skill states purpose, alternatives, assumptions, boundaries, and the next de
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Drafting Content**
 
+### Proposal drafting flow
+
+```mermaid
+flowchart LR
+    Scope["Bounded proposal<br/>question"] -->|provides| Skill["Drafting content"]
+    Skill -->|provides| Draft["Labeled proposal<br/>draft"]
+    Draft -->|uses| Owner["Authority-bearing<br/>owner"]
+    Skill -.-> Boundary["No adoption<br/>authority"]
+```
+
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
 - [../as-is.md](../../as-is.md) — concise capability catalog entry.

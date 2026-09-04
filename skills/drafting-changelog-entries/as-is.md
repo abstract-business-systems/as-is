@@ -8,6 +8,16 @@ The skill summarizes the durable result, evidence, scope, and residual risk of a
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Drafting Changelog Entries**
 
+### History-entry drafting flow
+
+```mermaid
+flowchart LR
+    Result["Validated task<br/>result"] -->|provides| Skill["Drafting changelog<br/>entries"]
+    Skill -->|provides| Entry["Concise history<br/>entry"]
+    Entry -->|provides| Changelog["Owning changelog"]
+    Skill -.-> Boundary["No history<br/>authority"]
+```
+
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
 - [../as-is.md](../../as-is.md) — concise capability catalog entry.

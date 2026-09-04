@@ -9,6 +9,17 @@ The skill adds or revises bounded items in the owning backlog schema, calculates
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Managing Backlogs**
 
+### Backlog reconciliation flow
+
+```mermaid
+flowchart LR
+    Item["Bounded work<br/>proposal"] -->|provides| Skill["Managing backlogs"]
+    Skill -->|reads| Schema["Owning backlog<br/>schema"]
+    Skill -->|writes| Index["Planning index"]
+    Skill -->|validates| Evidence["Changelog evidence"]
+    Skill -.-> Boundary["No unauthorized<br/>transitions"]
+```
+
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
 - [../as-is.md](../../as-is.md) — concise capability catalog entry.

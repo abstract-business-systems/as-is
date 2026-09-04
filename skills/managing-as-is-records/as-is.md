@@ -9,6 +9,17 @@ The skill resolves component context, applies the record contract, updates Purpo
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Managing as-is Records**
 
+### As-is record flow
+
+```mermaid
+flowchart LR
+    Component["Component boundary"] -->|provides| Skill["Managing as-is<br/>records"]
+    Skill -->|reads| Contract["Record contract"]
+    Skill -->|writes| Record["Durable as-is<br/>record"]
+    Skill -->|validates| Navigation["Links, diagrams,<br/>child parity"]
+    Skill -.-> Boundary["Canonical ownership"]
+```
+
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
 - [../as-is.md](../../as-is.md) — concise capability catalog entry.

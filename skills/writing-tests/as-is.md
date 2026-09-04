@@ -9,6 +9,16 @@ The skill maps each test to an acceptance condition or risk, chooses the smalles
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Writing tests**
 
+### Focused test flow
+
+```mermaid
+flowchart LR
+    Behavior["Changed behavior<br/>or risk"] -->|provides| Skill["Writing tests"]
+    Skill -->|provides| Tests["Focused coverage"]
+    Validation["Change validation"] -->|uses| Tests
+    Skill -.-> Boundary["No tools or<br/>authority"]
+```
+
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
 - [../as-is.md](../../as-is.md) — concise capability catalog entry.

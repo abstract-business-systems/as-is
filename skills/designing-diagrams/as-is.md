@@ -9,6 +9,16 @@ The skill defines the reader question and view boundary, chooses functional node
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Designing Diagrams**
 
+### Reader-oriented diagram flow
+
+```mermaid
+flowchart LR
+    Question["Reader question<br/>and view boundary"] -->|provides| Skill["Designing diagrams"]
+    Skill -->|provides| View["Reader-oriented<br/>diagram source"]
+    Skill -->|validates| Targets["Navigation targets"]
+    Skill -.-> Boundary["No tools or<br/>authority"]
+```
+
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
 - [../as-is.md](../../as-is.md) — concise capability catalog entry.

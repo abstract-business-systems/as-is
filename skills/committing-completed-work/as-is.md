@@ -9,6 +9,17 @@ The skill confirms acceptance and descendant closure, stages only the changelog,
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Committing completed work**
 
+### Scoped completion flow
+
+```mermaid
+flowchart LR
+    Validated["Validated,<br/>closed work"] -->|provides| Skill["Committing completed<br/>work"]
+    History["Changelog and<br/>cleanup evidence"] -->|provides| Skill
+    Skill -->|provides| Handoff["Scoped durable<br/>handoff"]
+    Skill -->|validates| Patch["Staged completion<br/>patch"]
+    Skill -.-> Boundary["No commit<br/>authority"]
+```
+
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
 - [../as-is.md](../../as-is.md) — concise capability catalog entry.

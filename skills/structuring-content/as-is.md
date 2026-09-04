@@ -13,6 +13,16 @@ It holds no task authority; it must preserve existing structural conventions, na
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Structuring Content**
 
+### Content-structuring flow
+
+```mermaid
+flowchart LR
+    Skill["Structuring content"] -->|reads| Content["Repository<br/>content"]
+    Skill -->|reads| Structure["Containing structure"]
+    Skill -->|provides| Location["Durable location,<br/>hierarchy, and form"]
+    Skill -.-> Boundary["Preserves owning<br/>authority"]
+```
+
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
 - [../as-is.md](../../as-is.md) — concise capability catalog entry.

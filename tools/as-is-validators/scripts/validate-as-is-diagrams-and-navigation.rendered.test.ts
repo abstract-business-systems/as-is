@@ -25,17 +25,26 @@ test("optionally consumes browser-rendered href evidence for linked as-is diagra
   const validation = validateAsIsDiagramsAndNavigation(process.cwd(), {
     rootRecordPath: "as-is.md",
     recordPaths: recordPaths(process.cwd()),
-    requireDiagrams: false,
+    requireDiagrams: true,
     requireNamedDiagramHeadings: false,
     maxUnwrappedLabelCharacters: 28,
   });
   expect(validation.issues).toEqual([]);
   const diagrams = validation.diagrams;
-  const result = await renderMermaidBatch(diagrams.map(({ id, source, expectedHrefs }) => ({ id, source, expectedHrefs })), rendererConfiguration());
-  if (result.status === "unsupported") {
-    console.warn(`As-is rendered navigation integration unsupported: ${result.error}`);
+  // The renderer accepts bounded batches (max 64 diagrams per browser run); chunk the
+  // repository-wide walk so the record count can grow without weakening that bound.
+  const batchSize = 64;
+  const requests = diagrams.map(({ id, source, expectedHrefs }) => ({ id, source, expectedHrefs }));
+  const results = [];
+  for (let i = 0; i < requests.length; i += batchSize) {
+    results.push(await renderMermaidBatch(requests.slice(i, i + batchSize), rendererConfiguration()));
+  }
+  const unsupported = results.find((result) => result.status === "unsupported");
+  if (unsupported) {
+    console.warn(`As-is rendered navigation integration unsupported: ${unsupported.error}`);
     return;
   }
+  const result = { status: results.every((result) => result.status === "passed") ? "passed" : "failed", diagrams: results.flatMap((result) => result.diagrams) };
   expect(result.status).toBe("passed");
   expect(result.diagrams).toHaveLength(diagrams.length);
   expect(result.diagrams.every((diagram) => diagram.status === "passed" || diagram.status === "rendered")).toBe(true);

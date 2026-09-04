@@ -13,6 +13,16 @@ It grants no tools, permissions, or authority; unsupported claims must not be ma
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Validating Changes**
 
+### Acceptance validation flow
+
+```mermaid
+flowchart LR
+    Evidence["Recorded evidence<br/>and test results"] -->|provides| Skill["Validating changes"]
+    Skill -->|validates| Acceptance["Acceptance<br/>conditions"]
+    Skill -->|provides| Risk["Residual risk and<br/>readiness"]
+    Skill -.-> Boundary["No tools or<br/>authority"]
+```
+
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
 - [../as-is.md](../../as-is.md) — concise capability catalog entry.

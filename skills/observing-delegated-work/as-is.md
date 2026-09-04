@@ -8,6 +8,16 @@ The skill reads approved progress and evidence surfaces incrementally through th
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Observing Delegated Work**
 
+### Delegated-work observation flow
+
+```mermaid
+flowchart LR
+    Skill["Observing delegated<br/>work"] -->|reads| Handle["Approved handle<br/>and evidence"]
+    Skill -->|reads| Progress["Progress, budget,<br/>and task state"]
+    Skill -->|provides| Outcome["Classified<br/>outcome"]
+    Skill -.-> Boundary["No direction or<br/>completion authority"]
+```
+
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
 - [../as-is.md](../../as-is.md) — concise capability catalog entry.

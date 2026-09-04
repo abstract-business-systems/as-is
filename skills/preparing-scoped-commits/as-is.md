@@ -8,6 +8,17 @@ The skill separates the declared handoff, stages only the changelog, exact backl
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Preparing Scoped Commits**
 
+### Scoped commit preparation flow
+
+```mermaid
+flowchart LR
+    Handoff["Declared<br/>handoff"] -->|provides| Skill["Preparing scoped<br/>commits"]
+    Skill -->|reads| Patch["Staged patch"]
+    Skill -->|validates| Checks["Required checks"]
+    Skill -->|provides| Commit["Scoped commit<br/>preparation"]
+    Skill -.-> Boundary["Stops without<br/>authority"]
+```
+
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
 - [../as-is.md](../../as-is.md) — concise capability catalog entry.

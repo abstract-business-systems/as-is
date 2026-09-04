@@ -8,6 +8,16 @@ The skill resolves the owning changelog for bounded work by reading the applicab
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Locating Changelogs**
 
+### Changelog resolution flow
+
+```mermaid
+flowchart LR
+    Scope["Bounded work<br/>scope"] -->|provides| Skill["Locating changelogs"]
+    Skill -->|reads| Contract["History contract<br/>and owner records"]
+    Skill -->|provides| Path["Owning changelog<br/>path"]
+    Skill -.-> Boundary["Read-only resolution"]
+```
+
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
 - [../as-is.md](../../as-is.md) — concise capability catalog entry.

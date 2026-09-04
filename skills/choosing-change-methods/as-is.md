@@ -9,6 +9,15 @@ The skill classifies a requested transformation as new implementation, surgical 
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Choosing Change Methods**
 
+### Change-method selection flow
+
+```mermaid
+flowchart LR
+    Requirement["Bounded requirement"] -->|provides| Skill["Choosing change<br/>methods"]
+    Skill -->|provides| Method["Least powerful<br/>fitting method"]
+    Skill -.-> Boundary["No tools or<br/>authority"]
+```
+
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
 - [../as-is.md](../../as-is.md) — concise capability catalog entry.

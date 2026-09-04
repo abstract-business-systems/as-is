@@ -9,6 +9,16 @@ The skill presents the decision, evidence, alternatives, uncertainty, and recomm
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Consulting humans**
 
+### Human consultation flow
+
+```mermaid
+flowchart LR
+    Evidence["Evidence and<br/>alternatives"] -->|provides| Skill["Consulting humans"]
+    Skill -->|provides| Recommendation["Bounded recommendation"]
+    Recommendation -->|uses| Human["Authorized human"]
+    Skill -.-> Boundary["No decision<br/>authority"]
+```
+
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
 - [../as-is.md](../../as-is.md) — concise capability catalog entry.

@@ -200,12 +200,19 @@ validateComponentCoverage();
 const diagramValidation = validateAsIsDiagramsAndNavigation(repositoryRoot, {
   rootRecordPath: "as-is.md",
   recordPaths: canonicalRecords(repositoryRoot).map((path) => relative(repositoryRoot, path)),
-  requireDiagrams: false,
+  requireDiagrams: true,
   requireNamedDiagramHeadings: false,
   maxUnwrappedLabelCharacters: 28,
 });
-if (diagramValidation.issues.length > 0) {
-  throw new Error(`as-is diagram and navigation validation failed: ${JSON.stringify(diagramValidation.issues)}`);
+// Skill records are diagram-required; these runtime leaf records remain intentionally diagramless.
+const intentionallyDiagramlessRuntimeRecords = new Set([
+  "tools/agent/as-is.md",
+  "tools/context/as-is.md",
+  "tools/evidence/as-is.md",
+]);
+const unexpectedDiagramIssues = diagramValidation.issues.filter((issue) => !(issue.code === "diagram" && intentionallyDiagramlessRuntimeRecords.has(issue.path)));
+if (unexpectedDiagramIssues.length > 0) {
+  throw new Error(`as-is diagram and navigation validation failed: ${JSON.stringify(unexpectedDiagramIssues)}`);
 }
 if (diagramValidation.records !== canonicalRecords(repositoryRoot).length) {
   throw new Error("as-is diagram and navigation validation did not inspect every canonical record");

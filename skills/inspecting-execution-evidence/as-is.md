@@ -8,6 +8,15 @@ The skill reads only the authorized evidence surface using an exact selector and
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Inspecting Execution Evidence**
 
+### Evidence inspection flow
+
+```mermaid
+flowchart LR
+    Skill["Inspecting execution<br/>evidence"] -->|reads| Surface["Authorized evidence<br/>surface"]
+    Skill -->|provides| Findings["Cautious findings"]
+    Skill -.-> Boundary["Read-only; no task<br/>authority"]
+```
+
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
 - [../as-is.md](../../as-is.md) — concise capability catalog entry.

@@ -8,6 +8,16 @@ The skill builds a concern-to-owner table covering implementation, task state, d
 
 **Lineage**: [as-is](../../as-is.md#design) / [Skills](../as-is.md#design) / **Identifying Owners**
 
+### Owner-tracing flow
+
+```mermaid
+flowchart LR
+    Scope["Resolved scope"] -->|provides| Skill["Identifying owners"]
+    Records["Records and<br/>contracts"] -->|provides| Skill
+    Skill -->|provides| Map["Concern-to-owner<br/>table"]
+    Skill -.-> Boundary["Read-only analysis"]
+```
+
 ## Links
 - [SKILL.md](SKILL.md) — authoritative procedure and contract.
 - [../as-is.md](../../as-is.md) — concise capability catalog entry.
