@@ -15,8 +15,8 @@ Expose bounded agent-assistance operations, currently canonical-role subagent ca
 ```mermaid
 flowchart LR
     PiExtension["Pi host<br/>registration shim"]
-    RegistrationBoundary["<a href='../../adapters/pi/extensions/worker-tools.ts'>pi extensions<br/>worker-tools.ts</a>"]
-    SubagentTools["<a href='./subagent-tools.ts'>subagent-tools.ts</a>"]
+    RegistrationBoundary["pi extensions<br/>worker-tools.ts"]
+    SubagentTools["subagent-tools.ts"]
     AgentResolution["<a href='../../core/modules/agent-resolution/as-is.md#design'>agent-<br/>resolution</a>"]
     PiExtension -->|registers through| RegistrationBoundary
     RegistrationBoundary -->|exposes| SubagentTools

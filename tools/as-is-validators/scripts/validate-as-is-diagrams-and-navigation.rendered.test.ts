@@ -11,7 +11,7 @@ const recordPaths = (root: string): string[] => {
       if (entry.isDirectory()) {
         // A13 transitional namespace scoping is resolved at F9; the frozen benchmark evidence-tree exclusion is permanent evidence scoping.
         if (entry.name === "benchmark" && directory.endsWith("candidate")) continue;
-        if (![".git", "node_modules", ".pi", ".opencode"].includes(entry.name)) visit(join(directory, entry.name));
+        if (![".git", "node_modules", "temp", ".pi", ".opencode"].includes(entry.name)) visit(join(directory, entry.name));
       } else if (entry.isFile() && entry.name === "as-is.md") {
         paths.push(join(directory, entry.name).slice(root.length + 1));
       }

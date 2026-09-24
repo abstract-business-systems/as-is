@@ -15,7 +15,7 @@ Expose bounded agent-facing context resolution while keeping linked-context impl
 ```mermaid
 flowchart LR
     Caller["agent"]
-    ResolveLinkedContext["<a href='./resolve-linked-context.ts'>resolve-linked-<br/>context.ts</a>"]
+    ResolveLinkedContext["resolve-linked-<br/>context.ts"]
     ContextResolution["<a href='../../core/modules/context-resolution/as-is.md#design'>context-<br/>resolution</a>"]
     Caller -->|one explicit reference| ResolveLinkedContext
     ResolveLinkedContext -->|delegates trust rules to| ContextResolution

@@ -17,7 +17,7 @@ flowchart LR
     Renderer --> Navigation["rendered navigation<br/>evidence"]
 ```
 
-This is the F5/A4 runtime-only home retained when the narrative `designing-mermaid-diagrams` skill retired. It was re-homed before the structuring pass at commit `1f9c25e`; the renderer remains a support service and does not replace source or record authority.
+This is the F5/A4 runtime-only home retained when the narrative `designing-mermaid-diagrams` skill retired. It was re-homed before the structuring pass at commit `1f9c25e`; the renderer remains a support service and does not replace source or record authority. The tool dir declares mermaid as a dev dependency (`package.json` + `bun.lock`, `node_modules` gitignored): on first run without configuration, the renderer resolves mermaid through bun, bootstrapping one local `bun install` if it is missing, discovers a Chromium-compatible browser on PATH, and derives the version from the resolved package; `MERMAID_BUNDLE` and `MERMAID_RENDERER_VERSION` remain explicit overrides. A host without network access for the bootstrap fails with an explicit unsupported reason.
 
 ## Links
 

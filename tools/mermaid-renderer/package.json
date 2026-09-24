@@ -1,0 +1,7 @@
+{
+  "name": "mermaid-renderer-host-support",
+  "private": true,
+  "devDependencies": {
+    "mermaid": "^12.0.0"
+  }
+}

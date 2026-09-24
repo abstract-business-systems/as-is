@@ -1,4 +1,4 @@
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -70,14 +70,44 @@ export function rendererConfiguration(
   environment: NodeJS.ProcessEnv = process.env,
   cwd = process.cwd(),
 ): MermaidRendererConfiguration | UnsupportedRenderer {
+  let bundle: string;
   const bundleValue = environment.MERMAID_BUNDLE;
-  if (!bundleValue) return { status: "unsupported", reason: "MERMAID_BUNDLE is not configured" };
-  const bundle = resolve(cwd, bundleValue);
-  if (!existsSync(bundle)) return { status: "unsupported", reason: `MERMAID_BUNDLE does not exist: ${bundle}` };
+  if (bundleValue) {
+    bundle = resolve(cwd, bundleValue);
+    if (!existsSync(bundle)) return { status: "unsupported", reason: `MERMAID_BUNDLE does not exist: ${bundle}` };
+  } else {
+    try {
+      bundle = require.resolve("mermaid/dist/mermaid.min.js");
+    } catch {
+      // First-run bootstrap: the tool dir declares mermaid as a dev dependency; one
+      // local `bun install` materializes node_modules, then resolution is retried.
+      const install = Bun.spawnSync(["bun", "install"], { cwd: import.meta.dir, stdout: "pipe", stderr: "pipe" });
+      if (install.exitCode !== 0) {
+        return { status: "unsupported", reason: "mermaid is not installed and the first-run `bun install` bootstrap failed" };
+      }
+      try {
+        bundle = require.resolve("mermaid/dist/mermaid.min.js");
+      } catch {
+        return { status: "unsupported", reason: "mermaid is not resolvable after the first-run bootstrap" };
+      }
+    }
+  }
   const browser = findExecutable(environment.MERMAID_BROWSER, cwd);
   if (!browser) return { status: "unsupported", reason: "no local Chromium-compatible MERMAID_BROWSER was found" };
-  const version = environment.MERMAID_RENDERER_VERSION;
-  if (!version) return { status: "unsupported", reason: "MERMAID_RENDERER_VERSION is not configured" };
+  let version = environment.MERMAID_RENDERER_VERSION;
+  if (!version) {
+    const packageMatch = bundle.match(/[/\\]mermaid@([^/\\\\]+)@@@/);
+    const packageJson = join(dirname(bundle), "..", "package.json");
+    if (packageMatch) version = packageMatch[1];
+    else if (existsSync(packageJson)) {
+      try {
+        version = JSON.parse(readFileSync(packageJson, "utf8")).version;
+      } catch {
+        version = undefined as unknown as string;
+      }
+    }
+    if (!version) return { status: "unsupported", reason: "MERMAID_RENDERER_VERSION is not configured and the resolved mermaid version is unknown" };
+  }
   return { bundle, browser, version };
 }
 

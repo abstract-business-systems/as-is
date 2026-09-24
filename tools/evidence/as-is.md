@@ -15,7 +15,7 @@ Expose bounded, read-only session and trace evidence queries without granting ta
 ```mermaid
 flowchart LR
     Consumer["evidence consumer"]
-    Observability["<a href='./worker-tools-observability.ts'>worker-tools-<br/>observability.ts</a>"]
+    Observability["worker-tools-<br/>observability.ts"]
     Tracer["<a href='../../core/modules/observability/as-is.md#design'>observability</a>"]
     Consumer -->|bounded read-only queries| Observability
     Observability -->|supplementary telemetry from| Tracer
