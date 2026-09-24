@@ -15,6 +15,8 @@ description: Use when durable component records must be created, aligned, and na
 
 **How it should be done**: Identify the component boundary and parent; read the record contract; create or revise Purpose, Components, Design, Relationships, and navigation; keep task state out; validate links, diagrams, and child parity; stop when ownership is unclear.
 
+Record navigation depth: a record refers only to its immediate documented children. Grandchildren and deeper descendants are reached through their parent record, never linked directly from a grandparent's Components table, diagrams, or navigation.
+
 
 ## Composition context
 
