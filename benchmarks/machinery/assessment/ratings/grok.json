@@ -1,0 +1,85 @@
+{
+ "model": "x-ai/grok-4.6",
+ "roles": [
+  "assessor; also protocol/fixture/wrapper reviewer \u2014 reported separately from deciding median"
+ ],
+ "session_tag": "ccq-r2-assess-grok",
+ "ratings": {
+  "Alpha": {
+   "raw": "{\"F0\": {\"behavior\": 3, \"boundary\": 3, \"records\": 3}, \"F1\": {\"behavior\": 4, \"boundary\": 3, \"records\": 4}, \"F2\": {\"behavior\": 2, \"boundary\": 4, \"records\": 4}, \"F3\": {\"behavior\": 4, \"boundary\": 2, \"records\": 4}, \"F4\": {\"behavior\": 4, \"boundary\": 2, \"records\": 4}, \"F5\": {\"behavior\": 2, \"boundary\": 4, \"records\": 4}, \"overall\": 3, \"note\": \"Missing-handoff FAILs likely overstate process given repeated CHILD_SESSION_MS observe errors; handoff files often existed. Incremental-record FAIL conflicts with later file-then-memory evidence. duplicate-delivers-once stayed BAD:0 through F2 despite identity text and a passing cross-tenant probe. F5 handoffs claim dead-letter files while the tree-membership check failed. F4 recovery otherwise succeeded except an unauthorized coordinator as-is.md write.\"}",
+   "cost": 0.075902,
+   "parsed": {
+    "F0": {
+     "behavior": 3,
+     "boundary": 3,
+     "records": 3
+    },
+    "F1": {
+     "behavior": 4,
+     "boundary": 3,
+     "records": 4
+    },
+    "F2": {
+     "behavior": 2,
+     "boundary": 4,
+     "records": 4
+    },
+    "F3": {
+     "behavior": 4,
+     "boundary": 2,
+     "records": 4
+    },
+    "F4": {
+     "behavior": 4,
+     "boundary": 2,
+     "records": 4
+    },
+    "F5": {
+     "behavior": 2,
+     "boundary": 4,
+     "records": 4
+    },
+    "overall": 3,
+    "note": "Missing-handoff FAILs likely overstate process given repeated CHILD_SESSION_MS observe errors; handoff files often existed. Incremental-record FAIL conflicts with later file-then-memory evidence. duplicate-delivers-once stayed BAD:0 through F2 despite identity text and a passing cross-tenant probe. F5 handoffs claim dead-letter files while the tree-membership check failed. F4 recovery otherwise succeeded except an unauthorized coordinator as-is.md write."
+   }
+  },
+  "Beta": {
+   "raw": "{\"F0\": {\"behavior\": 1, \"boundary\": 4, \"records\": 2}, \"F1\": {\"behavior\": 2, \"boundary\": 4, \"records\": 3}, \"F2\": {\"behavior\": 3, \"boundary\": 3, \"records\": 4}, \"F3\": {\"behavior\": 2, \"boundary\": 4, \"records\": 4}, \"F4\": {\"behavior\": 2, \"boundary\": 4, \"records\": 3}, \"F5\": {\"behavior\": 2, \"boundary\": 4, \"records\": 3}, \"overall\": 2, \"note\": \"Probes fail on missing src/root/entry.py: composition never assembled and the root record stayed a harness stub. Parents repeatedly hit observe() ReferenceError CHILD_SESSION_MS and correctly refused unobserved integration, so F0 checkpoints and F4/F5 resume chains never finished. Checker is right on that gap; it understates component-level F2 identity and F3 envelope/retry work (focused tests, records). F4 draft/interrupt marks and F5 four-owner decision plus dead-letter member succeeded.\"}",
+   "cost": 0.075594,
+   "parsed": {
+    "F0": {
+     "behavior": 1,
+     "boundary": 4,
+     "records": 2
+    },
+    "F1": {
+     "behavior": 2,
+     "boundary": 4,
+     "records": 3
+    },
+    "F2": {
+     "behavior": 3,
+     "boundary": 3,
+     "records": 4
+    },
+    "F3": {
+     "behavior": 2,
+     "boundary": 4,
+     "records": 4
+    },
+    "F4": {
+     "behavior": 2,
+     "boundary": 4,
+     "records": 3
+    },
+    "F5": {
+     "behavior": 2,
+     "boundary": 4,
+     "records": 3
+    },
+    "overall": 2,
+    "note": "Probes fail on missing src/root/entry.py: composition never assembled and the root record stayed a harness stub. Parents repeatedly hit observe() ReferenceError CHILD_SESSION_MS and correctly refused unobserved integration, so F0 checkpoints and F4/F5 resume chains never finished. Checker is right on that gap; it understates component-level F2 identity and F3 envelope/retry work (focused tests, records). F4 draft/interrupt marks and F5 four-owner decision plus dead-letter member succeeded."
+   }
+  }
+ }
+}

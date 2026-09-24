@@ -18,6 +18,7 @@ record.
 | Component | Purpose |
 | --- | --- |
 | [Agents](agents/as-is.md#design) | Organize independent configured agent roles. |
+| [Benchmarks](benchmarks/as-is.md#design) | Preserve the benchmarking process and scored-run evidence used to measure implementations. |
 | [Designs](designs/as-is.md#design) | Organize enduring architecture and execution designs. |
 | [Skills](skills/as-is.md#design) | Organize reusable operational procedures. |
 | [Validation Fixtures](validation-fixtures/as-is.md#design) | Organize retained delegation, adapter, and recovery evidence. |
@@ -44,6 +45,7 @@ flowchart LR
     subgraph Root["as-is"]
         direction LR
         Agents["<a href='./agents/as-is.md#design'>Agents</a>"]
+        Benchmarks["<a href='./benchmarks/as-is.md#design'>Benchmarks</a>"]
         Designs["<a href='./designs/as-is.md#design'>Designs</a>"]
         Skills["<a href='./skills/as-is.md#design'>Skills</a>"]
         Fixtures["<a href='./validation-fixtures/as-is.md#design'>Validation Fixtures</a>"]

@@ -1,0 +1,3 @@
+## Author's notes
+
+Expanded to approximately 5,986 UTF-8 bytes. The additions reduce specific failure modes: consultation evidence now has a reproducible format and separates baseline, plan, and result; contract examples prevent tools or broad inspection from implying write authority; precedence examples make model and thinking resolution independent and testable; checkpoint semantics prevent child exits or diffs from being mistaken for integration; the interruption packet supports lossless authorized recovery; and the final examples reinforce task-state/design separation while naming common unsafe shortcuts.

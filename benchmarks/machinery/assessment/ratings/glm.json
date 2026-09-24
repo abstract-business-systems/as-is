@@ -1,0 +1,85 @@
+{
+ "model": "z-ai/glm-5.3",
+ "roles": [
+  "blind assessor (deciding pair)"
+ ],
+ "session_tag": "ccq-r2-assess-glm",
+ "ratings": {
+  "Alpha": {
+   "raw": "{\"F0\": {\"behavior\": 3, \"boundary\": 3, \"records\": 3}, \"F1\": {\"behavior\": 4, \"boundary\": 3, \"records\": 4}, \"F2\": {\"behavior\": 2, \"boundary\": 5, \"records\": 4}, \"F3\": {\"behavior\": 4, \"boundary\": 3, \"records\": 4}, \"F4\": {\"behavior\": 4, \"boundary\": 2, \"records\": 4}, \"F5\": {\"behavior\": 2, \"boundary\": 4, \"records\": 3}, \"overall\": 3, \"note\": \"Verdicts understate session churn: identical tasks were re-run repeatedly, yielding duplicate, mutually inconsistent handoffs (memory-sink tests reported 3/4/5 passed; file-sink 5/7) and mangled filenames. duplicate-delivers-once fails identically at F0 and F2, so the F2 identity fix may not cover that probe's scenario despite cross-tenant passing. The F5 dead-letter fail may be manifest-registration rather than absent code, since handoffs/records claim dead_letter_sink.py exists; if so that verdict overstates the gap. F4's unauthorized write is unresolved against the interruption packet's 'no authoritative change' claim. Consultations pass but lack record-origin hashes; several 'missing handoff' hard fails coexist with present handoff artifacts.\"}",
+   "cost": 0.077164,
+   "parsed": {
+    "F0": {
+     "behavior": 3,
+     "boundary": 3,
+     "records": 3
+    },
+    "F1": {
+     "behavior": 4,
+     "boundary": 3,
+     "records": 4
+    },
+    "F2": {
+     "behavior": 2,
+     "boundary": 5,
+     "records": 4
+    },
+    "F3": {
+     "behavior": 4,
+     "boundary": 3,
+     "records": 4
+    },
+    "F4": {
+     "behavior": 4,
+     "boundary": 2,
+     "records": 4
+    },
+    "F5": {
+     "behavior": 2,
+     "boundary": 4,
+     "records": 3
+    },
+    "overall": 3,
+    "note": "Verdicts understate session churn: identical tasks were re-run repeatedly, yielding duplicate, mutually inconsistent handoffs (memory-sink tests reported 3/4/5 passed; file-sink 5/7) and mangled filenames. duplicate-delivers-once fails identically at F0 and F2, so the F2 identity fix may not cover that probe's scenario despite cross-tenant passing. The F5 dead-letter fail may be manifest-registration rather than absent code, since handoffs/records claim dead_letter_sink.py exists; if so that verdict overstates the gap. F4's unauthorized write is unresolved against the interruption packet's 'no authoritative change' claim. Consultations pass but lack record-origin hashes; several 'missing handoff' hard fails coexist with present handoff artifacts."
+   }
+  },
+  "Beta": {
+   "raw": "{\"F0\": {\"behavior\": 2, \"boundary\": 5, \"records\": 3}, \"F1\": {\"behavior\": 2, \"boundary\": 5, \"records\": 3}, \"F2\": {\"behavior\": 3, \"boundary\": 3, \"records\": 4}, \"F3\": {\"behavior\": 3, \"boundary\": 5, \"records\": 4}, \"F4\": {\"behavior\": 2, \"boundary\": 5, \"records\": 4}, \"F5\": {\"behavior\": 2, \"boundary\": 5, \"records\": 3}, \"overall\": 2, \"note\": \"Verdicts understate one systemic fact: src/root/entry.py was never created, so every composition probe and arm-test fails in all phases, and the composition-root record remains a harness stub. Repeated observe() failures (CHILD_SESSION_MS) interrupted F1-F5 sessions; the arm stopped correctly rather than faking handoffs, so boundary discipline is genuinely strong. Real gaps: F0 checkpoints/incremental coordinator record, F2 handoff not at canonical path, and F5 coordinator record still says 'no dead-letter behavior is implemented', so mediated exactly-once dead-letter delivery is unverified. F4/F5 PASS verdicts (no-stale-refs, member-exists) can pass trivially and may overstate recovery/mediation completion; component-level tests pass per validation evidence only.\"}",
+   "cost": 0.07846741,
+   "parsed": {
+    "F0": {
+     "behavior": 2,
+     "boundary": 5,
+     "records": 3
+    },
+    "F1": {
+     "behavior": 2,
+     "boundary": 5,
+     "records": 3
+    },
+    "F2": {
+     "behavior": 3,
+     "boundary": 3,
+     "records": 4
+    },
+    "F3": {
+     "behavior": 3,
+     "boundary": 5,
+     "records": 4
+    },
+    "F4": {
+     "behavior": 2,
+     "boundary": 5,
+     "records": 4
+    },
+    "F5": {
+     "behavior": 2,
+     "boundary": 5,
+     "records": 3
+    },
+    "overall": 2,
+    "note": "Verdicts understate one systemic fact: src/root/entry.py was never created, so every composition probe and arm-test fails in all phases, and the composition-root record remains a harness stub. Repeated observe() failures (CHILD_SESSION_MS) interrupted F1-F5 sessions; the arm stopped correctly rather than faking handoffs, so boundary discipline is genuinely strong. Real gaps: F0 checkpoints/incremental coordinator record, F2 handoff not at canonical path, and F5 coordinator record still says 'no dead-letter behavior is implemented', so mediated exactly-once dead-letter delivery is unverified. F4/F5 PASS verdicts (no-stale-refs, member-exists) can pass trivially and may overstate recovery/mediation completion; component-level tests pass per validation evidence only."
+   }
+  }
+ }
+}

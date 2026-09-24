@@ -1,0 +1,85 @@
+{
+ "model": "openai/gpt-5.6-sol",
+ "roles": [
+  "author of the candidate instruction \u2014 labeled author-analysis, never a blind scorer"
+ ],
+ "session_tag": "ccq-r2-assess-sol",
+ "ratings": {
+  "Alpha": {
+   "raw": "{\"F0\":{\"behavior\":4,\"boundary\":3,\"records\":3},\"F1\":{\"behavior\":5,\"boundary\":4,\"records\":4},\"F2\":{\"behavior\":2,\"boundary\":5,\"records\":4},\"F3\":{\"behavior\":5,\"boundary\":2,\"records\":4},\"F4\":{\"behavior\":5,\"boundary\":3,\"records\":4},\"F5\":{\"behavior\":2,\"boundary\":5,\"records\":3},\"overall\":3,\"note\":\"The strongest concern is contradiction between narrative artifacts and deterministic state: F2 fails the central same-tenant dedup probe, while F5 records and handoffs claim a dead-letter component that the final-tree checker cannot find. F0 also fails duplicate delivery. Missing required handoffs in F0/F1/F3 materially weaken integration provenance despite passing tests, and F4 contains an unauthorized coordinator-record write. The checker may understate the quality of the decision/recovery documentation, which is generally structured and well bound to immutable hashes, but several final records overclaim outcomes not established by the checked tree.\"}",
+   "cost": 0.077891,
+   "parsed": {
+    "F0": {
+     "behavior": 4,
+     "boundary": 3,
+     "records": 3
+    },
+    "F1": {
+     "behavior": 5,
+     "boundary": 4,
+     "records": 4
+    },
+    "F2": {
+     "behavior": 2,
+     "boundary": 5,
+     "records": 4
+    },
+    "F3": {
+     "behavior": 5,
+     "boundary": 2,
+     "records": 4
+    },
+    "F4": {
+     "behavior": 5,
+     "boundary": 3,
+     "records": 4
+    },
+    "F5": {
+     "behavior": 2,
+     "boundary": 5,
+     "records": 3
+    },
+    "overall": 3,
+    "note": "The strongest concern is contradiction between narrative artifacts and deterministic state: F2 fails the central same-tenant dedup probe, while F5 records and handoffs claim a dead-letter component that the final-tree checker cannot find. F0 also fails duplicate delivery. Missing required handoffs in F0/F1/F3 materially weaken integration provenance despite passing tests, and F4 contains an unauthorized coordinator-record write. The checker may understate the quality of the decision/recovery documentation, which is generally structured and well bound to immutable hashes, but several final records overclaim outcomes not established by the checked tree."
+   }
+  },
+  "Beta": {
+   "raw": "{\"F0\":{\"behavior\":1,\"boundary\":4,\"records\":3},\"F1\":{\"behavior\":2,\"boundary\":4,\"records\":4},\"F2\":{\"behavior\":2,\"boundary\":3,\"records\":4},\"F3\":{\"behavior\":2,\"boundary\":4,\"records\":4},\"F4\":{\"behavior\":1,\"boundary\":4,\"records\":3},\"F5\":{\"behavior\":2,\"boundary\":4,\"records\":4},\"overall\":2,\"note\":\"The hard scope/provenance checks support strong ownership discipline, but failed observation gates prevented required integration. The arm never produced the required runnable composition entry point, so component-level implementations and focused test evidence do not complete F0-F3 or F5. F4 recovery remained interrupted and did not leave the resumed task pair current. The no-stale-stdout and dead-letter-exists verdicts overstate completion: absence of stale references and an isolated dead-letter child do not prove rebuilt composition or mediated delivery. The final-tree listing also appears inconsistent with checker claims about src files. Composition-root remained a stub.\"}",
+   "cost": 0.0672535,
+   "parsed": {
+    "F0": {
+     "behavior": 1,
+     "boundary": 4,
+     "records": 3
+    },
+    "F1": {
+     "behavior": 2,
+     "boundary": 4,
+     "records": 4
+    },
+    "F2": {
+     "behavior": 2,
+     "boundary": 3,
+     "records": 4
+    },
+    "F3": {
+     "behavior": 2,
+     "boundary": 4,
+     "records": 4
+    },
+    "F4": {
+     "behavior": 1,
+     "boundary": 4,
+     "records": 3
+    },
+    "F5": {
+     "behavior": 2,
+     "boundary": 4,
+     "records": 4
+    },
+    "overall": 2,
+    "note": "The hard scope/provenance checks support strong ownership discipline, but failed observation gates prevented required integration. The arm never produced the required runnable composition entry point, so component-level implementations and focused test evidence do not complete F0-F3 or F5. F4 recovery remained interrupted and did not leave the resumed task pair current. The no-stale-stdout and dead-letter-exists verdicts overstate completion: absence of stale references and an isolated dead-letter child do not prove rebuilt composition or mediated delivery. The final-tree listing also appears inconsistent with checker claims about src files. Composition-root remained a stub."
+   }
+  }
+ }
+}

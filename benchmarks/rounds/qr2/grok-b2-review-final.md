@@ -1,0 +1,9 @@
+FREEZE-READY
+
+1. Required change is in. Start/resume + every reconcile: “Immediately after this and every later ledger reconciliation, from a clean process and documented project cwd, directly load or invoke every declared integration or composition surface… A missing, unloadable, uninvokable, or unevidenced declared surface is a stop or bounded owner-routed recovery condition, not an unresolved item that may survive a checkpoint. Ordinary progression resumes only after the surface exists, the clean-process invocation succeeds, and the ledger and checkpoint evidence agree.” Parent-solo parity: “Parent-performed work with no child result follows the same gate… invoke every declared integration or composition surface from a clean process, and create and reread a hash-identified checkpoint… Absence of delegation never permits progression without equivalent reconciliation, invocation evidence, and checkpoint evidence.” Checkpoint definition includes “whether child-produced or parent-produced.” Unresolved items may not include a missing declared surface.
+
+2. No project-specific names or stack terms. Design-first, authorized-members-only, escalate-don’t-cross, and the eight coverage claims remain intact (implementation, authoritative record, validation, closure ledger, checkpoints, handoffs, integration surfaces, authority state).
+
+3. Ceremony-then-starve is bounded, not eliminated: missing surfaces are stop *or* bounded owner-routed recovery (not a silent ledger gap); ordinary progression is gated on existence + successful clean-process invoke + agreeing ledger/checkpoint; reread/reconstruct of a checkpoint does not waive the post-reconcile invoke. Greenfield creation is via owner recovery, not checkpointed “unresolved.”
+
+4. No material padding; repeated invoke/checkpoint language is the required gate, not filler.

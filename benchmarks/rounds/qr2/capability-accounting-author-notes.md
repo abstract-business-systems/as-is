@@ -1,0 +1,3 @@
+## Author's notes
+
+The primary omissions were not implementation mechanics but delegation policy: configured model resolution, thinking levels, executor contracts, and several exposed child-session controls. The revision names the project configuration source and preserves runtime precedence without hard-coding particular model names. It also distinguishes implementation, analysis, and evidence-validation executors, adds least-privilege tool/skill selection, and makes trust, persistence, budget, and working-directory choices explicit. Runtime-owned installation and storage details remain intentionally outside the portable instruction.

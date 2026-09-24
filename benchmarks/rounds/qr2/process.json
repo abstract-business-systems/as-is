@@ -1,0 +1,490 @@
+{
+ "round": 2,
+ "goal": "Determine whether a thin, portable, Sol-authored human-centric design-first instruction bundle preserves the current composition's capabilities (delegation, routing, recovery, human-consumable design docs) under a multi-phase fixture that requires them; decision packet for consolidate/keep/hybrid.",
+ "base": "temp/benchmark-round-2/",
+ "roles": [
+  {
+   "role": "capability-assessor",
+   "model": "openai/gpt-5.6-terra",
+   "step": 1,
+   "constraint": "bounded task"
+  },
+  {
+   "role": "author",
+   "model": "openai/gpt-5.6-sol",
+   "steps": [
+    2,
+    3
+   ],
+   "constraint": "never a blind scorer; labeled author-analysis only; DECIDES the scoring approach (model-level constraint binding)"
+  },
+  {
+   "role": "reviewer-and-assessor",
+   "model": "x-ai/grok-4.6",
+   "steps": [
+    2,
+    3,
+    4
+   ],
+   "constraint": "role accumulation disclosed"
+  },
+  {
+   "role": "arm-runner",
+   "model": "@preset/abs-* (identity Luna, reference)",
+   "step": 4,
+   "constraint": "identical all arms; session-cost retrieval verified pre-execution"
+  },
+  {
+   "role": "assessors",
+   "model": [
+    "moonshotai/kimi-k3",
+    "z-ai/glm-5.3",
+    "x-ai/grok-4.6"
+   ],
+   "step": 4,
+   "constraint": "model-level scores, roles annotated; consolidated only for human consumption"
+  }
+ ],
+ "steps": [
+  {
+   "n": 0,
+   "name": "process-approval",
+   "gate": "Gate 0"
+  },
+  {
+   "n": 1,
+   "name": "capability-inventory",
+   "outcome": "capability-inventory.md incl. human-doc gap",
+   "gate": "Gate 1"
+  },
+  {
+   "n": "2a",
+   "name": "fixture-proposals",
+   "outcome": "fixture-proposals.md (2-3 concepts)",
+   "gate": "Gate 2a human selects"
+  },
+  {
+   "n": "2b",
+   "name": "fixture-detailing",
+   "outcome": "fixture-spec.md + coverage-table.md + process-spec.md",
+   "gate": "Gate 2b: construct coverage + budget + session-cost retrieval verified"
+  },
+  {
+   "n": 3,
+   "name": "wrapper-authoring",
+   "outcome": "wrapper.md + grok verdict",
+   "gate": "Gate 3"
+  },
+  {
+   "n": 4,
+   "name": "phased-execution-and-assessment",
+   "outcome": "per-arm per-phase results + ratings",
+   "gate": "Gate 4"
+  },
+  {
+   "n": 5,
+   "name": "decision-packet",
+   "outcome": "decision-packet.md",
+   "gate": "Gate 5"
+  }
+ ],
+ "controls": [
+  "bridge file-op telemetry (temporal determinate)",
+  "per-run sub-key + session tag cost attribution",
+  "blinded packets, frozen combination rules",
+  "descriptive-only reporting, no round-1 pooling",
+  "machine-readable twin for every human artifact"
+ ],
+ "open_questions": [
+  "Single thin candidate + Current control confirmed?",
+  "Sol decides scoring approach (model-level constraint) accepted?",
+  "Grok three disclosed roles accepted?",
+  "Per-phase weights: Sol's call?",
+  {
+   "id": "runner-model-sensitivity-glm-flash",
+   "recorded": "2026-09-11",
+   "state": "backlog item added to root backlog.md (deferred); awaits human authorization",
+   "question": "swap implementing model to GLM 5.3 Flash to test model sensitivity of v1/B2 reliability defects"
+  }
+ ],
+ "status": "decision packet ready \u2014 Gate 5 (human decision: consolidate / keep / hybrid)",
+ "version": 3,
+ "corrections": [
+  "Single thin candidate (not two): round 1 settled minimal-vs-structured; round 2 runs one Sol-authored human-centric design-first wrapper against the Current control. C's records must be succinct human-consumable documents with diagrams for authorization, not detailed specs.",
+  "Fixture built in phases F0 base, F1 additive, F2 corrective, F3 refactor-preserve, F4 feature-drop, F5 complex combined; every phase scored; capability coverage table after fixture creation; meta doc notes the flow scales to larger fixtures.",
+  "Sol proposes 2-3 fixture concepts first; human selects; then detailing (Gate 2a/2b split).",
+  "Terminology: the CANDIDATE is design-first; its DESIGN-DOCUMENT FLOW is human-centric (succinct docs with diagrams for human authorization, not detail specs).",
+  "Runner stays the preset (identity Luna, reference only). Hard requirement: session-level cost retrieval verified before execution; contingency = labeled sub-keys (Gate 2b).",
+  "Scoring kept at MODEL LEVEL: each assessor model's ratings reported separately with its roles annotated (so role-bias effects are analyzable); consolidation happens only in the human-consumable layer. Sol decides the scoring approach within that human constraint.",
+  "Terra budget cap dropped (explanation given: guardrail only)."
+ ],
+ "step1": {
+  "model": "openai/gpt-5.6-terra",
+  "session_tag": "ccq-r2-step1-terra",
+  "cost_usd": 0.0479,
+  "total_tokens": 8402,
+  "duration_s": 35,
+  "artifact": "capability-inventory.md",
+  "context_extract_bytes": 24240,
+  "status": "rev2 awaiting Gate 1",
+  "revision": "rev2 per human feedback: division of labor made explicit (humans at design level via as-is records; agents implement within that design); narratives corrected; real record examples supplied as ground truth; Terra's Sol-briefing recommendation included",
+  "rev2_cost_usd": 0.0701
+ },
+ "step2a": {
+  "model": "openai/gpt-5.6-sol",
+  "session_tag": "ccq-r2-step2a-sol",
+  "cost_usd": 0.057586,
+  "briefing": "capability-inventory rev2 + root/agents/skills as-is.md verbatim",
+  "status": "awaiting Gate 2a human selection"
+ },
+ "step2b": {
+  "model": "openai/gpt-5.6-sol",
+  "session_tag": "ccq-r2-step2b-sol",
+  "cost_usd": 0.0805,
+  "artifacts": [
+   "fixture-spec.md",
+   "coverage-table.md",
+   "process-spec.md"
+  ],
+  "selected_concept": "QueueRelay",
+  "grok_review": {
+   "session_tag": "ccq-r2-step2b-grok",
+   "cost_usd": 0.040706,
+   "artifact": "grok-fixture-review.md"
+  },
+  "status": "Gate 2b PASSED (fixture approved; $3.00/arm ceiling confirmed by human)",
+  "grok_verify": {
+   "session_tag": "ccq-r2-step2b-grok-verify",
+   "cost_usd": 0.043264,
+   "artifact": "grok-fixture-review-rev1.md"
+  },
+  "gate2b_amendments": [
+   "F5: harness plants child-owned dead-letter stub record before child starts; child consultation binds to stub hash/quotes (Grok blocker 1, rev1)",
+   "Dry-run path includes F4 freeze->packet->resume (Grok blocker 2, rev1)",
+   "F0 concurrency REQUIRED: overlapping child session windows + simultaneous credentials; sequential children fail the parallel-delegation gate (Grok blocker 1, rev2)",
+   "F5 record-only clarification restricted to named record roles, no implementation/test writes (Grok blocker 2, rev2)",
+   "F0 parent write-set aligned with consultation requirement (adds composition-root record) (Grok minor, rev2)",
+   "Arm-symmetric building (human-directed): fixture is greenfield; BOTH baseline and candidate build it from an identical seed (spec + empty tree + admin artifacts); each arm is the builder (produces its own path manifest, builds all components via its own session hierarchy); per-phase scoring on each arm's own tree; failed phases cascade and are scored as observed"
+  ],
+  "sol_revision_rev2": {
+   "session_tag": "ccq-r2-step2b-sol-rev2",
+   "cost_usd": 0.0683,
+   "human_critiques": [
+    "hierarchy too shallow: need depth, parallel siblings, incremental parent composition",
+    "no concrete paths: structure/progression only; builder determines paths via manifest"
+   ]
+  },
+  "grok_verify_rev2": {
+   "session_tag": "ccq-r2-step2b-grok-verify2",
+   "cost_usd": 0.036324,
+   "artifact": "grok-fixture-review-rev2.md"
+  },
+  "sol_revision_rev3": {
+   "session_tag": "ccq-r2-step2b-sol-rev3",
+   "cost_usd": 0.0676,
+   "human_critique": "one component = one build/session/flow; build depth needs nested components (child build delegates grandchild build); parallelism = sibling component builds"
+  },
+  "grok_verify_rev3": {
+   "cost_usd": 0.026332,
+   "artifact": "grok-fixture-review-rev3.md"
+  },
+  "grok_verify_rev4": {
+   "cost_usd": 0.022022,
+   "artifact": "grok-fixture-review-rev4.md",
+   "resolution": "wording contradiction (\"accepted prior phase\") replaced with immutable post-tree (pass or fail) in fixture-spec; Grok blocker resolved"
+  }
+ },
+ "step3": {
+  "model": "openai/gpt-5.6-sol",
+  "session_tag": "ccq-r2-step3-sol",
+  "cost_usd": 0.028161,
+  "wrapper_bytes": 3034,
+  "status": "FROZEN at Gate 3 (human-approved 2026-09-08)",
+  "grok_review": {
+   "cost_usd": 0.034466,
+   "artifact": "grok-wrapper-review.md"
+  },
+  "sol_revision": {
+   "cost_usd": 0.018348,
+   "wrapper_bytes": 2942
+  },
+  "grok_verify": {
+   "cost_usd": 0.021964,
+   "artifact": "grok-wrapper-review-rev1.md"
+  },
+  "gate3_amendments": [
+   "handoff field list now names the consulted record's ROLE explicitly (Grok verify)",
+   "interrupt-marking scoped to overreach/stop; decision artifact created after the stop, removing the circular 'if authorized' reading (Grok verify)"
+  ],
+  "final_bytes": 3013,
+  "grok_final": {
+   "cost_usd": 0.0106,
+   "artifact": "grok-wrapper-review-final.md",
+   "verdict": "APPROVE"
+  },
+  "sha256_pending_freeze": "533dd40ad98f2539168bb8ae7c530f8a04998ef50ab86aadcf1d9978f7ed52c1",
+  "accounting": {
+   "sol_cost": 0.0518,
+   "grok_cost": 0.036024,
+   "accounting": "capability-accounting.md",
+   "revised_bytes": 4244,
+   "grok_review": "grok-accounting-review.md",
+   "sol_rev1_cost": 0.0383,
+   "final_bytes": 3337,
+   "artifacts": [
+    "capability-accounting.md",
+    "capability-accounting-addendum.md",
+    "candidate-instruction-author-notes.md"
+   ],
+   "grok_final_cost": 0.10557,
+   "grok_verify2_cost": 0.024538,
+   "grok_verify3_cost": 0.01799,
+   "size_note": "Sol's <=3000 claim was a miscount; actual 3337B; human rules on cap",
+   "capability_verdict": "CAPABILITY-COMPLETE (Grok verify3)",
+   "pending_sha256": "b4725d7577d9d30c3dd58f4750a5ef59b824b43024a9f3c733dd697902a128c6",
+   "expand": {
+    "sol_cost": 0.0677,
+    "grok_cost": 0.018978,
+    "final_bytes": 5975
+   },
+   "grok_expand_verdict": "APPROVE"
+  },
+  "frozen_sha256": "b4725d7577d9d30c3dd58f4750a5ef59b824b43024a9f3c733dd697902a128c6",
+  "frozen_bytes": 5975
+ },
+ "naming_note": "wrapper.md renamed to candidate-instruction.md (2026-09-08): the artifact is the candidate arm's final instruction text; 'wrapper' was round-1 terminology that leaked from a prompt-template heading",
+ "machinery": {
+  "status": "built + dry-validated (3 iterations, ~$0.43 total dry spend)",
+  "location": "temp/benchmark-round-2/machinery/",
+  "modules": [
+   "config.ts",
+   "proxy.ts",
+   "supervisor.ts",
+   "machinery-ext.ts",
+   "seed.ts",
+   "phases.ts",
+   "checkers.ts",
+   "run-arm.ts",
+   "dry-run.ts",
+   "smoke.ts"
+  ],
+  "dry_results": {
+   "iter1_F0": "$0.047 \u2014 machinery defects found",
+   "iter2_F0": "$0.081 \u2192 5/5 after checker fixes",
+   "iter3_F0F4F5": "$0.155 \u2014 two-part flows + probes validated, path-normalization + probe-loader fixed and verified offline"
+  },
+  "cost_verification": "12/12 sessions: real usage.cost captured per session via proxy ledger; estimate fallback only when absent",
+  "defects_fixed": [
+   "sibling diff misattribution",
+   "pytest/pycache noise in scope",
+   "pre-tree hash publication",
+   "transient child fast-fail retry",
+   "observe 300s fetch timeout (bounded polls)",
+   "phase-tag inheritance",
+   "absolute-path scope check",
+   "probe module loading",
+   "consultation binds to frozen stubs"
+  ],
+  "pending": "Gate 4 human authorization for scored run (~$3.00/arm ceiling, ~$6.00 total)"
+ },
+ "scored_runs": {
+  "status": "both arms complete (Gate 4 run)",
+  "baseline": {
+   "spend_usd": 0.6443,
+   "wall_min": 80,
+   "surface": "c511642 snapshot hash f984a54b...",
+   "serving_model": "openai/gpt-5.6-luna (preset @preset/abs-medium; consistent with round-1 t1-Current)",
+   "scores": {
+    "F0": 2,
+    "F1": 2,
+    "F2": 4,
+    "F3": 2,
+    "F4": 2,
+    "F5": 4
+   }
+  },
+  "candidate": {
+   "spend_usd": 0.3529,
+   "wall_min": 35,
+   "instruction_sha256": "b4725d75...a128c6",
+   "scores": {
+    "F0": 0,
+    "F1": 2,
+    "F2": 0,
+    "F3": 2,
+    "F4": 2,
+    "F5": 2
+   },
+   "notable": "built all components w/ tests but never wrote its own declared composition entrypoint (src/root/entry.py); F0 checkpoints 0; reliable across dry-run2 but not scored run",
+   "probe_note": "deliver() return shape NOT mandated by fixture-spec \u00a72; duplicate/cross-tenant probes are ADVISORY only (soft gates, no score impact) - annotate in packets"
+  },
+  "cost_attribution": "per-session real usage.cost from proxy ledger (request-ledger.jsonl); estimate fallback present but not needed",
+  "out_dirs": [
+   "/tmp/qr2-scored/baseline/",
+   "/tmp/qr2-scored/candidate/"
+  ]
+ },
+ "assessment": {
+  "status": "complete",
+  "assessors": {
+   "kimi": {
+    "id": "moonshotai/kimi-k2.6",
+    "spend": 0.0922
+   },
+   "glm": {
+    "id": "z-ai/glm-5.3",
+    "spend": 0.1557
+   },
+   "grok": {
+    "id": "x-ai/grok-4.6",
+    "spend": 0.15,
+    "note": "reported separately"
+   },
+   "sol": {
+    "id": "openai/gpt-5.6-sol",
+    "spend": 0.1452,
+    "note": "author-analysis, labeled"
+   }
+  },
+  "arm_letter_mapping": {
+   "baseline": "Alpha",
+   "candidate": "Beta"
+  },
+  "deciding_pair_overall_median": {
+   "Alpha": 2.5,
+   "Beta": 2.5
+  },
+  "key_pattern": "Beta boundary 4-5 in all phases all assessors; Alpha behavior mid-strong; both note candidate never built entrypoint"
+ },
+ "b2_revision": {
+  "status": "FROZEN (human authorized continue). Calibration v1 re-run + B2 scored run launching.",
+  "cap_bytes": 10000,
+  "sol_analysis": "v1 clauses normative-but-aspirational: no mandatory execution loop; F0 checkpoint miss cascaded into recovery-by-activity; local completeness obscured system incompleteness",
+  "v2_mechanics": [
+   "parent-owned closure ledger reconciled at start/resume/after-every-observe/before-completion",
+   "checkpoint gates next result (child- or parent-produced)",
+   "child self-verification against promised artifacts",
+   "clean-process invocation of every declared integration surface as stop/recovery condition at every reconcile, not only completion",
+   "parent-solo work follows same gate (no-delegation progression forbidden)"
+  ],
+  "grok_review": "APPROVE-WITH-CHANGES -> change applied -> FREEZE-READY (grok-b2-review.md, grok-b2-review-final.md)",
+  "draft_bytes": 9431,
+  "spend": {
+   "sol": 0.1141,
+   "grok": 0.0554
+  },
+  "caveat": "cap raised 6000->10000 by human after two failed compression passes (8126->7875->7733; Sol miscounted bytes twice)",
+  "frozen_sha256": "a62e4e78f5f6f0870fd92a7ad4fcb37916f5afa4f27a931871d0022b83a4df0f",
+  "frozen_bytes": 9971,
+  "note": "original v2 draft (9,431B) lost: /tmp cleared + archive cp bug copied v1 over archive slot; regenerated via Sol regen (13,844B) -> compression (13,326B) -> Grok cutlist (10,016B) -> final trim (9,971B); Grok final FREEZE-READY (b2-revision/grok-freeze-final.md); all intermediates saved in b2-revision/",
+  "regen_spend": {
+   "sol": 0.1411,
+   "grok": 0.1541
+  }
+ },
+ "b2_scored": {
+  "status": "complete",
+  "runs": {
+   "v1_calibration": {
+    "dir": "/tmp/qr2-scored/candidate-v1-calib",
+    "spend": 0.4738,
+    "wall_min": 69,
+    "scores": {
+     "F0": 0,
+     "F1": 0,
+     "F2": 0,
+     "F3": 0,
+     "F4": 0,
+     "F5": 2
+    },
+    "mean": 0.33,
+    "finding": "identical frozen v1, fresh run: same defect family as Gate-4 (missing handoffs x6, combined incremental-record, declared entrypoint src/composition/entry.py never written) \u2014 v1 reliability defect reproducible, severity varies"
+   },
+   "b2_scored": {
+    "dir": "/tmp/qr2-scored/candidate-b2",
+    "spend": 0.587,
+    "wall_min": 87,
+    "scores": {
+     "F0": 0,
+     "F1": 2,
+     "F2": 0,
+     "F3": 5,
+     "F4": 5,
+     "F5": 2
+    },
+    "mean": 2.33,
+    "finding": "F3/F4 perfect 5/5 (first ever); no cross-subtree writes; checkpoints: 3 made (F3/F4). Remaining: F0 0/2 coordinator checkpoints again, F2 provenance mismatch, F5 one missing handoff, declared entrypoint src/composition_root/entry.py never written (probes+arm-tests unrunnable)"
+   }
+  },
+  "comparison": {
+   "alpha_baseline_gate4": 2.67,
+   "v1_gate4": 1.33,
+   "v1_calibration": 0.33,
+   "b2_scored": 2.33
+  },
+  "spend_total": {
+   "calibration": 0.4738,
+   "b2": 0.587
+  }
+ },
+ "glm_flash_experiment": {
+  "status": "COMPLETE (both arms scored)",
+  "runner": "z-ai/glm-5.3-flash (direct id, no preset; context 1.31M; $0.15/M in, $0.50/M out; reasoning+tools supported)",
+  "changes": [
+   "config.ts MODEL from QR2_RUNNER_MODEL env",
+   "supervisor.ts model card GLM_FLASH + 3 pin points",
+   "seed.ts delegation-config default/alias from MODEL",
+   "smoke.ts PI_ENTRY path fix (was /tmp/ccq-scored)"
+  ],
+  "accommodation": "freeze_manifest double-encoded JSON-string args parsed (<=2x) in machinery-ext.ts \u2014 first smoke failed: Flash sent manifest as string 7x, then spent 480s reverse-engineering machinery sources (boundary violation, discarded)",
+  "smoke": {
+   "result": "pass",
+   "spend": 0.0199,
+   "wall_s": 139
+  },
+  "runs": {
+   "glm_alpha": {
+    "scores": {
+     "F0": 2,
+     "F1": 5,
+     "F2": 4,
+     "F3": 2,
+     "F4": 4,
+     "F5": 2
+    },
+    "mean": 3.17,
+    "spend": 0.9084,
+    "wall_min": 100,
+    "note": "entrypoint src/entry.py WRITTEN (first arm ever with runnable test entrypoint throughout; no arm-tests soft fails); F1 5/5; failures: F0 scope violation + 0/2 checkpoints + combined record, F3 provenance x2, F5 missing handoffs"
+   },
+   "glm_b2": {
+    "scores": {
+     "F0": 0,
+     "F1": 2,
+     "F2": 4,
+     "F3": 2,
+     "F4": 4,
+     "F5": 2
+    },
+    "mean": 2.33,
+    "spend": 1.0928,
+    "wall_min": 145,
+    "note": "8 checkpoints made (closure ledger fired); F2 recovered 4 vs Luna 0; F3/F4 Luna gains (5/5) did not reproduce; entrypoint src/composition/entry.py WRITTEN at F2+ (arm-tests failed only F0/F1)",
+    "failures": "F0: missing handoff + 0/2 coordinator checkpoints + combined record; F3: missing coordinator handoff; F5: missing coordinator handoff"
+   }
+  },
+  "comparison_matrix": {
+   "alpha_luna": 2.67,
+   "alpha_flash": 3.17,
+   "b2_luna": 2.33,
+   "b2_flash": 2.33
+  },
+  "finding": "entrypoint-never-written defect is MODEL-SPECIFIC: absent in both Flash arms, present in every Luna candidate run (3/3). Flash Alpha outperforms Luna Alpha. B2 mean unchanged (2.33) but failure profile differs. F0 coordinator checkpoint defect persists on BOTH models -> instruction/machinery-level, not model-specific.",
+  "spend": {
+   "alpha": 0.9084,
+   "b2": 1.0928,
+   "smokes": 0.4,
+   "total": 2.4
+  }
+ }
+}
