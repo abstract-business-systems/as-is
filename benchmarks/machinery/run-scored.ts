@@ -36,7 +36,7 @@ if (arm === "baseline") {
 // Optional 4th arg: explicit candidate instruction path (e.g. frozen B2).
 const instructionPath = arm === "candidate" && process.argv[4]
   ? resolve(process.argv[4])
-  : resolve(import.meta.dir, "../candidate-instruction.md");
+  : resolve(import.meta.dir, "../instructions/candidate-b2.md");
 const adapter = arm === "candidate"
   ? candidateAdapter(instructionPath)
   : baselineAdapter(join(outDir, "surface-snapshot"));

@@ -20,6 +20,8 @@
 - Smoke task text corrected to request the full required-role manifest (the validator has always required all fixture roles; the old minimal-manifest wording contradicted it and the first model to follow it literally, GPT-5.6 Terra, correctly refused).
 - End-to-end smoke validated on `openai/gpt-5.6-terra` (third runner model, never used before): manifest freeze of all roles + helper, delegate, observe-done, checkpoint, correct child code, handoffs; $0.42, 193s.
 
+
+- 2026-09-24: Scored-run driver path repair caught live: `run-scored.ts` still resolved `../candidate-instruction.md` (a pre-restructure location); now resolves `../instructions/candidate-b2.md`. Found when the candidate arm crashed at startup (no sessions, no spend lost); relaunch succeeded.
 ## 2026-09-24 - Records conformed to canonical shape; child records added; fixture spec rehomed
 
 - Conformed `as-is.md` and `rounds/as-is.md` to the canonical record contract after the repo-wide rendered-navigation validator could finally run: lowercase titles, Components-table rows linking child `as-is.md#design` records, allowed sections only (`Navigation` renamed to `Links`), and structural container diagrams (single subgraph titled with the record name, all immediate children inside it).
