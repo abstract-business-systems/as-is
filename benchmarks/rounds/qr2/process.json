@@ -107,7 +107,7 @@
    "question": "swap implementing model to GLM 5.3 Flash to test model sensitivity of v1/B2 reliability defects"
   }
  ],
- "status": "decision packet ready \u2014 Gate 5 (human decision: consolidate / keep / hybrid)",
+ "status": "decision packet ready — Gate 5 (human decision: consolidate / keep / hybrid)",
  "version": 3,
  "corrections": [
   "Single thin candidate (not two): round 1 settled minimal-vs-structured; round 2 runs one Sol-authored human-centric design-first wrapper against the Current control. C's records must be succinct human-consumable documents with diagrams for authorization, not detailed specs.",
@@ -269,9 +269,9 @@
    "smoke.ts"
   ],
   "dry_results": {
-   "iter1_F0": "$0.047 \u2014 machinery defects found",
-   "iter2_F0": "$0.081 \u2192 5/5 after checker fixes",
-   "iter3_F0F4F5": "$0.155 \u2014 two-part flows + probes validated, path-normalization + probe-loader fixed and verified offline"
+   "iter1_F0": "$0.047 — machinery defects found",
+   "iter2_F0": "$0.081 → 5/5 after checker fixes",
+   "iter3_F0F4F5": "$0.155 — two-part flows + probes validated, path-normalization + probe-loader fixed and verified offline"
   },
   "cost_verification": "12/12 sessions: real usage.cost captured per session via proxy ledger; estimate fallback only when absent",
   "defects_fixed": [
@@ -316,7 +316,7 @@
     "F5": 2
    },
    "notable": "built all components w/ tests but never wrote its own declared composition entrypoint (src/root/entry.py); F0 checkpoints 0; reliable across dry-run2 but not scored run",
-   "probe_note": "deliver() return shape NOT mandated by fixture-spec \u00a72; duplicate/cross-tenant probes are ADVISORY only (soft gates, no score impact) - annotate in packets"
+   "probe_note": "deliver() return shape NOT mandated by fixture-spec §2; duplicate/cross-tenant probes are ADVISORY only (soft gates, no score impact) - annotate in packets"
   },
   "cost_attribution": "per-session real usage.cost from proxy ledger (request-ledger.jsonl); estimate fallback present but not needed",
   "out_dirs": [
@@ -398,7 +398,7 @@
      "F5": 2
     },
     "mean": 0.33,
-    "finding": "identical frozen v1, fresh run: same defect family as Gate-4 (missing handoffs x6, combined incremental-record, declared entrypoint src/composition/entry.py never written) \u2014 v1 reliability defect reproducible, severity varies"
+    "finding": "identical frozen v1, fresh run: same defect family as Gate-4 (missing handoffs x6, combined incremental-record, declared entrypoint src/composition/entry.py never written) — v1 reliability defect reproducible, severity varies"
    },
    "b2_scored": {
     "dir": "/tmp/qr2-scored/candidate-b2",
@@ -436,7 +436,7 @@
    "seed.ts delegation-config default/alias from MODEL",
    "smoke.ts PI_ENTRY path fix (was /tmp/ccq-scored)"
   ],
-  "accommodation": "freeze_manifest double-encoded JSON-string args parsed (<=2x) in machinery-ext.ts \u2014 first smoke failed: Flash sent manifest as string 7x, then spent 480s reverse-engineering machinery sources (boundary violation, discarded)",
+  "accommodation": "freeze_manifest double-encoded JSON-string args parsed (<=2x) in machinery-ext.ts — first smoke failed: Flash sent manifest as string 7x, then spent 480s reverse-engineering machinery sources (boundary violation, discarded)",
   "smoke": {
    "result": "pass",
    "spend": 0.0199,
@@ -485,6 +485,109 @@
    "b2": 1.0928,
    "smokes": 0.4,
    "total": 2.4
+  }
+ },
+ "fixed_machinery_re_runs": {
+  "date": "2026-09-24/25",
+  "machinery": "post observe-defect + path repairs; equal machinery per pair; $3.00/arm ceiling",
+  "arms": [
+   {
+    "arm": "baseline",
+    "model": "@preset/abs-medium",
+    "per_phase": [
+     0,
+     2,
+     0,
+     4,
+     5,
+     2
+    ],
+    "sum": 13,
+    "mean": 2.17,
+    "spendUsd": 0.407,
+    "wallMin": 119
+   },
+   {
+    "arm": "candidate-b2",
+    "model": "@preset/abs-medium",
+    "per_phase": [
+     0,
+     0,
+     0,
+     2,
+     2,
+     2
+    ],
+    "sum": 6,
+    "mean": 1.0,
+    "spendUsd": 0.5205,
+    "wallMin": 130
+   },
+   {
+    "arm": "baseline",
+    "model": "z-ai/glm-5.3-flash",
+    "per_phase": [
+     4,
+     5,
+     4,
+     5,
+     4,
+     2
+    ],
+    "sum": 24,
+    "mean": 4.0,
+    "spendUsd": 1.0833,
+    "wallMin": 94
+   },
+   {
+    "arm": "candidate-b2",
+    "model": "z-ai/glm-5.3-flash",
+    "per_phase": [
+     1,
+     1,
+     1,
+     3,
+     1,
+     1
+    ],
+    "sum": 8,
+    "mean": 1.33,
+    "spendUsd": 1.3535,
+    "wallMin": 108
+   }
+  ],
+  "conclusion": "B2 below baseline in both runner models (third independent pairing); GLM Flash baseline is the strongest arm recorded; runner-model results are separate axes, never pooled.",
+  "preset_baseline_arm": {
+   "date": "2026-09-25",
+   "model": "@preset/abs-glm-flash-latest",
+   "note": "machine-level pi preset added as machinery built-in card (values mirrored from ~/.pi/agent/models.json); smoke pass ($0.0222) before scored run; separate axis, not pooled with z-ai/glm-5.3-flash",
+   "per_phase": [
+    2,
+    5,
+    2,
+    5,
+    4,
+    5
+   ],
+   "sum": 23,
+   "mean": 3.83,
+   "spendUsd": 0.957,
+   "wallMin": 78,
+   "caps": "F0 boundary cap (missing coordinator handoff + 2 observe-gaps); F2 boundary cap (routing provenance missing; composition-root wrote into routing subtree)"
+  },
+  "terra_cross_validation": {
+   "validator": "openai/gpt-5.6-terra",
+   "passes": [
+    "code-only review",
+    "full-context rubric replication (complete workspace + event-derived chronology)"
+   ],
+   "means": {
+    "baseline-luna": 1.5,
+    "b2-luna": 2.0,
+    "baseline-glm": 4.5,
+    "b2-glm": 4.0
+   },
+   "notes": "Terra confirmed cap structure independently; found route-applicability defect in GLM baseline uncaught by its own passing tests; divergences: records leniency, Luna-baseline F3 provenance stricter. Durable log temp/qr2-absmed-rerun/terra-validation/README.md (untracked); raw verdicts untracked."
   }
  }
 }
