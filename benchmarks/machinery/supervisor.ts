@@ -26,6 +26,13 @@ const MODEL_CARD_GLM_FLASH = {
   contextWindow: 1310720,
   cost: { input: 0.15, output: 0.5, cacheRead: 0.05, cacheWrite: 0.25 },
 };
+// Machine-level pi preset from ~/.pi/agent/models.json (not an OpenRouter id; interactive-session-verified).
+const MODEL_CARD_GLM_FLASH_LATEST = {
+  id: "@preset/abs-glm-flash-latest", name: "ABS GLM Flash Latest", reasoning: true,
+  thinkingLevelMap: { off: null, minimal: null, low: "low", medium: null, high: "high", xhigh: null, max: "max" },
+  contextWindow: 1048576, maxTokens: 131072,
+  cost: { input: 0.045, output: 0.14, cacheRead: 0.01, cacheWrite: 0 },
+};
 const STANDARD_THINKING_MAP = { off: "none", minimal: null, low: "low", medium: "medium", high: "high", xhigh: "xhigh", max: "max" };
 
 // Derive a model card for any OpenRouter model id from the public /models list.
@@ -33,13 +40,14 @@ const STANDARD_THINKING_MAP = { off: "none", minimal: null, low: "low", medium: 
 export function modelCardFor(id: string): any {
   if (id === "@preset/abs-medium") return MODEL_CARD_PRESET;
   if (id === "z-ai/glm-5.3-flash") return MODEL_CARD_GLM_FLASH;
+  if (id === "@preset/abs-glm-flash-latest") return MODEL_CARD_GLM_FLASH_LATEST;
   const r = spawnSync("python3", ["-c",
     "import json,urllib.request;ms=json.loads(urllib.request.urlopen('https://openrouter.ai/api/v1/models',timeout=60).read())['data'];"
     + `m=[x for x in ms if x['id']==${JSON.stringify(id)}];`
     + "print(json.dumps(m[0])) if m else print('NOT_FOUND')"],
     { encoding: "utf8", timeout: 90_000 });
   if (r.status !== 0 || !r.stdout || r.stdout.trim() === "NOT_FOUND") {
-    throw new Error(`no model card for runner model ${id} (built-in cards: @preset/abs-medium, z-ai/glm-5.3-flash; OpenRouter lookup failed: ${String(r.stderr).slice(0, 200)})`);
+    throw new Error(`no model card for runner model ${id} (built-in cards: @preset/abs-medium, z-ai/glm-5.3-flash, @preset/abs-glm-flash-latest; OpenRouter lookup failed: ${String(r.stderr).slice(0, 200)})`);
   }
   const m = JSON.parse(r.stdout);
   const sp: string[] = m.supported_parameters ?? [];

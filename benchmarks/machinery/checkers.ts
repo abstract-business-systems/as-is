@@ -101,7 +101,8 @@ function sessionWrites(s: SessionRec, ws: string): { allowed: string[]; violatin
       for (const p of [...(e.changed ?? []), ...(e.added ?? []), ...(e.removed ?? [])]) written.add(p);
     }
   }
-  const m: Manifest = supRef!.manifest!;
+  const m = supRef!.manifest;
+  if (!m) return { allowed: [...written], violating: [] }; // manifest-frozen hard gate already fails the phase
   const rd = m.roles[s.tag.componentRole];
   const allowed: string[] = [];
   const violating: string[] = [];
