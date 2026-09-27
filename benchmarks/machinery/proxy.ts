@@ -4,6 +4,12 @@
 // per-request usage.cost returned by OpenRouter (with tokens*pricing contingency).
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { MODEL, REASONING, KEY_PATH } from "./config.ts";
+import { modelCardFor } from "./supervisor.ts";
+
+// Fallback per-token estimate derived from the runner's live-resolved model card.
+// Used only when OpenRouter omits usage.cost; the card's cost fields are display
+// metadata and this estimate is recorded separately from the authoritative cost.
+const CARD_COST = modelCardFor(MODEL).cost ?? { input: 0, output: 0 };
 
 function readKey(): string {
   const auth = JSON.parse(require("node:fs").readFileSync(KEY_PATH, "utf8"));
@@ -119,7 +125,7 @@ export class MachineryProxy {
         const inTok = Number(usage.prompt_tokens ?? 0);
         const outTok = Number(usage.completion_tokens ?? 0);
         const costReal = typeof usage.cost === "number" ? usage.cost : null;
-        const costEst = (inTok * 0.2 + outTok * 1.2) / 1e6;
+        const costEst = (inTok * CARD_COST.input + outTok * CARD_COST.output) / 1e6;
         const rec: RequestRecord = {
           at: new Date().toISOString(), sessionTag: sess.tag, model: String(j?.model ?? MODEL),
           status: r.status, finish: j?.choices?.[0]?.finish_reason ?? null,

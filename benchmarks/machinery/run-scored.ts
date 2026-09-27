@@ -4,6 +4,7 @@ import { mkdirSync, writeFileSync, existsSync, readFileSync, cpSync } from "node
 import { createHash } from "node:crypto";
 import { join, resolve } from "node:path";
 import { runArm, candidateAdapter, baselineAdapter } from "./run-arm.ts";
+import { modelCardFor, MODEL } from "./supervisor.ts";
 
 const arm = process.argv[2];
 const outDir = resolve(process.argv[3] ?? `/tmp/qr2-scored/${arm}`);
@@ -44,6 +45,8 @@ const adapter = arm === "candidate"
 console.log(`[scored] arm=${arm} out=${outDir} surface=${surfaceHash || "n/a"} starting ${new Date().toISOString()}`);
 const result = await runArm({ run: `scored-${Date.now()}`, adapter, fixtureSpecPath: resolve(import.meta.dir, "../fixture/fixture-spec.md"), outDir });
 result.surfaceSnapshot = { commit: surface.commit, hash: surfaceHash, files: surface.files };
+// Provenance: the exact model card the arm's sessions ran with (resolved live at launch).
+result.modelCard = modelCardFor(MODEL);
 writeFileSync(join(outDir, "arm-result.json"), JSON.stringify(result, null, 1));
 console.log(`[scored] finished: spend $${result.spendUsd.toFixed(4)} wall ${result.wallClockMin}min`);
 for (const ph of result.phaseScores ?? []) {

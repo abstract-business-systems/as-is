@@ -14,40 +14,39 @@ import {
   type SessionTag, type ExecRole, MODEL,
 } from "./config.ts";
 
-const MODEL_CARD_PRESET = {
-  id: "@preset/abs-medium", name: "ABS Medium", reasoning: true,
-  thinkingLevelMap: { off: "none", minimal: null, low: "low", medium: "medium", high: "high", xhigh: "xhigh", max: "max" },
-  contextWindow: 1050000,
-  cost: { input: 0.2, output: 1.2, cacheRead: 0.02, cacheWrite: 0.25 },
-};
-const MODEL_CARD_GLM_FLASH = {
-  id: "z-ai/glm-5.3-flash", name: "Z.ai: GLM 5.3 Flash", reasoning: true,
-  thinkingLevelMap: { off: "none", minimal: null, low: "low", medium: "medium", high: "high", xhigh: "xhigh", max: "max" },
-  contextWindow: 1310720,
-  cost: { input: 0.15, output: 0.5, cacheRead: 0.05, cacheWrite: 0.25 },
-};
-// Machine-level pi preset from ~/.pi/agent/models.json (not an OpenRouter id; interactive-session-verified).
-const MODEL_CARD_GLM_FLASH_LATEST = {
-  id: "@preset/abs-glm-flash-latest", name: "ABS GLM Flash Latest", reasoning: true,
-  thinkingLevelMap: { off: null, minimal: null, low: "low", medium: null, high: "high", xhigh: null, max: "max" },
-  contextWindow: 1048576, maxTokens: 131072,
-  cost: { input: 0.045, output: 0.14, cacheRead: 0.01, cacheWrite: 0 },
-};
+// Resolve a model card for any runner id. Preset ids (@preset/…) are machine-level pi
+// registry entries resolved live from the local runtime registry (never committed copies);
+// other ids resolve live from OpenRouter's public /models list. Cost fields are display
+// metadata only — benchmark accounting uses the per-request usage.cost returned by
+// OpenRouter (see proxy.ts), never these values.
+const PI_MODELS_JSON = process.env.QR2_PI_MODELS_JSON ?? join(require("node:os").homedir(), ".pi", "agent", "models.json");
+
+function presetCardFor(id: string): any {
+  const reg = JSON.parse(require("node:fs").readFileSync(PI_MODELS_JSON, "utf8"));
+  const find = (o: any): any => {
+    if (Array.isArray(o)) { for (const v of o) { const r = find(v); if (r) return r; } return null; }
+    if (o && typeof o === "object") {
+      if (o.id === id) return o;
+      for (const v of Object.values(o)) { const r = find(v); if (r) return r; }
+    }
+    return null;
+  };
+  const entry = find(reg);
+  if (!entry) throw new Error(`preset ${id} not found in ${PI_MODELS_JSON} (QR2_PI_MODELS_JSON env overrides)`);
+  return entry;
+}
+
 const STANDARD_THINKING_MAP = { off: "none", minimal: null, low: "low", medium: "medium", high: "high", xhigh: "xhigh", max: "max" };
 
-// Derive a model card for any OpenRouter model id from the public /models list.
-// Built-in cards take precedence (preset identity, experimentally verified runners).
 export function modelCardFor(id: string): any {
-  if (id === "@preset/abs-medium") return MODEL_CARD_PRESET;
-  if (id === "z-ai/glm-5.3-flash") return MODEL_CARD_GLM_FLASH;
-  if (id === "@preset/abs-glm-flash-latest") return MODEL_CARD_GLM_FLASH_LATEST;
+  if (id.startsWith("@preset/")) return presetCardFor(id);
   const r = spawnSync("python3", ["-c",
     "import json,urllib.request;ms=json.loads(urllib.request.urlopen('https://openrouter.ai/api/v1/models',timeout=60).read())['data'];"
     + `m=[x for x in ms if x['id']==${JSON.stringify(id)}];`
     + "print(json.dumps(m[0])) if m else print('NOT_FOUND')"],
     { encoding: "utf8", timeout: 90_000 });
   if (r.status !== 0 || !r.stdout || r.stdout.trim() === "NOT_FOUND") {
-    throw new Error(`no model card for runner model ${id} (built-in cards: @preset/abs-medium, z-ai/glm-5.3-flash, @preset/abs-glm-flash-latest; OpenRouter lookup failed: ${String(r.stderr).slice(0, 200)})`);
+    throw new Error(`no model card for runner model ${id} (preset ids resolve live from ${PI_MODELS_JSON}; OpenRouter lookup failed: ${String(r.stderr).slice(0, 200)})`);
   }
   const m = JSON.parse(r.stdout);
   const sp: string[] = m.supported_parameters ?? [];
