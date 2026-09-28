@@ -2,7 +2,7 @@
 
 ## Status and decision boundary
 
-This is a draft comparison, not an adopted architecture, skill, agent contract, runtime configuration, task record, or production authorization.
+This is a draft comparison, not an adopted architecture, skill, agent contract, runtime configuration, task record, or production authorization. The package also holds an allied deferred proposal, [public-entrypoint-invariants-principle.md](public-entrypoint-invariants-principle.md): a quality bar for any future candidate in this lineage — integration judged by cross-call invariants exercised through the public entrypoint — arising from the same round-2 evidence; it feeds the next candidate's design when this lineage resumes.
 
 The original exploration proposal is preserved verbatim at [source/proposal.md](source/proposal.md). Candidate A has a contextual record at [candidate-a-harness-backed.md](candidate-a-harness-backed.md) and its verbatim input at [source/thin-arm-harness-backed-agent.md](source/thin-arm-harness-backed-agent.md). Candidate B has a contextual record at [candidate-b-agents-isolated.md](candidate-b-agents-isolated.md) and its verbatim inputs at [source/thin-arm-agents-isolated.md](source/thin-arm-agents-isolated.md) and [source/thin-arm-agents-isolated-agent.md](source/thin-arm-agents-isolated-agent.md). The verbatim source retains its historical temporary-path recommendation internally; this grouped comparison is the discoverable package entry point. This comparison records the two tested thin-arm approaches, the current composition baseline, the portability need, and a possible productionization path without changing live behavior.
 

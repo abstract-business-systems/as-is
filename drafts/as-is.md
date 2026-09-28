@@ -31,4 +31,6 @@ Drafts are not task authority, current architecture authority, backlog authority
 ## Links
 
 - [Composable skills approach](composable-skills.md) — the current proposal for independently usable skills and master skills that compose them.
+- [Thin portable harness instruction](thin-portable-harness-instruction/comparison.md) — the preserved exploration of lean instruction profiles that could replace the current composition's instruction stack in capable hosts; holds candidates A and B, the comparison, verbatim sources, and the allied deferred public-entrypoint invariants principle.
+- [Fixture entrypoint contract](fixture-entrypoint-contract.md) — deferred proposal to state the benchmark fixture's `deliver()` return contract the probes already enforce; benchmark-fixture machinery, separate from the thin-instruction lineage.
 - [Root as-is record](../as-is.md#design) — repository-level component map and authority context.
