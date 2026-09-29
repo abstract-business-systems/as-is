@@ -4,7 +4,8 @@ import { mkdirSync, writeFileSync, existsSync, readFileSync, cpSync } from "node
 import { createHash } from "node:crypto";
 import { join, resolve } from "node:path";
 import { runArm, candidateAdapter, baselineAdapter } from "./run-arm.ts";
-import { modelCardFor, MODEL } from "./supervisor.ts";
+import { modelCardFor } from "./supervisor.ts";
+import { MODEL } from "./config.ts";
 
 const arm = process.argv[2];
 const outDir = resolve(process.argv[3] ?? `/tmp/qr2-scored/${arm}`);

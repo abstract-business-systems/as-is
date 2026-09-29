@@ -94,6 +94,31 @@ export async function runArm(opts: {
   const phaseResults: any[] = [];
   const armStart = Date.now();
   const phaseList = opts.phases ?? PHASE_ORDER;
+  // Progressive crash-recovery snapshot: rewritten after each phase and on any error,
+  // so a stopped run's completed-phase numbers survive even if arm-result.json never lands.
+  const writePartial = (extra?: Record<string, unknown>) => {
+    try {
+      writeFileSync(join(outDir, "arm-result-partial.json"), JSON.stringify({
+        run, arm: adapter.arm, startedAt: new Date(armStart).toISOString(),
+        recordedAt: new Date().toISOString(),
+        wallClockMin: Math.round((Date.now() - armStart) / 60_000),
+        spendUsd: proxy.spendArm,
+        spendByPhase: Object.fromEntries(proxy.spendByPhase),
+        phasesCompleted: phaseResults.map((p) => p.phase),
+        phaseResults,
+        manifest: sv.manifest,
+        checkpoints: sv.checkpoints,
+        delegateLog: sv.delegateLog,
+        deniedLog: sv.deniedLog,
+        sessions: [...sv.sessions.values()].map((s) => ({
+          tag: s.tag, status: s.status, spendUsd: s.spendUsd, startedAt: s.startedAt, endedAt: s.endedAt,
+          parentRole: s.tag.parentRole, level: s.tag.level, resolved: s.resolved,
+        })),
+        ...extra,
+      }, null, 1));
+    } catch (werr) { console.error(`[run-arm] partial-snapshot write failed: ${String(werr).slice(0, 200)}`); }
+  };
+  try {
   outer: for (const phase of phaseList) {
     currentPhase.v = phase;
     const plan = PHASES[phase];
@@ -146,9 +171,16 @@ export async function runArm(opts: {
     writeFileSync(join(phaseDir, "post-tree.json"), JSON.stringify(postTree, null, 1));
     writeFileSync(join(phaseDir, "check.json"), JSON.stringify(check, null, 1));
     phaseResults.push({ phase, preHash, postHash, ...check, spendUsd: proxy.spendByPhase.get(phase) ?? 0 });
+    writePartial();
     // Cascade: run all phases regardless; cap exhaustion or hard stop conditions end the arm.
     const budget = budgetFor(phase);
-    if (budget.armRemainingUsd <= 0) { phaseResults.push({ phase: "ARM-STOP", reason: "arm-ceiling-exhausted" }); break outer; }
+    if (budget.armRemainingUsd <= 0) { phaseResults.push({ phase: "ARM-STOP", reason: "arm-ceiling-exhausted" }); writePartial(); break outer; }
+  }
+  } catch (err) {
+    writePartial({ interrupted: true, error: String((err as any)?.stack ?? err).slice(0, 2000) });
+    proxy.stop();
+    sv.stop();
+    throw err;
   }
 
   const result = {

@@ -207,6 +207,7 @@ export function checkPhase(opts: {
   })();
   const preTreeHash = sha(JSON.stringify(preTree));
   for (const role of consultReqs) {
+    if (!manifest) break; // manifest-frozen hard gate already fails the phase; do not crash on null roles
     const rd = manifest.roles[role];
     if (!rd) { gates.push(g(`consultation:${role}`, false, false, "role not in manifest")); continue; }
     const stubPath = join(supRef!["runsDir"], "stubs", `${role}.md`);
@@ -236,7 +237,7 @@ export function checkPhase(opts: {
   // 7. Incremental record rule (F0 coordinator): cp1 names only the first integrated sink,
   // cp2 names both; a combined update or an out-of-order record fails.
   for (const r of opts.recordAtCheckpoint ?? []) {
-    const rd = manifest.roles[r.role];
+    const rd = manifest?.roles[r.role];
     if (!rd) continue;
     const cps = sv.checkpoints.filter((c) => sessions.find((s) => s.tag.sessionId === c.sessionId && s.tag.componentRole === r.role));
     let ok = cps.length >= 2;
