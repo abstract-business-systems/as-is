@@ -1,5 +1,5 @@
 import { join } from "node:path";
-import { Type } from "../../core/adapters/pi/node_modules/typebox";
+import { Type } from "../../core/adapters/pi/node_modules/typebox/build/index.mjs";
 import type { ToolDefinition } from "../../core/adapters/pi/node_modules/@earendil-works/pi-coding-agent";
 import { resolveLocalLinkedContext } from "../../core/modules/context-resolution/linked-context-resolver.ts";
 

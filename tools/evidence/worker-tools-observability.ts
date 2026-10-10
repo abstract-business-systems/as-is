@@ -5,7 +5,7 @@ import {
   type SessionEntry,
   type ToolDefinition,
 } from "../../core/adapters/pi/node_modules/@earendil-works/pi-coding-agent";
-import { Type } from "../../core/adapters/pi/node_modules/typebox";
+import { Type } from "../../core/adapters/pi/node_modules/typebox/build/index.mjs";
 import { resolveConfigurationFromCwdSync } from "../../core/modules/context-resolution/configuration-resolver.ts";
 import { resolveSessionDirectory } from "../../core/adapters/pi/scripts/session-directory.ts";
 import { sessionNameFromTaskName } from "../../core/adapters/pi/scripts/session-naming.ts";

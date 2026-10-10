@@ -10,7 +10,7 @@ import {
   type ToolDefinition,
   type ExtensionAPI,
 } from "../../core/adapters/pi/node_modules/@earendil-works/pi-coding-agent";
-import { Type } from "../../core/adapters/pi/node_modules/typebox";
+import { Type } from "../../core/adapters/pi/node_modules/typebox/build/index.mjs";
 import {
   analyzeProjectSession as focusedAnalyzeProjectSession,
   createSessionAnalysisTool as createFocusedSessionAnalysisTool,

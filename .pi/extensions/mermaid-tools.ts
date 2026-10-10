@@ -1,5 +1,5 @@
 import type { ExtensionAPI, ToolDefinition } from "../../core/adapters/pi/node_modules/@earendil-works/pi-coding-agent";
-import { Type } from "../../core/adapters/pi/node_modules/typebox";
+import { Type } from "../../core/adapters/pi/node_modules/typebox/build/index.mjs";
 import {
   renderMermaidBatch,
   rendererConfiguration,
